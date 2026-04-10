@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kalibrium.local/schemas/verification.schema.json",
+  "title": "Verification Output",
+  "description": "Schema do arquivo verification.json produzido pelo sub-agent verifier. Referenciado por R4 em docs/constitution.md.",
+  "type": "object",
+  "required": ["slice_id", "verdict", "timestamp", "ac_checks", "violations", "next_action"],
+  "additionalProperties": false,
+  "properties": {
+    "slice_id": {
+      "type": "string",
+      "pattern": "^slice-[0-9]{3}$",
+      "description": "Identificador do slice no formato slice-NNN"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["approved", "rejected"],
+      "description": "Veredito do verifier. Binário, sem meio-termo."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC do momento da verificação"
+    },
+    "ac_checks": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Resultado por AC declarado no spec. Deve cobrir todos os ACs de ac-list.json.",
+      "items": {
+        "type": "object",
+        "required": ["ac", "status", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "ac": {
+            "type": "string",
+            "pattern": "^AC-[0-9]{3}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "fail"]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Referência a arquivo:linha ou descrição curta do que exercita o AC"
+          }
+        }
+      }
+    },
+    "violations": {
+      "type": "array",
+      "description": "Lista de violações de P1-P9 ou R1-R10. Vazio se verdict=approved.",
+      "items": {
+        "type": "object",
+        "required": ["rule", "file", "line", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "rule": {
+            "type": "string",
+            "enum": [
+              "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9",
+              "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"
+            ]
+          },
+          "file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "enum": ["open_pr", "return_to_implementer", "escalate_human"],
+      "description": "Ação pós-verdict. approved -> open_pr. rejected 1x -> return_to_implementer. rejected 2x+ -> escalate_human (R6)."
+    }
+  },
+  "allOf": [
+    {
+      "description": "approved exige zero violations e zero ac fail",
+      "if": {
+        "properties": { "verdict": { "const": "approved" } }
+      },
+      "then": {
+        "properties": {
+          "violations": { "maxItems": 0 },
+          "next_action": { "const": "open_pr" },
+          "ac_checks": {
+            "items": {
+              "properties": {
+                "status": { "const": "pass" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "rejected NÃO pode ter next_action=open_pr",
+      "if": {
+        "properties": { "verdict": { "const": "rejected" } }
+      },
+      "then": {
+        "properties": {
+          "next_action": {
+            "enum": ["return_to_implementer", "escalate_human"]
+          }
+        }
+      }
+    }
+  ]
+}
