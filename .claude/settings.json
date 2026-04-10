@@ -79,6 +79,18 @@
           {
             "type": "command",
             "command": "bash scripts/hooks/edit-scope-check.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/settings-lock.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/hooks-lock.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/telemetry-lock.sh"
           }
         ]
       },
@@ -88,6 +100,14 @@
           {
             "type": "command",
             "command": "bash scripts/hooks/block-project-init.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/sealed-files-bash-lock.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/verifier-sandbox.sh"
           }
         ]
       },

@@ -56,19 +56,28 @@ if [ "$MODE" = "--validate" ]; then
 
   say "verdict=$VERDICT next_action=$NEXT"
 
+  # Telemetria append-only com hash-chain (item 1.3 meta-audit).
   mkdir -p ".claude/telemetry"
   touch "$TELEMETRY"
+  if ! bash "$SCRIPT_DIR/record-telemetry.sh" --verify-chain "$TELEMETRY" >/dev/null 2>&1; then
+    fail "telemetria $TELEMETRY corrompida (hash-chain inválida) — possível tampering, ver record-telemetry.sh --verify-chain"
+  fi
+
   PREV_REJECTS=$(grep '"event":"review".*"verdict":"rejected"' "$TELEMETRY" 2>/dev/null | wc -l | tr -d ' \n\r')
   PREV_REJECTS="${PREV_REJECTS:-0}"
 
-  TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   if [ "$VERDICT" = "rejected" ]; then
     CURRENT_REJECTS=$((PREV_REJECTS + 1))
   else
     CURRENT_REJECTS=0
   fi
-  printf '{"event":"review","timestamp":"%s","slice":"slice-%s","verdict":"%s","next_action":"%s","reject_count":%d}\n' \
-    "$TS" "$NNN" "$VERDICT" "$NEXT" "$CURRENT_REJECTS" >> "$TELEMETRY"
+
+  bash "$SCRIPT_DIR/record-telemetry.sh" \
+    --event=review \
+    --slice="slice-${NNN}" \
+    --verdict="$VERDICT" \
+    --next-action="$NEXT" \
+    --reject-count="$CURRENT_REJECTS" >/dev/null || fail "record-telemetry falhou"
 
   # R6 estendido ao reviewer
   if [ "$VERDICT" = "rejected" ] && [ "$CURRENT_REJECTS" -ge 2 ]; then
@@ -137,13 +146,41 @@ if [ "$VERIF_OUT" != "approved" ]; then
   fail "verifier não aprovou (verdict=$VERIF_OUT) — reviewer só roda após verifier approved (R11)"
 fi
 
+# Item 1.8 meta-audit: integridade do harness ANTES de spawnar reviewer.
+say "validando integridade do harness (item 1.8)..."
+if ! bash "$SCRIPT_DIR/hooks/hooks-lock.sh" --check; then
+  fail "harness drift detectado — reviewer NÃO será spawnado (item 1.8 meta-audit)"
+fi
+if ! bash "$SCRIPT_DIR/hooks/settings-lock.sh" --check; then
+  fail "settings.json drift detectado — reviewer NÃO será spawnado (item 1.1 meta-audit)"
+fi
+say "harness íntegro"
+
+# Item 1.9 meta-audit: sanitize-input antes de copiar para o sandbox do reviewer.
+say "sanitizando spec.md + glossário (item 1.9)..."
+if ! bash "$SCRIPT_DIR/sanitize-input.sh" --check "$SLICE_DIR/spec.md"; then
+  fail "spec.md contém padrões de prompt injection — corrija antes de re-rodar"
+fi
+if [ -f docs/glossary-domain.md ]; then
+  if ! bash "$SCRIPT_DIR/sanitize-input.sh" --check docs/glossary-domain.md; then
+    fail "docs/glossary-domain.md contém padrões de prompt injection — corrija antes de re-rodar"
+  fi
+fi
+say "inputs limpos"
+
 # Limpa e recria review-input/
 rm -rf "$INPUT_DIR"
 mkdir -p "$INPUT_DIR"
 
-cp "$SLICE_DIR/spec.md" "$INPUT_DIR/spec.md"
+bash "$SCRIPT_DIR/sanitize-input.sh" --wrap "$SLICE_DIR/spec.md" "$INPUT_DIR/spec.md" || \
+  fail "sanitize-input --wrap (spec) falhou"
 cp docs/constitution.md "$INPUT_DIR/constitution-snapshot.md"
-cp docs/glossary-domain.md "$INPUT_DIR/glossary-snapshot.md"
+if [ -f docs/glossary-domain.md ]; then
+  bash "$SCRIPT_DIR/sanitize-input.sh" --wrap docs/glossary-domain.md "$INPUT_DIR/glossary-snapshot.md" || \
+    fail "sanitize-input --wrap (glossary) falhou"
+else
+  echo "(glossário ausente)" > "$INPUT_DIR/glossary-snapshot.md"
+fi
 
 # Diff do slice contra main (ou base)
 if git rev-parse --verify main >/dev/null 2>&1; then

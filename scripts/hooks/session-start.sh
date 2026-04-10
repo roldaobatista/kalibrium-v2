@@ -83,6 +83,28 @@ for d in ".claude/telemetry" ".claude/snapshots" "docs/audits" "docs/incidents" 
   fi
 done
 
+# ---------- 4.5. Drift checks (meta-audit 2026-04-10 itens 1.1, 1.2) ----------
+# settings-lock --check: valida que .claude/settings.json não foi alterado
+# fora do fluxo autorizado de relock-harness.sh.
+if [ -f scripts/hooks/settings-lock.sh ]; then
+  if bash scripts/hooks/settings-lock.sh --check >/tmp/settings-lock-check.out 2>&1; then
+    ok "settings-lock --check: settings.json íntegro"
+  else
+    err "settings-lock --check FAIL"
+    sed 's/^/  /' /tmp/settings-lock-check.out >&2
+  fi
+fi
+
+# hooks-lock --check: valida MANIFEST.sha256 contra hashes correntes de scripts/hooks/.
+if [ -f scripts/hooks/hooks-lock.sh ]; then
+  if bash scripts/hooks/hooks-lock.sh --check >/tmp/hooks-lock-check.out 2>&1; then
+    ok "hooks-lock --check: scripts/hooks/ íntegro"
+  else
+    err "hooks-lock --check FAIL"
+    sed 's/^/  /' /tmp/hooks-lock-check.out >&2
+  fi
+fi
+
 # ---------- 5. Resultado ----------
 if [ "$ERRORS" -eq 0 ]; then
   # Formato JSON que o Claude Code interpreta como mensagem de sistema

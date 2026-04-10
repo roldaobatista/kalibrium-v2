@@ -48,6 +48,38 @@ case "$AUTHOR_EMAIL" in
     ;;
 esac
 
+# Padrões automáticos universalmente bloqueados (smoke-test-*, *-bot, etc.)
+case "$AUTHOR_NAME" in
+  smoke-test-*|*-bot|*\[bot\])
+    # Exceções já tratadas dentro do allowlist abaixo (dependabot, renovate)
+    : ;;
+esac
+
+# ---------- 2.1. R5 — allowlist explícita (item 1.7 meta-audit) ----------
+ALLOWLIST=".claude/allowed-git-identities.txt"
+if [ ! -f "$ALLOWLIST" ]; then
+  die "R5: $ALLOWLIST ausente — relock o harness para regenerar"
+fi
+
+# Formato esperado por linha: "Nome <email>"  (linhas começando com # são comentário)
+# Match exato por linha (case-insensitive). Falha-fechado.
+IDENTITY="$AUTHOR_NAME <$AUTHOR_EMAIL>"
+ALLOWED=0
+while IFS= read -r line; do
+  # Skip blank lines and comments
+  case "$line" in
+    ''|\#*) continue ;;
+  esac
+  if [ "$(echo "$line" | tr '[:upper:]' '[:lower:]')" = "$(echo "$IDENTITY" | tr '[:upper:]' '[:lower:]')" ]; then
+    ALLOWED=1
+    break
+  fi
+done < "$ALLOWLIST"
+
+if [ "$ALLOWED" -eq 0 ]; then
+  die "R5: identidade '$IDENTITY' não está em $ALLOWLIST (item 1.7 meta-audit)"
+fi
+
 # ---------- 3. Mensagem ----------
 # Extrai a mensagem do comando (aceita -m "..." ou heredoc)
 MSG="$(echo "$CMD" | grep -oE -- "-m [\"'][^\"']+[\"']" | head -1 | sed -E 's/-m ["'"'"']//;s/["'"'"']$//' || true)"

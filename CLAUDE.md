@@ -172,13 +172,83 @@ Detalhes em `.claude/agents/*.md`. Nunca adicionar novo sub-agent sem ADR justif
 
 ---
 
-## 9. Em caso de dúvida
+## 9. Como atualizar um hook ou settings.json (pós-Bloco 1)
+
+A partir do meta-audit 2026-04-10 (Bloco 1), os arquivos críticos do harness são **selados** e não podem ser modificados pelo agente Claude Code:
+
+- `.claude/settings.json`
+- `.claude/settings.json.sha256`
+- `.claude/allowed-git-identities.txt`
+- `.claude/git-identity-baseline`
+- `scripts/hooks/MANIFEST.sha256`
+- Qualquer arquivo dentro de `scripts/hooks/`
+- Qualquer arquivo dentro de `.claude/telemetry/` (append-only via `scripts/record-telemetry.sh`)
+
+**O agente NÃO pode editar esses arquivos via `Edit`/`Write` nem via `Bash` (`echo >>`, `sed -i`, `tee`, `cp`, `mv`).** Os hooks `settings-lock.sh`, `hooks-lock.sh`, `telemetry-lock.sh` e `sealed-files-bash-lock.sh` bloqueiam todas as tentativas mecanicamente.
+
+### Procedimento legítimo de alteração (PM, em terminal externo)
+
+```bash
+# 1. Saia do Claude Code (encerre a sessão atual).
+# 2. Em terminal externo (bash, fora do agente):
+cd /c/PROJETOS/saas/kalibrium-v2
+
+# 3. Edite o arquivo manualmente com seu editor preferido.
+#    Exemplo: vim scripts/hooks/post-edit-gate.sh
+
+# 4. Regenere os selos (4 camadas de salvaguarda):
+KALIB_RELOCK_AUTHORIZED=1 bash scripts/relock-harness.sh
+#    O script vai pedir você digitar "RELOCK" para confirmar.
+#    Cria automaticamente docs/incidents/harness-relock-<timestamp>.md
+#    com o operador, host, hashes antes/depois e lista de hooks.
+
+# 5. Stage tudo + commit (pre-commit-gate vai validar normalmente):
+git add scripts/hooks/post-edit-gate.sh \
+        scripts/hooks/MANIFEST.sha256 \
+        .claude/settings.json.sha256 \
+        docs/incidents/harness-relock-*.md
+git commit -m "chore(harness): atualiza post-edit-gate.sh + relock"
+
+# 6. Volte ao Claude Code. SessionStart valida automaticamente:
+#    - settings-lock --check (confirma .claude/settings.json.sha256 bate)
+#    - hooks-lock --check (confirma scripts/hooks/MANIFEST.sha256 bate)
+#    Se algum drift for detectado, a sessão aborta.
+```
+
+### Salvaguardas do `relock-harness.sh`
+
+| Camada | O que valida |
+|---|---|
+| 1 | `KALIB_RELOCK_AUTHORIZED=1` no environment |
+| 2 | `[ -t 0 ]` — stdin é TTY interativa (Bash tool do Claude Code não conecta TTY real) |
+| 3 | Confirmação por digitação literal `RELOCK` |
+| 4 | Criação automática de `docs/incidents/harness-relock-<timestamp>.md` (auditável) |
+
+Todas as 4 camadas precisam passar. Tentativa do agente de invocar relock via Bash falha em pelo menos a camada 2 (TTY).
+
+### Para mover o `git-identity-baseline`
+
+Mesmo procedimento (relock-harness.sh) — o baseline é selado pelo `settings-lock.sh`. Edite o SHA manualmente, rode relock, commite. Veja `docs/harness-limitations.md` para a política do baseline.
+
+### Em caso de drift detectado em produção
+
+`session-start.sh` chama `settings-lock --check` e `hooks-lock --check` automaticamente em todo SessionStart. Se drift for detectado:
+
+1. **Não tente "consertar com relock"** — investigue primeiro como a mudança ocorreu.
+2. Verifique `git status .claude/ scripts/hooks/` — talvez o arquivo foi tocado fora do Claude Code (edição manual sem relock).
+3. Verifique `docs/incidents/` — o último relock legítimo está lá.
+4. Se a alteração for legítima mas ficou sem relock: rode `relock-harness.sh`.
+5. Se a alteração NÃO for legítima: trate como incidente de segurança, abra um arquivo em `docs/incidents/harness-tampering-YYYY-MM-DD.md`, e investigue antes de qualquer ação.
+
+---
+
+## 10. Em caso de dúvida
 
 **Parar e perguntar.** Não assumir. Não "continuar na mesma linha" se o fundamento está duvidoso. Não escolher opção por omissão quando há trade-off relevante. Drift silencioso é o principal modo de falha do V1.
 
 ---
 
-## 10. Operações destrutivas
+## 11. Operações destrutivas
 
 Nunca executar sem confirmação humana explícita:
 - `git reset --hard`, `git push --force`, `git clean -fdx`, `git checkout -- .`

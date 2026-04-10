@@ -31,6 +31,12 @@ verification-input/
 .claude/telemetry/*.jsonl
 !.claude/telemetry/.gitkeep
 
+# ---------- Artefatos gerados pelo /guide-check (regenerados a cada execução) ----------
+docs/audits/audit-*.md
+
+# ---------- Snapshots internos do guide-check ----------
+.claude/snapshots/
+
 # ---------- Build/vendored (stack-agnóstico) ----------
 node_modules/
 vendor/

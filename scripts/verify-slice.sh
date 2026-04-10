@@ -57,22 +57,31 @@ if [ "$MODE" = "--validate" ]; then
 
   say "verdict=$VERDICT next_action=$NEXT"
 
-  # Conta rejeições anteriores na telemetria (R6)
+  # Telemetria append-only com hash-chain (item 1.3 meta-audit).
+  # Valida cadeia ANTES de contar — tampering = abort.
   mkdir -p ".claude/telemetry"
   touch "$TELEMETRY"
-  # wc -l é seguro contra arquivos vazios (sempre retorna número), grep -c + || echo produz "0\n0" corrompido
+  if ! bash "$SCRIPT_DIR/record-telemetry.sh" --verify-chain "$TELEMETRY" >/dev/null 2>&1; then
+    fail "telemetria $TELEMETRY corrompida (hash-chain inválida) — possível tampering, ver record-telemetry.sh --verify-chain"
+  fi
+
+  # Conta rejeições anteriores (R6) — agora confiável porque a cadeia foi validada
   PREV_REJECTS=$(grep '"event":"verify".*"verdict":"rejected"' "$TELEMETRY" 2>/dev/null | wc -l | tr -d ' \n\r')
   PREV_REJECTS="${PREV_REJECTS:-0}"
 
-  # Grava evento atual
-  TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   if [ "$VERDICT" = "rejected" ]; then
     CURRENT_REJECTS=$((PREV_REJECTS + 1))
   else
     CURRENT_REJECTS=0
   fi
-  printf '{"event":"verify","timestamp":"%s","slice":"slice-%s","verdict":"%s","next_action":"%s","reject_count":%d}\n' \
-    "$TS" "$NNN" "$VERDICT" "$NEXT" "$CURRENT_REJECTS" >> "$TELEMETRY"
+
+  # Grava evento via record-telemetry.sh (único caminho autorizado; telemetry-lock.sh bloqueia tools)
+  bash "$SCRIPT_DIR/record-telemetry.sh" \
+    --event=verify \
+    --slice="slice-${NNN}" \
+    --verdict="$VERDICT" \
+    --next-action="$NEXT" \
+    --reject-count="$CURRENT_REJECTS" >/dev/null || fail "record-telemetry falhou"
 
   # R6: 2 rejeições consecutivas = escalar humano
   if [ "$VERDICT" = "rejected" ] && [ "$CURRENT_REJECTS" -ge 2 ]; then
@@ -138,12 +147,33 @@ fi
 [ ! -f "$SLICE_DIR/spec.md" ] && fail "$SLICE_DIR/spec.md ausente"
 [ ! -f "$SLICE_DIR/plan.md" ] && fail "$SLICE_DIR/plan.md ausente"
 
+# Item 1.8 meta-audit: integridade do harness ANTES de spawnar verifier.
+# Substitui a instrução-de-prompt original ("verifier checa git diff main...")
+# por enforcement real: se o MANIFEST drifou, o verifier nem é spawnado.
+say "validando integridade do harness (item 1.8)..."
+if ! bash "$SCRIPT_DIR/hooks/hooks-lock.sh" --check; then
+  fail "harness drift detectado — verifier NÃO será spawnado (item 1.8 meta-audit)"
+fi
+if ! bash "$SCRIPT_DIR/hooks/settings-lock.sh" --check; then
+  fail "settings.json drift detectado — verifier NÃO será spawnado (item 1.1 meta-audit)"
+fi
+say "harness íntegro"
+
+# Item 1.9 meta-audit: sanitize-input ANTES de copiar spec para o sandbox.
+# Falha-fechado: spec com prompt injection é rejeitado aqui — verifier nem é spawnado.
+say "sanitizando spec.md (item 1.9)..."
+if ! bash "$SCRIPT_DIR/sanitize-input.sh" --check "$SLICE_DIR/spec.md"; then
+  fail "spec.md contém padrões de prompt injection — corrija antes de re-rodar"
+fi
+say "spec.md limpo"
+
 # Limpa e recria verification-input
 rm -rf "$INPUT_DIR"
 mkdir -p "$INPUT_DIR"
 
-# 1. Copia spec e constitution snapshot
-cp "$SLICE_DIR/spec.md" "$INPUT_DIR/spec.md"
+# 1. Copia spec envelopado em XML CDATA + constitution snapshot
+bash "$SCRIPT_DIR/sanitize-input.sh" --wrap "$SLICE_DIR/spec.md" "$INPUT_DIR/spec.md" || \
+  fail "sanitize-input --wrap falhou"
 cp docs/constitution.md "$INPUT_DIR/constitution-snapshot.md"
 
 # 2. Extrai AC-list do spec.md para ac-list.json

@@ -50,17 +50,48 @@ else
   fi
 fi
 
-# ---------- Check 3: autores suspeitos ----------
+# ---------- Check 3: autores fora do allowlist (R5 + item 1.7 meta-audit) ----------
+# Audita apenas commits no range ${baseline}..HEAD. Commits anteriores ao
+# baseline são débito bootstrap anistiado em docs/harness-limitations.md
+# (decisão PM Q1 do meta-audit 2026-04-10).
 echo "" >> "$OUT"
-echo "### [CHECK-3] R5 — autores de commit" >> "$OUT"
-SUSPECT="$(git log --format='%an <%ae>' -n 50 2>/dev/null | grep -iE '(auto-|\[bot\]|noreply)' || true)"
-if [ -z "$SUSPECT" ]; then
-  pass "nenhum autor suspeito nos últimos 50 commits"
+echo "### [CHECK-3] R5 — autores de commit vs allowlist (range \${baseline}..HEAD)" >> "$OUT"
+ALLOWLIST=".claude/allowed-git-identities.txt"
+BASELINE_FILE=".claude/git-identity-baseline"
+
+if [ ! -f "$ALLOWLIST" ]; then
+  fail "$ALLOWLIST ausente — pre-commit-gate não tem fonte de verdade para R5"
+elif [ ! -f "$BASELINE_FILE" ]; then
+  fail "$BASELINE_FILE ausente — CHECK-3 não tem baseline de auditoria"
 else
-  echo '  ```' >> "$OUT"
-  echo "$SUSPECT" >> "$OUT"
-  echo '  ```' >> "$OUT"
-  fail "autores suspeitos encontrados"
+  # Extrai SHA do baseline (primeira linha não-comentário, não-vazia)
+  BASELINE_SHA="$(grep -vE '^[[:space:]]*(#|$)' "$BASELINE_FILE" | head -1 | tr -d '[:space:]')"
+  if [ -z "$BASELINE_SHA" ]; then
+    fail "$BASELINE_FILE não contém SHA válido"
+  elif ! git rev-parse --verify "$BASELINE_SHA" >/dev/null 2>&1; then
+    fail "baseline SHA $BASELINE_SHA não existe no repo (corrompido?)"
+  else
+    # Constrói lista normalizada de identidades permitidas (lowercase, sem comentários/blanks)
+    ALLOWED_LIST="$(grep -vE '^[[:space:]]*(#|$)' "$ALLOWLIST" | tr '[:upper:]' '[:lower:]')"
+    # Identidades únicas APENAS no range ${baseline}..HEAD (exclui débito anistiado)
+    RECENT="$(git log "${BASELINE_SHA}..HEAD" --format='%an <%ae>' 2>/dev/null | sort -u || true)"
+    SCOPE_COUNT="$(git log "${BASELINE_SHA}..HEAD" --format='%h' 2>/dev/null | wc -l | tr -d ' ')"
+    ROGUE=""
+    while IFS= read -r ident; do
+      [ -z "$ident" ] && continue
+      if ! printf '%s\n' "$ALLOWED_LIST" | grep -qFx "$(echo "$ident" | tr '[:upper:]' '[:lower:]')"; then
+        ROGUE="$ROGUE$ident\n"
+      fi
+    done <<< "$RECENT"
+    if [ -z "$ROGUE" ]; then
+      pass "todas as ${SCOPE_COUNT} identidades em \${baseline}..HEAD estão no allowlist (baseline=${BASELINE_SHA:0:12})"
+    else
+      echo '  ```' >> "$OUT"
+      echo -e "$ROGUE" >> "$OUT"
+      echo '  ```' >> "$OUT"
+      fail "identidades fora do allowlist no range \${baseline}..HEAD (item 1.7 meta-audit)"
+    fi
+  fi
 fi
 
 # ---------- Check 4: bypass history ----------
