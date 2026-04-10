@@ -1,0 +1,52 @@
+# ---------- Segredos (R9 + defesa em profundidade) ----------
+.env
+.env.*
+!.env.example
+!.env.testing.example
+credentials.*
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+
+# ---------- Fontes de instrução proibidas (R1) ----------
+# (gitignore é belt+suspenders junto com session-start.sh)
+.cursorrules
+AGENTS.md
+GEMINI.md
+copilot-instructions.md
+.windsurfrules
+.aider.conf.yml
+.bmad-core/
+.agents/
+.cursor/
+.continue/
+
+# ---------- Worktrees temporárias (verifier) ----------
+verification-input/
+.verify-*.tmp/
+
+# ---------- Telemetria efêmera ----------
+.claude/telemetry/*.jsonl
+!.claude/telemetry/.gitkeep
+
+# ---------- Build/vendored (stack-agnóstico) ----------
+node_modules/
+vendor/
+dist/
+build/
+target/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+coverage/
+.nyc_output/
+
+# ---------- IDE ----------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
