@@ -83,6 +83,27 @@ run_test "verifier-sandbox permite verification-input/" 0 \
   env CLAUDE_AGENT_NAME=verifier CLAUDE_TOOL_ARG_FILE="verification-input/spec.md" \
   bash scripts/hooks/verifier-sandbox.sh
 
+# R11 — reviewer em contexto isolado independente do verifier
+run_test "verifier-sandbox permite review-input/ quando reviewer" 0 \
+  env CLAUDE_AGENT_NAME=reviewer CLAUDE_TOOL_ARG_FILE="review-input/spec.md" \
+  bash scripts/hooks/verifier-sandbox.sh
+
+run_test "verifier-sandbox bloqueia verification-input/ quando reviewer (R11)" 1 \
+  env CLAUDE_AGENT_NAME=reviewer CLAUDE_TOOL_ARG_FILE="verification-input/spec.md" \
+  bash scripts/hooks/verifier-sandbox.sh
+
+run_test "verifier-sandbox bloqueia verification.json quando reviewer (R11)" 1 \
+  env CLAUDE_AGENT_NAME=reviewer CLAUDE_TOOL_ARG_FILE="specs/001/verification.json" \
+  bash scripts/hooks/verifier-sandbox.sh
+
+run_test "verifier-sandbox bloqueia plan.md quando reviewer (R11)" 1 \
+  env CLAUDE_AGENT_NAME=reviewer CLAUDE_TOOL_ARG_FILE="specs/001/plan.md" \
+  bash scripts/hooks/verifier-sandbox.sh
+
+run_test "verifier-sandbox bloqueia review.json quando verifier (R11)" 1 \
+  env CLAUDE_AGENT_NAME=verifier CLAUDE_TOOL_ARG_FILE="specs/001/review.json" \
+  bash scripts/hooks/verifier-sandbox.sh
+
 # ---------- 4. read-secrets-block.sh ----------
 echo "[4/12] read-secrets-block.sh"
 run_test "read-secrets-block permite .md comum" 0 \
