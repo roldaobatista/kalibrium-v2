@@ -1,0 +1,8 @@
+# MCP servers autorizados para este projeto (R1-adjacente).
+# Uma entrada por linha. Linhas iniciadas com # são comentários.
+# /mcp-check valida que apenas estes estão ativos.
+# Adição requer commit com mensagem chore(harness): adiciona MCP <nome> (ref: ADR-NNNN)
+
+plugin:context-mode:context-mode
+plugin:context7:context7
+plugin:github:github
