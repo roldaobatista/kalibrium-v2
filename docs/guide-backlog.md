@@ -21,6 +21,24 @@ Itens resolvidos movem para o histórico no final.
 - **Ação:** quando stack estiver definida, configurar GitHub Actions (ou equivalente) rodando lint + types + suite full + security scan.
 - **Status:** **bloqueado por ADR-0001**. Item ativo no Dia 1.
 
+### [B-009] GitHub Action para auto-aprovar PR quando verifier + reviewer passam
+
+- **Origem:** Fase 2 (R11). Hoje o merge de PR requer admin bypass do owner, o que é aceitável mas não ideal.
+- **Ação:** criar `.github/workflows/auto-approve.yml` que:
+  1. Roda quando um PR é aberto em `main`
+  2. Lê `specs/NNN/verification.json` e `specs/NNN/review.json` da branch do PR
+  3. Valida ambos contra os schemas (R4 e R11)
+  4. Se ambos têm `verdict: approved` → adiciona approval automática via bot e mergeia
+  5. Se algum falha → deixa PR aberto com comentário explicando
+- **Pré-requisito:** GitHub App ou PAT com permissão de approve. Preferir App.
+- **Status:** aberto. Pode ser feito após o primeiro slice real.
+
+### [B-010] Tradução automática técnica → linguagem de produto
+
+- **Origem:** R12. `explain-slice.sh` hoje cria apenas template com placeholders que o agente principal preenche manualmente.
+- **Ação:** criar helper que lê `verification.json` + `review.json` + `spec.md` e **automaticamente** traduz findings técnicos para linguagem de produto usando um prompt estruturado de tradução (pode ser um mini sub-agent `translator-pm`).
+- **Status:** aberto. Depende de ter o primeiro slice real para calibrar o tradutor.
+
 ---
 
 ## Resolvido
