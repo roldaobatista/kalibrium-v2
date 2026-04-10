@@ -1,8 +1,12 @@
 # Constituição do Kalibrium V2
 
-**Versão:** 1.0.0 — 2026-04-10
+**Versão:** 1.1.0 — 2026-04-10 (adiciona R11 + R12 — modelo humano=PM)
 **Status:** vigente
 **Alteração:** permitida **apenas** via ADR + retrospectiva documentada (§5)
+
+## Histórico de versões
+- **1.1.0** (2026-04-10) — adiciona R11 (dual-verifier) e R12 (linguagem de produto) após incident do PR #1. Modelo operacional agora reconhece que o humano do projeto é **Product Manager, não desenvolvedor**. Ver `docs/incidents/pr-1-admin-merge.md`.
+- **1.0.0** (2026-04-10) — inicial (P1-P9, R1-R10, DoD, §5 amendment)
 
 ---
 
@@ -154,6 +158,46 @@ Comandos de inicialização de projeto bloqueados enquanto `docs/adr/0001-stack-
 - `bun create`, `deno init`
 
 **Enforcement:** `block-project-init.sh` via `PreToolUse Bash`.
+
+### R11. Dual-verifier quando humano não é técnico
+Este projeto opera no modo **"humano = Product Manager, agentes = equipe técnica completa"**. O único humano ativo (roldaobatista) não revisa código tecnicamente. Para compensar a ausência de review humana substantiva:
+
+- O sub-agent `verifier` (R3/R4) valida **correção mecânica** (ACs verdes + DoD + violações de P/R) em contexto isolado A (`verification-input/`).
+- O sub-agent `reviewer` (novo) valida **qualidade estrutural** (duplicação, segurança, nomes, aderência ao glossary, coerência com ADRs) em contexto isolado B (`review-input/`).
+- **Ambos devem emitir `verdict: approved`** antes do merge automático.
+- **Nenhum dos dois pode ler o output do outro.** Reviewer não vê `verification.json`; verifier não vê `review.json`. Ordem: verifier roda primeiro; se aprova, reviewer é invocado; se reviewer também aprova, merge acontece.
+- **Discordância** (verifier approve + reviewer reject, ou vice-versa): escalar ao humano via `/explain-slice` em linguagem de produto (R12).
+- **Duas rejeições consecutivas do reviewer** (equivalente a R6 para reviewer) → `next_action: escalate_human` + incident file.
+
+Schemas JSON independentes:
+- `docs/schemas/verification.schema.json` — output do verifier
+- `docs/schemas/review.schema.json` — output do reviewer
+
+**Enforcement:**
+- `scripts/hooks/verifier-sandbox.sh` bloqueia `Read|Grep|Glob` em `verification-input/` quando `CLAUDE_AGENT_NAME=reviewer`, e em `review-input/` quando `CLAUDE_AGENT_NAME=verifier`.
+- `scripts/review-slice.sh` em modo `prepare` aborta se `verification.json` do slice não existir ou tiver `verdict != approved`.
+- `scripts/validate-review.sh` rejeita outputs fora do schema R4/R11.
+
+### R12. Recomendações ao humano em linguagem de produto
+Toda saída do harness destinada ao humano (PM) deve ser em **linguagem de produto**, nunca técnica.
+
+**Vocabulário permitido:** funcionalidade, tela, botão, formulário, campo, cliente, usuário, cadastro, login, senha, certificado, relatório, PDF, planilha, exportação, lista, filtro, ordenação, busca, notificação, e-mail, WhatsApp, alerta, cálculo, valor, total, percentual, desconto, "funciona", "pronto", "faltou", "deu erro".
+
+**Vocabulário proibido** (quando comunicando com o humano PM):
+- `class`, `function`, `method`, `endpoint`
+- `schema`, `migration`, `seed`, `fixture`
+- `refactor`, `dependency`, `import`, `module`
+- `async`, `callback`, `promise`
+- `PR`, `commit`, `branch`, `merge`, `rebase`
+- `types`, `interface`, `generic`
+- `SQL`, `query`, `JOIN`, `transaction`
+- Exceção: em `docs/` técnicos (constitution, audits, incidents, ADRs) que o humano não consulta no dia-a-dia — ali o vocabulário técnico é permitido.
+
+**Skills obrigatórias para tradução:**
+- `/explain-slice NNN` — relatório de slice em PT-BR
+- `/decide-stack` — ADR-0001 com opções em linguagem de produto
+
+**Enforcement:** cultural + `guide-auditor` pode adicionar check futuro que faz grep de vocabulário proibido em `docs/explanations/` e `docs/adr/0001-stack-choice.md`.
 
 ---
 

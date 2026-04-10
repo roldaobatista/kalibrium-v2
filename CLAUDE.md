@@ -41,7 +41,7 @@ Detalhes completos em `docs/constitution.md §2`. Lista curta para consulta ráp
 
 ---
 
-## 3. Regras não-negociáveis (R1-R10 — resumo)
+## 3. Regras não-negociáveis (R1-R12 — resumo)
 
 Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 
@@ -55,6 +55,38 @@ Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 - **R8** — Budget de tokens declarado por sub-agent.
 - **R9** — Zero bypass de gate.
 - **R10** — Stack só via ADR.
+- **R11** — Dual-verifier (verifier + reviewer independentes) quando humano não é técnico.
+- **R12** — Recomendações ao humano em linguagem de produto, não técnica.
+
+## 3.1. Modelo operacional: humano = Product Manager
+
+**IMPORTANTE:** o único humano ativo neste projeto é **Product Manager, não desenvolvedor**. Ele:
+
+- ✅ Descreve o que o produto precisa fazer (em português, linguagem natural)
+- ✅ Aceita ou recusa recomendações do agente (sim/não, sem precisar entender código)
+- ✅ Testa o produto visualmente quando houver UI
+- ✅ Aprova deploy final
+- ❌ **Não** faz review técnica de código
+- ❌ **Não** escolhe trade-offs arquiteturais sem recomendação forte do agente
+- ❌ **Não** decide escalações R6 sem relatório traduzido via `/explain-slice`
+
+**Consequências operacionais:**
+
+1. **Toda saída para o humano passa pelo tradutor R12.** Skills `/explain-slice` e `/decide-stack` fazem isso. Nunca apresentar verification.json cru, plan.md cru, ou stack trace ao humano.
+
+2. **Review de PR é feita por 2 sub-agents em contextos isolados** (R11): verifier + reviewer. Ambos devem aprovar antes do merge automático. Nenhum vê output do outro.
+
+3. **Decisões arquiteturais (ADRs)** chegam ao humano como "minha recomendação forte é X, alternativas B e C estão aqui, você marca qual aceita". Exemplo: `/decide-stack` gera ADR-0001 pronto pra decisão de produto.
+
+4. **Escalações R6** (verifier ou reviewer reprovou 2x) **obrigatoriamente** invocam `/explain-slice NNN` para traduzir o problema em linguagem de produto antes de mostrar ao humano.
+
+5. **Admin merge do humano (owner)** é um recurso registrado no ruleset como bypass permitido (ver `docs/incidents/pr-1-admin-merge.md` §Correção permanente). Fica auditável no log do GitHub. Usar apenas quando ambos os verificadores concordam — nunca para bypassar rejeições.
+
+**Como agente, você deve:**
+- Ao gerar qualquer conteúdo destinado ao humano, aplicar o vocabulário permitido de R12.
+- Ao terminar um slice, rodar `/review-pr NNN` após `/verify-slice NNN` — ambos devem aprovar.
+- Nunca pedir ao humano para "revisar o diff" ou "olhar o plan.md".
+- Sempre oferecer próximo passo único e claro ("aceitar A", "testar na tela X", "decidir entre sim/não").
 
 ---
 
@@ -113,7 +145,10 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 |---|---|
 | Criar slice | `/new-slice NNN "título"` |
 | Criar ADR | `/adr NNN "título"` |
-| Verificar slice | `/verify-slice NNN` |
+| Verificar slice (mecânico) | `/verify-slice NNN` |
+| **Revisar slice (estrutural, R11)** | **`/review-pr NNN`** |
+| **Traduzir slice para PM (R12)** | **`/explain-slice NNN`** |
+| **Gerar ADR-0001 para PM (R10+R12)** | **`/decide-stack`** |
 | Auditoria do harness | `/guide-check` |
 | Relatório de slice | `/slice-report NNN` |
 | Retrospectiva | `/retrospective NNN` |
@@ -124,12 +159,13 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ## 8. Sub-agents disponíveis
 
-| Nome | Papel | Budget de tokens |
+| Nome | Papel | Budget |
 |---|---|---|
 | `architect` | Gera plan.md a partir de spec.md | 30k |
 | `ac-to-test` | Gera testes red a partir de ACs | 40k |
 | `implementer` | Faz testes red virarem verdes | 80k |
-| `verifier` | Valida slice em worktree isolada, emite JSON | 25k |
+| `verifier` | Valida slice em worktree isolada, emite `verification.json` | 25k |
+| `reviewer` | Revisa slice em worktree isolada **independente** do verifier, emite `review.json` (R11) | 30k |
 | `guide-auditor` | Auditor periódico de drift | 15k |
 
 Detalhes em `.claude/agents/*.md`. Nunca adicionar novo sub-agent sem ADR justificando.
