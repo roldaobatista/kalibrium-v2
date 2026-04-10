@@ -36,12 +36,29 @@ run_test() {
 echo "=== smoke-test-scripts ==="
 echo ""
 
-# Garante estado mínimo de git
+# Salva config git original para restaurar no trap
+ORIG_GIT_NAME="$(git config --local user.name 2>/dev/null || echo '')"
+ORIG_GIT_EMAIL="$(git config --local user.email 2>/dev/null || echo '')"
+
+# Override local APENAS durante os testes
 git config --local user.name "smoke-test-user" 2>/dev/null || true
 git config --local user.email "smoke@test.local" 2>/dev/null || true
 
+restore_git_config() {
+  if [ -n "${ORIG_GIT_NAME:-}" ]; then
+    git config --local user.name "$ORIG_GIT_NAME" 2>/dev/null || true
+  else
+    git config --local --unset user.name 2>/dev/null || true
+  fi
+  if [ -n "${ORIG_GIT_EMAIL:-}" ]; then
+    git config --local user.email "$ORIG_GIT_EMAIL" 2>/dev/null || true
+  else
+    git config --local --unset user.email 2>/dev/null || true
+  fi
+}
+
 FIX="$(mktemp -d -t kalib-scripts.XXXXXX)"
-trap 'rm -rf "$FIX"; rm -f /tmp/smoke-scripts-out.txt' EXIT
+trap 'rm -rf "$FIX"; rm -f /tmp/smoke-scripts-out.txt; restore_git_config' EXIT
 
 # ======================================================================
 # validate-verification.sh

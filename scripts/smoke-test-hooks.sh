@@ -136,9 +136,14 @@ run_test "post-edit-gate arquivo inexistente permite" 0 \
 
 # ---------- 8. pre-commit-gate.sh ----------
 echo "[8/12] pre-commit-gate.sh"
-# Garante que autor está configurado minimamente
-git config --local user.name "smoke-test-user" 2>/dev/null || true
-git config --local user.email "smoke@test.local" 2>/dev/null || true
+
+# --- Salva config git original (será restaurada ao final da seção) ---
+ORIG_GIT_NAME="$(git config --local user.name 2>/dev/null || echo '')"
+ORIG_GIT_EMAIL="$(git config --local user.email 2>/dev/null || echo '')"
+
+# Sobrescreve localmente APENAS durante os testes. Cleanup no final da seção.
+git config --local user.name "smoke-test-user"
+git config --local user.email "smoke@test.local"
 
 run_test "pre-commit-gate comando inocente permite" 0 \
   env CLAUDE_TOOL_ARG_COMMAND='git commit -m "docs: foo"' bash scripts/hooks/pre-commit-gate.sh
@@ -147,14 +152,26 @@ run_test "pre-commit-gate bloqueia --no-verify" 1 \
   env CLAUDE_TOOL_ARG_COMMAND='git commit --no-verify -m "docs: foo"' bash scripts/hooks/pre-commit-gate.sh
 
 # Autor auto-*
-git config --local user.name "auto-bot" 2>/dev/null
+git config --local user.name "auto-bot"
 run_test "pre-commit-gate bloqueia autor auto-*" 1 \
   env CLAUDE_TOOL_ARG_COMMAND='git commit -m "docs: foo"' bash scripts/hooks/pre-commit-gate.sh
-git config --local user.name "smoke-test-user" 2>/dev/null
+git config --local user.name "smoke-test-user"
 
 # Mensagem proibida
 run_test "pre-commit-gate bloqueia 'rodada N aprovado'" 1 \
   env CLAUDE_TOOL_ARG_COMMAND='git commit -m "rodada 3 APROVADO"' bash scripts/hooks/pre-commit-gate.sh
+
+# --- Restaura config git original ---
+if [ -n "$ORIG_GIT_NAME" ]; then
+  git config --local user.name "$ORIG_GIT_NAME"
+else
+  git config --local --unset user.name 2>/dev/null || true
+fi
+if [ -n "$ORIG_GIT_EMAIL" ]; then
+  git config --local user.email "$ORIG_GIT_EMAIL"
+else
+  git config --local --unset user.email 2>/dev/null || true
+fi
 
 # ---------- 9. pre-push-gate.sh ----------
 echo "[9/12] pre-push-gate.sh"
