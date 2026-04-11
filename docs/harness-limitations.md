@@ -86,3 +86,41 @@ via `[ -L file ]` antes de rodar.
   de symlinks.
 
 ---
+
+## Política operacional 2026-04-10: congelamento de admin bypass
+
+### Contexto
+
+Durante o Bloco 1 da meta-auditoria #1, o PM usou o admin bypass do ruleset
+de `main` para desbloquear o push de hooks selados. Três envios diretos foram
+feitos, todos registrados em `docs/incidents/bloco1-admin-bypass-2026-04-10.md`
+e autorizados pelo próprio PM no mesmo arquivo de incidente.
+
+A meta-auditoria #2 (completude, 2026-04-10) recomendou congelar novos
+admin bypasses até que o Bloco 5 item 5.3 ("ruleset de `main` endurecido,
+remover `current_user_can_bypass`") feche em definitivo o caminho.
+
+### Regra vigente desde 2026-04-10
+
+1. **Zero novos envios diretos autorizados pelo dono do repositório** até o
+   Bloco 5 item 5.3 fechar.
+2. **Única exceção:** incidente classificado P0 em `docs/incidents/` com
+   assinatura do PM **dentro do próprio arquivo de incidente** declarando
+   que o admin bypass foi usado e por quê.
+3. **Teto absoluto: 5 envios diretos totais**, contando os 3 já usados.
+   Se o teto for atingido, o projeto **pausa** e entra em re-auditoria
+   externa antes de qualquer novo slice.
+4. Todo uso de exceção registra-se no contador oficial mantido em
+   `docs/incidents/bloco1-admin-bypass-2026-04-10.md` (campo
+   "Contador oficial").
+5. A tentativa de usar admin bypass sem incident file é tratada como
+   **incidente crítico** de processo e gera retrospectiva obrigatória.
+
+### Plano de remoção
+
+Esta seção só pode ser removida quando:
+- O Bloco 5 item 5.3 estiver concluído (ruleset de `main` endurecido)
+- A meta-auditoria subsequente confirmar que `current_user_can_bypass`
+  foi removido do ruleset e o contador final ficou congelado
+
+---
