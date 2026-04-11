@@ -1,6 +1,6 @@
 # ADR-0001 — Sua decisão: qual tecnologia usar
 
-**Status:** proposed
+**Status:** accepted
 **Data:** 2026-04-11
 **Autor:** humano (PM) + Claude (recomendação técnica)
 
@@ -133,7 +133,7 @@ Esta recomendação **não amarra** nenhum desses comportamentos na tecnologia �
 
 ## Sua decisão (marque uma com [x])
 
-- [ ] Aceito a recomendação (Opção A — Laravel + Livewire 3 + PostgreSQL)
+- [x] Aceito a recomendação (Opção A — Laravel + Livewire 3 + PostgreSQL)
 - [ ] Quero a Opção B (Next.js + PostgreSQL)
 - [ ] Quero a Opção C (Laravel + Inertia.js + Vue 3)
 - [ ] Quero conversar mais antes de decidir
