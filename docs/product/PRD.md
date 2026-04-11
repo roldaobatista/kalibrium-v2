@@ -5718,6 +5718,58 @@ As seguintes são **dependências de implementação**, não modelo de produto, 
 
 ---
 
+## Perfis Operacionais × Tipos de Cliente-Alvo
+
+> **Seção de referência consolidada para GTM, onboarding e arquitetura.** Mapeia em tabela canônica única os tipos de empresa que a plataforma atende, os perfis operacionais do módulo Lab que suportam cada um, o enquadramento documental do certificado emitido (ou ausência dele), e os FRs do módulo Lab que governam cada cenário. **Não substitui** `§10.5.1 Modelo de adoção por perfil de tenant` (canônico normativo) nem `FR-LAB-01..21`; referencia ambos. Seu papel é servir como ponto único de entrada para a pergunta **"o Kalibrium atende meu tipo de empresa?"** e como checklist de cobertura quando o modelo de dados da plataforma for decidido em `/decide-stack`.
+
+### Tipos de cliente suportados
+
+| # | Tipo de empresa | Acreditação RBC | Rastreabilidade dos padrões utilizados | Certificado emitido | Perfil operacional no Kalibrium | FRs gatilho | Estado em `FR-LAB-04` |
+|---|---|---|---|---|---|---|---|
+| 1 | Laboratório acreditado RBC, emitindo dentro do escopo aplicável | ✅ Sim (Cgcre/Inmetro) | RBC ou equivalente internacional aceito pelo escopo | **Certificado acreditado** com número de acreditação, selo Cgcre e marca combinada ILAC-MRA | **Perfil Acreditado** (Governança Máxima) | `FR-LAB-01` (regras ISO 17025 ativas), `FR-LAB-02` (emissão acreditada), `FR-LAB-04` (rastreabilidade completa), `FR-LAB-10` (template `acreditado`) | `rbc` |
+| 1b | Laboratório acreditado RBC, serviço fora do escopo | ✅ Sim (mas escopo não cobre o serviço específico) | Qualquer | **Certificado não acreditado** (explícito "fora do escopo") — símbolo Cgcre / ILAC-MRA ocultado automaticamente | **Perfil Acreditado** + enquadramento documental `fora do escopo` | `FR-LAB-02` (distinção fora do escopo), `FR-LAB-10` (template `fora do escopo`) | herda estado dos padrões, documento sempre `fora do escopo` |
+| 2 | Empresa **não acreditada**, padrões calibrados em laboratório acreditado RBC | ❌ Não | RBC (herdada dos padrões) | **Certificado de calibração próprio rastreável** — pode declarar rastreabilidade RBC dos padrões; **proibido** chamar de `certificado RBC` ou usar selo de acreditação | **Perfil Intermediário** (Conforme / Estruturação) | `FR-LAB-01` (ISO 17025 parcial), `FR-LAB-04` (estado `rbc` para padrões), `FR-LAB-10` (template `não acreditado`) | `rbc` (para padrões) |
+| 3 | Empresa **não acreditada**, padrões rastreáveis por outra via (INMETRO direto, fabricante, laboratório certificado não-RBC), **sem RBC** | ❌ Não | Documentada por terceiro (não-RBC) ou interna | **Certificado de calibração próprio rastreável** não-acreditado — não pode usar linguagem RBC nem selos de acreditação | **Perfil Intermediário** ou **Perfil Básico** (depende da política do tenant) | `FR-LAB-01`, `FR-LAB-04` (estados `documentada por terceiro` ou `interna`), `FR-LAB-10` (template `não acreditado`) | `documentada por terceiro` / `interna` |
+| 4 | Empresa **sem ISO, sem acreditação, sem padrões formalmente rastreáveis**, mas emite alegação metrológica simples | ❌ Não | Sem rastreabilidade formal (declarado explicitamente no documento) | **Certificado de calibração não acreditado** com declaração explícita de ausência de rastreabilidade formal | **Perfil Básico** | `FR-LAB-01` (nenhuma regra ISO obrigatória), `FR-LAB-04` (estado `sem rastreabilidade formal`), `FR-LAB-10` (template `não acreditado` simplificado) | `sem rastreabilidade formal` |
+| 5 | Empresa que **não emite certificado metrológico** (assistência técnica, ORC puro, reparo sem calibração) | ❌ Não | Não aplicável | **Nenhum certificado metrológico** — pode emitir OS de serviço, laudo de reparo, nota fiscal, mas não um "certificado de calibração" | **Perfil Básico** com política documental "sem emissão metrológica" | `FR-OPS-01..09` (OS), `FR-INT-05` (integração selo INMETRO quando ORC aplicável), **`FR-LAB-02` desativado** para este tenant | N/A (ver `OQ-PM-10`) |
+
+### Governança transversal aplicável a todos os tipos
+
+1. **Separação `perfil operacional do tenant` × `enquadramento documental do serviço`.** O fato de o tenant estar em Perfil Acreditado não autoriza automaticamente emitir um documento como acreditado; a elegibilidade depende de metadados de acreditação válidos, escopo aplicável e enquadramento do serviço específico. Esta separação é estrutural no PRD (`§10.5.1`).
+
+2. **Anti-fraude regulatória embutida.** O sistema **proíbe mecanicamente** linguagem de acreditação (selo Cgcre, marca combinada ILAC-MRA, expressão "certificado RBC", número de acreditação) em documentos classificados como não acreditados, mesmo que o tenant tente configurar de forma enganosa. A regra é **enforcement de produto, não apenas diretriz de template** (`FR-LAB-02`, `FR-LAB-10`).
+
+3. **Estados formais de rastreabilidade (`FR-LAB-04`).** O sistema distingue 4 estados documentais de rastreabilidade dos padrões utilizados: `rbc`, `documentada por terceiro`, `interna` e `sem rastreabilidade formal`. Cada estado governa o que pode aparecer no PDF do certificado. Política normativa/documental do tenant define qual estado mínimo é exigido para emissão por tipo de serviço.
+
+4. **Templates múltiplos simultâneos.** Cada tenant pode ter N templates ativos por enquadramento (`acreditado`, `não acreditado`, `fora do escopo`, por tipo de instrumento, por fabricante) — ver `FR-LAB-10` e `§10.5.9 Templates de Certificado e Personalização`. Campos obrigatórios de rastreabilidade e metrologia são sempre preservados, mesmo em templates de fabricante customizados (§60.14).
+
+5. **ISO 17025 configurável, não hardcoded.** O PRD entrega regras ISO 17025 individualmente habilitáveis/desabilitáveis via `FR-LAB-01`. Combinações como "ISO 9001 ativa + ISO 17025 parcial" ou "todas as regras ativas exceto dual sign-off em determinado tipo de serviço" são suportadas. **A operação em Perfil Acreditado com todas as regras ativas representa cobertura máxima de ISO 17025 para o escopo contratado pelo tenant.** O produto não contém regras ISO embutidas no motor; o motor é dirigido pela configuração normativa do tenant.
+
+6. **Migração entre perfis sem perda de dados.** `§10.5.1` determina que um tenant pode subir de Perfil Básico → Intermediário → Acreditado (ou descer) sem que dados operacionais já coletados sejam perdidos; o que muda é o nível de enforcement e as regras documentais aplicáveis a **novos** documentos. Documentos emitidos em um perfil mais baixo permanecem como histórico imutável.
+
+### Canônico (onde ler as regras detalhadas)
+
+- **Regras normativas e comportamentais por perfil:** `§10.5.1 Modelo de adoção por perfil de tenant` (canônico).
+- **Requisitos funcionais do módulo Lab:** `FR-LAB-01..21` (canônico).
+- **Templates de certificado:** `FR-LAB-10` + `§10.5.9 Templates de Certificado e Personalização` + `§60.14 Templates de Certificado por Fabricante`.
+- **Estados de rastreabilidade:** `FR-LAB-04`.
+- **Glossário de termos** (RBC, ORC, Cgcre, ILAC-MRA, INMETRO, PSEI, CGCRE, ISO 17025): `§Glossário de Produto e Domínio`.
+- **Decisão em aberto sobre o Tipo 5** (empresa sem emissão metrológica): `OQ-PM-10` em `§Decisões de Produto em Aberto`.
+
+### Implicações para `/decide-stack` e modelo de dados
+
+O modelo de dados resultante de `/decide-stack` deve tratar os seguintes campos como configuração de primeira classe por Tenant (não enterrados em sub-entidades):
+
+- `Tenant.perfil_operacional` ∈ { `basico`, `intermediario`, `acreditado` }
+- `Tenant.emite_certificado_metrologico` : boolean (ou enum se OQ-PM-10 formalizar tipos adicionais)
+- `Tenant.acreditacao_ativa` : nullable struct { numero, escopo, validade, cgcre_id }
+- `Tenant.politica_rastreabilidade_minima` : enum dos 4 estados de `FR-LAB-04`
+- `Tenant.regras_iso_ativas` : set (ISO 9001, ISO 17025 por cláusula habilitável/desabilitável)
+
+Estes campos dirigem o comportamento do motor de emissão de certificados, o motor de validação de OS, e o pipeline de templates. **São parte do entitlement e da política do tenant, não configuração cosmética.**
+
+---
+
 ## Dependências Externas de Missão Crítica
 
 | # | Dependência | Categoria | Papel no Sistema | Risco se Indisponível | Mitigação |
@@ -5785,6 +5837,7 @@ As seguintes são **dependências de implementação**, não modelo de produto, 
 | OQ-PM-07 | Quanto de customização Enterprise o produto aceita? Apenas parametrização, ou também extensões custom de código? (liga com NFR-OPE-05) | Escopo de slices custom + custo de manutenção | Validação com 3 prospects Enterprise |
 | OQ-PM-08 | Operação 24x7 — interno (Kalibrium opera oncall) ou terceirizado (NOC externo)? (liga com R12) | Custo operacional + cumprimento de NFR-CON | Antes do primeiro cliente Enterprise |
 | OQ-PM-09 | Certificado digital oficial — quem fornece ao tenant, como renova, como entrega de forma segura? | Operação NF-e + NFR-CMP-01 | Antes do primeiro tenant que emite fiscal |
+| OQ-PM-10 | Empresa que **só faz reparo / assistência técnica sem emitir certificado metrológico** (tipo "ORC puro") está dentro do ICP comercial do Kalibrium como segmento de primeira classe, ou é cobertura acidental via Perfil Básico? Devemos formalizar um enquadramento documental `sem emissão metrológica` explícito ao lado dos estados existentes (`acreditado`, `não acreditado`, `fora do escopo`)? (liga com §Perfis Operacionais × Tipos de Cliente-Alvo, Tipo 5) | Escopo comercial + modelo de pricing Starter/Basic + decisão arquitetural sobre enum de `tipo_documento` e campo `Tenant.emite_certificado_metrologico` | **Antes do `/decide-stack`** (impacta diretamente o modelo de dados e o comportamento do motor de emissão) |
 
 ### Categoria 3 — Gaps Deliberados Aguardando Descoberta Externa
 
@@ -5808,7 +5861,7 @@ As seguintes são **dependências de implementação**, não modelo de produto, 
 > | **3 — Duplicata** | Itens já cobertos por outra seção canônica do PRD | Absorver no canônico, remover marcador |
 > | **4 — Obsoleto** | Itens que não fazem mais sentido no escopo atual | Remover e registrar a remoção em changelog editorial |
 >
-> Após a triagem, esta Categoria 4 deixará de existir e os itens classificados migrarão para Categoria 2 ou 3 desta mesma seção. Expectativa: ~20-40 itens no balde "Decisão PM", que virarão OQ-PM-10 em diante.
+> Após a triagem, esta Categoria 4 deixará de existir e os itens classificados migrarão para Categoria 2 ou 3 desta mesma seção. Expectativa: ~20-40 itens no balde "Decisão PM", que virarão OQ-PM-11 em diante (o slot OQ-PM-10 foi consumido em 2026-04-11 pela decisão sobre Tipo 5 — empresa sem emissão metrológica — ver §Perfis Operacionais × Tipos de Cliente-Alvo).
 
 ### Categoria 5 — Follow-ups Editoriais e de Normalização
 

@@ -15,6 +15,10 @@
 > **Nota 2 — Correção do §3 Passo 2.4 e da tabela do §1:** a afirmação original de que havia "**4 resíduos ASCII de acentuação**" subestimou a contagem real. Uma varredura com lista curada mais ampla de palavras PT-BR candidatas (`Codigo`, `Semaforo`, `explicito`, `proxima`, `ultima`, `periodica`, `dimensao`, `visao`, `eletrico`, `titulo`, `area`, `minimo`, `maximo`, `opcao`, `conteudo`, etc.) encontrou **68 ocorrências únicas em ~55 linhas**. A afirmação do commit `62e3333` "1103+ substituições em 4 ondas, zero resíduos ASCII" fica portanto contradita em escala maior do que esta re-auditoria reportou no primeiro pass: não eram 4 remanescentes, eram 68. A normalização original capturou aproximadamente 94-95% do alvo, deixando ~5-6% para cleanup editorial. **Todos os 68 resíduos foram corrigidos no commit de retratação** (ver §12.1 abaixo).
 >
 > **Nota 3 — Sobre a Nota 1 × Nota 2:** as duas retratações têm naturezas distintas. A Nota 1 é um **erro de metodologia do auditor** (regex muito estrito) — o PRD sempre esteve correto, eu que errei. A Nota 2 é um **achado real sub-reportado** — os resíduos existiam, eu só não tinha varrido amplo o suficiente. Ambas são rastreadas aqui para manter a honestidade do processo de auditoria.
+>
+> **Nota 4 — Retratação da discrepância de OQ count "25 × 26" do §3 Passo 3.4:** a afirmação desta re-auditoria de que havia "**26 OQs reais × 25 declarados no commit**" também é falso positivo da metodologia. O regex `OQ-[A-Z]+-[0-9]+` capturou o literal `OQ-PM-10` que existe no PRD (commit 62e3333, L5811) apenas como **forward-reference dentro da nota editorial** do §Decisões de Produto em Aberto — texto literal: *"Expectativa: ~20-40 itens no balde 'Decisão PM', que virarão OQ-PM-10 em diante."*. Não era um item real da tabela da Categoria 2 (que na verdade só tinha OQ-PM-01..09). A contagem correta de OQs **no commit 62e3333** era exatamente **25** (8 ARQ + 9 PM + 4 DSC + 4 FUP), coincidindo com a mensagem do commit. **Meu regex foi ingênuo em tratar forward-reference como entry real.** Situação do commit `62e3333`: sem contradição de OQ count.
+>
+> **Atualização pós-commit `65f23ad` + commit subsequente desta sessão:** após o commit que adiciona a nova seção `## Perfis Operacionais × Tipos de Cliente-Alvo` e que **consume o slot OQ-PM-10** como decisão real sobre o Tipo 5 (empresa sem emissão metrológica), a contagem passou a ser **26 OQs reais** (8 ARQ + 10 PM + 4 DSC + 4 FUP). O forward-reference do L5811 foi atualizado para "OQ-PM-11 em diante" no mesmo commit. A contagem regex retorna 27 (26 reais + 1 phantom do novo forward-reference). Esse padrão de phantom é inerente ao uso de forward-reference em notas editoriais e é inofensivo desde que conhecido.
 
 ---
 
@@ -34,7 +38,7 @@
 | H3 | 474 | 467 | −7 |
 | H4 | 99 | 99 | = |
 | NFRs com ID | 0 ❌ | **55** ✅ | +55 (promessa cumprida) |
-| OQs com ID | 0 | **26** ⚠️ | +26 (commit prometeu 25) |
+| OQs com ID | 0 | **25 no 62e3333** ✅ / **26 pós-OQ-PM-10** ✅ | sem contradição (ver Nota 4 do §0) |
 | Entidades de Modelo de Dados | 0 ❌ | **19** ✅ | +19 (seção nova) |
 | FRs reais (regex estendido com sufixo letra) | 119 (regex estrito) | **122** (ver Nota 1) | ✅ **sem contradição** |
 | FRs declarados no headline | 122 | 122 | ✅ = (sem contradição) |
