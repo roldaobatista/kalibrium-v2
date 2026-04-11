@@ -1,14 +1,20 @@
 # Micro-ajustes aos blocos 2-7 (tracker)
 
 **Origem:** `docs/audits/meta-audit-completeness-2026-04-10-action-plan.md §6`
-**Status geral:** 5/22 entregues nesta sessão (os itens que não dependiam do Bloco 2 e não exigiam relock).
+**Status geral:** 8/22 entregues (5 na sessão 01 + 3 na sessão 02).
 
 ## Entregues
+
+### Bloco 4
+
+- [x] 4.8 `docs/policies/r6-r7-policy.md` — 2026-04-11 (`956708b`)
 
 ### Bloco 6
 
 - [x] 6.3 `docs/governance/raci.md` — 2026-04-10 (`19218a1`)
 - [x] 6.4 `docs/governance/harness-evolution.md` — 2026-04-10 (`76735d1`)
+- [x] 6.5 `docs/policies/cooldown-policy.md` — 2026-04-11 (`ecadcf2`). Nota: o plano original colocou em `docs/governance/`; o prompt da sessão 02 realocou para `docs/policies/` ao lado de `r6-r7-policy.md`. Divergência documentada no relatório da sessão.
+- [x] 6.8 `docs/harness-limitations.md` seção "Edição externa de hooks por humano fora do Claude Code" — 2026-04-11 (`141f860`). A outra seção exigida (admin bypass) já havia sido adicionada pela sessão 01.
 - [x] 6.9 Templates faltantes em `docs/templates/` (prd, threat-model, runbook, rfp — postmortem-prod coberto por T3.12) — 2026-04-10 (`4bd32d5`)
 - [x] 6.10 Consolidar prompts em `docs/audits/prompts/` — 2026-04-10 (`19218a1` rename absorvido + `c329253` 2 prompts + README)
 - [x] 6.13 `docs/operations/anthropic-outage-playbook.md` — 2026-04-10 (`e30edad`)
@@ -26,13 +32,12 @@
 - [ ] 4.2 `check-r12-vocabulary.sh` hook novo — exige relock
 - [ ] 4.5 pausa dura categorias críticas — exige relock
 
-## Pendentes — independentes mas fora do escopo desta sessão
+## Pendentes — dependem do Bloco 2 (reclassificados após sessão 02)
 
-- [ ] 4.8 `r6-r7-policy.md` (independente — pode rodar em próxima sessão sem relock)
-- [ ] 6.5 `cooldown-policy.md` (independente)
-- [ ] 6.6 `fixtures-policy.md` (depende Bloco 2 para linguagem)
+- [ ] 6.6 `fixtures-policy.md` (depende do Bloco 2 para linguagem/ORM)
 - [ ] 6.7 `/project-status` skill (depende de 1.5.11, que é pending-block-2)
-- [ ] 6.8 `harness-limitations.md` 2 novas seções (independente — foi adicionada só a de admin bypass)
+
+Nota: na sessão 02 não restou nenhum item verdadeiramente independente em aberto. Os 4 itens listados como "independentes mas fora do escopo" no tracker anterior foram fechados (4.8, 6.5, 6.8) ou reclassificados corretamente aqui (6.6, 6.7).
 
 ## Pendentes — bloco 5 (só faz sentido após Bloco 3-4)
 

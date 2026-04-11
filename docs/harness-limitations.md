@@ -124,3 +124,104 @@ Esta seção só pode ser removida quando:
   foi removido do ruleset e o contador final ficou congelado
 
 ---
+
+## Edição externa de hooks por humano fora do Claude Code
+
+### Contexto
+
+A partir do Bloco 1 da meta-auditoria #1 (2026-04-10), todos os arquivos
+críticos do harness — `scripts/hooks/*.sh`, `.claude/settings.json`,
+`.claude/settings.json.sha256`, `scripts/hooks/MANIFEST.sha256`,
+`.claude/allowed-git-identities.txt`, `.claude/git-identity-baseline` e
+`.claude/telemetry/*` — são **selados**. O agente Claude Code não consegue
+editá-los via `Edit`, `Write` ou `Bash` (`echo >>`, `sed -i`, `tee`, `cp`,
+`mv`). Os hooks `settings-lock.sh`, `hooks-lock.sh`, `telemetry-lock.sh` e
+`sealed-files-bash-lock.sh` bloqueiam mecanicamente todas as tentativas.
+
+**A limitação:** o PM, em terminal externo (fora do Claude Code), **pode**
+editar qualquer um desses arquivos com um editor de texto comum, rodar o
+procedimento de relock (`KALIB_RELOCK_AUTHORIZED=1 bash
+scripts/relock-harness.sh`), e o harness aceita a alteração como legítima.
+Isso é **esperado** — o relock manual é o único caminho documentado para
+evoluir hooks (CLAUDE.md §9). Mas significa que o PM pode, em tese,
+enfraquecer ou remover uma regra de enforcement e o harness seguirá rodando
+a versão enfraquecida a partir do próximo `SessionStart`.
+
+Este documento aceita essa capacidade como **limitação documentada** e não
+como falha. A defesa não é impedir o PM — o PM é o dono. A defesa é deixar
+a alteração **rastreável** e **auditável**.
+
+### Por que não é falha
+
+O papel do harness é proteger contra:
+
+- **Deriva do próprio agente** (o Claude Code modificar hooks sorrateiramente
+  para facilitar o próprio trabalho). Isso é coberto pelos hooks de
+  selamento, que bloqueiam mecanicamente qualquer tentativa do agente.
+- **Mudança não-intencional** (um sub-agent editar um hook por engano).
+  Isso também é coberto pelos hooks de selamento.
+
+O papel do harness **não é** proteger contra o PM tomando uma decisão
+deliberada, em outro terminal, com acesso administrativo ao próprio
+repositório. Essa barreira exigiria infraestrutura externa (assinatura de
+commit por chave física, revisão obrigatória por segundo humano, separação
+de ambiente de desenvolvimento de ambiente de produção) que está fora do
+escopo de um harness de agente.
+
+Quando o PM é, por definição operacional, o único humano e o dono do
+projeto (CLAUDE.md §3.1), a única defesa aplicável é a **rastreabilidade**.
+
+### Política operacional
+
+1. **Toda edição externa de hook ou de arquivo selado exige rodar o
+   `relock-harness.sh`.** O script é autocontido: exige
+   `KALIB_RELOCK_AUTHORIZED=1`, TTY real, digitação literal `RELOCK`, e
+   cria automaticamente `docs/incidents/harness-relock-<timestamp>.md`
+   com o operador, host, hashes antes/depois, lista de hooks alterados
+   e motivo declarado.
+2. **O arquivo de incidente de relock é obrigatório.** Não existe relock
+   sem registro. O próprio `relock-harness.sh` cria o arquivo — o PM
+   preenche o campo "motivo" antes de rodar o relock ou, no máximo,
+   imediatamente depois, no mesmo commit que inclui os arquivos selados
+   atualizados.
+3. **O diff do hook alterado é parte obrigatória da revisão pós-relock.**
+   Em sessão nova do Claude Code, qualquer sub-agent com budget de
+   auditoria deve conseguir ler `docs/incidents/harness-relock-*.md` e
+   reconstruir o que mudou e por quê via `git log -p scripts/hooks/`.
+4. **Alterações em hooks que enfraquecem enforcement exigem justificativa
+   explícita no arquivo de incidente.** O PM descreve: qual regra ficou
+   mais permissiva, qual era o comportamento antes, qual é o comportamento
+   depois, por quanto tempo a mudança vale, e qual é o critério de
+   reversão. Exemplo: reduzir o cooldown de 24h para 12h em
+   `cooldown-policy.md` via edição direta do `pre-commit-gate.sh` **exige**
+   um ADR aceito **e** a justificativa no arquivo de incidente.
+5. **Alterações em hooks que fortalecem enforcement** (adicionam regra
+   nova, fecham brecha) são aceitas com justificativa leve no arquivo de
+   incidente: "adiciona check X por incidente Y" é suficiente.
+6. **Auditoria periódica dos relocks passados é obrigatória no
+   `guide-check.sh`.** O hook `guide-auditor` deve listar, a cada
+   execução mensal, todos os `docs/incidents/harness-relock-*.md` dos
+   últimos 90 dias, verificar se cada um tem motivo declarado, se cada
+   um deixou rastro no `git log -p`, e se o contador de hashes
+   antes/depois bate com o SHA atual dos arquivos.
+7. **O PM não pode usar a edição externa para contornar uma rejeição de
+   verifier/reviewer nas categorias do `docs/policies/r6-r7-policy.md`
+   §3.** Se um verifier rejeitou um commit por falta de teste de cálculo
+   (§3.1), editar o hook que valida o teste é uma forma de override — e
+   override nessas categorias é proibido. A auditoria periódica descrita
+   no item 6 detecta esse padrão e reporta como incidente crítico.
+
+### Plano de remoção
+
+Esta limitação **não sai** do documento. É estrutural ao modelo "agente
+autônomo + humano dono do repositório". Pode ser reduzida em impacto por
+medidas externas (assinatura de commit por chave física, revisão humana
+adicional, separação de ambiente de desenvolvimento de ambiente de
+produção) mas não eliminada.
+
+O que pode evoluir com o tempo é o **rigor da auditoria pós-relock**, que
+hoje é manual e pode, em uma iteração futura, ser automatizada por um
+sub-agent independente que compara o comportamento do hook antes e depois
+de cada relock e emite relatório em linguagem de produto (R12) para o PM.
+
+---
