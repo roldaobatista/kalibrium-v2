@@ -64,15 +64,17 @@ Pré-requisitos atendidos pela sessão executora antes de invocar `git push`:
 
 ### Contador oficial (após política de congelamento 2026-04-10)
 
-**Contador oficial: 3/5** — após aplicação da política de congelamento definida pela meta-auditoria #2 (`docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`).
+**Contador oficial: 4/5** — após push direto autorizado pelo PM da sessão 01 de execução do plano da meta-auditoria #2 (2026-04-11), conforme política em `docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`.
 
 - **Bypass 1:** PR #1 admin merge (`pr-1-admin-merge.md`)
 - **Bypass 2:** push do Bloco 1 do meta-audit 2026-04-10 (commits `345b0a2` + `c061e3c`)
-- **Bypass 3:** este próprio incident file no momento do push (auto-referência honesta, coerente com a nota já registrada na §Auto-referência acima)
-- **Bypass 4:** disponível apenas mediante incident P0 assinado pelo PM
+- **Bypass 3:** push do próprio incident file do Bloco 1 (auto-referência honesta registrada na §Auto-referência acima), commit `a1ad97e`
+- **Bypass 4:** **[NOVO 2026-04-11]** push da sessão 01 de execução do plano de ação da meta-auditoria #2 — pacote de 36 commits atômicos do `6cc9c2f` ao contador-update-atual, contendo o Estado 1 do Bloco 1.5 (13 itens), a Trilha #2 Estado 1 (13 itens), a Trilha #3 Estado 1 (3 itens), os operacionais imediatos C1-C3 + A1-A2, os micro-ajustes não bloqueantes 6.3/6.4/6.9/6.10/6.13, o relatório de execução `docs/reports/execution-meta-audit-2-2026-04-10-session01.md` e os 5 trackers granulares em `docs/audits/progress/`. Autorizado explicitamente pelo PM durante a sessão via pedido direto "pode fazer o push". Justificativa: Bloco 5 item 5.3 ainda não removeu `current_user_can_bypass`, então `current_user_can_bypass: always` continua sendo o único caminho operacional para trazer o trabalho legítimo da sessão para `main`.
 - **Bypass 5:** disponível apenas mediante incident P0 assinado pelo PM
 
 Se o contador atingir 5/5, o projeto **pausa** conforme a política e entra em re-auditoria externa antes de qualquer novo slice. A contagem inclui todo push direto a `main` feito pelo PM (owner) que dispare `current_user_can_bypass`, independentemente do motivo.
+
+**Último bypass restante (5/5):** só pode ser usado em incidente classificado P0 com assinatura do PM dentro do próprio arquivo de incidente. Próximo push rotineiro sem incident P0 = violação da política vigente.
 
 ---
 

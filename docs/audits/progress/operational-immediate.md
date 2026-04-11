@@ -24,4 +24,4 @@
 
 ## Contador de admin bypass
 
-**3/5** — congelamento ativo desde 2026-04-10. Nenhum uso novo nesta sessão.
+**4/5** — congelamento ativo desde 2026-04-10. O bypass #4 foi o push da sessão 01 do plano de ação da meta-auditoria #2 em 2026-04-11, autorizado explicitamente pelo PM durante a sessão. Resta **1** disponível apenas mediante incident P0.

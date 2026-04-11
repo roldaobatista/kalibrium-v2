@@ -193,7 +193,7 @@ Lista detalhada em `docs/reports/pm-manual-actions-2026-04-10.md`:
 
 ## Operacional — congelamento de admin bypass (item C3 da meta-audit #2)
 
-**Congelamento de admin bypass ativo desde 2026-04-10.** Contador oficial: **3/5**. Política vigente em `docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`. Exceção permitida: incidente classificado P0 com assinatura do PM dentro do próprio arquivo de incidente. Teto absoluto: 5 envios diretos totais, contando os 3 já usados. Se atingir 5/5, o projeto pausa para re-auditoria externa antes de qualquer novo slice.
+**Congelamento de admin bypass ativo desde 2026-04-10.** Contador oficial: **4/5** (atualizado em 2026-04-11 após o push da sessão 01 do plano de ação da meta-auditoria #2). Política vigente em `docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`. Exceção permitida: incidente classificado P0 com assinatura do PM dentro do próprio arquivo de incidente. Teto absoluto: 5 envios diretos totais. Restam **1 bypass** disponível, e apenas mediante incident P0 assinado pelo PM. Se atingir 5/5, o projeto pausa para re-auditoria externa antes de qualquer novo slice.
 
 Incident file com o contador oficial: `docs/incidents/bloco1-admin-bypass-2026-04-10.md §Contador oficial (após política de congelamento 2026-04-10)`.
 
