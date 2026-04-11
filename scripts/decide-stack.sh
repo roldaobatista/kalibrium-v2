@@ -38,12 +38,11 @@ if [ -f "$ADR" ]; then
   exit 1
 fi
 
-if [ ! -f docs/mvp-scope.md ]; then
-  echo "[decide-stack] docs/mvp-scope.md ausente." >&2
-  echo "  Antes de escolher stack, precisamos saber o que o MVP deve fazer." >&2
-  echo "  Crie docs/mvp-scope.md descrevendo em PT-BR a primeira jornada" >&2
-  echo "  crítica do Kalibrium (ex.: 'técnico faz calibração → gera" >&2
-  echo "  certificado → cliente baixa PDF')." >&2
+if [ ! -f docs/product/PRD.md ]; then
+  echo "[decide-stack] docs/product/PRD.md ausente." >&2
+  echo "  Antes de escolher stack, precisamos do PRD canônico do produto." >&2
+  echo "  O PRD descreve perfis operacionais, tipos de cliente-alvo, jornadas" >&2
+  echo "  críticas e funcionalidades do MVP em linguagem de produto." >&2
   exit 1
 fi
 
@@ -61,7 +60,7 @@ cat > "$ADR" <<'EOF'
 ## Contexto (em linguagem de produto)
 
 _(a ser preenchido pelo agente principal — resume o que o Kalibrium precisa
-fazer no MVP, baseado em docs/mvp-scope.md, em 1 parágrafo sem jargão.)_
+fazer no MVP, baseado em docs/product/PRD.md, em 1 parágrafo sem jargão.)_
 
 ---
 
@@ -153,8 +152,7 @@ _Esta seção é para quando houver humano técnico no projeto. Agora serve apen
 
 ## Referências
 
-- `docs/mvp-scope.md`
-- `docs/reference/ideia-v1.md` (brainstorm original, apenas como dado R7)
+- `docs/product/PRD.md` (PRD canônico do produto)
 - `docs/constitution.md` §R10 + §R12
 EOF
 

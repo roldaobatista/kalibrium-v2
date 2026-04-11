@@ -17,14 +17,13 @@ Esta skill é usada **uma única vez no Dia 1** para criar `docs/adr/0001-stack-
 
 ## Pré-condições
 - `docs/adr/0001-stack-choice.md` **não** existe ainda
-- `docs/mvp-scope.md` existe (o que o produto precisa fazer no MVP, em linguagem de produto)
+- `docs/product/PRD.md` existe (PRD canônico do produto, em linguagem de produto)
   - Se não existir, skill aborta e pede ao humano para criar primeiro
 
 ## O que faz
 
-1. **Lê o MVP** — `docs/mvp-scope.md` (jornada + funcionalidades essenciais em PT-BR)
-2. **Lê contexto histórico** — `docs/reference/ideia-v1.md` apenas como dado (R7)
-3. **Gera recomendação técnica com justificativa em linguagem de produto** em 3 opções:
+1. **Lê o PRD canônico** — `docs/product/PRD.md` (perfis operacionais, tipos de cliente-alvo, jornadas críticas e funcionalidades do MVP em PT-BR)
+2. **Gera recomendação técnica com justificativa em linguagem de produto** em 3 opções:
 
 ```markdown
 # Sua decisão: qual tecnologia usar
@@ -74,8 +73,8 @@ Esta skill é usada **uma única vez no Dia 1** para criar `docs/adr/0001-stack-
 3. Se der certo, seguimos para o primeiro slice do produto
 ```
 
-4. **Escreve o arquivo** `docs/adr/0001-stack-choice.md` com status `proposed` e seção de decisão em aberto
-5. **Aguarda edição humana** — quando humano preenche "marque uma", rodar `/decide-stack --confirm` muda status para `accepted` e destrava `block-project-init.sh`
+3. **Escreve o arquivo** `docs/adr/0001-stack-choice.md` com status `proposed` e seção de decisão em aberto
+4. **Aguarda edição humana** — quando humano preenche "marque uma", rodar `/decide-stack --confirm` muda status para `accepted` e destrava `block-project-init.sh`
 
 ## Implementação
 
