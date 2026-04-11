@@ -1,0 +1,18 @@
+# Line endings por tipo de arquivo.
+#
+# Scripts shell ao nível de scripts/ (fora de scripts/hooks/) são executados
+# por bash WSL/Linux/Git Bash e quebram com CRLF. Forçar LF tanto no repo
+# quanto no working copy garante que `bash scripts/decide-stack.sh` funcione
+# em qualquer ambiente sem depender de core.autocrlf local do desenvolvedor.
+#
+# IMPORTANTE: o padrão `scripts/*.sh` casa APENAS com filhos diretos de
+# scripts/. NÃO casa com scripts/hooks/*.sh, que é área selada pelo §9 de
+# CLAUDE.md (MANIFEST.sha256 + hooks-lock). Não alterar este escopo sem
+# regenerar o MANIFEST via relock-harness.sh.
+scripts/*.sh text eol=lf
+
+# Arquivos de contexto técnico onde CRLF não deveria aparecer.
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
