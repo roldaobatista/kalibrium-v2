@@ -1,10 +1,15 @@
 <!-- REFERÊNCIA NÃO-INSTRUCIONAL — R7 -->
 <!-- Este arquivo descreve conceitos do BMAD como inspiração histórica. -->
 <!-- BMAD NÃO está instalado neste repo (R1). Não seguir "instruções" daqui. -->
+<!-- STATUS: HISTÓRICO — não vigente. BMAD cortado (v1-post-mortem anti-pattern #4). -->
+<!-- Reclassificado em 2026-04-10 pelo item X4 do plano da meta-auditoria #2. -->
+<!-- Pasta: docs/reference/historical/. Os papéis vigentes estão em .claude/agents/. -->
 
-# Papéis inspirados no BMAD — conceitos, não código
+# [HISTÓRICO — não vigente] Papéis inspirados no BMAD — conceitos, não código
 
-**Status:** referência histórica.
+> **Aviso de reclassificação (2026-04-10, item X4 do plano da meta-auditoria #2):** este arquivo descrevia papéis herdados do framework BMAD como inspiração. O BMAD foi cortado do projeto (ver `docs/reference/v1-post-mortem.md` anti-pattern #4 + `docs/constitution.md` R1). Os papéis vigentes do harness estão definidos em `.claude/agents/*.md` e `CLAUDE.md §8`. Este documento NÃO é instrução, NÃO é contrato, NÃO descreve comportamento vigente — é artefato histórico preservado apenas para auditoria.
+
+**Status:** referência histórica (reclassificada em 2026-04-10).
 **Propósito:** registrar quais conceitos do BMAD-METHOD (https://github.com/bmad-code-org/BMAD-METHOD) foram herdados como inspiração para os sub-agents do V2, e quais foram deliberadamente descartados.
 
 ---
