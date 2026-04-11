@@ -12,6 +12,39 @@ O Kalibrium é a plataforma de trabalho do técnico de instrumentação, do labo
 
 ---
 
+## Contexto de hospedagem confirmado pelo PM
+
+**Servidor de produção alvo:** VPS Hostinger **KVM 4**, hostname `srv1541928.hstgr.cloud`, região Brasil.
+
+**O que este servidor entrega:**
+- 4 vCPU AMD EPYC, 16 GB de RAM, 200 GB de disco rápido (NVMe), IP fixo brasileiro, aproximadamente R$ 150/mês.
+- Acesso total de administrador — a plataforma Kalibrium (site + banco de dados + filas de tarefas + envio de e-mail) roda **tudo no mesmo servidor** no primeiro ano, sem limitação de hospedagem compartilhada.
+- Dado fica no Brasil por padrão, atendendo LGPD residência BR sem configuração adicional.
+
+**Capacidade estimada neste servidor:**
+
+| Momento | Quantos clientes cabem confortavelmente | Sinal de que é hora de escalar |
+|---|---|---|
+| Primeiros 3 meses | 1-3 clientes Starter/Basic | nenhum — sobra folga |
+| Meses 4-12 | 5-15 clientes Starter/Basic | uso de memória passa dos 60% regularmente |
+| Ano 2 | 15-25 clientes (alguns Tipo 1 acreditados) | banco de dados começa a disputar recurso com o site |
+| Quando escalar | — | separar o banco de dados em um segundo servidor menor (~R$ 60-80/mês adicionais) |
+
+**Implicação: o KVM 4 é suficiente para o primeiro ano inteiro.** A primeira necessidade de expandir vem **depois** do produto estar pagando as próprias contas, não antes.
+
+**O que esta confirmação muda na recomendação desta página:** nada. A Opção A (Laravel + Livewire + PostgreSQL) foi desenhada assumindo exatamente este tier de VPS. Hospedagem compartilhada Hostinger teria forçado troca de banco (MySQL em vez de PostgreSQL) e perda de três peças importantes (Redis, Horizon, Octane); o KVM 4 libera tudo.
+
+**O que esta confirmação força nos ADRs seguintes** (referência pra quando eles chegarem):
+
+- **ADR-0005 (armazenamento e backup de documentos):** o snapshot semanal que vem incluído no VPS Hostinger **não cobre** o objetivo do PRD §40.3 de perder no máximo 15 minutos de dado em caso de falha. Será necessário configurar arquivamento contínuo do banco para um armazenamento externo (~R$ 20-40/mês adicionais). Previsto pra ser resolvido no ADR-0005, não nesta página.
+- **ADR-0007 (CI/CD e ambientes):** recomenda-se contratar um **segundo servidor menor** (KVM 1, ~R$ 25-30/mês) como ambiente de homologação, separado da produção, para o PM validar slices antes de promover pro cliente real. Sem isso, o primeiro cliente vira cobaia. Previsto pra ser resolvido no ADR-0007, não nesta página.
+- **ADR-0002 (persistência):** assumirá PostgreSQL 16 + proteção extra de isolamento entre clientes (Row-Level Security nativo do banco).
+- **ADR-0003 (filas de tarefas em segundo plano):** assumirá Redis 7 instalado no mesmo servidor até a separação do banco no ano 2.
+
+**Confirmado pelo PM em 2026-04-11, antes da marcação de opção.**
+
+---
+
 ## Minha recomendação: Opção A — Laravel + Livewire 3 + PostgreSQL
 
 **Nome amigável:** "a base do Laravel" — a forma mais comum de construir sistemas SaaS no Brasil.
