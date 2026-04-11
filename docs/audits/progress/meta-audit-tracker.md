@@ -147,6 +147,50 @@
 
 ---
 
+## Meta-auditoria #2 — Sessão 01 (execução do plano de ação)
+
+**Data:** 2026-04-10 → 2026-04-11
+**Relatório:** `docs/reports/execution-meta-audit-2-2026-04-10-session01.md`
+**Escopo da sessão:** executar tudo o que o agente podia entregar sem tocar em arquivo selado e sem depender do Bloco 2.
+
+### Resumo de entrega
+
+| Passo | Itens entregues | Status |
+|---|---|---|
+| A — Consensuais (X2, X4) | 2/2 | ✅ |
+| B — Bloco 1.5 Estado 1 | 13/15 (faltam 1.5.11 e 1.5.14 pending-block-2) | ✅ |
+| C — Trilha #2 Estado 1 | 13/16 (T2.6/7/8 pending-block-2; T2.1-T2.5 em draft-awaiting-dpo) | ✅ |
+| D — Trilha #3 Estado 1 | 3/12 (os 9 restantes dependem do Bloco 2) | ✅ |
+| E — C1, C2, C3 | 3/4 (C4 = ação manual do PM) | ✅ |
+| F — A1, A2 | 2/4 (A3 e A4 = ação manual do PM) | ✅ |
+| G — Micro-ajustes não bloqueantes | 5/22 (os demais dependem de Bloco 2 ou relock) | ✅ |
+| H — Relatório + 5 progress files + atualização deste tracker | 1/1 | ✅ |
+
+### Trackers específicos
+
+Os 5 trackers granulares desta sessão estão em:
+
+- `docs/audits/progress/block-1.5-product-foundation.md`
+- `docs/audits/progress/trilha2-compliance-produto.md`
+- `docs/audits/progress/trilha3-operacao-producao.md`
+- `docs/audits/progress/operational-immediate.md`
+- `docs/audits/progress/adjustments-blocks-2-7.md`
+
+### Ações manuais do PM abertas após esta sessão
+
+Lista detalhada em `docs/reports/pm-manual-actions-2026-04-10.md`:
+
+1. **C4** — selar `docs/harness-limitations.md` no MANIFEST via relock manual.
+2. **A3** — adicionar gate de advisor-review ao `pre-commit-gate.sh` via relock manual.
+3. **A4** — negociar e assinar NDA + proposta comercial do advisor técnico externo.
+4. **DPO** — contratar DPO fracionário para assinar e promover os 5 arquivos em `draft-awaiting-dpo`.
+
+### Próximo passo único
+
+**Executar o passo 1 de `docs/reports/pm-manual-actions-2026-04-10.md`** (selar `docs/harness-limitations.md` no MANIFEST). Isso fecha o C4 e protege a política de congelamento de admin bypass contra auto-edição pelo agente.
+
+---
+
 ## Operacional — congelamento de admin bypass (item C3 da meta-audit #2)
 
 **Congelamento de admin bypass ativo desde 2026-04-10.** Contador oficial: **3/5**. Política vigente em `docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`. Exceção permitida: incidente classificado P0 com assinatura do PM dentro do próprio arquivo de incidente. Teto absoluto: 5 envios diretos totais, contando os 3 já usados. Se atingir 5/5, o projeto pausa para re-auditoria externa antes de qualquer novo slice.
