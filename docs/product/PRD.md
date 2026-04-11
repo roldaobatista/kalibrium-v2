@@ -5761,12 +5761,34 @@ As seguintes são **dependências de implementação**, não modelo de produto, 
 O modelo de dados resultante de `/decide-stack` deve tratar os seguintes campos como configuração de primeira classe por Tenant (não enterrados em sub-entidades):
 
 - `Tenant.perfil_operacional` ∈ { `basico`, `intermediario`, `acreditado` }
-- `Tenant.emite_certificado_metrologico` : boolean (ou enum se OQ-PM-10 formalizar tipos adicionais)
+- `Tenant.emite_certificado_metrologico` : boolean (decidido em OQ-PM-10 / Opção C — ver subseção "Tipo 5 como on-ramp estratégico" abaixo)
 - `Tenant.acreditacao_ativa` : nullable struct { numero, escopo, validade, cgcre_id }
 - `Tenant.politica_rastreabilidade_minima` : enum dos 4 estados de `FR-LAB-04`
 - `Tenant.regras_iso_ativas` : set (ISO 9001, ISO 17025 por cláusula habilitável/desabilitável)
 
 Estes campos dirigem o comportamento do motor de emissão de certificados, o motor de validação de OS, e o pipeline de templates. **São parte do entitlement e da política do tenant, não configuração cosmética.**
+
+### Tipo 5 como on-ramp estratégico (decidido OQ-PM-10, 2026-04-11)
+
+O **Tipo 5** da tabela acima (empresa que não emite certificado metrológico — assistência técnica, ORC puro, reparo sem calibração) **não é cobertura acidental**. É cobertura deliberada, com posicionamento estratégico claro:
+
+**Tese:** Kalibrium é o sistema operacional do **técnico de instrumentação** em toda a sua jornada profissional, não apenas o software do laboratório acreditado RBC. O tenant típico do Tipo 5 **entra** pelo plano Starter/Basic — fazendo OS de reparo, controle de estoque técnico, emissão de nota fiscal de serviço, ponto eletrônico dos técnicos, portal do cliente para agendamento — e **matura metrologicamente ao longo do tempo**, passando por:
+
+1. **Tipo 5** — reparo puro, sem padrões formalmente rastreáveis, sem emissão metrológica
+2. **Tipo 4** — começa a emitir certificado não acreditado com declaração explícita de ausência de rastreabilidade formal
+3. **Tipo 3** — adquire padrões com rastreabilidade documentada (INMETRO, fabricante, lab não-RBC)
+4. **Tipo 2** — adquire padrões calibrados em laboratório acreditado RBC; pode declarar rastreabilidade RBC
+5. **Tipo 1b → 1** — busca ISO 9001, depois ISO 17025 parcial, depois acreditação formal pela Cgcre; opera dentro do escopo
+
+**Consequências operacionais desta tese:**
+
+- **Sem pricing separado para Tipo 5.** O tenant consome Starter ou Basic existentes, pagando pelos módulos Core/Ops/Fin/RH/Qual/Portal que já usa. O módulo Lab fica **desativado** até ele acionar (upgrade opcional via add-on ou plano Lab).
+- **Sem enum novo de `tipo_documento`.** O campo `Tenant.emite_certificado_metrologico : boolean` resolve — quando `false`, o motor de emissão de certificados (`FR-LAB-02`) simplesmente não é acionado para este tenant, e os templates de certificado (`FR-LAB-10`) ficam invisíveis na UI do técnico. É comportamento de feature flag clássico.
+- **Switching cost alto por desenho.** Como `§10.5.1` garante migração entre perfis sem perda de dados, um tenant Tipo 5 que passa dois anos no Kalibrium coletando histórico operacional acumula um ativo enorme. No dia em que ele decidir começar a calibrar, os dados de OS, instrumentos, clientes, técnicos e evidências já estão no sistema — **ativar o módulo Lab é configuração, não re-entrada de dados.** Isso é vantagem competitiva defensável.
+- **Anti-scope-creep interno.** A regra de ouro para o produto é: **Tipo 5 não pede features novas de Lab.** Se um tenant Tipo 5 pedir uma feature que exige lógica do módulo Lab, isso é sinal operacional de duas coisas — (a) o tenant está maturando e está na hora de oferecer upgrade para Perfil Intermediário, ou (b) a feature realmente pertence a outro módulo (Ops, Qual, Core) e foi pedida em um contexto errado. **Nunca** adicionar features ao Lab para cobrir Tipo 5.
+- **GTM alinhado com "cresça com a gente".** O posicionamento comercial do Kalibrium ao chegar em um prospect Tipo 5 não é "ah, a gente também atende quem não emite certificado" — é "o Kalibrium é o sistema operacional do técnico de instrumentação para a vida inteira do negócio, começando no reparo e acompanhando até a acreditação RBC". Isso transforma um Starter cheap em um Enterprise potencial no futuro.
+
+**Decisão arquitetural derivada (para `/decide-stack`):** o campo `Tenant.emite_certificado_metrologico` é um **feature flag de módulo**, não um tipo de documento. O motor de entitlement deve tratar a ativação/desativação do módulo Lab de forma limpa, sem vazar nulls ou exceptions para outros módulos. O modelo de dados deve permitir que um tenant tenha `emite_certificado_metrologico = false` sem que nenhuma outra entidade (Instrumento, Padrão, Calibração, Certificado) seja instanciada desnecessariamente.
 
 ---
 
@@ -5837,7 +5859,7 @@ Estes campos dirigem o comportamento do motor de emissão de certificados, o mot
 | OQ-PM-07 | Quanto de customização Enterprise o produto aceita? Apenas parametrização, ou também extensões custom de código? (liga com NFR-OPE-05) | Escopo de slices custom + custo de manutenção | Validação com 3 prospects Enterprise |
 | OQ-PM-08 | Operação 24x7 — interno (Kalibrium opera oncall) ou terceirizado (NOC externo)? (liga com R12) | Custo operacional + cumprimento de NFR-CON | Antes do primeiro cliente Enterprise |
 | OQ-PM-09 | Certificado digital oficial — quem fornece ao tenant, como renova, como entrega de forma segura? | Operação NF-e + NFR-CMP-01 | Antes do primeiro tenant que emite fiscal |
-| OQ-PM-10 | Empresa que **só faz reparo / assistência técnica sem emitir certificado metrológico** (tipo "ORC puro") está dentro do ICP comercial do Kalibrium como segmento de primeira classe, ou é cobertura acidental via Perfil Básico? Devemos formalizar um enquadramento documental `sem emissão metrológica` explícito ao lado dos estados existentes (`acreditado`, `não acreditado`, `fora do escopo`)? (liga com §Perfis Operacionais × Tipos de Cliente-Alvo, Tipo 5) | Escopo comercial + modelo de pricing Starter/Basic + decisão arquitetural sobre enum de `tipo_documento` e campo `Tenant.emite_certificado_metrologico` | **Antes do `/decide-stack`** (impacta diretamente o modelo de dados e o comportamento do motor de emissão) |
+| OQ-PM-10 ✅ | Empresa que **só faz reparo / assistência técnica sem emitir certificado metrológico** (tipo "ORC puro") está dentro do ICP comercial do Kalibrium? **Resolvida 2026-04-11: Opção C — on-ramp estratégico.** Tipo 5 é cobertura deliberada; tenant entra pelo Starter/Basic com módulo Lab desativado e o produto acompanha a maturação metrológica ao longo do tempo (Tipo 5 → 4 → 3 → 2 → 1 sem perda de dados, honrando o princípio de §10.5.1). Não se cria enum `tipo_documento = sem_emissao_metrologica` nem plano de pricing separado; basta o campo `Tenant.emite_certificado_metrologico : boolean` (já listado em §Perfis Operacionais × Tipos de Cliente-Alvo como campo de primeira classe). Ver subseção **"Tipo 5 como on-ramp estratégico"** do §Perfis Operacionais × Tipos de Cliente-Alvo para raciocínio completo e anti-scope-creep | Escopo comercial + modelo de pricing Starter/Basic + modelo de dados | Decidida 2026-04-11 — não bloqueia `/decide-stack` |
 
 ### Categoria 3 — Gaps Deliberados Aguardando Descoberta Externa
 
