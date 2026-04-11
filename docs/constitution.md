@@ -81,7 +81,7 @@ Qualquer item falho = não done. Sem exceção. Sem "aprovação humana bypassan
 
 ---
 
-## 4. Regras não-negociáveis (R1-R10)
+## 4. Regras não-negociáveis (R1-R12)
 
 ### R1. Fonte única de instrução
 **Permitido:** `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md`, `.claude/skills/*.md`.
@@ -203,7 +203,7 @@ Toda saída do harness destinada ao humano (PM) deve ser em **linguagem de produ
 
 ## 5. Processo de alteração da constituição
 
-Qualquer mudança em P1-P9 ou R1-R10 exige:
+Qualquer mudança em P1-P9 ou R1-R12 exige:
 
 1. **ADR novo** (`docs/adr/NNNN-constitution-amendment-<slug>.md`) contendo:
    - Regra afetada (ID + redação atual)
