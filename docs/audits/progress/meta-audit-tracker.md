@@ -29,11 +29,13 @@
 
 ## Bloco 1 — Selar o harness contra auto-modificação ✅
 
-**Status:** ✅ completo — 2026-04-10
+**Status:** ✅ completo — 2026-04-10 (commitado e pushado)
 **Pré-requisito:** Bloco 0 ✅
 **Critério de pronto:** `/guide-check` VERDE (0 findings, baseline `6a0d297` + 11 commits auditados no range) + `smoke-test-hooks.sh` 75/75 verdes (1 skip honesto: symlink test em Windows sem admin) + 2 commits ordenados:
 - Commit A `345b0a2` — `docs(meta-audit)` — pré-requisito narrativo
-- Commit B (este bloco) — `chore(harness): selar contra auto-modificação (bloco 1 meta-audit)`
+- Commit B `c061e3c` — `chore(harness): selar contra auto-modificação (bloco 1 meta-audit)`
+
+**Pushado via admin bypass** — ver `docs/incidents/bloco1-admin-bypass-2026-04-10.md` (commit C `a1ad97e`). Bypass count acumulado: 3. Caminho fechado pelo Bloco 5 item 5.3.
 
 - [x] 1.1 Hash-lock de `.claude/settings.json` + `settings-lock.sh` — 2026-04-10 (commit-pending)
 - [x] 1.2 Hash-lock de `scripts/hooks/*` + `MANIFEST.sha256` + `hooks-lock.sh` — 2026-04-10 (commit-pending)
@@ -141,7 +143,15 @@
 
 ### REP-P / LGPD / ICP-Brasil
 
-- [ ] Registrar como fora do MVP em `docs/compliance/out-of-scope.md` (requer advogado trabalhista + DPO, decisão futura)
+- [x] Registrar como fora do MVP em `docs/compliance/out-of-scope.md` — 2026-04-10 (7647bb1, item 1.5.10 da meta-audit #2)
+
+---
+
+## Operacional — congelamento de admin bypass (item C3 da meta-audit #2)
+
+**Congelamento de admin bypass ativo desde 2026-04-10.** Contador oficial: **3/5**. Política vigente em `docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`. Exceção permitida: incidente classificado P0 com assinatura do PM dentro do próprio arquivo de incidente. Teto absoluto: 5 envios diretos totais, contando os 3 já usados. Se atingir 5/5, o projeto pausa para re-auditoria externa antes de qualquer novo slice.
+
+Incident file com o contador oficial: `docs/incidents/bloco1-admin-bypass-2026-04-10.md §Contador oficial (após política de congelamento 2026-04-10)`.
 
 ---
 
