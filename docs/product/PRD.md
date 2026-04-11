@@ -115,64 +115,64 @@ O Kalibrium gera valor por cinco alavancas principais:
 - **Tipo:** SaaS B2B — plataforma multi-tenant modular com tiers de assinatura, RBAC e integrações
 - **Domínio:** Metrologia / Serviços Técnicos de Campo — com compliance metrológico, laboratorial, fiscal e trabalhista
 - **Complexidade:** Alta — múltiplos regimes regulatórios simultâneos, operação offline, 6 macrodomínios integrados
-- **Contexto:** Greenfield — produto novo, visão documentada no `IDEIA.md` como base para este PRD
+- **Contexto:** Greenfield — produto novo; este PRD é a fonte canônica única da visão de produto
 
 
 
 
 
 
-## Trilhas Permanentes de Evolucao do Produto
+## Trilhas Permanentes de Evolução do Produto
 
-O Kalibrium se organiza em cinco trilhas permanentes de evolucao do produto, aplicadas continuamente ao ciclo de maturidade do sistema completo:
+O Kalibrium se organiza em cinco trilhas permanentes de evolução do produto, aplicadas continuamente ao ciclo de maturidade do sistema completo:
 
-### Trilha 1 — Excelencia Operacional
+### Trilha 1 — Excelência Operacional
 
-Mais automacao, menor retrabalho, mais previsibilidade de agenda, campo e faturamento.
+Mais automação, menor retrabalho, mais previsibilidade de agenda, campo e faturamento.
 
 ### Trilha 2 — Profundidade Vertical
 
-Expansao continua de recursos tecnicos, laboratoriais, fiscais e regulatorios aderentes ao segmento de metrologia, calibracao e servicos tecnicos.
+Expansão continua de recursos técnicos, laboratoriais, fiscais e regulatórios aderentes ao segmento de metrologia, calibração e serviços técnicos.
 
-### Trilha 3 — Experiencia Conectada
+### Trilha 3 — Experiência Conectada
 
-Melhor integracao entre portal, mobile, omnichannel, fornecedores, clientes e parceiros.
+Melhor integração entre portal, mobile, omnichannel, fornecedores, clientes e parceiros.
 
-### Trilha 4 — Inteligencia e Prevencao
+### Trilha 4 — Inteligência e Prevencao
 
-Mais analytics, deteccao de anomalias, alertas proativos e suporte a decisao baseado em dados.
+Mais analytics, deteccao de anomalias, alertas proativos e suporte a decisão baseado em dados.
 
 ### Trilha 5 — Escala e Governanca
 
-Maior configurabilidade por tenant, maior robustez arquitetural e menor custo de evolucao do produto.
+Maior configurabilidade por tenant, maior robustez arquitetural e menor custo de evolução do produto.
 
-### Criterios de Priorizacao Continua
+### Critérios de Priorização Continua
 
 Iniciativas devem ser priorizadas quando contribuirem, em ordem decrescente de importancia:
 
-1. Protecao de receita
-2. Protecao de compliance e risco regulatorio
-3. Reducao de trabalho manual recorrente
-4. Aumento de fluidez em fluxos end-to-end criticos
-5. Aumento de capacidade analitica e de decisao
-6. Preservacao da coerencia arquitetural da plataforma
+1. Proteção de receita
+2. Proteção de compliance e risco regulatório
+3. Redução de trabalho manual recorrente
+4. Aumento de fluidez em fluxos end-to-end críticos
+5. Aumento de capacidade analitica e de decisão
+6. Preservação da coerência arquitetural da plataforma
 
-### Hierarquia de Decisao sob Conflito
+### Hierarquia de Decisão sob Conflito
 
-Quando houver conflito entre conveniencia operacional local e coerencia sistemica do produto, a decisao correta deve respeitar a seguinte ordem:
+Quando houver conflito entre conveniência operacional local e coerência sistêmica do produto, a decisão correta deve respeitar a seguinte ordem:
 
-1. Protecao de seguranca, isolamento tenant e identidade
-2. Protecao de compliance, obrigacao legal e rastreabilidade regulatoria
-3. Preservacao de evidencia, causalidade e integridade documental
+1. Proteção de segurança, isolamento tenant e identidade
+2. Proteção de compliance, obrigação legal e rastreabilidade regulatória
+3. Preservação de evidência, causalidade e integridade documental
 4. Continuidade operacional controlada com fallback explicito
-5. Protecao de receita, cobranca e previsibilidade financeira
-6. Ergonomia de uso, velocidade local e conveniencia de interface
+5. Proteção de receita, cobrança e previsibilidade financeira
+6. Ergonomia de uso, velocidade local e conveniência de interface
 
 Essa hierarquia existe para evitar que ganhos locais de curto prazo degradem os fundamentos estruturais do sistema.
 
-### Gestao de Mudanca e Operacao Assistida
+### Gestão de Mudança e Operação Assistida
 
-O produto deve ser operado como mudanca de sistema operacional da empresa, e nao apenas como substituicao de telas. Cada frente funcional deve contemplar: onboarding, treinamento, revisao de papeis, desativacao de controles paralelos, suporte assistido, estabilizacao operacional e criterios claros de uso consistente entre areas internas e canais externos.
+O produto deve ser operado como mudança de sistema operacional da empresa, e não apenas como substituição de telas. Cada frente funcional deve contemplar: onboarding, treinamento, revisão de papeis, desativação de controles paralelos, suporte assistido, estabilização operacional e critérios claros de uso consistente entre areas internas e canais externos.
 
 ---
 
@@ -228,7 +228,9 @@ A métrica norte do Kalibrium é o **percentual de fluxos operacionais críticos
 
 ## KPIs de Produto — Matriz Subordinada
 
-Esta seção detalha `Métricas de Sucesso, KPIs e Critérios` sem criar uma segunda métrica norte. Cada indicador usado em dashboards, QBRs, health score ou prova de valor deve declarar owner, método de medição, baseline e meta antes de ser tratado como compromisso de produto ou contrato.
+> **Seção subordinada a `§Métricas de Sucesso, KPIs e Critérios`.** Esta seção é a matriz operacional de indicadores e não cria uma segunda métrica norte. Em caso de conflito de valor, baseline, owner ou meta, prevalece a seção canônica.
+
+Cada indicador usado em dashboards, QBRs, health score ou prova de valor deve declarar owner, método de medição, baseline e meta antes de ser tratado como compromisso de produto ou contrato.
 
 ### Métrica Norte
 
@@ -365,35 +367,7 @@ Quatro condições simultâneas: fluxos críticos operando com evidência; baixa
 
 ## Prioridades Estruturais do Produto
 
-O Kalibrium se organiza em cinco trilhas permanentes de evolução:
-
-| Trilha | Objetivo |
-|---|---|
-| **Excelência Operacional** | Mais automação, menor retrabalho, mais previsibilidade de agenda, campo e faturamento |
-| **Profundidade Vertical** | Expansão contínua de recursos técnicos, laboratoriais, fiscais e regulatórios aderentes ao segmento |
-| **Experiência Conectada** | Melhor integração entre portal, mobile, omnichannel, fornecedores, clientes e parceiros |
-| **Inteligência e Prevenção** | Mais analytics, detecção de anomalias, alertas proativos e suporte à decisão |
-| **Escala e Governança** | Maior configurabilidade por tenant, robustez arquitetural e menor custo de evolução |
-
-### Critérios de Priorização Contínua
-
-Iniciativas devem ser priorizadas quando contribuírem, nesta ordem:
-1. Proteção de receita
-2. Proteção de compliance e risco regulatório
-3. Redução de trabalho manual recorrente
-4. Aumento de fluidez em fluxos E2E críticos
-5. Aumento de capacidade analítica e de decisão
-6. Preservação da coerência arquitetural da plataforma
-
-### Hierarquia de Decisão sob Conflito
-
-Quando houver conflito entre conveniência operacional local e coerência sistêmica, respeitar esta ordem:
-1. Proteção de segurança, isolamento tenant e identidade
-2. Proteção de compliance, obrigação legal e rastreabilidade regulatória
-3. Preservação de evidência, causalidade e integridade documental
-4. Continuidade operacional controlada com fallback explícito
-5. Proteção de receita, cobrança e previsibilidade financeira
-6. Ergonomia de uso, velocidade local e conveniência de interface
+> **Seção subordinada a `§Trilhas Permanentes de Evolução do Produto`.** As 5 trilhas, os 6 critérios de priorização contínua e a hierarquia de decisão sob conflito estão integralmente detalhados na seção canônica (com subseções H3 explicativas). Esta seção existia como resumo executivo em tabela e foi consolidada para eliminar duplicação estrutural. Em caso de conflito de formulação, prevalece a seção canônica.
 
 ---
 
@@ -422,7 +396,7 @@ Todo fluxo ou feature deve passar por seis gates antes de ir a produção:
 
 
 
-## Score de Saude Compliance e Maturidade Regulatoria
+## Score de Saúde Compliance e Maturidade Regulatória
 
 Dashboard interno que calcula a "nota de conformidade" da empresa em multiplas dimensoes:
 
@@ -430,17 +404,17 @@ Dashboard interno que calcula a "nota de conformidade" da empresa em multiplas d
 
 | Dimensao | Indicadores |
 |---|---|
-| Metrologia | % padroes de calibracao com certificado vigente, % instrumentos internos calibrados, padroes vencidos em uso |
-| RH / Trabalhista | Eventos eSocial pendentes ou com erro, ASOs a vencer, tecnicos com habilitacoes vencidas, espelhos com inconsistencias |
-| Fiscal | Guias de imposto vencidas nao pagas, obrigacoes atrasadas (DCTF, PGDAS-D), NF-e com rejeicao SEFAZ nao reprocessadas |
-| Documental | Documentos ISO com revisao vencida, alvaras proximos do vencimento, apolices de seguro vencidas |
-| Seguranca | Usuarios sem 2FA, acessos de ex-colaboradores nao revogados, backups do periodo executados |
+| Metrologia | % padrões de calibração com certificado vigente, % instrumentos internos calibrados, padrões vencidos em uso |
+| RH / Trabalhista | Eventos eSocial pendentes ou com erro, ASOs a vencer, técnicos com habilitações vencidas, espelhos com inconsistências |
+| Fiscal | Guias de imposto vencidas não pagas, obrigações atrasadas (DCTF, PGDAS-D), NF-e com rejeicao SEFAZ não reprocessadas |
+| Documental | Documentos ISO com revisão vencida, alvaras proximos do vencimento, apolices de seguro vencidas |
+| Segurança | Usuários sem 2FA, acessos de ex-colaboradores não revogados, backups do período executados |
 
 - Nota de 0 a 100 por dimensao com semaforo (verde/amarelo/vermelho)
 - Nota geral com pesos configuráveis
-- Lista de pendencias com link direto para a acao corretiva
-- Historico da nota ao longo do tempo para demonstrar evolucao em auditorias
-- Relatorio exportavel para apresentar em auditorias ISO, revisoes gerenciais e due diligence de clientes corporativos
+- Lista de pendências com link direto para a ação corretiva
+- Histórico da nota ao longo do tempo para demonstrar evolução em auditorias
+- Relatório exportável para apresentar em auditorias ISO, revisões gerenciais e due diligence de clientes corporativos
 
 ---
 
@@ -473,20 +447,13 @@ Para gerar impacto real, a adoção do produto depende de:
 - Disciplina de processo e uso do sistema como fonte de verdade
 - Onboarding progressivo por ondas — não ativação caótica de tudo ao mesmo tempo
 
----
+### Perfis Externos e Operacionais SaaS
 
-
-
-
-
-
-## Personas Completas — Todos os Perfis
-
-Esta seção deixou de repetir a tabela de personas. A fonte canônica de papéis e jobs é `Personas e Jobs To Be Done`; jornadas, RBAC, superfícies operacionais e fluxos complementares detalham a experiência por papel. Em caso de divergência, consolidar primeiro a tabela canônica e depois ajustar requisitos, permissões e jornadas.
-
-Perfis externos e de operação SaaS que não cabem na lista resumida devem aparecer como jornadas ou superfícies de trabalho com escopo mínimo, owner, entradas, saídas, evidências e métricas. Isso inclui comprador externo do cliente, auditor, contador, fornecedor, subcontratado, parceiro de canal, CS, ProductOps, TenantOps, SupportOps e Billing SaaS.
+Perfis externos e de operação SaaS que não cabem na tabela resumida acima devem aparecer como jornadas ou superfícies de trabalho com escopo mínimo, owner, entradas, saídas, evidências e métricas. Isso inclui comprador externo do cliente, auditor, contador, fornecedor, subcontratado, parceiro de canal, CS, ProductOps, TenantOps, SupportOps e Billing SaaS.
 
 ---
+
+
 
 
 
@@ -1095,38 +1062,38 @@ Classificado explicitamente como capacidade complementar, não como núcleo do p
 
 ### Núcleo Operacional do Sistema Completo
 
-**Jornadas suportadas:** tecnico de campo, coordenacao tecnica, financeiro, qualidade, cliente final e admin/onboarding.
+**Jornadas suportadas:** técnico de campo, coordenação técnica, financeiro, qualidade, cliente final e admin/onboarding.
 
-**Capacidades obrigatorias para coerencia do produto completo:**
+**Capacidades obrigatórias para coerência do produto completo:**
 
 - Core Platform: multi-tenant, identidade e acesso, permissões, auditoria, multi-empresa, multi-filial, gestão de assinatura, onboarding self-service, importação de dados legados
 - CRM + Comercial: pipeline, propostas, contratos, pricing, forecast, comissoes, churn preditivo, carteira viva de instrumentos
-- Service Operations: chamados, helpdesk, agenda, OSs, execução móvel offline, painel operacional, alertas, roterizacao
-- Technical Quality: calibracao, laboratorio, INMETRO/PSEI, certificados ISO 17025, selos de reparo, controle de lacres, rastreabilidade, gestao de ativos, estoque, frota
-- Finance + Fiscal: NF-e/NFS-e integrada SEFAZ, faturamento, contas a receber/pagar, boleto/PIX, simulacao de margem, comissoes
-- RH + eSocial: ponto, jornada, espelho, ferias, admissao, eSocial
-- Quality + Compliance: CAPA, NCs, vencimentos, documentos, trilha de evidencias
+- Service Operations: chamados, helpdesk, agenda, OSs, execução móvel offline, painel operacional, alertas, roteirização
+- Technical Quality: calibração, laboratório, INMETRO/PSEI, certificados ISO 17025, selos de reparo, controle de lacres, rastreabilidade, gestão de ativos, estoque, frota
+- Finance + Fiscal: NF-e/NFS-e integrada SEFAZ, faturamento, contas a receber/pagar, boleto/PIX, simulação de margem, comissoes
+- RH + eSocial: ponto, jornada, espelho, ferias, admissão, eSocial
+- Quality + Compliance: CAPA, NCs, vencimentos, documentos, trilha de evidências
 - Portal do Cliente + Omnichannel: acompanhamento, chamados, certificados e comunicação rastreável
-- Portal de Fornecedores: cotacoes, logistica B2B
+- Portal de Fornecedores: cotações, logistica B2B
 - Analytics & BI: dashboards executivos, KPIs operacionais
-- Integracoes: sistemas fiscais, metrológicos, trabalhistas, cadastrais, financeiros e canais de comunicação
+- Integrações: sistemas fiscais, metrológicos, trabalhistas, cadastrais, financeiros e canais de comunicação
 
 ### Expansão Funcional e Visão Avançada
 
-- IoT/Telemetria integrada a equipamentos em campo (coleta automatica de leituras)
-- IA aplicada: deteccao de desvios, previsao de manutencao preventiva, assistente conversacional
+- IoT/Telemetria integrada a equipamentos em campo (coleta automática de leituras)
+- IA aplicada: deteccao de desvios, previsão de manutenção preventiva, assistente conversacional
 - Identidade corporativa avançada para tenants Enterprise
-- Controle de acesso fisico integrado (catracas, laboratorios restritos)
-- Marketplace de integracoes e parceiros
+- Controle de acesso físico integrado (catracas, laboratórios restritos)
+- Marketplace de integrações e parceiros
 
 ### Estratégia de Mitigação de Riscos
 
-| Risco | Mitigacao |
+| Risco | Mitigação |
 |---|---|
 | Escopo grande = risco de dispersão | Evolução por macrodomínio e fluxo de valor; validação assistida por tenant piloto antes de abertura comercial ampla |
-| Complexidade regulatoria (NF-e, eSocial, PSEI) | Regras fiscais/trabalhistas configuráveis; parceria com especialistas fiscais; ativação controlada por região/regime |
-| Usuario resistente a novo sistema | Onboarding guiado, importacao assistida, periodo de coexistencia com sistema legado, checklist de primeiras acoes |
-| Qualidade de dados na migracao | Assistente de importacao com validacao, preview e reversão operacional |
+| Complexidade regulatória (NF-e, eSocial, PSEI) | Regras fiscais/trabalhistas configuráveis; parceria com especialistas fiscais; ativação controlada por região/regime |
+| Usuário resistente a novo sistema | Onboarding guiado, importação assistida, período de coexistência com sistema legado, checklist de primeiras ações |
+| Qualidade de dados na migração | Assistente de importação com validação, preview e reversão operacional |
 | Capacidade operacional do time vs escopo completo | Fatiamento por macrodominio e fluxo de valor, preservando contratos funcionais entre áreas |
 
 
@@ -1392,11 +1359,11 @@ As famílias abaixo servem para comunicação comercial e suporte; os limites ex
 
 ### Feature Gates e Add-ons
 
-- Cada modulo e funcionalidade tem um feature gate explicito ligado ao plano
-- Modulos fora do plano sao visiveis mas bloqueados com CTA de upgrade claro
+- Cada módulo e funcionalidade tem um feature gate explicito ligado ao plano
+- Módulos fora do plano sao visíveis mas bloqueados com CTA de upgrade claro
 - Limites monitorados com alerta antes de atingir o teto (80% e 95%)
 - Add-ons vendáveis individualmente apenas quando a capacidade não estiver incluída no plano contratado ou quando representar volume, retenção, isolamento operacional reforçado, integração dedicada, serviço profissional ou suporte premium adicional: Lab acreditado, Fleet, eSocial, integração corporativa, volume adicional de integrações, retenção estendida de logs, armazenamento adicional, white-label e pacote de suporte premium
-- Upgrade/downgrade em tempo real com calculo pro-rata automatico
+- Upgrade/downgrade em tempo real com cálculo pro-rata automático
 - Enterprise inclui os módulos core do produto completo; add-ons acima do Enterprise representam volume, isolamento operacional reforçado, serviços profissionais, retenção estendida, integrações dedicadas ou requisitos contratuais excepcionais, nunca a cobrança separada de capacidades core já contratadas
 
 ### Modelo de Entitlements, Overage e Serviços Profissionais
@@ -1739,17 +1706,17 @@ O Kalibrium deve ser vendido e expandido por fluxo de valor, não por lista de m
 
 ### Áreas de Inovação Detectadas
 
-**1. Propagacao de eventos entre dominios como produto, nao integracao**
-A maioria dos ERPs verticais integra modulos por sincronizações pontuais e conciliações tardias. O Kalibrium trata a propagacao de eventos (OS fechada -> certificado emitido -> NF-e na fila -> cobranca criada -> comissao calculada) como parte do core do produto. Nenhuma reentrada e nenhum controle paralelo como condição normal de operação.
+**1. Propagação de eventos entre dominios como produto, não integração**
+A maioria dos ERPs verticais integra módulos por sincronizações pontuais e conciliações tardias. O Kalibrium trata a propagação de eventos (OS fechada -> certificado emitido -> NF-e na fila -> cobrança criada -> comissao calculada) como parte do core do produto. Nenhuma reentrada e nenhum controle paralelo como condição normal de operação.
 
 **2. CRM com carteira viva de instrumentos como pipeline de receita**
-Nenhum CRM do segmento converte automaticamente vencimentos de calibracao em oportunidades comerciais. O Kalibrium transforma dados tecnicos (instrumento X vence em 30 dias) em pipeline ativo do vendedor com valor estimado sem acao manual. Ciclo de receita recorrente orientado por rastreabilidade tecnica.
+Nenhum CRM do segmento converte automaticamente vencimentos de calibração em oportunidades comerciais. O Kalibrium transforma dados técnicos (instrumento X vence em 30 dias) em pipeline ativo do vendedor com valor estimado sem ação manual. Ciclo de receita recorrente orientado por rastreabilidade técnica.
 
-**3. Compliance metrologico e trabalhista como fluxo nativo, nao modulo adicional**
-ISO 17025, PSEI/INMETRO, eSocial e NF-e sao gates obrigatorios nos fluxos operacionais. Um tecnico nao fecha OS de reparo regulado sem aplicar selo INMETRO e fotografar. Compliance como comportamento de produto, nao checklist manual.
+**3. Compliance metrológico e trabalhista como fluxo nativo, não módulo adicional**
+ISO 17025, PSEI/INMETRO, eSocial e NF-e sao gates obrigatórios nos fluxos operacionais. Um técnico não fecha OS de reparo regulado sem aplicar selo INMETRO e fotografar. Compliance como comportamento de produto, não checklist manual.
 
-**4. Execucao offline com evidencia completa**
-Coletar leituras, calcular incerteza, fotografar lacres, capturar assinatura e geolocalizacao offline - sincronizando com idempotencia garantida. Resolve problema real de campo que ERPs web convencionais ignoram.
+**4. Execução offline com evidência completa**
+Coletar leituras, calcular incerteza, fotografar lacres, capturar assinatura e geolocalização offline - sincronizando com idempotência garantida. Resolve problema real de campo que ERPs web convencionais ignoram.
 
 ### Contexto de Mercado
 
@@ -1757,19 +1724,19 @@ Os concorrentes do segmento tendem a se dividir entre sistemas setoriais de cali
 
 ### Abordagem de Validação
 
-- **Evento propagado:** fechamento de OS gera automaticamente certificado, NF-e e titulo a receber sem intervencao humana
+- **Evento propagado:** fechamento de OS gera automaticamente certificado, NF-e e titulo a receber sem intervenção humana
 - **Carteira viva:** medir oportunidades comerciais geradas automaticamente por vencimento vs criadas manualmente
-- **Compliance como gate:** auditar percentual de OSs de reparo regulado fechadas com 100% de conformidade PSEI sem correcao posterior
-- **Offline:** taxa de perda de dados em sincronizacao - meta: 0%
+- **Compliance como gate:** auditar percentual de OSs de reparo regulado fechadas com 100% de conformidade PSEI sem correção posterior
+- **Offline:** taxa de perda de dados em sincronização - meta: 0%
 
 ### Riscos de Inovação
 
-| Risco | Mitigacao |
+| Risco | Mitigação |
 |---|---|
-| Propagacao de eventos cria acoplamento fragil | Contratos funcionais explícitos entre domínios, reprocessamento controlado e trilha de auditoria |
-| CRM com carteira viva depende de dados tecnicos integros | Qualidade dos dados de instrumento como requisito de onboarding; importacao assistida obrigatoria |
-| Compliance como gate pode travar operacao em bugs | Ativação controlada por fluxo regulado; modo de contingencia auditavel para emergencias |
-| Operação móvel offline limitada por capacidade do dispositivo | Sincronizacao incremental; limite configuravel de OSs offline por dispositivo |
+| Propagação de eventos cria acoplamento fragil | Contratos funcionais explícitos entre domínios, reprocessamento controlado e trilha de auditoria |
+| CRM com carteira viva depende de dados técnicos integros | Qualidade dos dados de instrumento como requisito de onboarding; importação assistida obrigatória |
+| Compliance como gate pode travar operação em bugs | Ativação controlada por fluxo regulado; modo de contingência auditável para emergências |
+| Operação móvel offline limitada por capacidade do dispositivo | Sincronização incremental; limite configurável de OSs offline por dispositivo |
 
 
 
@@ -1780,68 +1747,68 @@ Os concorrentes do segmento tendem a se dividir entre sistemas setoriais de cali
 
 ### Visão Geral do Tipo de Projeto
 
-Plataforma SaaS B2B multi-tenant com modelo de assinatura recorrente, isolamento completo entre organizacoes, controle de acesso granular, capacidades habilitadas por plano e integracoes com ecossistemas externos regulatorios e operacionais.
+Plataforma SaaS B2B multi-tenant com modelo de assinatura recorrente, isolamento completo entre organizações, controle de acesso granular, capacidades habilitadas por plano e integrações com ecossistemas externos regulatórios e operacionais.
 
 ### Modelo Multi-Tenant
 
 - **Isolamento por tenant:** dados, documentos, configurações, integrações, credenciais, rotinas operacionais e trilhas de auditoria isolados por contexto autorizado - zero compartilhamento de dados entre organizações
-- **Multi-empresa:** uma assinatura pode conter N empresas (CNPJs distintos) e seus estabelecimentos, com segregacao operacional por contexto e visao corporativa consolidada para usuarios autorizados do grupo
-- **Multi-filial:** empresa pode ter N filiais com autonomia configuravel por recurso (estoque, NF-e, RH, caixa) e visao consolidada para a gestao
-- **Troca de contexto sem reautenticacao:** usuario com acesso a multiplas empresas alterna pelo seletor no topo, sem novo login
-- **Provisionamento automatico:** criacao de tenant 100% automatizada, sem intervencao manual da equipe Kalibrium
+- **Multi-empresa:** uma assinatura pode conter N empresas (CNPJs distintos) e seus estabelecimentos, com segregação operacional por contexto e visao corporativa consolidada para usuários autorizados do grupo
+- **Multi-filial:** empresa pode ter N filiais com autonomia configurável por recurso (estoque, NF-e, RH, caixa) e visao consolidada para a gestão
+- **Troca de contexto sem reautenticação:** usuário com acesso a multiplas empresas alterna pelo seletor no topo, sem novo login
+- **Provisionamento automático:** criação de tenant 100% automatizada, sem intervenção manual da equipe Kalibrium
 
 ### Modelo de Permissões (RBAC)
 
-- Papeis configuráveis por empresa e por filial - o mesmo usuario pode ser admin na Empresa A e tecnico na Empresa B
-- Permissoes granulares por modulo, por acao (visualizar/criar/editar/aprovar/excluir) e por escopo (proprio / equipe / filial / empresa / grupo)
-- Perfis pre-definidos: Administrador, Coordenador Tecnico, Tecnico de Campo, Atendente, Financeiro, Qualidade, RH, Cliente, Fornecedor
-- Restricoes de acesso por horario e por IP configuraveis por tenant
-- Trilha de auditoria imutavel de todas as acoes com usuario, timestamp, IP e dado alterado
+- Papeis configuráveis por empresa e por filial - o mesmo usuário pode ser admin na Empresa A e técnico na Empresa B
+- Permissões granulares por módulo, por ação (visualizar/criar/editar/aprovar/excluir) e por escopo (proprio / equipe / filial / empresa / grupo)
+- Perfis pre-definidos: Administrador, Coordenador Técnico, Técnico de Campo, Atendente, Financeiro, Qualidade, RH, Cliente, Fornecedor
+- Restricoes de acesso por horário e por IP configuráveis por tenant
+- Trilha de auditoria imutável de todas as ações com usuário, timestamp, IP e dado alterado
 
 ### Tiers de Assinatura — 6 Planos
 
 Esta tabela resume a taxonomia canônica definida em `Modelo de Pricing e Planos SaaS`. Em caso de conflito de limite, nomenclatura ou entitlement, prevalece a seção de pricing.
 
-| Tier | Perfil | Modulos Principais | Modelo de Preco |
+| Tier | Perfil | Módulos Principais | Modelo de Preço |
 |---|---|---|---|
-| **Starter** | Assistencia tecnica autonoma / MEI | OS basica, estoque simples, financeiro basico, portal do cliente | Preco fixo baixo, com avaliação assistida quando aplicável |
-| **Basic** | Pequena empresa, sem acreditacao | OS completa, agenda, helpdesk, NF-e, financeiro, ponto basico | Por usuario, ate 10 usuarios |
-| **Professional** | Empresa media em crescimento | Tudo acima + Lab intermediario, RH completo, NFS-e, canal de mensageria, BI basico, frota | Por usuario ativo ou volume de OS |
-| **Lab** | Laboratorio de calibracao (com ou sem ISO) | Tudo do Professional + Lab acreditado ISO 17025, INMETRO/PSEI, certificados avancados, rastreabilidade completa | Por volume de certificados ou por usuario |
+| **Starter** | Assistência técnica autônoma / MEI | OS básica, estoque simples, financeiro básico, portal do cliente | Preço fixo baixo, com avaliação assistida quando aplicável |
+| **Basic** | Pequena empresa, sem acreditação | OS completa, agenda, helpdesk, NF-e, financeiro, ponto básico | Por usuário, até 10 usuários |
+| **Professional** | Empresa media em crescimento | Tudo acima + Lab intermediário, RH completo, NFS-e, canal de mensageria, BI básico, frota | Por usuário ativo ou volume de OS |
+| **Lab** | Laboratório de calibração (com ou sem ISO) | Tudo do Professional + Lab acreditado ISO 17025, INMETRO/PSEI, certificados avançados, rastreabilidade completa | Por volume de certificados ou por usuário |
 | **Business** | Multi-empresa / multi-filial | Tudo do Lab + multi-filial, multi-empresa, eSocial, DRE consolidado, integrações públicas, omnichannel | Por empresa ativa no grupo |
-| **Enterprise** | Grande empresa / grupo empresarial | Todos os modulos + white-label, SLA dedicado, suporte premium, residencia de dados configuravel, onboarding assistido | Contrato negociado |
+| **Enterprise** | Grande empresa / grupo empresarial | Todos os módulos + white-label, SLA dedicado, suporte premium, residência de dados configurável, onboarding assistido | Contrato negociado |
 
-- Feature gates explicitos por plano - modulos fora do plano visiveis mas bloqueados com CTA de upgrade
+- Feature gates explicitos por plano - módulos fora do plano visíveis mas bloqueados com CTA de upgrade
 - Add-ons vendáveis conforme matriz comercial canônica; quando um add-on representar capacidade core já incluída em plano superior, a cobrança separada só se aplica a planos inferiores ou a volume/serviço profissional adicional
-- Limites configuraveis: usuarios, OS/mes, armazenamento, volume de integrações e automações
-- Billing recorrente nativo: mensal/anual, cartao/boleto/PIX, dunning automatico, pro-rata em upgrade/downgrade
+- Limites configuráveis: usuários, OS/mes, armazenamento, volume de integrações e automações
+- Billing recorrente nativo: mensal/anual, cartao/boleto/PIX, dunning automático, pro-rata em upgrade/downgrade
 
 ### Lista de Integrações
 
-**Regulatorias (obrigatorias):**
-- SEFAZ - NF-e, NFS-e, CT-e (emissao, consulta, cancelamento, carta de correcao)
+**Regulatórias (obrigatórias):**
+- SEFAZ - NF-e, NFS-e, CT-e (emissão, consulta, cancelamento, carta de correção)
 - PSEI/INMETRO - lancamento de selos de reparo
 - eSocial - eventos trabalhistas S-2200, S-2206, S-2230, S-2299+
-- Receita Federal - validacao de CNPJ, consulta cadastral
+- Receita Federal - validação de CNPJ, consulta cadastral
 - Prefeituras municipais - NFS-e conforme leiaute, padrão ou canal oficial exigido
 
 **Operacionais:**
-- Canais de comunicacao - notificacoes, aprovacao de orcamento, omnichannel
-- Meios de pagamento - cartao, boleto, PIX e conciliacao para billing recorrente
+- Canais de comunicação - notificações, aprovação de orçamento, omnichannel
+- Meios de pagamento - cartao, boleto, PIX e conciliação para billing recorrente
 - E-mail transacional
-- Armazenamento de documentos e evidencias (fotos, PDFs, certificados)
+- Armazenamento de documentos e evidências (fotos, PDFs, certificados)
 
-**Migracao/Importacao:**
+**Migração/Importação:**
 - Arquivos estruturados com mapeamento visual de colunas
-- Conectores para sistemas legados de calibracao, laboratorio, financeiro e RH quando necessários para migração
+- Conectores para sistemas legados de calibração, laboratório, financeiro e RH quando necessários para migração
 
 **Integrações públicas (Business/Enterprise):**
-- Interface pública documentada para integracoes customizadas de tenants
+- Interface pública documentada para integrações customizadas de tenants
 
 ### Considerações de Produto
 
-- **Onboarding self-service:** wizard de 5 passos do cadastro ao primeiro uso operacional, sem intervencao da equipe Kalibrium
-- **Ativação controlada por fluxo regulado:** permite tratamento de contingência em emergencia com log de auditoria
+- **Onboarding self-service:** wizard de 5 passos do cadastro ao primeiro uso operacional, sem intervenção da equipe Kalibrium
+- **Ativação controlada por fluxo regulado:** permite tratamento de contingência em emergência com log de auditoria
 - **Lifecycle de cancelamento:** carência contratual até a data efetiva, janela de exportação em modo somente leitura após encerramento, soft-delete por 180 dias e exclusão/anonimização conforme LGPD e retenções legais aplicáveis
 - **White-label (Enterprise):** dominio customizado, logo e cores por tenant
 
@@ -2012,9 +1979,11 @@ Essas famílias são agrupamentos operacionais de experiência e suporte, não n
 
 
 
-## Matriz de Permissoes RBAC por Modulo
+## Matriz de Permissões RBAC por Módulo
 
-Esta seção histórica foi consolidada em `RBAC — Papéis e Permissões`, que passa a ser a única fonte de verdade para papéis, permissões e regras adicionais. A permissão de `Compras`, que existia apenas nesta matriz duplicada, foi incorporada à matriz canônica. Especificações modulares futuras devem referenciar a seção canônica e preservar menor privilégio, escopo por tenant/empresa/filial/grupo, acesso externo segregado e trilha de auditoria.
+> **Seção histórica consolidada em `§RBAC — Papéis e Permissões`.** A fonte única de verdade para papéis, permissões e regras adicionais é a seção canônica. A permissão de `Compras`, que existia apenas nesta matriz duplicada, foi incorporada ao canônico.
+
+Especificações modulares futuras devem referenciar a seção canônica e preservar menor privilégio, escopo por tenant/empresa/filial/grupo, acesso externo segregado e trilha de auditoria.
 
 ---
 
@@ -2363,25 +2332,25 @@ Checklists que adaptam as perguntas seguintes com base nas respostas anteriores:
 
 
 
-## SLA Configuravel por Tipo de Ordem de Servico
+## SLA Configurável por Tipo de Ordem de Serviço
 
-Tabela de SLA padrao por tipo de OS, usada quando nao ha SLA especifico de contrato ou cliente:
+Tabela de SLA padrão por tipo de OS, usada quando não ha SLA específico de contrato ou cliente:
 
-| Tipo de OS | Prioridade | SLA Atribuicao | SLA Execucao | SLA Entrega |
+| Tipo de OS | Prioridade | SLA Atribuição | SLA Execução | SLA Entrega |
 |---|---|---|---|---|
-| Emergencia / parada de producao | Critica | 30 minutos | 4 horas | No ato |
-| Reparo urgente | Alta | 2 horas | 24 horas | 24h apos conclusao |
-| Reparo rotineiro | Normal | 8 horas | 5 dias uteis | 2 dias apos conclusao |
-| Calibracao de urgencia | Alta | 2 horas | 8 horas | No ato ou 24h |
-| Calibracao rotineira | Normal | 24 horas | 5 dias uteis | 2 dias apos conclusao |
-| Manutencao preventiva programada | Baixa | Conforme agendamento | Conforme agendamento | No ato |
-| Instalacao de equipamento | Normal | 4 horas | 3 dias uteis | No ato |
+| Emergência / parada de produção | Crítica | 30 minutos | 4 horas | No ato |
+| Reparo urgente | Alta | 2 horas | 24 horas | 24h após conclusao |
+| Reparo rotineiro | Normal | 8 horas | 5 dias uteis | 2 dias após conclusao |
+| Calibração de urgência | Alta | 2 horas | 8 horas | No ato ou 24h |
+| Calibração rotineira | Normal | 24 horas | 5 dias uteis | 2 dias após conclusao |
+| Manutenção preventiva programada | Baixa | Conforme agendamento | Conforme agendamento | No ato |
+| Instalação de equipamento | Normal | 4 horas | 3 dias uteis | No ato |
 | Inspecao / vistoria | Normal | 24 horas | 3 dias uteis | No ato |
 | Diagnostico sem reparo | Normal | 8 horas | 2 dias uteis | No ato |
 
-- Tenant personaliza esta tabela no painel de configuracoes
-- Ao abrir OS: tipo selecionado carrega o SLA padrao automaticamente
-- Atendente pode aumentar prioridade (urgencia declarada pelo cliente) mas nao diminuir sem aprovacao do gestor
+- Tenant personaliza esta tabela no painel de configurações
+- Ao abrir OS: tipo selecionado carrega o SLA padrão automaticamente
+- Atendente pode aumentar prioridade (urgência declarada pelo cliente) mas não diminuir sem aprovação do gestor
 - SLA de contrato ou de cliente sempre prevalece sobre SLA por tipo
 
 ---
@@ -2390,13 +2359,13 @@ Tabela de SLA padrao por tipo de OS, usada quando nao ha SLA especifico de contr
 
 ## SLA por Canal de Entrada e Tempo de Primeira Resposta
 
-O SLA de atendimento e medido individualmente por canal de origem. Para cada canal, o tenant configura o tempo maximo de primeira resposta e o tempo maximo de resolucao.
+O SLA de atendimento e medido individualmente por canal de origem. Para cada canal, o tenant configura o tempo maximo de primeira resposta e o tempo maximo de resolução.
 
-### Canais e Metricas
+### Canais e Métricas
 
-| Canal | Tempo de Primeira Resposta (padrao) | Configuravel |
+| Canal | Tempo de Primeira Resposta (padrão) | Configurável |
 |---|---|---|
-| Mensageria instantânea | 5 minutos (horario comercial) | Sim |
+| Mensageria instantânea | 5 minutos (horário comercial) | Sim |
 | Portal do cliente | 15 minutos | Sim |
 | E-mail | 1 hora | Sim |
 | Telefone | Imediato (atendimento ao vivo) | N/A |
@@ -2406,30 +2375,30 @@ O SLA de atendimento e medido individualmente por canal de origem. Para cada can
 ### O Que e Medido
 
 - **Tempo de abertura:** quando o cliente enviou a mensagem/criou o chamado
-- **Tempo de primeira resposta humana** (nao automatica): timestamp da primeira resposta real
-- **Tempo de resolucao:** fechamento do chamado ou OS
+- **Tempo de primeira resposta humana** (não automática): timestamp da primeira resposta real
+- **Tempo de resolução:** fechamento do chamado ou OS
 - **Tempo total de ciclo:** abertura ao encerramento completo
 
 ### Dashboard de Atendimento ao Vivo
 
 - Tickets aguardando primeira resposta com semaforo visual por canal
 - Destaque em vermelho para tickets que ultrapassaram o SLA do canal
-- Alerta automatico ao responsavel de atendimento quando SLA e violado
+- Alerta automático ao responsável de atendimento quando SLA e violado
 
-### Relatorio de SLA por Canal
+### Relatório de SLA por Canal
 
-- % de aderencia ao SLA de resposta por canal, por tecnico de atendimento e por periodo
-- Distribuicao de tempo de resposta: P50, P90, P99 por canal
-- Canais com pior desempenho e horarios de pico por canal
+- % de aderência ao SLA de resposta por canal, por técnico de atendimento e por período
+- Distribuição de tempo de resposta: P50, P90, P99 por canal
+- Canais com pior desempenho e horários de pico por canal
 
-### Integracao com Qualidade
+### Integração com Qualidade
 
-OS que violaram SLA de primeira resposta geram automaticamente NC configuravel para analise de causa e acao corretiva no modulo de Qualidade.
+OS que violaram SLA de primeira resposta geram automaticamente NC configurável para análise de causa e ação corretiva no módulo de Qualidade.
 
 ---
 
 
-## Contratos de Manutencao com SLA Multi-Equipamento e Penalidades
+## Contratos de Manutenção com SLA Multi-Equipamento e Penalidades
 
 > **Domínio:** Contratos / SLA / Financeiro
 > **Classificação editorial:** Migrado para CAP-CON-01 — diferencial para contratos de manutenção corporativos com cláusulas de nível de serviço
@@ -2513,7 +2482,7 @@ Marco atingido (critério configurado)
 
 
 
-## Gestao de Projetos Complexos com Gantt
+## Gestão de Projetos Complexos com Gantt
 
 > **Domínio:** Operações / Gestão de Projetos
 > **Classificação editorial:** Migrado para CAP-PRJ-01 — projetos de calibração laboratorial, adequação metrológica e implantação de laboratório não cabem em OS individuais
@@ -2562,60 +2531,60 @@ Além das OS individuais, o sistema suporta **projetos** que agrupam OS em fases
 
 ### Ciclo Completo de Garantia
 
-1. Cliente abre reclamacao pelo portal, canal de mensageria ou atendimento
+1. Cliente abre reclamação pelo portal, canal de mensageria ou atendimento
 2. Sistema verifica automaticamente se a OS original esta dentro do prazo de garantia cadastrado
 3. Se dentro da garantia: cria OS de garantia vinculada a original com custo zerado para o cliente
-4. Tecnico executa diagnostico registrando se a reclamacao e procedente ou improcedente:
-   - **Procedente:** execucao sem custo, impacto negativo na comissao do tecnico original, abertura de NC de qualidade automatica
-   - **Improcedente:** cobranca normal, registro de motivo com evidencias, comunicacao ao cliente
+4. Técnico executa diagnostico registrando se a reclamação e procedente ou improcedente:
+   - **Procedente:** execução sem custo, impacto negativo na comissao do técnico original, abertura de NC de qualidade automática
+   - **Improcedente:** cobrança normal, registro de motivo com evidências, comunicação ao cliente
 
 ### Retrabalho vs Garantia
 
-- **Garantia:** mesmo problema retorna dentro do prazo de garantia do servico
-- **Retrabalho:** problema causado por falha tecnica do profissional (dentro ou fora do prazo)
-- Retrabalho impacta negativamente o indicador de qualidade do tecnico, pode cancelar a comissao da OS original
-- Dashboard: garantias abertas, taxa de retrabalho por tecnico, analise de motivos recorrentes
+- **Garantia:** mesmo problema retorna dentro do prazo de garantia do serviço
+- **Retrabalho:** problema causado por falha técnica do profissional (dentro ou fora do prazo)
+- Retrabalho impacta negativamente o indicador de qualidade do técnico, pode cancelar a comissao da OS original
+- Dashboard: garantias abertas, taxa de retrabalho por técnico, análise de motivos recorrentes
 
 ---
 
 
 
-## Calibracoes Express e Urgencia com Tarifa Diferenciada
+## Calibrações Express e Urgência com Tarifa Diferenciada
 
-Para calibracoes com prazo reduzido, fluxo e precificacao diferenciados:
+Para calibrações com prazo reduzido, fluxo e precificação diferenciados:
 
-### Niveis de Urgencia
+### Níveis de Urgência
 
-| Nivel | Prazo | Adicional Padrao | Configuravel |
+| Nível | Prazo | Adicional Padrão | Configurável |
 |---|---|---|---|
-| Normal | Prazo padrao do tipo | — | Sim |
+| Normal | Prazo padrão do tipo | — | Sim |
 | Express | Ex.: 48h | +50% sobre tarifa base | Sim |
 | Urgente | Ex.: 24h | +100% | Sim |
 | Emergencial | Ex.: 4h | +200% ou tarifa fixa | Sim |
 
-- Adicional exibido explicitamente na proposta/OS para aprovacao do cliente
-- OS Express atribuida automaticamente ao tecnico com menor carga e maior competencia para o instrumento
-- Slot de urgencia configuravel por laboratorio: ao atingir o limite, sistema alerta e sugere proximo horario disponivel
+- Adicional exibido explicitamente na proposta/OS para aprovação do cliente
+- OS Express atribuida automaticamente ao técnico com menor carga e maior competência para o instrumento
+- Slot de urgência configurável por laboratório: ao atingir o limite, sistema alerta e sugere proximo horário disponível
 - KPI "Prazo de entrega Express": % de OS Express entregues dentro do prazo prometido
 
 ---
 
 
 
-## Manutencao Preventiva Recorrente (Scheduler Automatico)
+## Manutenção Preventiva Recorrente (Scheduler Automático)
 
-Motor de recorrencia automatica para OS de manutencao preventiva:
+Motor de recorrência automática para OS de manutenção preventiva:
 
-### Criacao de Plano
+### Criação de Plano
 
-- Gestor vincula: cliente, equipamento(s) ou grupo, tipo de OS (manutencao preventiva), tecnico ou pool preferido, periodicidade (mensal, trimestral, semestral, anual, ou intervalo customizado em dias), checklist padrao, SLA e contrato vinculado
-- Opcao "a partir da ultima execucao": proxima OS criada N dias apos fechamento da OS anterior — respeita atrasos sem acumular OS atrasadas
-- Pausa temporaria: gestor suspende plano por periodo determinado sem excluir
+- Gestor vincula: cliente, equipamento(s) ou grupo, tipo de OS (manutenção preventiva), técnico ou pool preferido, periodicidade (mensal, trimestral, semestral, anual, ou intervalo customizado em dias), checklist padrão, SLA e contrato vinculado
+- Opcao "a partir da ultima execução": proxima OS criada N dias após fechamento da OS anterior — respeita atrasos sem acumular OS atrasadas
+- Pausa temporária: gestor suspende plano por período determinado sem excluir
 
-### Gestao e Notificacao
+### Gestão e Notificação
 
-- Painel de planos ativos: proxima data prevista, ultima execucao, status da OS em aberto, desvio de pontualidade
-- 15 dias antes da proxima manutencao: comunicação automática ao cliente confirmando a data; cliente pode solicitar reagendamento via portal
+- Painel de planos ativos: proxima data prevista, ultima execução, status da OS em aberto, desvio de pontualidade
+- 15 dias antes da proxima manutenção: comunicação automática ao cliente confirmando a data; cliente pode solicitar reagendamento via portal
 
 ---
 
@@ -2651,7 +2620,7 @@ Painel do coordenador com mapa de OS abertas (sem técnico atribuído) agrupadas
 
 
 
-## Locacao de Equipamentos e Contratos de Aluguel
+## Locação de Equipamentos e Contratos de Aluguel
 
 > **Domínio:** Comercial / Contratos / Faturamento Recorrente
 > **Classificação editorial:** Migrado para CAP-LOG-01 — diferencial para tenants com modelo asset-based (laboratórios, prestadores de instrumentação)
@@ -2835,7 +2804,7 @@ Fluxo distinto da calibração de instrumentos — para laboratórios que recebe
 
 ---
 
-## Incerteza de Medicao por Simulacao de Monte Carlo (GUM S2)
+## Incerteza de Medição por Simulação de Monte Carlo (GUM S2)
 
 > **Domínio:** Metrologia / Laboratório / ISO 17025
 > **Classificação editorial:** Migrado para FR-LAB-03/FR-LAB-13 — obrigatório para laboratórios acreditados com calibrações complexas; disponível conforme empacotamento do plano Lab ou contrato Enterprise
@@ -2875,7 +2844,7 @@ Para calibrações complexas onde o método clássico GUM (ISO/GUM:2008) pode su
 
 ---
 
-## Orcamento Rapido em Campo (Mobile Quoting)
+## Orçamento Rápido em Campo (Mobile Quoting)
 
 > **Domínio:** Comercial / Campo / Mobile
 > **Classificação editorial:** Migrado para CAP-OPS-02/CAP-MOB-01 — técnico em campo fecha serviço adicional sem retornar ao escritório
@@ -2928,7 +2897,7 @@ Fluxo distinto do orçamento comercial pré-visita:
 
 ---
 
-## Fallback para Tecnicos sem Smartphone ou sem Conectividade
+## Fallback para Técnicos sem Smartphone ou sem Conectividade
 
 > **Domínio:** Mobile / Campo / Operações
 > **Classificação editorial:** Migrado para CAP-MOB-01 — garantia de operação em regiões com baixa cobertura ou técnicos sem dispositivo compatível
@@ -3012,41 +2981,41 @@ Para operações em regiões com baixa cobertura de dados ou técnicos sem dispo
 
 
 
-## Metas Comerciais por Vendedor e Territorio
+## Metas Comerciais por Vendedor e Território
 
-### Configuracao de Metas
+### Configuração de Metas
 
-- Meta por vendedor, por periodo (mensal/trimestral/anual), por tipo de receita (novos clientes, expansao, renovacao) e por linha de servico
-- Desdobramento da meta global em metas individuais com aprovacao hierarquica
-- Acompanhamento em tempo real: valor realizado vs meta, % atingido, projecao de fim de periodo pelo ritmo atual
+- Meta por vendedor, por período (mensal/trimestral/anual), por tipo de receita (novos clientes, expansão, renovação) e por linha de serviço
+- Desdobramento da meta global em metas individuais com aprovação hierarquica
+- Acompanhamento em tempo real: valor realizado vs meta, % atingido, projecao de fim de período pelo ritmo atual
 
 ### Acelerador e Ranking
 
-- **Acelerador de comissao:** ao ultrapassar 100% da meta, aliquota de comissao sobe automaticamente conforme tabela configuravel
-- Ranking de vendedores por atingimento visivel para o gestor e para o proprio vendedor
-- Analise de gap: "Faltam R$ X para bater a meta; o pipeline atual cobre Y% desse valor"
-- Alerta automatico ao gestor quando vendedor esta abaixo de 70% do ritmo esperado na metade do periodo
+- **Acelerador de comissao:** ao ultrapassar 100% da meta, aliquota de comissao sobe automaticamente conforme tabela configurável
+- Ranking de vendedores por atingimento visível para o gestor e para o proprio vendedor
+- Análise de gap: "Faltam R$ X para bater a meta; o pipeline atual cobre Y% desse valor"
+- Alerta automático ao gestor quando vendedor esta abaixo de 70% do ritmo esperado na metade do período
 
 ---
 
 
 
-## Gamificacao e Incentivos para Tecnicos
+## Gamificação e Incentivos para Técnicos
 
-Sistema de engajamento e retencao para tecnicos:
+Sistema de engajamento e retenção para técnicos:
 
 ### Pontos e Conquistas
 
-- **Pontos acumulados por:** OS concluida no prazo, avaliacao do cliente >= 4/5, certificacao realizada, meta mensal batida, dias sem retrabalho
-- **Badges conquistaveis:** "100 OS concluidas", "Tecnico do Mes", "Especialista em Calibracao de Pressao"
-- Ranking visivel no app mobile e no painel do gestor
+- **Pontos acumulados por:** OS concluida no prazo, avaliação do cliente >= 4/5, certificação realizada, meta mensal batida, dias sem retrabalho
+- **Badges conquistáveis:** "100 OS concluidas", "Técnico do Mes", "Especialista em Calibração de Pressao"
+- Ranking visível no app mobile e no painel do gestor
 
-### Recompensas e Missoes
+### Recompensas e Missões
 
-- Recompensas configuradas pelo gestor: pontos convertidos em vale-presente, folga compensatoria, bonus monetario ou item do catalogo interno
-- Pontos podem compor parte da comissao variavel
-- Missoes semanais/mensais configuráveis (ex.: "feche 5 OS de calibracao esta semana e ganhe X pontos")
-- Tecnico ve no app: pontuacao acumulada, proxima recompensa e historico de conquistas
+- Recompensas configuradas pelo gestor: pontos convertidos em vale-presente, folga compensatoria, bonus monetário ou item do catalogo interno
+- Pontos podem compor parte da comissao variável
+- Missões semanais/mensais configuráveis (ex.: "feche 5 OS de calibração esta semana e ganhe X pontos")
+- Técnico ve no app: pontuação acumulada, proxima recompensa e histórico de conquistas
 
 ---
 
@@ -3085,7 +3054,7 @@ Score de crédito calculado internamente por comportamento histórico:
 
 
 
-## Historico de Precos por Cliente e Price List Individual
+## Histórico de Preços por Cliente e Price List Individual
 
 > **Domínio:** Comercial / Precificação / CRM
 > **Classificação editorial:** Migrado para CAP-COM-01 — evita erosão de margem por descontos não justificados e suporta reajuste contratual
@@ -3125,20 +3094,20 @@ Ao abrir um novo orçamento para o mesmo cliente e serviço similar, o sistema e
 
 ## Proposta Comercial Interativa
 
-Proposta enviada ao cliente como link web — nao como PDF estatico:
+Proposta enviada ao cliente como link web — não como PDF estático:
 
 ### Formato e Engajamento
 
 - Layout visual profissional com logo e cores do tenant
-- Itens de servico com descricao expandivel, tabela de precos com totais, termos resumidos e contador regressivo de validade
-- **Analytics de engajamento:** notificacao ao vendedor em tempo real quando cliente abre o link, tempo de visualizacao por secao, numero de acessos e dispositivo utilizado
+- Itens de serviço com descrição expandível, tabela de preços com totais, termos resumidos e contador regressivo de validade
+- **Analytics de engajamento:** notificação ao vendedor em tempo real quando cliente abre o link, tempo de visualização por secao, número de acessos e dispositivo utilizado
 - Alerta de abertura no celular do vendedor para acionar o cliente no momento exato do engajamento
 
-### Aceite Eletronico e Versionamento
+### Aceite Eletrônico e Versionamento
 
-- Cliente clica em "Aprovar proposta", assina digitalmente (simples ou ICP-Brasil conforme configuracao) e proposta e convertida automaticamente em OS ou contrato
-- Versoes de proposta: vendedor envia revisoes sem perder historico; cliente sempre ve a versao mais atual
-- Relatorio por vendedor: taxa de abertura, taxa de aprovacao, tempo medio de aprovacao e valor medio
+- Cliente clica em "Aprovar proposta", assina digitalmente (simples ou ICP-Brasil conforme configuração) e proposta e convertida automaticamente em OS ou contrato
+- Versões de proposta: vendedor envia revisões sem perder histórico; cliente sempre ve a versão mais atual
+- Relatório por vendedor: taxa de abertura, taxa de aprovação, tempo médio de aprovação e valor médio
 
 ---
 
@@ -3146,37 +3115,37 @@ Proposta enviada ao cliente como link web — nao como PDF estatico:
 
 ## CRM — Carteira Viva e Vencimentos como Pipeline de Receita
 
-### Instrumentos do Cliente visiveis no CRM
+### Instrumentos do Cliente visíveis no CRM
 
-Todo instrumento/equipamento cadastrado e visivel diretamente na ficha do cliente — sem sair para outro modulo:
-- Modelo, fabricante, numero de serie
-- Data da ultima calibracao, resultado (aprovado/reprovado), proxima calibracao prevista
-- Status de lacre/PSEI, ciclo de manutencao, garantia ativa
+Todo instrumento/equipamento cadastrado e visível diretamente na ficha do cliente — sem sair para outro módulo:
+- Modelo, fabricante, número de serie
+- Data da ultima calibração, resultado (aprovado/reprovado), proxima calibração prevista
+- Status de lacre/PSEI, ciclo de manutenção, garantia ativa
 
 ### Vencimentos como Oportunidades de Venda
 
-- Calibracoes proximas do vencimento (30/60/90 dias configuravel) geram automaticamente oportunidades de renovacao no pipeline do vendedor responsavel
-- Vendedor ve: "Cliente X tem 7 instrumentos com calibracao vencendo em 45 dias — R$ estimado: R$4.200"
-- Instrumento reprovado: CRM cria tarefa automatica para o comercial com proposta de reparo ou substituicao
+- Calibrações proximas do vencimento (30/60/90 dias configurável) geram automaticamente oportunidades de renovação no pipeline do vendedor responsável
+- Vendedor ve: "Cliente X tem 7 instrumentos com calibração vencendo em 45 dias — R$ estimado: R$4.200"
+- Instrumento reprovado: CRM cria tarefa automática para o comercial com proposta de reparo ou substituição
 
 ### Ciclo de Vida Continuo do Cliente
 
 ```
-Lead -> Prospect -> Cliente Novo -> Cliente Ativo -> Cliente em Expansao
+Lead -> Prospect -> Cliente Novo -> Cliente Ativo -> Cliente em Expansão
   ^                                                          |
   +---- Cliente Inativo <-- Cliente em Risco de Churn <-----+
 ```
 
-- **Lead eterno:** cliente sem OS ha X meses muda para "Inativo" mas continua como alvo de cadencia de reengajamento (e-mail com resumo de instrumentos vencidos, oferta de retorno)
-- **Expansao dentro da base:** cliente com apenas 30% dos instrumentos calibrados = lead de expansao; sistema estima o potencial e cria oportunidade
-- **Segmentacao dinamica automatica:** Campees (alta frequencia + alta receita + alto NPS), Em Crescimento, Em Risco, Adormecidos, Perdidos — cada segmento com playbook de relacionamento configuravel
-- **NPS como gatilho comercial:** nota >= 9 dispara solicitacao de indicacao e proposta de referral; nota <= 6 dispara alerta imediato ao CSM com prazo de 24h para contato
+- **Lead eterno:** cliente sem OS ha X meses muda para "Inativo" mas continua como alvo de cadência de reengajamento (e-mail com resumo de instrumentos vencidos, oferta de retorno)
+- **Expansão dentro da base:** cliente com apenas 30% dos instrumentos calibrados = lead de expansão; sistema estima o potencial e cria oportunidade
+- **Segmentação dinamica automática:** Campees (alta frequência + alta receita + alto NPS), Em Crescimento, Em Risco, Adormecidos, Perdidos — cada segmento com playbook de relacionamento configurável
+- **NPS como gatilho comercial:** nota >= 9 dispara solicitação de indicação e proposta de referral; nota <= 6 dispara alerta imediato ao CSM com prazo de 24h para contato
 
 ---
 
 
 
-## Treinamento e Certificacao de Clientes como Linha de Receita
+## Treinamento e Certificação de Clientes como Linha de Receita
 
 > **Domínio:** Comercial / LMS / Financeiro
 > **Classificação editorial:** Candidato modular de receita e educação — diferencial competitivo e receita adicional para empresas de metrologia e serviços técnicos
@@ -3394,7 +3363,7 @@ Ao registrar incidente de trabalho com afastamento superior a 1 dia:
 
 
 
-## Gestao de Residuos e Compliance Ambiental
+## Gestão de Resíduos e Compliance Ambiental
 
 > **Domínio:** Qualidade / Compliance / Meio Ambiente
 > **Classificação editorial:** Migrado para CAP-QMS-01 com validação regulatória — obrigação legal para assistências técnicas (Lei 12.305/2010, Decreto 10.240/2020)
@@ -3486,41 +3455,41 @@ Expansão do módulo Quality para suporte a QMS completo conforme ISO 9001:2015.
 
 ---
 
-## LMS Interno e Habilitacoes Tecnicas Vinculadas a OS
+## LMS Interno e Habilitações Técnicas Vinculadas a OS
 
 ### LMS Integrado ao RH
 
-- Gestao de cursos internos e externos com trilhas de aprendizado por funcao
-- Registro de certificacoes tecnicas por colaborador: validade, vencimento, certificado digitalizado
-- Alertas de certificacoes a vencer com antecedencia configuravel (padrao 60 dias)
-- Matriz de competencias auditavel por funcao e departamento
-- Avaliacoes de aprendizagem com gabarito, nota minima configuravel e certificado de conclusao com QR code de verificacao
+- Gestão de cursos internos e externos com trilhas de aprendizado por função
+- Registro de certificações técnicas por colaborador: validade, vencimento, certificado digitalizado
+- Alertas de certificações a vencer com antecedência configurável (padrão 60 dias)
+- Matriz de competências auditável por função e departamento
+- Avaliações de aprendizagem com gabarito, nota minima configurável e certificado de conclusao com QR code de verificação
 
-### Habilitacoes Tecnicas Obrigatorias por Tipo de OS
+### Habilitações Técnicas Obrigatórias por Tipo de OS
 
-Cada tipo de servico e tipo de instrumento tem lista configuravel de habilitacoes obrigatorias para execucao:
+Cada tipo de serviço e tipo de instrumento tem lista configurável de habilitações obrigatórias para execução:
 
-- Exemplos: calibracao de manometros exige "Tecnico Calibrador de Pressao — Nivel II"; reparo de balancas exige "Tecnico Credenciado INMETRO — Pesagem"
-- Verificacao automatica no momento da alocacao do tecnico a uma OS
-- Bloqueio da alocacao com mensagem indicando qual habilitacao esta ausente ou vencida
-- Gestor pode forcar a alocacao com justificativa registrada (auditavel)
+- Exemplos: calibração de manometros exige "Técnico Calibrador de Pressao — Nível II"; reparo de balancas exige "Técnico Credenciado INMETRO — Pesagem"
+- Verificação automática no momento da alocação do técnico a uma OS
+- Bloqueio da alocação com mensagem indicando qual habilitação esta ausente ou vencida
+- Gestor pode forcar a alocação com justificativa registrada (auditável)
 
-### NRs como Habilitacoes de Seguranca
+### NRs como Habilitações de Segurança
 
-| Norma | Descricao | Validade | Tipos de OS que Exigem |
+| Norma | Descrição | Validade | Tipos de OS que Exigem |
 |---|---|---|---|
-| NR-10 | Seguranca em Instalacoes Eletricas | 2 anos | Toda OS de equipamento eletrico |
-| NR-12 | Seguranca em Maquinas e Equipamentos | Conforme treinamento | OS em maquinas industriais |
+| NR-10 | Segurança em Instalações Eletricas | 2 anos | Toda OS de equipamento eletrico |
+| NR-12 | Segurança em Maquinas e Equipamentos | Conforme treinamento | OS em maquinas industriais |
 | NR-35 | Trabalho em Altura | 2 anos | OS com trabalho em altura >= 2m |
 
-- Dashboard SST: tecnicos com NRs vencidas ou vencendo em 30/60 dias para o gestor de seguranca
-- Bloqueio de alocacao quando NR vencida; trilha de reciclagem no LMS
+- Dashboard SST: técnicos com NRs vencidas ou vencendo em 30/60 dias para o gestor de segurança
+- Bloqueio de alocação quando NR vencida; trilha de reciclagem no LMS
 
-### KPIs de Colaboradores e Avaliacao de Desempenho
+### KPIs de Colaboradores e Avaliação de Desempenho
 
-- Metas individuais por colaborador: OS/mes, receita, conversao, tempo de resposta — quantitativas e qualitativas
-- PDI (Plano de Desenvolvimento Individual): competencias a desenvolver, acoes, prazo, responsavel, criterio de sucesso
-- Avaliacao de desempenho periodica: ciclos semestral/anual configuravel, autoavaliacao, avaliacao do gestor, feedback 360 graus
+- Metas individuais por colaborador: OS/mes, receita, conversão, tempo de resposta — quantitativas e qualitativas
+- PDI (Plano de Desenvolvimento Individual): competências a desenvolver, ações, prazo, responsável, critério de sucesso
+- Avaliação de desempenho periodica: ciclos semestral/anual configurável, autoavaliação, avaliação do gestor, feedback 360 graus
 - NPS interno e pesquisa de clima: resultados agregados por area — nunca por colaborador individual; alertas quando area fica abaixo do limiar configurado
 
 ---
@@ -3620,7 +3589,7 @@ Cada tipo de servico e tipo de instrumento tem lista configuravel de habilitacoe
 
 ---
 
-## Comunicacao Interna Corporativa
+## Comunicação Interna Corporativa
 
 > **Domínio:** RH / Gestão de Pessoas / Operações
 > **Classificação editorial:** Migrado para CAP-HR-01 — elimina dependência de canais informais não rastreáveis para comunicados críticos
@@ -3665,7 +3634,7 @@ Canal de comunicação interna integrado à plataforma para comunicados corporat
 
 ---
 
-## Gestao de Subcontratados e Parceiros Tecnicos
+## Gestão de Subcontratados e Parceiros Técnicos
 
 > **Domínio:** Operações / Financeiro / Fiscal / RH
 > **Classificação editorial:** Migrado para CAP-SUB-01 — modelo operacional frequente em empresas de serviços técnicos com cobertura nacional
@@ -3725,269 +3694,269 @@ Canal de comunicação interna integrado à plataforma para comunicados corporat
 - Relatório de custo de terceirização por OS e por período para composição de margem real
 - Score de parceiro acumulado para decisões de renovação de contrato
 
-## Gestao de Seguros e Sinistros
+## Gestão de Seguros e Sinistros
 
 ### Cadastro de Apolices
 
-- Apolice cadastrada com: seguradora, tipo de cobertura (frota, equipamentos, responsabilidade civil, RC profissional, D&O), numero, vigencia, premio mensal, franquia, coberturas e exclusoes
+- Apolice cadastrada com: seguradora, tipo de cobertura (frota, equipamentos, responsabilidade civil, RC profissional, D&O), número, vigência, premio mensal, franquia, coberturas e exclusoes
 - Alerta de vencimento de apolice: 90/60/30 dias antes do vencimento
-- Processo de recotacao: 90 dias antes do vencimento, sistema notifica e abre automaticamente processo de recotacao
+- Processo de recotação: 90 dias antes do vencimento, sistema notifica e abre automaticamente processo de recotação
 
-### Gestao de Sinistros
+### Gestão de Sinistros
 
 - Sinistro aberto diretamente de uma OS (ex.: equipamento perdido em campo, acidente com veiculo de frota)
-- Fluxo automatizado: alerta ao gestor + acionamento da seguradora + notificacao ao cliente
-- Documentacao: fotos, boletim de ocorrencia, laudo tecnico — upload obrigatorio para itens acima de valor configuravel
-- Lancamento financeiro gerado apos resolucao do sinistro com responsabilidade financeira calculada conforme apolice
+- Fluxo automatizado: alerta ao gestor + acionamento da seguradora + notificação ao cliente
+- Documentação: fotos, boletim de ocorrência, laudo técnico — upload obrigatório para itens acima de valor configurável
+- Lancamento financeiro gerado após resolução do sinistro com responsabilidade financeira calculada conforme apolice
 
-### Cotacao e Comparativo de Seguros
+### Cotação e Comparativo de Seguros
 
 - Tenant informa o que deseja segurar: frota, equipamentos patrimoniais, RC geral, RC profissional
-- Sistema gera proposta de cotacao padronizada (PDF exportavel) para o corretor
-- Comparativo automatico das cotacoes recebidas: tabela lado a lado com pontuacao por cobertura/preco
-- Historico de sinistros acionados incluido na proposta de recotacao
+- Sistema gera proposta de cotação padronizada (PDF exportável) para o corretor
+- Comparativo automático das cotações recebidas: tabela lado a lado com pontuação por cobertura/preço
+- Histórico de sinistros acionados incluido na proposta de recotação
 
 ---
 
 
 
-## Videoconferencia Integrada para Atendimento Remoto
+## Videoconferência Integrada para Atendimento Remoto
 
-Canal de videochamada nativo para suporte tecnico remoto sem depender de ferramentas externas que não preservem rastreabilidade dentro da OS.
+Canal de videochamada nativo para suporte técnico remoto sem depender de ferramentas externas que não preservem rastreabilidade dentro da OS.
 
 ### Funcionalidades
 
-- **Inicio com um clique** diretamente da OS ou do ticket de atendimento — o tecnico gera o link e o cliente acessa pelo navegador sem instalar nada
-- **Gravacao arquivada na OS** com consentimento do cliente — evidencia tecnica do diagnostico
-- **Compartilhamento de tela** pelo tecnico para demonstrar procedimento ou orientar o diagnostico
-- **Camera do cliente** usada para o tecnico ver o equipamento sem presença fisica
-- **Anotacao em tela compartilhada** para marcar pontos de atencao visualmente
-- **Chat de texto** durante a chamada com historico salvo na OS
-- **Link com expiracao configuravel** para convocacao agendada (ex.: "as 14h terca, clique aqui para nossa consultoria")
-- **Registro na timeline da OS:** duracao, participantes e resultado da chamada
+- **Inicio com um clique** diretamente da OS ou do ticket de atendimento — o técnico gera o link e o cliente acessa pelo navegador sem instalar nada
+- **Gravação arquivada na OS** com consentimento do cliente — evidência técnica do diagnostico
+- **Compartilhamento de tela** pelo técnico para demonstrar procedimento ou orientar o diagnostico
+- **Camera do cliente** usada para o técnico ver o equipamento sem presença física
+- **Anotação em tela compartilhada** para marcar pontos de atencao visualmente
+- **Chat de texto** durante a chamada com histórico salvo na OS
+- **Link com expiração configurável** para convocação agendada (ex.: "as 14h terca, clique aqui para nossa consultoria")
+- **Registro na timeline da OS:** duração, participantes e resultado da chamada
 
 ### Realidade Aumentada (AR) para Diagnostico Remoto
 
-- Tecnico remoto acessa a camera do tecnico em campo e sobrepos anotacoes visuais em tempo real na imagem (setas, circulos, texto) que o tecnico em campo ve na tela do celular
-- Compartilhamento de esquemas tecnicos e manuais do equipamento como overlay durante a chamada
-- **Freeze frame:** tecnico remoto "congela" o frame da camera para anotar com mais precisao
-- Gravacao da sessao de AR arquivada na OS como evidencia tecnica
+- Técnico remoto acessa a camera do técnico em campo e sobrepos anotações visuais em tempo real na imagem (setas, circulos, texto) que o técnico em campo ve na tela do celular
+- Compartilhamento de esquemas técnicos e manuais do equipamento como overlay durante a chamada
+- **Freeze frame:** técnico remoto "congela" o frame da camera para anotar com mais precisao
+- Gravação da sessao de AR arquivada na OS como evidência técnica
 
-### Chat Tecnico Assincron da OS
+### Chat Técnico Assincron da OS
 
-- Comunicacao direta entre tecnico de campo, tecnico senior remoto e gestor dentro do contexto da OS especifica
-- Sem grupos externos de mensageria — historico completo preservado na OS para consulta futura e transferencia de conhecimento
+- Comunicação direta entre técnico de campo, técnico senior remoto e gestor dentro do contexto da OS específica
+- Sem grupos externos de mensageria — histórico completo preservado na OS para consulta futura e transferência de conhecimento
 
 ### Casos de Uso
 
-- Diagnostico preliminar antes de despachar tecnico — reduz deslocamento desnecessario
+- Diagnostico preliminar antes de despachar técnico — reduz deslocamento desnecessário
 - Treinamento de operador do cliente no proprio equipamento
-- Suporte pos-servico sem custo de deslocamento
-- Consultoria tecnica remota como servico faturavel
+- Suporte pos-serviço sem custo de deslocamento
+- Consultoria técnica remota como serviço faturável
 
 ---
 
 
-## Analise de Rentabilidade Avancada e Simulacao de Cenarios
+## Análise de Rentabilidade Avançada e Simulação de Cenários
 
-Alem do calculo de margem por OS, o sistema oferece ferramentas de simulacao e analise de sensibilidade para decisoes de pricing e mix:
+Alem do cálculo de margem por OS, o sistema oferece ferramentas de simulação e análise de sensibilidade para decisões de pricing e mix:
 
 ### Simulador de Desconto
 
 - Gestor informa "quero dar 15% de desconto neste contrato anual"
 - Sistema exibe em tempo real: impacto na margem mensal e anual, breakeven de horas e impacto na comissao do vendedor
-- Alerta visual quando margem cai abaixo do minimo configurado por tipo de servico
+- Alerta visual quando margem cai abaixo do minimo configurado por tipo de serviço
 
-### Analise de Mix de Servicos
+### Análise de Mix de Serviços
 
-- "Qual combinacao de calibracao, manutencao e reparo maximiza margem por tecnico/hora disponivel?"
-- Comparativo de rentabilidade por linha de servico com visualizacao grafica
-- Recomendacao de mix otimo baseado no historico real do tenant
+- "Qual combinação de calibração, manutenção e reparo maximiza margem por técnico/hora disponível?"
+- Comparativo de rentabilidade por linha de serviço com visualização grafica
+- Recomendação de mix otimo baseado no histórico real do tenant
 
-### Analise de Sensibilidade de Margem
+### Análise de Sensibilidade de Margem
 
-- Grafico mostrando como a margem varia conforme custo de peca, custo/hora de tecnico e preco de venda sobem ou descem em X%
-- Cenarios simulados lado a lado (otimista, base, pessimista)
+- Gráfico mostrando como a margem varia conforme custo de peca, custo/hora de técnico e preço de venda sobem ou descem em X%
+- Cenários simulados lado a lado (otimista, base, pessimista)
 
 ### Rentabilidade por Cliente
 
-- Quais clientes tem margem abaixo do minimo aceitavel e por que (preco baixo vs custo alto de campo vs alto consumo de pecas)
-- Historico de rentabilidade por cliente ao longo do tempo
-- Lista de clientes para renegociacao de preco baseada em dados reais
+- Quais clientes tem margem abaixo do minimo aceitável e por que (preço baixo vs custo alto de campo vs alto consumo de pecas)
+- Histórico de rentabilidade por cliente ao longo do tempo
+- Lista de clientes para renegociação de preço baseada em dados reais
 
-### Precificacao Sugerida
+### Precificação Sugerida
 
-- Com base no historico de OS similares, o sistema sugere o preco com X% de margem para novos orcamentos do mesmo tipo
-- Faixa de preco praticada historicamente para aquele tipo de servico + instrumento
+- Com base no histórico de OS similares, o sistema sugere o preço com X% de margem para novos orçamentos do mesmo tipo
+- Faixa de preço praticada historicamente para aquele tipo de serviço + instrumento
 
-### FMEA e Analise de Falhas por Modelo de Equipamento
+### FMEA e Análise de Falhas por Modelo de Equipamento
 
-Registro estruturado de modos de falha acumulados pelo historico de reparos:
+Registro estruturado de modos de falha acumulados pelo histórico de reparos:
 
-- Defeitos mais frequentes por modelo, pecas substituidas com mais frequencia, causa raiz mais comum
-- **MTBF estimado** (tempo medio entre falhas) por modelo e fabricante
-- **MTTR** (tempo medio de reparo) por tipo de defeito
+- Defeitos mais frequentes por modelo, pecas substituidas com mais frequência, causa raiz mais comum
+- **MTBF estimado** (tempo médio entre falhas) por modelo e fabricante
+- **MTTR** (tempo médio de reparo) por tipo de defeito
 - Checklist de diagnostico pre-preenchido na abertura de OS (baseado nos defeitos mais comuns do modelo)
 - Sugestao de pecas a separar antes do diagnostico para reduzir tempo de espera
-- Alerta proativo ao cliente quando instrumento atingir o tempo medio entre falhas do modelo
-- Relatorio de FMEA simplificada por modelo exportavel para treinamento e manutencao preventiva
+- Alerta proativo ao cliente quando instrumento atingir o tempo médio entre falhas do modelo
+- Relatório de FMEA simplificada por modelo exportável para treinamento e manutenção preventiva
 
 ---
 
 
-## Analytics e Inteligencia Operacional
+## Analytics e Inteligência Operacional
 
-### Builder de Relatorios Customizados
+### Builder de Relatórios Customizados
 
-Construtor self-service para o admin ou gestor do tenant criar relatorios sem acionar TI:
+Construtor self-service para o admin ou gestor do tenant criar relatórios sem acionar TI:
 
-- Seleciona entidades (OS, clientes, instrumentos, financeiro), campos, filtros, agrupamentos e ordenacao
-- Preview antes de salvar; relatorio salvo disponivel para o time
-- Agendamento: envio por e-mail diario/semanal/mensal
-- Exportacao em Excel ou PDF
-- Limites de complexidade por plano (numero de campos, entidades cruzadas)
+- Seleciona entidades (OS, clientes, instrumentos, financeiro), campos, filtros, agrupamentos e ordenação
+- Preview antes de salvar; relatório salvo disponível para o time
+- Agendamento: envio por e-mail diário/semanal/mensal
+- Exportação em Excel ou PDF
+- Limites de complexidade por plano (número de campos, entidades cruzadas)
 
 ### Dashboard Executivo de Diretoria (Board)
 
-Painel consolidado especifico para socios e diretores:
+Painel consolidado específico para socios e diretores:
 
-- DRE sintetico do periodo: receita, custo, margem bruta, despesas operacionais, EBITDA estimado
-- Receita recorrente (MRR/ARR) vs pontual com evolucao mensal
+- DRE sintético do período: receita, custo, margem bruta, despesas operacionais, EBITDA estimado
+- Receita recorrente (MRR/ARR) vs pontual com evolução mensal
 - Fluxo de caixa projetado para 30/60/90 dias
 - Rentabilidade por unidade de negocio e por filial
-- NPS consolidado com tendencia, pipeline comercial com probabilidade ponderada
+- NPS consolidado com tendência, pipeline comercial com probabilidade ponderada
 - Headcount e custo total de folha
-- Indicadores de conformidade: eSocial, certificacoes ISO, obrigacoes fiscais em dia
-- Relatorio PDF executivo agendavel (semanal, mensal) enviado automaticamente por e-mail
+- Indicadores de conformidade: eSocial, certificações ISO, obrigações fiscais em dia
+- Relatório PDF executivo agendável (semanal, mensal) enviado automaticamente por e-mail
 - Acesso restrito por papel (diretor, socio, controller)
 
 ### Comparativo de Desempenho entre Filiais
 
-Painel corporativo com ranking lado a lado de todas as filiais/laboratorios:
+Painel corporativo com ranking lado a lado de todas as filiais/laboratórios:
 
-- Margem bruta, receita, OS abertas/fechadas, tempo medio de atendimento, NPS medio
-- Produtividade por tecnico (OS/tecnico/mes), taxa de retrabalho e garantias abertas
-- Certificados emitidos, conformidade de SLA, churn local e inadimplencia
-- Drill-down por filial com historico temporal
-- Alertas automaticos quando filial apresentar desvio significativo em relacao a media do grupo
+- Margem bruta, receita, OS abertas/fechadas, tempo médio de atendimento, NPS médio
+- Produtividade por técnico (OS/técnico/mes), taxa de retrabalho e garantias abertas
+- Certificados emitidos, conformidade de SLA, churn local e inadimplência
+- Drill-down por filial com histórico temporal
+- Alertas automáticos quando filial apresentar desvio significativo em relação a media do grupo
 
 ### IA Preditiva para Falha de Equipamento
 
-Score de risco de falha por equipamento calculado com base em historico de calibracoes, reparos e resultados:
+Score de risco de falha por equipamento calculado com base em histórico de calibrações, reparos e resultados:
 
-- Instrumentos com tendencia de piora (erro crescente, reprovacoes recorrentes) recebem alerta proativo
-- Sistema gera automaticamente proposta de antecipacao de calibracao ou OS preventiva para o cliente
+- Instrumentos com tendência de piora (erro crescente, reprovações recorrentes) recebem alerta proativo
+- Sistema gera automaticamente proposta de antecipação de calibração ou OS preventiva para o cliente
 - Dashboard de equipamentos em risco ordenados por score com CTA de contato ao cliente
 
-### NLP e Auto-classificacao de OS e Tickets
+### NLP e Auto-classificação de OS e Tickets
 
-- Ao abrir OS com descricao em texto livre, sistema sugere automaticamente: tipo de servico, pecas provaveis, tempo estimado, tecnico mais adequado e checklist
-- Para tickets de helpdesk: classificacao automatica por categoria, prioridade e area responsavel
-- Sistema aprende com as correcoes por tenant ao longo do tempo
+- Ao abrir OS com descrição em texto livre, sistema sugere automaticamente: tipo de serviço, pecas prováveis, tempo estimado, técnico mais adequado e checklist
+- Para tickets de helpdesk: classificação automática por categoria, prioridade e area responsável
+- Sistema aprende com as correções por tenant ao longo do tempo
 
-### Telemetria, Ativação Controlada e Testes de Produto (Operacao Interna Kalibrium)
+### Telemetria, Ativação Controlada e Testes de Produto (Operação Interna Kalibrium)
 
-- Coleta anonima e agregada de telemetria de comportamento por tenant com consentimento e opt-out disponivel
+- Coleta anônima e agregada de telemetria de comportamento por tenant com consentimento e opt-out disponível
 - Ativação gradual controlada: liberar capacidade para grupo restrito de tenants, monitorar, expandir ou reverter sem exigir nova janela operacional
-- Experimentacao controlada com atribuicao rastreavel por tenant e analise comparativa de impacto
-- Dashboard interno de saúde do produto: adocao de capacidades por plano e coorte, funil de ativacao e alertas de queda de uso apos mudanca relevante
+- Experimentação controlada com atribuição rastreável por tenant e análise comparativa de impacto
+- Dashboard interno de saúde do produto: adoção de capacidades por plano e coorte, funil de ativação e alertas de queda de uso após mudança relevante
 
 ---
 
 
-## Gestao Eletronica de Documentos (GED)
+## Gestão Eletrônica de Documentos (GED)
 
-Repositorio inteligente integrado a todos os modulos — cada documento sabe a que entidade pertence, quem pode acessa-lo e quando expira.
+Repositório inteligente integrado a todos os módulos — cada documento sabe a que entidade pertence, quem pode acessa-lo e quando expira.
 
-### Repositorio Central
+### Repositório Central
 
-- **Estrutura de pastas configuravel:** admin define a arvore de categorias (Qualidade / Procedimentos; RH / Contratos; Fiscal / NF-e; Clientes / ACME / Contratos)
-- Pastas criadas automaticamente quando documento e gerado por outro modulo (OS, NF, holerite, certificado)
-- **Upload de qualquer formato:** PDF, Word, Excel, imagem, video, ZIP — conversao automatica para PDF/A em documentos que exigem preservacao permanente
-- **Vinculacao contextual:** documento vinculado a OS, cliente, instrumento, contrato, fornecedor, colaborador, ativo, certificado, NC — aparece automaticamente na ficha da entidade
-- **Busca full-text:** pesquisa por nome, codigo, conteudo (OCR em PDFs), tipo, area, responsavel, status e tags
+- **Estrutura de pastas configurável:** admin define a arvore de categorias (Qualidade / Procedimentos; RH / Contratos; Fiscal / NF-e; Clientes / ACME / Contratos)
+- Pastas criadas automaticamente quando documento e gerado por outro módulo (OS, NF, holerite, certificado)
+- **Upload de qualquer formato:** PDF, Word, Excel, imagem, video, ZIP — conversão automática para PDF/A em documentos que exigem preservação permanente
+- **Vinculação contextual:** documento vinculado a OS, cliente, instrumento, contrato, fornecedor, colaborador, ativo, certificado, NC — aparece automaticamente na ficha da entidade
+- **Busca full-text:** pesquisa por nome, codigo, conteudo (OCR em PDFs), tipo, area, responsável, status e tags
 
-### Controle de Versoes e Ciclo de Vida
+### Controle de Versões e Ciclo de Vida
 
-- Versionamento automatico: cada upload cria nova revisao preservando historico completo
-- Numeracao automatica: codigo gerado por tipo e sequencia (ex.: POP-LAB-0023 Rev.03)
-- **Ciclo de vida:** Rascunho → Analise Critica → Aprovacao (assinatura digital) → Publicado → Em Revisao → Obsoleto → Cancelado
-- Notificacoes: responsavel notificado ao entrar em analise; aprovador para assinar; usuarios ao publicar
+- Versionamento automático: cada upload cria nova revisão preservando histórico completo
+- Numeração automática: codigo gerado por tipo e sequência (ex.: POP-LAB-0023 Rev.03)
+- **Ciclo de vida:** Rascunho → Análise Crítica → Aprovação (assinatura digital) → Publicado → Em Revisão → Obsoleto → Cancelado
+- Notificações: responsável notificado ao entrar em análise; aprovador para assinar; usuários ao publicar
 
 ### Controle de Acesso e Confidencialidade
 
-- Permissoes por pasta e por documento: leitura, download, upload, aprovacao — por papel, area ou usuario
-- Marcacao de confidencialidade (publico interno, restrito a area, restrito a gestores, sigiloso) com marca d'agua automatica no PDF ao baixar
-- **Link temporario externo:** com expiracao para compartilhar com clientes/auditores/fornecedores sem criar usuario — log de quem acessou e quando
+- Permissões por pasta e por documento: leitura, download, upload, aprovação — por papel, area ou usuário
+- Marcação de confidencialidade (público interno, restrito a area, restrito a gestores, sigiloso) com marca d'agua automática no PDF ao baixar
+- **Link temporário externo:** com expiração para compartilhar com clientes/auditores/fornecedores sem criar usuário — log de quem acessou e quando
 
-### Alertas de Vencimento e Revisao Obrigatoria
+### Alertas de Vencimento e Revisão Obrigatória
 
-- Documentos com validade (seguros, alvaras, licencas, certidoes, procuracoes, certificados de acreditacao, NRs, ASOs) com alertas progressivos: 90/60/30/15 dias antes do vencimento
+- Documentos com validade (seguros, alvaras, licenças, certidoes, procurações, certificados de acreditação, NRs, ASOs) com alertas progressivos: 90/60/30/15 dias antes do vencimento
 - Documento marcado como "vencido" com destaque visual na ficha da entidade vinculada
-- Revisao periodica obrigatorio por tipo: alerta ao responsavel quando revisao estiver proxima; rastro de revisao mesmo sem alteracao de conteudo
+- Revisão periodica obrigatório por tipo: alerta ao responsável quando revisão estiver proxima; rastro de revisão mesmo sem alteração de conteudo
 
 
-## Calendario de Feriados por Municipio, Estado e Pais
+## Calendário de Feriados por Município, Estado e País
 
-O sistema respeita feriados nacionais, estaduais e municipais em todas as operacoes que envolvem agendamento, SLA e calculo de jornada.
+O sistema respeita feriados nacionais, estaduais e municipais em todas as operações que envolvem agendamento, SLA e cálculo de jornada.
 
 ### Base de Feriados
 
 - **Nacionais fixos e moveis:** Carnaval, Sexta-Feira Santa, Corpus Christi calculados automaticamente para todos os anos futuros
 - **Estaduais:** tabela mantida pelo sistema por estado (ex.: SP — Revolucao Constitucionalista 9/jul; RS — Dia do Gaucho 20/set); atualizada anualmente
-- **Municipais:** base oficial com os feriados dos principais municipios brasileiros (~500 municipios com > 100k hab), associada ao codigo IBGE; municipios nao cadastrados podem ser incluidos manualmente pelo admin
-- **Customizados por tenant:** recesso coletivo, ponto facultativo interno, datas especificas de nao-operacao — visiveis apenas para o tenant
+- **Municipais:** base oficial com os feriados dos principais municípios brasileiros (~500 municípios com > 100k hab), associada ao codigo IBGE; municípios não cadastrados podem ser incluidos manualmente pelo admin
+- **Customizados por tenant:** recesso coletivo, ponto facultativo interno, datas específicas de não-operação — visíveis apenas para o tenant
 
-### Efeito do Feriado por Modulo
+### Efeito do Feriado por Módulo
 
-| Modulo | Efeito |
+| Módulo | Efeito |
 |---|---|
-| Agenda / Agendamento | Slots do dia feriado bloqueados automaticamente para a filial do municipio; agendamento exige aprovacao do gestor (hora extra em feriado) |
+| Agenda / Agendamento | Slots do dia feriado bloqueados automaticamente para a filial do município; agendamento exige aprovação do gestor (hora extra em feriado) |
 | SLA de OS e Chamados | Dias de feriado não contabilizados no prazo de SLA (padrão: não contabilizado; configurável por tenant via painel Admin para operações que funcionam em feriados) |
-| Jornada / Ponto | Feriado reconhecido na apuracao; trabalho em feriado gera adicional de 100% conforme CLT ou CCT |
-| Vencimento de boleto | Prorrogado automaticamente para o proximo dia util bancario (FEBRABAN) |
-| Notificacoes automaticas | Avisos ao cliente nao enviados na vespera de feriado sem ajuste de horario |
-| DARF e obrigacoes fiscais | Prazo de recolhimento em feriado prorrogado automaticamente para o proximo dia util |
+| Jornada / Ponto | Feriado reconhecido na apuração; trabalho em feriado gera adicional de 100% conforme CLT ou CCT |
+| Vencimento de boleto | Prorrogado automaticamente para o proximo dia util bancário (FEBRABAN) |
+| Notificações automáticas | Avisos ao cliente não enviados na vespera de feriado sem ajuste de horário |
+| DARF e obrigações fiscais | Prazo de recolhimento em feriado prorrogado automaticamente para o proximo dia util |
 
-### Configuracao por Filial e Fuso Horario
+### Configuração por Filial e Fuso Horário
 
-- Cada filial tem seu proprio calendario (feriados do municipio + estado + nacionais + customizados)
-- Fuso horario por filial: America/Sao_Paulo, America/Manaus, America/Belem, America/Fortaleza, America/Rio_Branco e demais fusos brasileiros
+- Cada filial tem seu proprio calendário (feriados do município + estado + nacionais + customizados)
+- Fuso horário por filial: America/Sao_Paulo, America/Manaus, America/Belem, America/Fortaleza, America/Rio_Branco e demais fusos brasileiros
 - Todos os registros temporais preservam referência temporal única e fuso de origem, sendo exibidos convertidos para o fuso da filial ou do usuário autenticado
-- Relatorios consolidados de grupo empresarial usam UTC ou o fuso da sede configuravel
+- Relatórios consolidados de grupo empresarial usam UTC ou o fuso da sede configurável
 
 ---
 
 
 
-## Reconciliacao Automatica Cross-Domain
+## Reconciliação Automática Cross-Domain
 
-Rotina de reconciliacao que detecta automaticamente inconsistencias entre dominios:
+Rotina de reconciliação que detecta automaticamente inconsistências entre dominios:
 
-### Verificacoes Executadas
+### Verificações Executadas
 
-| Inconsistencia Detectada | Acao Automatica |
+| Inconsistência Detectada | Ação Automática |
 |---|---|
-| OS concluida sem fatura gerada apos N dias | Alerta ao financeiro com lista de OS pendentes |
-| Fatura emitida sem NF-e correspondente | Alerta ao fiscal com link para emissao |
-| NF-e emitida com valor diferente da fatura | Alerta ao fiscal para verificacao |
-| Estoque negativo apos consumo em OS | Alerta ao almoxarife |
+| OS concluida sem fatura gerada após N dias | Alerta ao financeiro com lista de OS pendentes |
+| Fatura emitida sem NF-e correspondente | Alerta ao fiscal com link para emissão |
+| NF-e emitida com valor diferente da fatura | Alerta ao fiscal para verificação |
+| Estoque negativo após consumo em OS | Alerta ao almoxarife |
 | Colaborador com ponto registrado mas sem OS atribuida no dia | Alerta ao RH e ao coordenador |
-| Pagamento recebido sem baixa automatica em 24h | Alerta ao financeiro |
-| Instrumento usado em OS sem calibracao vigente | NC automatica gerada para qualidade |
+| Pagamento recebido sem baixa automática em 24h | Alerta ao financeiro |
+| Instrumento usado em OS sem calibração vigente | NC automática gerada para qualidade |
 | Evento eSocial pendente por mais de 24h | Alerta ao RH |
 
-### Execucao e Configuracao
+### Execução e Configuração
 
-- Rotina executada diariamente em horario configurado e sob demanda pelo admin
-- Cada tipo de inconsistencia configuravel: ativar/desativar, limiar de dias, destinatario do alerta
-- Relatorio de reconciliacao disponivel no painel do admin com historico das inconsistencias encontradas e resolvidas
+- Rotina executada diariamente em horário configurado e sob demanda pelo admin
+- Cada tipo de inconsistência configurável: ativar/desativar, limiar de dias, destinatário do alerta
+- Relatório de reconciliação disponível no painel do admin com histórico das inconsistências encontradas e resolvidas
 
 
 
 ## Requisitos Não Funcionais
 
-> Derivados de `docs/IDEIA.md` seções 14 e 47. Apenas categorias relevantes para o contexto SaaS B2B multi-tenant com operação offline, compliance metrológico e trabalhista.
+> Apenas categorias relevantes para o contexto SaaS B2B multi-tenant com operação offline, compliance metrológico e trabalhista.
 
 ---
 
@@ -4078,6 +4047,12 @@ Quando a tabela usar três famílias de SLA, `Starter` representa Starter/Basic,
 | NFR-CMP-04 | Pacote mínimo de evidências por norma, exportável sob demanda: ISO 17025 (certificados, leituras brutas, cálculo de incerteza, cadeia de rastreabilidade, dual sign-off, condições ambientais, histórico de NCs e CAPAs); ISO 9001 (registros de CAPA, auditorias internas, análise crítica); Portaria 671/2021 (AFD com cadeia de integridade verificável, espelhos de ponto imutáveis, ACJEF); eSocial (lotes transmitidos, retornos do governo, DCTFWeb); LGPD (registros de consentimento, log de solicitações de esquecimento/portabilidade, evidência de anonimização) |
 | NFR-CMP-05 | Direito ao esquecimento LGPD: fluxo formal com protocolo, prazo de 15 dias corridos conforme regra canônica de LGPD, evidência de execução; dados com obrigação legal retidos pelo prazo mínimo legal |
 | NFR-CMP-06 | Portabilidade de dados: exportação de dados pessoais em formato estruturado em até 15 dias corridos conforme regra canônica de LGPD mediante solicitação do titular |
+| NFR-CMP-07 | Política de retenção por categoria de dado, declarada no DPA e auditável: dados de cliente 5 anos após último contato; dados fiscais 5 anos; folha de pagamento 5 anos após rescisão; PPP/ASO 30 anos; candidatos não selecionados 1 ano ou conforme consentimento; dados biométricos de ponto 5 anos ou prazo trabalhista aplicável; logs de auditoria conforme plano, criticidade, obrigação regulatória ou contrato Enterprise; exclusão automática ao fim do prazo com evidência |
+| NFR-CMP-08 | DPO (Encarregado de Dados) registrado para o tenant e para a Kalibrium com canal de contato publicado no portal; Relatório de Impacto à Proteção de Dados (RIPD) disponível para tenants Enterprise mediante solicitação; política de privacidade versionada e aceita pelo tenant no onboarding |
+| NFR-CMP-09 | Notificação de incidente de dados pessoais: comunicação automática ao admin do tenant no momento da detecção e ao ANPD dentro do prazo legal aplicável; meta interna de análise, classificação e decisão de comunicação em ≤ 72h; trilha formal do incidente preservada com todas as evidências, decisões e comunicações |
+| NFR-CMP-10 | Consentimento explícito e rastreável para envio de mensageria transacional e de marketing (SMS, WhatsApp, e-mail): registro de canal, data, forma de aceite e versão do texto consentido; opt-out de 1 clique acessível em qualquer comunicação automatizada; bloqueio automático após retirada de consentimento |
+| NFR-CMP-11 | Programa formal de certificação ISO 27001 em fases rastreáveis (diagnóstico de maturidade → implantação do SGSI → auditoria interna → auditoria de certificação externa por organismo acreditado → auditorias de manutenção anuais com renovação trienal); certificação é requisito Enterprise e pré-requisito para atender tenants acreditados ISO 17025 que exigem garantias documentadas de segurança da informação do fornecedor |
+| NFR-CMP-12 | Residência de dados: tenants brasileiros mantidos em ambiente operacional compatível com residência no Brasil por padrão; tenants Enterprise podem negociar residência exclusiva em região específica; transferências internacionais documentadas e justificadas com base legal LGPD art. 33; certificações de segurança e conformidade do ambiente exibíveis a tenants Enterprise |
 
 ---
 
@@ -4089,124 +4064,9 @@ Quando a tabela usar três famílias de SLA, `Starter` representa Starter/Basic,
 | NFR-OPE-02 | Modularidade funcional com domínios claros: cada macrodomínio (COM, OPS, LAB, FIN, RH, QUA, LOG, INT, BI) possui contratos explícitos; mudança em um domínio não deve exigir mudança simultânea ampla em outros domínios sem justificativa de produto |
 | NFR-OPE-03 | Parametrização de regras legais (tabelas INSS, IRRF, FGTS, CLT, eSocial e perfis fiscais NF-e/NFS-e, incluindo IBS/CBS, `cIndOp`, domínios federais e regras por município, regulamento e ambiente) separada do motor de cálculo: atualizações legais sem reescrita estrutural |
 | NFR-OPE-04 | Ativação controlada por tenant para regras normativas, regimes tributários e integrações regulatórias por região |
+| NFR-OPE-05 | Extensibilidade com preservação de integridade do núcleo: customização preferencialmente via parametrização, templates, lookups e automações configuráveis antes de desvios estruturais; pontos de extensão explícitos, auditáveis e reversíveis; distinção clara entre comportamento padrão, configurável e extensível; núcleo transacional e contratos entre domínios permanecem estáveis sob alto grau de configuração |
 
 ---
-
-
-
-
-
-
-## NFRs Detalhados — Requisitos Nao Funcionais Expandidos
-
-Esta seção detalha os NFRs canônicos acima. Em caso de conflito de valores, severidade, retenção, RPO/RTO, senha, vulnerabilidade ou suporte, prevalece `Requisitos Não Funcionais`, salvo quando esta seção declarar explicitamente uma regra mais restritiva e compatível com o plano contratado.
-
-### Seguranca Avancada (Detalhamento)
-
-- **Tokens e links convidados:** todo token de acesso externo tem expiracao configuravel (padrao: 72h para aprovacao, 30 dias para portal, 7 dias para consulta publica), revogacao imediata pelo admin, escopo de permissao limitado ao objeto vinculado, protecao contra replay e log de acesso com IP/user-agent/timestamp
-- **Rotacao de credenciais:** credenciais e tokens de integracao com rotacao configuravel; troca sem indisponibilidade por sobreposicao de validade
-- **Pentest e vulnerabilidades:** pentest anual externo; vulnerabilidades críticas corrigidas em até 24h, altas em até 7 dias e médias em até 30 dias; relatório de remediação publicado internamente
-
-### Confiabilidade e SLA por Plano
-
-| Metrica | Starter | Professional | Enterprise |
-|---|---|---|---|
-| Disponibilidade mensal | >= 99,5% | >= 99,9% | >= 99,95% |
-| RTO (Recovery Time Objective) | 4h | 1h | 30 min |
-| RPO (Recovery Point Objective) | 24h | 4h | 1h |
-| Backup automatico | Diario | Diario | Diario + incremental |
-| Retencao de backup | 30 dias | 30 dias + semanal 12 meses | Politica customizada |
-
-- **Status page publica** com historico de incidentes, manutencoes programadas e uptime dos ultimos 90 dias
-- **Comunicacao de incidentes:** notificacao automatica ao admin do tenant em ate 15 min para P0/P1, conforme a regra canônica de `NFR-CON`
-- **Plano de disaster recovery** documentado e testado semestralmente com runbook operacional
-
-### Classificacao de Incidentes
-
-| Severidade | Definicao |
-|---|---|
-| P0 (Crítico) | Plataforma fora, dados inacessíveis, perda de dados ou bloqueio total de fluxo crítico |
-| P1 (Alto) | Módulo crítico degradado (financeiro, OS, fiscal, certificado, ponto ou autenticação) |
-| P2 (Médio) | Funcionalidade não crítica afetada com workaround |
-| P3 (Baixo) | Cosmético ou baixo impacto |
-
-### Observabilidade e Monitoramento
-
-- Rastreamento operacional por fluxo crítico, com correlação por tenant, usuário, operação e objeto afetado
-- Logs estruturados com correlação suficiente para auditoria e diagnóstico
-- Baselines de performance por tipo de operação; alertas automáticos ao exceder as metas definidas
-- Orçamento de erro por nível de SLA monitorado em tempo real com alerta em 50%/80%/100%
-- Dashboards internos: latencia, throughput, taxa de erro, saturacao de fila e rotinas com falha
-- Retencao de logs conforme plano, criticidade e exigencia regulatoria
-- Metricas de negocio como observabilidade: OS abertas/fechadas por hora, NFs transmitidas, certificados emitidos
-
-### WCAG 2.1 e Acessibilidade
-
-A interface deve atender ao nivel AA da WCAG 2.1 (exigido pela Lei Brasileira de Inclusao — LBI 13.146/2015):
-
-- Contraste de cor >= 4.5:1 para texto normal
-- Navegacao completa por teclado
-- Labels semanticos em todos os campos de formulario
-- Mensagens de erro associadas ao campo de origem
-- Suporte a leitores de tela (aria-labels, roles, live regions)
-- Foco visivel em todos os elementos interativos
-- Sem conteudo que pisca mais de 3 vezes por segundo
-
-### Internacionalizacao (i18n)
-
-- Textos, mensagens, documentos e comunicacoes preparados para traducao e localidade
-- Datas, numeros e moedas formatados conforme localidade do usuario — sem assumir formato brasileiro fixo quando o contexto exigir outro locale
-- Idioma padrao: portugues brasileiro
-- Idiomas adicionais por plano: ingles e espanhol (Enterprise)
-- E-mails, PDFs, certificados e portal do cliente emitem no idioma configurado para o tenant/usuario
-- Capacidade de internacionalizacao prevista desde a primeira experiencia para evitar retrabalho estrutural futuro
-
-### LGPD — Privacidade e Protecao de Dados (Detalhamento)
-
-- **Direito ao esquecimento:** fluxo formal de exclusao com protocolo rastreavel, prazo de 15 dias corridos conforme regra canônica de LGPD, evidencia de execucao e relatorio de exclusao; dados com obrigacao legal retidos pelo prazo minimo e excluidos apos
-- **Portabilidade:** titular pode solicitar exportacao de todos os seus dados pessoais em formato estruturado em ate 15 dias corridos conforme regra canônica de LGPD
-- **Politica de retencao por categoria:**
-  - Dados de clientes: 5 anos apos ultimo contato
-  - Dados fiscais: 5 anos
-  - Dados trabalhistas — folha: 5 anos apos rescisao; PPP/ASO: 30 anos
-  - Dados de candidatos nao selecionados: 1 ano ou consentimento
-  - Dados biometricos de ponto: 5 anos ou prazo trabalhista
-  - Logs de auditoria: conforme tabela canônica de pricing, criticidade, obrigação regulatória ou contrato Enterprise
-- **DPO (Encarregado de Dados):** plataforma registra o DPO do tenant e da Kalibrium; canal de contato publicado; RIPD disponivel para tenants Enterprise
-- **Notificacao de incidente:** em caso de vazamento de dados pessoais, notificacao automatica ao admin do tenant e relatorio para ANPD no prazo legal aplicável, com meta interna de análise, decisão e comunicação em ate 72h quando aplicável ao caso
-- **Consentimento para mensageria/SMS:** consentimento explicito e rastreavel do cliente antes do primeiro envio automatico, com registro de canal, data e forma de aceite
-
-### ISO 27001 — Programa de Maturidade e Certificacao
-
-| Fase | Periodo | Atividades |
-|---|---|---|
-| Diagnóstico de maturidade | Pré-certificação | Levantamento de ativos, identificação de riscos e análise de lacunas vs ISO 27001:2022 |
-| Implantação do SGSI | Pré-certificação | Políticas de segurança, controles operacionais, treinamento e gestão de incidentes |
-| Auditoria interna | Pré-certificação | Auditoria interna, correção de não conformidades e validação de prontidão |
-| Auditoria de certificação | Certificação | Auditoria externa por organismo acreditado conforme processo aplicável |
-| Manutencao | Anual | Auditorias de manutencao, renovacao trienal, melhoria continua do SGSI |
-
-A certificacao ISO 27001 e requisito critico para o plano Enterprise e para clientes acreditados ISO 17025 que necessitam de garantias documentadas de seguranca da informacao do fornecedor do sistema.
-
-### Residencia de Dados e Compliance Territorial
-
-- Dados de tenants brasileiros mantidos em ambiente operacional compatível com residencia de dados no Brasil quando exigido por contrato, regulacao ou politica aplicavel
-- Tenants Enterprise podem negociar residencia de dados exclusiva em regiao especifica
-- Transferencias internacionais de dados documentadas e justificadas com base legal LGPD art. 33
-- Certificacoes de segurança e conformidade do ambiente operacional exibiveis para tenants Enterprise
-
-### Extensibilidade e Modelo de Customizacao
-
-- Personalizacoes preferem parametrizacao, templates, lookups e automacoes antes de desvios estruturais
-- Nucleo transacional e contratos entre dominios permanecem estaveis sob alto grau de configuracao
-- Pontos de extensao explicitos, auditaveis e reversteis
-- Distincao clara entre comportamento padrao, configuravel e extensivel
-
----
-
-
-
-
 
 ## SLOs de Performance por Módulo
 
@@ -4403,7 +4263,7 @@ Os nomes abaixo são identificadores funcionais de negócio para rastreabilidade
 | nfe.issued | Fiscal | Fatura, Arquivo, canal fiscal oficial | nf_id, chave, documento fiscal |
 | nfe.authorized | Fiscal por retorno do canal oficial | Fatura, Notificação | nf_id, protocolo |
 | payment.received | Financeiro | Fatura, Cobrança, CRM | payment_id, invoice_id, valor |
-| employee.timecard_closed | Ponto | RH, Folha, eSocial | employee_id, periodo, horas |
+| employee.timecard_closed | Ponto | RH, Folha, eSocial | employee_id, período, horas |
 | esocial.event_sent | eSocial | RH, Auditoria | esocial_id, tipo, protocolo |
 | iot.alert_triggered | IoT | Ativos, Manutenção, Notificação | asset_id, threshold, valor |
 
@@ -4524,7 +4384,7 @@ Regras obrigatórias:
 
 
 
-## Integracao com ERPs dos Clientes Corporativos
+## Integração com ERPs dos Clientes Corporativos
 
 > **Domínio:** Integração / B2B / Fiscal
 > **Classificação editorial:** Migrado para CAP-INT-01 — obrigatório para fechar negócio com clientes corporativos de médio/grande porte
@@ -4566,21 +4426,21 @@ Tenants que prestam serviço a grandes empresas com ERP próprio precisam de int
 - **Modular:** tenant habilita apenas os módulos necessários (ex.: receber PO sem enviar NF)
 - Logs de integração por cliente com reprocessamento manual em caso de falha
 
-## Integracao com Portais de E-Procurement
+## Integração com Portais de E-Procurement
 
-Para tenants que prestam servico a grandes corporacoes que operam plataformas de compra corporativa:
+Para tenants que prestam serviço a grandes corporações que operam plataformas de compra corporativa:
 
 ### Funcionalidades
 
 - **Recebimento de PO (Purchase Order):** OS criada automaticamente a partir da ordem de compra recebida pelo portal da plataforma, com todos os dados preenchidos (cliente, itens, valor, prazo)
-- **Envio de NF-e/NFS-e:** apos emitir a NF no Kalibrium, XML enviado automaticamente ao portal da plataforma como confirmacao de entrega
-- **Consulta de status de pagamento:** Kalibrium consulta periodicamente o portal para verificar aprovacao do titulo; atualiza o contas a receber com previsao de pagamento
-- **Catalogo de fornecedor:** produtos e servicos publicados no formato do portal (eClass, UNSPSC) para facilitar pedidos recorrentes
+- **Envio de NF-e/NFS-e:** após emitir a NF no Kalibrium, XML enviado automaticamente ao portal da plataforma como confirmação de entrega
+- **Consulta de status de pagamento:** Kalibrium consulta periodicamente o portal para verificar aprovação do titulo; atualiza o contas a receber com previsão de pagamento
+- **Catalogo de fornecedor:** produtos e serviços publicados no formato do portal (eClass, UNSPSC) para facilitar pedidos recorrentes
 
-### Configuracao por Cliente Comprador
+### Configuração por Cliente Comprador
 
 - Cada grande cliente pode ter sua propria plataforma configurada
-- Campos especificos exigidos antes de fechar a OS: numero do contrato-mestre, centro de custo do cliente, projeto, WBS
+- Campos específicos exigidos antes de fechar a OS: número do contrato-mestre, centro de custo do cliente, projeto, WBS
 
 ---
 
@@ -4588,7 +4448,7 @@ Para tenants que prestam servico a grandes corporacoes que operam plataformas de
 
 ## E-Procurement Brasileiro — Cobertura Funcional
 
-Complemento a secao de integracao com portais de e-procurement, cobrindo os tipos de plataforma usados no mercado brasileiro sem determinar fornecedores específicos:
+Complemento a secao de integração com portais de e-procurement, cobrindo os tipos de plataforma usados no mercado brasileiro sem determinar fornecedores específicos:
 
 ### Tipos de Plataforma Suportados
 
@@ -4603,93 +4463,93 @@ Complemento a secao de integracao com portais de e-procurement, cobrindo os tipo
 ### Funcionalidades por Plataforma
 
 - **Recebimento de PO:** ordem de compra recebida no formato da plataforma convertida automaticamente em OS ou pedido de venda no Kalibrium, com todos os campos mapeados
-- **Envio de NF:** XML da NF-e/NFS-e transmitido automaticamente ao portal da plataforma no formato exigido, sem intervencao manual
-- **Consulta de contrato-mestre em tempo real:** ao criar OS para cliente com contrato ativo na plataforma, campos obrigatorios (numero do contrato, centro de custo, WBS, projeto) sao preenchidos automaticamente via consulta ao portal
-- **RMA (Devolucao):** fluxo de devolucao de mercadoria via plataforma com numero de RMA gerado pelo comprador, recebimento registrado no Kalibrium e NF de devolucao emitida com referencia ao documento original
-- **Status de pagamento:** Kalibrium consulta periodicamente a plataforma para verificar aprovacao do titulo; previsao de pagamento atualizada no contas a receber automaticamente
+- **Envio de NF:** XML da NF-e/NFS-e transmitido automaticamente ao portal da plataforma no formato exigido, sem intervenção manual
+- **Consulta de contrato-mestre em tempo real:** ao criar OS para cliente com contrato ativo na plataforma, campos obrigatórios (número do contrato, centro de custo, WBS, projeto) sao preenchidos automaticamente via consulta ao portal
+- **RMA (Devolução):** fluxo de devolução de mercadoria via plataforma com número de RMA gerado pelo comprador, recebimento registrado no Kalibrium e NF de devolução emitida com referência ao documento original
+- **Status de pagamento:** Kalibrium consulta periodicamente a plataforma para verificar aprovação do titulo; previsão de pagamento atualizada no contas a receber automaticamente
 
-### Configuracao por Cliente Comprador
+### Configuração por Cliente Comprador
 
 Cada grande cliente pode ter sua propria plataforma configurada com:
 - Credenciais de acesso conforme canal aceito pelo cliente
 - Mapeamento de campos personalizado (centro de custo do cliente, estrutura WBS)
-- Log de transmissao auditavel com status de cada mensagem enviada/recebida
+- Log de transmissão auditável com status de cada mensagem enviada/recebida
 
 ---
 
-## Exportacao para BI e Ferramentas Analíticas
+## Exportação para BI e Ferramentas Analíticas
 
 ### Conector Analítico
 
 - Dataset publicado com tabelas pre-modeladas: OS, Clientes, Financeiro, RH, Estoque, Fiscal
-- Atualizacao configuravel conforme plano e criticidade do dado
-- Autenticacao segura com dados limitados ao tenant autenticado
-- Modelos de dashboards pre-construidos: receita mensal, OS por tecnico, aging financeiro, vencimentos de instrumentos
+- Atualização configurável conforme plano e criticidade do dado
+- Autenticação segura com dados limitados ao tenant autenticado
+- Modelos de dashboards pre-construidos: receita mensal, OS por técnico, aging financeiro, vencimentos de instrumentos
 
-### Exportacao para Ferramentas Externas
+### Exportação para Ferramentas Externas
 
-- Conexao por interface documentada ou exportacao agendada em formato estruturado
-- Dicionario de dados publicado para usuários autorizados
+- Conexao por interface documentada ou exportação agendada em formato estruturado
+- Dicionário de dados publicado para usuários autorizados
 
-### Exportacao Direta e Agendada
+### Exportação Direta e Agendada
 
-- Qualquer tabela ou relatorio exportavel em formatos estruturados e PDF
-- Exportacao agendada: tenant configura exportacao automatica de relatorio para e-mail ou canal seguro autorizado em horario definido (ex.: DRE todo dia 5 do mes para o contador por e-mail)
+- Qualquer tabela ou relatório exportável em formatos estruturados e PDF
+- Exportação agendada: tenant configura exportação automática de relatório para e-mail ou canal seguro autorizado em horário definido (ex.: DRE todo dia 5 do mes para o contador por e-mail)
 
 ---
 
 
 
-## NF-e em Contingencia e Cobertura Fiscal Nacional
+## NF-e em Contingência e Cobertura Fiscal Nacional
 
-### Contingencia Fiscal Automatica
+### Contingência Fiscal Automática
 
-Quando o SEFAZ estadual estiver indisponivel:
+Quando o SEFAZ estadual estiver indisponível:
 
-- **SVC-AN (SEFAZ Virtual de Contingencia — Ambiente Nacional):** ativada automaticamente pelo sistema sem intervencao do operador
-- **SVC-RS (SEFAZ Virtual do Rio Grande do Sul):** fallback adicional para estados que utilizam SVRS como autorizador primario
+- **SVC-AN (SEFAZ Virtual de Contingência — Ambiente Nacional):** ativada automaticamente pelo sistema sem intervenção do operador
+- **SVC-RS (SEFAZ Virtual do Rio Grande do Sul):** fallback adicional para estados que utilizam SVRS como autorizador primário
 - Monitor de status SEFAZ: verifica todos os ambientes a cada 60 segundos com semaforo visual por UF no painel fiscal
-- NF-e emitida em contingencia tem CSRT (Codigo de Seguranca do Responsavel Tecnico) e tipo de emissao marcado como contingencia no XML
-- Ao retornar conectividade: transmissao automatica das NF-e emitidas em contingencia com verificacao de autorizacao retroativa
+- NF-e emitida em contingência tem CSRT (Codigo de Segurança do Responsável Técnico) e tipo de emissão marcado como contingência no XML
+- Ao retornar conectividade: transmissão automática das NF-e emitidas em contingência com verificação de autorização retroativa
 
 ### NF-e Modelo 55 — Todos os 26 Estados e DF
 
 O sistema detecta automaticamente o canal fiscal correto (SEFAZ estadual ou SVRS) com base na UF do CNPJ emitente:
 
-**Estados com SEFAZ proprio:** SP, MG, RS, PR, GO, MS, MT, MA, BA, CE, PE, PA, AM, RJ e demais com autorizacao direta.
+**Estados com SEFAZ proprio:** SP, MG, RS, PR, GO, MS, MT, MA, BA, CE, PE, PA, AM, RJ e demais com autorização direta.
 
 **Estados via SVRS (SEFAZ Virtual RS):** AC, AL, AP, DF, ES, PB, PI, RN, RO, RR, SC, SE, TO.
 
-### NFS-e — Cobertura Nacional (5.570 Municipios)
+### NFS-e — Cobertura Nacional (5.570 Municípios)
 
-Estrategia em quatro camadas:
+Estratégia em quatro camadas:
 
 | Camada | Cobertura | Abordagem |
 |---|---|---|
 | 1 — Cobertura direta | Municípios com padrão conhecido e conexão direta | Leiautes nacionais, municipais e regionais suportados conforme obrigação aplicável |
 | 2 — Cobertura por parceiros fiscais | Municípios adicionais | Roteamento por município quando a cobertura direta não for economicamente adequada |
-| 3 — RPS | ~1.000 municipios sem NFS-e eletronico | RPS numerado, conversao em lote quando municipio processar |
-| 4 — Atualizacao continua | Todos | Novos municipios homologados trimestralmente; alerta ao tenant quando sistema municipal mudar |
+| 3 — RPS | ~1.000 municípios sem NFS-e eletrônico | RPS numerado, conversão em lote quando município processar |
+| 4 — Atualização continua | Todos | Novos municípios homologados trimestralmente; alerta ao tenant quando sistema municipal mudar |
 
-### NFS-e — Reforma Tributaria do Consumo (RTC)
+### NFS-e — Reforma Tributária do Consumo (RTC)
 
-Para operacoes enquadradas no Ambiente Nacional da NFS-e, o Kalibrium deve tratar o leiaute da NFS-e como artefato versionado por competencia, municipio e ambiente, nunca como documento fiscal estatico.
+Para operações enquadradas no Ambiente Nacional da NFS-e, o Kalibrium deve tratar o leiaute da NFS-e como artefato versionado por competência, município e ambiente, nunca como documento fiscal estático.
 
 O motor fiscal deve:
 
-- suportar o leiaute NFS-e Via oficializado na NT SE/CGNFS-e nº 006, de 22/01/2026, inclusive a regra transitoria de emissao aplicavel a janeiro de 2026;
-- suportar as atualizacoes da NT SE/CGNFS-e nº 007, de 07/02/2026, com grupos IBS/CBS, atualizacao do Anexo VII (`cIndOp`), dominios federais revisados e separacao explicita entre tributos devidos e tributos retidos;
-- validar previamente o perfil fiscal do servico, o municipio emissor e o ambiente alvo antes da transmissao, bloqueando emissao quando faltarem classificacao operacional, retencoes ou campos obrigatorios do leiaute;
+- suportar o leiaute NFS-e Via oficializado na NT SE/CGNFS-e nº 006, de 22/01/2026, inclusive a regra transitoria de emissão aplicável a janeiro de 2026;
+- suportar as atualizações da NT SE/CGNFS-e nº 007, de 07/02/2026, com grupos IBS/CBS, atualização do Anexo VII (`cIndOp`), dominios federais revisados e separação explicita entre tributos devidos e tributos retidos;
+- validar previamente o perfil fiscal do serviço, o município emissor e o ambiente alvo antes da transmissão, bloqueando emissão quando faltarem classificação operacional, retencoes ou campos obrigatórios do leiaute;
 - registrar em trilha de auditoria a versão do leiaute, o conjunto de regras aplicado e o conteúdo transmitido, para suportar reprocessamento e auditoria fiscal.
 
 ### Outros Documentos Fiscais
 
-- **NFC-e modelo 65:** cupom eletronico para vendas de balcao, QR Code SEFAZ, contingencia SAT/CF-e
+- **NFC-e modelo 65:** cupom eletrônico para vendas de balcao, QR Code SEFAZ, contingência SAT/CF-e
 - **CT-e modelo 57:** gerado automaticamente ao criar OS de coleta/entrega de equipamentos
-- **MDF-e:** Manifesto para cargas proprias com varios CT-e ou NF-e; encerramento automatico na chegada
-- **CC-e (Carta de Correcao):** para campos permitidos apos emissao; vinculo a nota original
+- **MDF-e:** Manifesto para cargas proprias com vários CT-e ou NF-e; encerramento automático na chegada
+- **CC-e (Carta de Correção):** para campos permitidos após emissão; vinculo a nota original
 - **Cancelamento:** prazo SEFAZ verificado automaticamente (24h NF-e, 30min NFC-e, 168h CT-e); marca d'agua "CANCELADA" — nunca deletada
-- **NF-e de entrada:** importacao de XML por envio manual, e-mail monitorado ou consulta oficial autorizada; conferência entre pedido, recebimento e documento fiscal; manifestacao do destinatario
+- **NF-e de entrada:** importação de XML por envio manual, e-mail monitorado ou consulta oficial autorizada; conferência entre pedido, recebimento e documento fiscal; manifestação do destinatário
 
 ---
 
@@ -4904,19 +4764,19 @@ Requisitos funcionais:
 
 
 
-## Seguranca Avancada — Chaves, Credenciais e Certificacao
+## Segurança Avançada — Chaves, Credenciais e Certificação
 
 ### Gerenciamento de Chaves Criptograficas
 
 - Chaves de criptografia por tenant protegidas em mecanismo seguro e gerenciado conforme política de segurança aprovada
-- Rotacao de chaves a cada 12 meses sem interrupcao do servico
+- Rotação de chaves a cada 12 meses sem interrupcao do serviço
 - Chaves nunca expostas em logs, repositórios, relatórios, telas administrativas comuns ou conteúdos de integração
-- Certificados ICP-Brasil: chave privada protegida por mecanismo seguro; operacoes de assinatura executadas sem exposição da chave ao usuário ou ao operador
+- Certificados ICP-Brasil: chave privada protegida por mecanismo seguro; operações de assinatura executadas sem exposição da chave ao usuário ou ao operador
 
-### Autenticacao Robusta
+### Autenticação Robusta
 
 - Senhas com minimo de 12 caracteres e validação contra padrões fracos ou comprometidos
-- Segundo fator obrigatorio para usuarios admin e financeiro; suporte a métodos de segundo fator configuráveis por política do tenant
+- Segundo fator obrigatório para usuários admin e financeiro; suporte a métodos de segundo fator configuráveis por política do tenant
 - Identidade corporativa federada para tenants Enterprise, sem determinar protocolo ou provedor neste PRD
 - Limite de tentativas de autenticação e bloqueio progressivo configurável por tenant
 
@@ -4939,10 +4799,10 @@ Requisitos funcionais:
 
 ### Vulnerabilidades e Patch
 
-- Controles de seguranca no processo de entrega — liberacao bloqueada por vulnerabilidade critica
+- Controles de segurança no processo de entrega — liberação bloqueada por vulnerabilidade crítica
 - Varredura dinâmica executada periodicamente em ambiente não produtivo
-- Vulnerabilidade critica: correcao em ate 24h; vulnerabilidade alta: correcao em ate 7 dias
-- Teste de penetracao externo anual por empresa certificada; relatorio disponivel para tenants Enterprise sob NDA
+- Vulnerabilidade crítica: correção em até 24h; vulnerabilidade alta: correção em até 7 dias
+- Teste de penetração externo anual por empresa certificada; relatório disponível para tenants Enterprise sob NDA
 
 ### PCI DSS
 
@@ -5133,7 +4993,7 @@ O Kalibrium SaaS suporta operações multi-moeda para atender empresas com filia
 
 
 
-## Cenarios de Excecao e Fallback — Casos Criticos
+## Cenários de Exceção e Fallback — Casos Críticos
 
 Esta seção é a versão expandida e canônica dos casos de borda listados em `Exceções Operacionais e Casos de Borda`. A seção anterior funciona como resumo executivo; esta seção deve conter o comportamento completo, incluindo gatilho, dono, efeito em outros módulos, comunicação, fallback e critério de encerramento.
 
@@ -5147,75 +5007,75 @@ Todo cenário crítico deve responder:
 
 ### Contratos e Faturamento
 
-**Contrato com zero execucoes no periodo:**
-- Se contrato preve minimo de OS e o periodo termina sem execucoes: fatura automatica pelo valor minimo contratual com descricao "Minimo contratual — periodo sem utilizacao"
-- Se nao preve minimo: periodo registrado como "sem faturamento" com flag visivel no historico
-- Se contrato completar 3 periodos consecutivos com zero execucoes: alerta ao CSM para follow-up
+**Contrato com zero execuções no período:**
+- Se contrato preve minimo de OS e o período termina sem execuções: fatura automática pelo valor minimo contratual com descrição "Minimo contratual — período sem utilização"
+- Se não preve minimo: período registrado como "sem faturamento" com flag visível no histórico
+- Se contrato completar 3 períodos consecutivos com zero execuções: alerta ao CSM para follow-up
 
 **Cancelamento de contrato com pagamentos parciais:**
-- Pro-rata calculado automaticamente sobre o ultimo periodo faturado
-- Se ha saldo a devolver: credito gerado para abatimento em futuras OS ou devolucao via mesmo metodo
-- Contrato cancelado nunca deletado — permanece no historico com status "Encerrado"
+- Pro-rata calculado automaticamente sobre o ultimo período faturado
+- Se ha saldo a devolver: credito gerado para abatimento em futuras OS ou devolução via mesmo método
+- Contrato cancelado nunca deletado — permanece no histórico com status "Encerrado"
 
-**Ajuste de preco por indice:**
-- Contratos com clausula de reajuste configuravel: IPCA, INPC, IGP-M, INCC ou percentual fixo
-- Reajuste calculado automaticamente na data aniversario com base no indice oficial aplicavel
-- Proposta de aditivo gerada para aceite do cliente antes da aplicacao — nenhum reajuste unilateral
+**Ajuste de preço por indice:**
+- Contratos com clausula de reajuste configurável: IPCA, INPC, IGP-M, INCC ou percentual fixo
+- Reajuste calculado automaticamente na data aniversário com base no indice oficial aplicável
+- Proposta de aditivo gerada para aceite do cliente antes da aplicação — nenhum reajuste unilateral
 
-**Renovacao com renegociacao pendente:**
-- 60 dias antes do vencimento: alerta ao comercial responsavel
-- Se cliente solicitar renegociacao: sistema bloqueia renovacao automatica e cria oportunidade de renegociacao no CRM
-- Se prazo expirar sem acordo: contrato nao renovado automaticamente; cliente passa para "Em Risco"
+**Renovação com renegociação pendente:**
+- 60 dias antes do vencimento: alerta ao comercial responsável
+- Se cliente solicitar renegociação: sistema bloqueia renovação automática e cria oportunidade de renegociação no CRM
+- Se prazo expirar sem acordo: contrato não renovado automaticamente; cliente passa para "Em Risco"
 
-### Ordens de Servico
+### Ordens de Serviço
 
-**OS com multiplos tecnicos simultaneos:**
-- OS tem tecnico responsavel (owner) e tecnicos auxiliares; cada um registra ponto, atividades e despesas proprias
-- Comissao distribuida conforme regra configuravel (100% ao responsavel, proporcional por horas ou fixo por papel)
-- Assinatura do cliente colhida pelo responsavel; auxiliares confirmam participacao
+**OS com multiplos técnicos simultaneos:**
+- OS tem técnico responsável (owner) e técnicos auxiliares; cada um registra ponto, atividades e despesas proprias
+- Comissao distribuida conforme regra configurável (100% ao responsável, proporcional por horas ou fixo por papel)
+- Assinatura do cliente colhida pelo responsável; auxiliares confirmam participação
 
-**Tecnico recusa ou nao consegue executar OS:**
-- Tecnico registra motivo obrigatorio (falta de peca, acesso negado, instrumento inadequado, risco de seguranca)
-- OS retorna a fila com flag "retornada" e historico do motivo
-- Se OS retornar pela segunda vez: alerta ao coordenador com historico completo de tentativas
+**Técnico recusa ou não consegue executar OS:**
+- Técnico registra motivo obrigatório (falta de peca, acesso negado, instrumento inadequado, risco de segurança)
+- OS retorna a fila com flag "retornada" e histórico do motivo
+- Se OS retornar pela segunda vez: alerta ao coordenador com histórico completo de tentativas
 - SLA recomputado a partir do retorno se motivo for externo (acesso negado pelo cliente)
 
-**NF denegada pelo SEFAZ por CNPJ do destinatario irregular:**
-- Retry automatico apos 4h (CNPJ pode estar temporariamente irregular na Receita Federal)
-- Se falhar: alerta ao fiscal com CNPJ, status na RFB e sugestao de acao
-- OS permanece em "Faturamento Pendente" — nao encerrada financeiramente
-- Financeiro pode emitir recibo provisorio; NF emitida quando CNPJ regularizado
+**NF denegada pelo SEFAZ por CNPJ do destinatário irregular:**
+- Retry automático após 4h (CNPJ pode estar temporariamente irregular na Receita Federal)
+- Se falhar: alerta ao fiscal com CNPJ, status na RFB e sugestao de ação
+- OS permanece em "Faturamento Pendente" — não encerrada financeiramente
+- Financeiro pode emitir recibo provisório; NF emitida quando CNPJ regularizado
 
-**Rejeicao de OS pelo cliente apos emissao da NF:**
-- Rejeicao parcial: nota de credito pelo valor rejeitado; OS continua em "Em Revisao"
-- Rejeicao total: cancelamento da NF se dentro de 24h; fora do prazo, NF de devolucao emitida
-- OS reaberta com motivo registrado; nao conformidade gerada para analise de qualidade
-- Base de comissao do tecnico ajustada ao valor final aceito
+**Rejeicao de OS pelo cliente após emissão da NF:**
+- Rejeicao parcial: nota de credito pelo valor rejeitado; OS continua em "Em Revisão"
+- Rejeicao total: cancelamento da NF se dentro de 24h; fora do prazo, NF de devolução emitida
+- OS reaberta com motivo registrado; não conformidade gerada para análise de qualidade
+- Base de comissao do técnico ajustada ao valor final aceito
 
-### Calibracao e Laboratorio
+### Calibração e Laboratório
 
-**Instrumento reprovado na calibracao:**
-- Resultado registrado como "Reprovado" com valores encontrados vs especificacao
-- Laudo tecnico gerado com causa raiz e recomendacao (ajuste, reparo, substituicao, descarte)
-- Instrumento bloqueado automaticamente no portfolio do cliente — "Reprovado — Nao Usar"
-- Alerta automatico ao cliente com copia do laudo e proposta de acao
+**Instrumento reprovado na calibração:**
+- Resultado registrado como "Reprovado" com valores encontrados vs especificação
+- Laudo técnico gerado com causa raiz e recomendação (ajuste, reparo, substituição, descarte)
+- Instrumento bloqueado automaticamente no portfolio do cliente — "Reprovado — Não Usar"
+- Alerta automático ao cliente com copia do laudo e proposta de ação
 
-**Calibracao out of tolerance descoberta durante execucao:**
-- NC automatica gerada para analise de impacto retroativo: quais OS executadas com este instrumento nos ultimos N meses?
-- Lista de OS afetadas para revisao pelo responsavel de qualidade e pelo cliente
-- Para laboratorio acreditado ISO 17025: CAPA obrigatoria documentada conforme SS 8.7 — fluxo bloqueante
+**Calibração out of tolerance descoberta durante execução:**
+- NC automática gerada para análise de impacto retroativo: quais OS executadas com este instrumento nos ultimos N meses?
+- Lista de OS afetadas para revisão pelo responsável de qualidade e pelo cliente
+- Para laboratório acreditado ISO 17025: CAPA obrigatória documentada conforme SS 8.7 — fluxo bloqueante
 
 ### Financeiro
 
 **Fornecedor com CNPJ irregular no momento do pagamento:**
-- Consulta automatica a Receita Federal antes de liberar qualquer pagamento
+- Consulta automática a Receita Federal antes de liberar qualquer pagamento
 - Se irregular: pagamento bloqueado; alerta ao financeiro com status do CNPJ
-- Desbloqueio manual pelo gestor com registro de justificativa obrigatorio
+- Desbloqueio manual pelo gestor com registro de justificativa obrigatório
 
-**Recebimento com divergencia de quantidade:**
+**Recebimento com divergência de quantidade:**
 - Recebimento parcial: entrada do que chegou, pedido fica "parcialmente recebido"
 - Recebimento com excesso: alerta ao gestor de compras para aprovar ou devolver
-- Recebimento com item trocado (NCM diferente): alerta de divergencia; NF nao escriturada ate resolucao
+- Recebimento com item trocado (NCM diferente): alerta de divergência; NF não escriturada até resolução
 
 ---
 
@@ -5223,7 +5083,7 @@ Todo cenário crítico deve responder:
 
 
 
-## Exportacao Autonoma de Dados e Portabilidade LGPD
+## Exportação Autônoma de Dados e Portabilidade LGPD
 
 > **Domínio:** Compliance / LGPD / Governança de Dados
 > **Classificação editorial:** Migrado para CAP-DATA-01 com validação regulatória — direito legal do titular (LGPD Art. 18) e autonomia do tenant sobre seus dados
@@ -5678,36 +5538,36 @@ Guia de como usar a plataforma de forma recorrente para extrair máximo valor op
 
 
 
-## Relatorio de Adocao e Utilizacao do Sistema (Tenant Admin)
+## Relatório de Adoção e Utilização do Sistema (Tenant Admin)
 
-Painel de saude de adocao do sistema visivel para o admin do tenant — mostra o que esta sendo usado, o que esta sendo ignorado e o que pode gerar mais valor.
+Painel de saúde de adoção do sistema visível para o admin do tenant — mostra o que esta sendo usado, o que esta sendo ignorado e o que pode gerar mais valor.
 
-### Metricas de Adocao por Modulo
+### Métricas de Adoção por Módulo
 
-| Modulo | Metricas Mostradas |
+| Módulo | Métricas Mostradas |
 |---|---|
 | CRM | Clientes cadastrados vs atualizados no mes, leads criados, propostas enviadas |
-| OS | OS criadas vs encerradas vs em atraso, tempo medio de ciclo |
+| OS | OS criadas vs encerradas vs em atraso, tempo médio de ciclo |
 | Financeiro | Titulos gerados vs baixados, % de NFs emitidas automaticamente vs manualmente |
-| RH | Usuarios que acessaram o portal, holerites baixados, pontos registrados pelo app vs manual |
-| Lab | Certificados emitidos, padroes com calibracao vigente |
-| GED | Documentos criados, documentos vencidos nao renovados |
+| RH | Usuários que acessaram o portal, holerites baixados, pontos registrados pelo app vs manual |
+| Lab | Certificados emitidos, padrões com calibração vigente |
+| GED | Documentos criados, documentos vencidos não renovados |
 
-### Score de Adocao Geral
+### Score de Adoção Geral
 
-- Calculado como media ponderada das metricas por modulo; escala de 0 a 100
-- Referencia: < 40 = baixa adocao | 40-70 = adocao moderada | > 70 = boa adocao
-- Historico do score ao longo do tempo visivel para o admin
+- Calculado como media ponderada das métricas por módulo; escala de 0 a 100
+- Referência: < 40 = baixa adoção | 40-70 = adoção moderada | > 70 = boa adoção
+- Histórico do score ao longo do tempo visível para o admin
 
 ### Funcionalidades Nunca Usadas
 
-- Lista de funcionalidades disponiveis no plano do tenant que nunca foram acessadas por nenhum usuario nos ultimos 90 dias
-- Sugestao de acao para cada feature nao usada: link para tutorial, oferta de treinamento ou contato do CSM
+- Lista de funcionalidades disponíveis no plano do tenant que nunca foram acessadas por nenhum usuário nos ultimos 90 dias
+- Sugestao de ação para cada feature não usada: link para tutorial, oferta de treinamento ou contato do CSM
 
-### Visao Interna do CSM da Kalibrium (nao visivel ao tenant)
+### Visao Interna do CSM da Kalibrium (não visível ao tenant)
 
-- Painel com score de adocao de todos os tenants
-- Alerta automatico ao CSM quando score cair abaixo de 40 ou cair mais de 20 pontos em 30 dias — intervencao proativa antes do churn
+- Painel com score de adoção de todos os tenants
+- Alerta automático ao CSM quando score cair abaixo de 40 ou cair mais de 20 pontos em 30 dias — intervenção proativa antes do churn
 
 ## Jornada de Suporte e Customer Success
 
@@ -5719,34 +5579,34 @@ Canais, SLA de resposta e SLA de resolução não são redefinidos nesta jornada
 
 ### Onboarding Estruturado por Fases
 
-**Fase 1 — Configuracao (D0 a D3):**
+**Fase 1 — Configuração (D0 a D3):**
 - Wizard de setup guiado: dados da empresa, regime fiscal, filiais, certificado digital, logotipo
-- Importacao de cadastros basicos: clientes, produtos/servicos, tecnicos, instrumentos por arquivo estruturado com modelo orientativo
-- Configuracao de notificacoes, alertas e automacoes padrao
-- Checklist de configuracao com % de completude visivel no painel admin
+- Importação de cadastros basicos: clientes, produtos/serviços, técnicos, instrumentos por arquivo estruturado com modelo orientativo
+- Configuração de notificações, alertas e automações padrão
+- Checklist de configuração com % de completude visível no painel admin
 
 **Fase 2 — Treinamento (D3 a D10):**
-- Videos de treinamento modulares por perfil (admin, financeiro, tecnico, atendimento, comercial) — 24/7
+- Videos de treinamento modulares por perfil (admin, financeiro, técnico, atendimento, comercial) — 24/7
 - Sessao ao vivo: 2h para Professional, 4h + acompanhamento para Enterprise
-- Ambiente de treinamento isolado com dados ficticios pre-populados — sem afetar producao
-- Certificado de conclusao de treinamento por usuario com registro de data e modulos assistidos
+- Ambiente de treinamento isolado com dados ficticios pre-populados — sem afetar produção
+- Certificado de conclusao de treinamento por usuário com registro de data e módulos assistidos
 
-**Fase 3 — Entrada em Operacao (D10):**
-- Checklist de pre-entrada em operacao validado pelo CSM (Enterprise) ou admin (demais planos)
+**Fase 3 — Entrada em Operação (D10):**
+- Checklist de pre-entrada em operação validado pelo CSM (Enterprise) ou admin (demais planos)
 - Monitoramento intensivo nas primeiras 2 semanas: alertas de anomalia em volume de OS e erros
-- Health check de 30 dias: reuniao de revisao com CSM (Enterprise) ou e-mail automatico (demais)
+- Health check de 30 dias: reuniao de revisão com CSM (Enterprise) ou e-mail automático (demais)
 
-**Fase 4 — Adocao (D30+):**
-- Score de adocao por modulo: % features usadas, frequencia, usuarios ativos vs licenciados
-- Alertas internos ao CS quando score cair abaixo do threshold — intervencao proativa antes do churn
+**Fase 4 — Adoção (D30+):**
+- Score de adoção por módulo: % features usadas, frequência, usuários ativos vs licenciados
+- Alertas internos ao CS quando score cair abaixo do threshold — intervenção proativa antes do churn
 - QBR (Quarterly Business Review) para Enterprise
-- NPS coletado a cada 90 dias com follow-up automatico por nota
+- NPS coletado a cada 90 dias com follow-up automático por nota
 
 ### Matriz de Escalonamento
 
-- P0: Suporte -> Engenharia de plantao -> liderança técnica em ate 30 min se nao resolvido
-- P1: Suporte senior -> Engenharia em ate 2h
-- Todos os tickets registrados com: tenant, plano, severidade, SLA comprometido, tempo de resposta, resolucao e causa raiz
+- P0: Suporte -> Engenharia de plantao -> liderança técnica em até 30 min se não resolvido
+- P1: Suporte senior -> Engenharia em até 2h
+- Todos os tickets registrados com: tenant, plano, severidade, SLA comprometido, tempo de resposta, resolução e causa raiz
 
 ---
 
@@ -5756,48 +5616,105 @@ Canais, SLA de resposta e SLA de resolução não são redefinidos nesta jornada
 
 ## Sistema de Ouvidoria Formal
 
-Canal formal e rastreavel para reclamacoes que exigem tratamento diferenciado do helpdesk operacional, com prazos obrigatorios e escalonamento para gestao e juridico.
+Canal formal e rastreável para reclamações que exigem tratamento diferenciado do helpdesk operacional, com prazos obrigatórios e escalonamento para gestão e juridico.
 
 ### Distincao entre Helpdesk e Ouvidoria
 
 | Dimensao | Helpdesk | Ouvidoria |
 |---|---|---|
-| Tipo de demanda | Duvidas de uso, problemas tecnicos, solicitacoes operacionais | Reclamacoes formais, insatisfacao grave, denuncias, sugestoes estrategicas |
-| SLA de resposta | Configuravel por tenant | Conforme tipo de manifestacao na tabela canonica desta secao; contrato pode ser mais restritivo |
-| Responsavel | Atendente / suporte tecnico | Gestor senior designado + opcao de escalada para diretoria |
-| Escalonamento | Por SLA automatico | Conforme prazo aplicavel ao tipo de manifestacao; denuncia, risco juridico, regulatorio ou violacao de prazo escalam automaticamente |
-| Visibilidade | Time de atendimento | Gestao + Qualidade + Juridico (conforme gravidade) |
-| Protocolo | Numero interno de ticket | Numero unico rastreavel (formato OUV-ANO-SEQUENCIAL) |
-| Qualidade | Nao obrigatorio | NC automatica gerada no Quality com CAPA se procedente |
+| Tipo de demanda | Duvidas de uso, problemas técnicos, solicitações operacionais | Reclamações formais, insatisfação grave, denuncias, sugestoes estrategicas |
+| SLA de resposta | Configurável por tenant | Conforme tipo de manifestação na tabela canônica desta secao; contrato pode ser mais restritivo |
+| Responsável | Atendente / suporte técnico | Gestor senior designado + opcao de escalada para diretoria |
+| Escalonamento | Por SLA automático | Conforme prazo aplicável ao tipo de manifestação; denuncia, risco juridico, regulatório ou violação de prazo escalam automaticamente |
+| Visibilidade | Time de atendimento | Gestão + Qualidade + Juridico (conforme gravidade) |
+| Protocolo | Número interno de ticket | Número único rastreável (formato OUV-ANO-SEQUENCIAL) |
+| Qualidade | Não obrigatório | NC automática gerada no Quality com CAPA se procedente |
 
-### Prazos Canonicos por Manifestacao
+### Prazos Canonicos por Manifestação
 
-| Tipo | Definicao | SLA de resposta inicial | SLA de resolucao |
+| Tipo | Definicao | SLA de resposta inicial | SLA de resolução |
 |---|---|---|---|
-| Reclamacao | Insatisfacao com produto, servico ou atendimento | 2 dias uteis | 10 dias uteis |
-| Denuncia | Suspeita de conduta ilegal, fraude, assedio, discriminacao ou pratica antietica | 1 dia util | 20 dias uteis, podendo exigir investigacao formal |
-| Sugestao | Proposta de melhoria sem insatisfacao declarada | 3 dias uteis | Acusar recebimento e registrar avaliacao |
-| Elogio | Reconhecimento de boa conduta ou servico | 3 dias uteis | Acusar recebimento e encaminhar ao responsavel |
+| Reclamação | Insatisfação com produto, serviço ou atendimento | 2 dias uteis | 10 dias uteis |
+| Denuncia | Suspeita de conduta ilegal, fraude, assedio, discriminação ou prática antiética | 1 dia util | 20 dias uteis, podendo exigir investigação formal |
+| Sugestao | Proposta de melhoria sem insatisfação declarada | 3 dias uteis | Acusar recebimento e registrar avaliação |
+| Elogio | Reconhecimento de boa conduta ou serviço | 3 dias uteis | Acusar recebimento e encaminhar ao responsável |
 
 ### Fluxo Completo
 
-1. **Abertura:** cliente abre reclamacao pelo portal, e-mail dedicado, canal de mensageria identificado como ouvidoria ou pessoalmente registrada pelo atendente
-2. **Protocolo:** numero gerado automaticamente (ex.: `OUV-2026-000001`); confirmacao ao cliente com numero, prazo e nome do responsavel designado
-3. **Triagem e gravidade (ate 24h):**
-   - Nivel 1: insatisfacao com servico
-   - Nivel 2: erro com impacto financeiro
-   - Nivel 3: dano ao equipamento ou ao cliente
-   - Nivel 4: questao juridica ou regulatoria
-4. **Tratamento:** responsavel investiga e registra acoes; cliente acompanha status pelo numero de protocolo no portal sem necessidade de login
-5. **Resposta formal:** analise do caso, providencias tomadas, compensacao se aplicavel, prazo de melhorias
-6. **Encerramento:** apos aceite do cliente ou apos prazo maximo sem contestacao; NC no Quality encerrada com evidencias
-7. **Escalada automatica:** niveis 3 e 4 ou SLA violado notificam a diretoria; envolvimento de responsabilidade civil notifica o juridico imediatamente
+1. **Abertura:** cliente abre reclamação pelo portal, e-mail dedicado, canal de mensageria identificado como ouvidoria ou pessoalmente registrada pelo atendente
+2. **Protocolo:** número gerado automaticamente (ex.: `OUV-2026-000001`); confirmação ao cliente com número, prazo e nome do responsável designado
+3. **Triagem e gravidade (até 24h):**
+   - Nível 1: insatisfação com serviço
+   - Nível 2: erro com impacto financeiro
+   - Nível 3: dano ao equipamento ou ao cliente
+   - Nível 4: questao juridica ou regulatória
+4. **Tratamento:** responsável investiga e registra ações; cliente acompanha status pelo número de protocolo no portal sem necessidade de login
+5. **Resposta formal:** análise do caso, providências tomadas, compensação se aplicável, prazo de melhorias
+6. **Encerramento:** após aceite do cliente ou após prazo maximo sem contestação; NC no Quality encerrada com evidências
+7. **Escalada automática:** níveis 3 e 4 ou SLA violado notificam a diretoria; envolvimento de responsabilidade civil notifica o juridico imediatamente
 
-### Relatorio Mensal de Ouvidoria
+### Relatório Mensal de Ouvidoria
 
-- Total de reclamacoes por tipo, tempo medio de resolucao, % resolvidas no prazo, % com NC gerada, principais causas raiz
-- Exportavel em formato estruturado e PDF para gestao e qualidade
-- Alerta sistemico: mesma causa raiz em >= 3 reclamacoes no mes dispara alerta ao gestor de qualidade para analise estrutural
+- Total de reclamações por tipo, tempo médio de resolução, % resolvidas no prazo, % com NC gerada, principais causas raiz
+- Exportável em formato estruturado e PDF para gestão e qualidade
+- Alerta sistêmico: mesma causa raiz em >= 3 reclamações no mes dispara alerta ao gestor de qualidade para análise estrutural
+
+---
+
+## Modelo de Dados Conceitual
+
+> **Nota editorial.** Este modelo é **conceitual e funcional**; a materialização em schema, tipos, índices, constraints, naming de tabelas, particionamento e arquitetura física de persistência será definida em ADRs posteriores (ver `ADR-0001 — Stack` e `ADR-0002 — Persistência` quando criados). As entidades abaixo são a **fonte canônica de vocabulário** para specs modulares, NFRs por entidade e decisões arquiteturais. Qualquer spec futura deve referenciar os nomes declarados aqui sem renomeá-los.
+
+### Grupo A — Identidade e Tenancy
+
+- **Tenant** — unidade lógica isolada dentro da plataforma multi-tenant. Um Tenant agrupa uma ou mais Empresas sob o mesmo contrato SaaS, plano, billing, SLA, retenção e governança. Raiz da hierarquia de isolamento de dados.
+- **Empresa** — pessoa jurídica operada por um Tenant (CNPJ). Pode ter uma ou mais Filiais. Unidade fiscal e de faturamento contábil.
+- **Filial** — unidade física ou operacional subordinada a uma Empresa. Pode ter endereço, CNAE próprio, estoque, equipe e processos locais.
+- **Usuário** — identidade individual autenticável. Pode ser **interno** (membro da Empresa) ou **externo** (cliente, fornecedor, auditor, parceiro) com escopo segregado.
+- **Papel** — conjunto nomeado de permissões atribuível a Usuários. Pode ser global ao Tenant ou escopado por Empresa/Filial.
+- **Permissão** — capacidade atômica (ex: "emitir NF-e", "aprovar OS", "consultar certificado"). Relacionamento N-para-N com Papel.
+
+**Relacionamentos principais:** Tenant 1:N Empresa 1:N Filial. Usuário N:N Papel (escopo hierárquico). Papel N:N Permissão.
+
+### Grupo B — Comercial e Contratual
+
+- **Cliente** — pessoa jurídica ou física contratante de serviços de uma Empresa do Tenant. **Distinto de Tenant:** Tenant é quem assina o SaaS; Cliente é quem paga a Empresa pelo serviço metrológico prestado.
+- **Proposta Comercial** — oferta formal de serviço ao Cliente, com escopo, preço, prazo e condições. Estados: rascunho → enviada → aprovada / rejeitada / expirada.
+- **Contrato** — acordo vigente entre Empresa e Cliente, derivado de Proposta aprovada ou negociação direta. Tem escopo, prazo, SLA, reajuste, renovação automática e política de encerramento.
+- **Plano SaaS / Assinatura** — vínculo contratual entre Tenant e Kalibrium, com tier, add-ons, quotas, ciclo de faturamento, limites e entitlements por funcionalidade.
+
+**Relacionamentos principais:** Cliente 1:N Proposta → 1:1 Contrato. Tenant 1:1 Plano SaaS vigente (histórico preservado). Contrato 1:N Ordem de Serviço.
+
+### Grupo C — Operação Técnica e Metrologia
+
+- **Equipamento** — instrumento ou item físico a ser calibrado/manutenido. Tem identificador único (tag, serial), especificações técnicas, histórico de calibrações, dono (Cliente ou Empresa) e ciclo de validade metrológica.
+- **Padrão de Referência** — instrumento de metrologia de alta precisão usado para calibrar Equipamentos. Tem rastreabilidade ascendente (certificado RBC ou equivalente internacional, incerteza declarada, data de validade, histórico).
+- **Procedimento Técnico** — método documentado de execução (calibração, manutenção, inspeção). Referência normas aplicáveis (ABNT/ISO/INMETRO), passos, cálculos de incerteza e critérios de aceite técnicos.
+- **Ordem de Serviço (OS)** — unidade de execução de trabalho. Agrupa um ou mais Equipamentos, um ou mais Procedimentos, responsável técnico, cliente, estado operacional (pendente → em execução → concluída → aprovada → entregue → faturada) e evidências coletadas (fotos, medições, assinaturas, geolocalização).
+- **Calibração** — evento técnico executado no contexto de uma OS sobre um Equipamento, usando um ou mais Padrões e um Procedimento. Produz medições, cálculo de incerteza, conformidade ao critério de aceite e uma referência ao Certificado gerado.
+- **Certificado de Calibração** — documento formal emitido ao concluir uma Calibração aprovada. Tem número único, validade, assinatura digital do responsável técnico, rastreabilidade ascendente declarada, estado (vigente → vencido → revogado) e vínculo imutável com Equipamento + Calibração.
+
+**Relacionamentos principais:** Cliente 1:N Equipamento 1:N Calibração 1:1 Certificado. OS 1:N Calibração. Calibração N:1 Padrão de Referência, N:1 Procedimento, N:1 Responsável Técnico (Usuário interno).
+
+### Grupo D — Fiscal, Documental e Auditoria
+
+- **Documento Fiscal (NF-e / NFS-e / NFC-e)** — nota fiscal eletrônica emitida pela Empresa referente a serviços prestados ou produtos vendidos. Estados: rascunho → autorizada → cancelada / denegada. Contém XML assinado, chave de acesso, vínculo com Contrato ou OS, efeito financeiro (contas a receber) e trilha completa SEFAZ/prefeitura.
+- **Documento (GED)** — artefato arquivado no sistema (PDF, XML, foto, planilha, certificado de terceiros, procedimento, RBC, procuração, contrato digitalizado). Tem owner, versão, finalidade declarada, política de retenção aplicável, trilha de acesso, consentimento LGPD quando aplicável e política de expiração.
+- **Evento Auditável** — registro **imutável e append-only** de qualquer ação crítica no sistema: quem fez (Usuário), o que fez (ação), quando (timestamp), em qual recurso (entidade + ID), com qual resultado (sucesso/falha/exceção) e qual evidência vinculada. Serve como trilha de auditoria única e fonte de verdade para compliance, LGPD, disputa comercial, incidente de segurança e análise forense.
+
+**Relacionamentos principais:** Empresa 1:N Documento Fiscal. Qualquer entidade crítica 1:N Evento Auditável (nunca deletado, nunca alterado). Documento N:1 Finalidade → política de retenção. Evento Auditável N:1 Usuário autor.
+
+### Entidades fora do escopo deste documento
+
+As seguintes são **dependências de implementação**, não modelo de produto, e serão definidas em ADRs ou specs modulares posteriores: sessão de autenticação, token JWT, job de processamento assíncrono, fila de mensageria, cache de leitura, índice de busca, arquivo binário armazenado, métrica operacional, alerta, log estruturado, chave criptográfica, migração de schema, snapshot de backup.
+
+### Regras transversais do modelo
+
+1. **Isolamento de tenant** — toda consulta a qualquer entidade dos Grupos B, C e D carrega implicitamente o escopo do Tenant corrente; vazamento cross-tenant é incidente de segurança P0.
+2. **Escopo hierárquico de acesso** — Usuário acessa dados de Empresas/Filiais conforme os Papéis que possui no Tenant, com herança top-down (acesso a Empresa inclui suas Filiais por padrão, salvo restrição explícita).
+3. **Imutabilidade documental** — Certificados emitidos, Documentos Fiscais autorizados e Eventos Auditáveis nunca são alterados; correções são feitas por novo documento com referência cruzada ao original (cancelamento, complemento ou substituição).
+4. **Rastreabilidade metrológica** — toda Calibração deve referenciar Padrão de Referência com rastreabilidade ascendente válida na data de execução; Calibração com Padrão vencido é inválida e bloqueia emissão de Certificado.
+5. **Consentimento e finalidade LGPD** — Documento que contém dado pessoal declara finalidade; retenção e acesso seguem a finalidade declarada; DSR (Data Subject Request) pode forçar anonimização ou exclusão subordinada à obrigação legal fiscal/contábil quando aplicável.
 
 ---
 
@@ -5829,6 +5746,78 @@ Canal formal e rastreavel para reclamacoes que exigem tratamento diferenciado do
 | R07 | Performance degradada em grupos com 100+ empresas | Baixa | Alto | Testes de capacidade, limites por plano e estratégia de escala definida em arquitetura posterior |
 | R08 | Mudança regulatória (eSocial, NF-e/NFS-e RTC, IBS/CBS e obrigações acessórias monitoradas) com prazo curto | Alta | Crítico | Monitoramento de DOU + Receita/CGIBS + squad dedicado a compliance regulatório |
 | R09 | Dificuldade em precificar para grupos empresariais grandes | Média | Médio | Modelo Enterprise flexível com pricing baseado em faturamento do grupo |
+| R10 | LGPD — Data Subject Request (DSR), direito ao esquecimento e retenção por finalidade não automatizados | Média | Crítico | Processo formal de DSR com SLA contratual, motor de retenção por finalidade no core, trilha de consentimento auditável, playbook de incidente LGPD e DPO designado |
+| R11 | Escassez de talento especializado em metrologia laboratorial e regime fiscal brasileiro; perda de 1-2 pessoas-chave trava evolução do produto | Alta | Alto | Parceria com consultores externos (metrologia + fiscal), documentação canônica de domínio mantida como fonte de verdade, cross-training explícito entre squads e bus factor monitorado |
+| R12 | Operação 24x7 imatura — SLAs de NF-e em contingência, eSocial e tenants Enterprise exigem resposta fora de horário comercial, mas processo de oncall não está formalizado | Alta | Alto | Runbook por cenário crítico, escala de oncall remunerada, monitoramento proativo com alertas classificados por severidade, exercícios de disaster recovery recorrentes e postmortem obrigatório |
+| R13 | Supply chain de software — dependências OSS transitivas com CVEs críticos ou pacotes abandonados entram no build sem gate | Média | Alto | SBOM gerado no CI, scanner de vulnerabilidade com gate obrigatório, política de upgrade mínimo, lockfiles versionados, mirror privado para pacotes críticos e ciclo de revisão trimestral |
+
+---
+
+## Decisões de Produto em Aberto (Open Questions)
+
+> **Nota editorial.** Esta seção lista decisões, gaps e questões que ainda precisam de resposta antes de o PRD servir como fonte canônica completa para implementação de slices. Itens aqui bloqueiam a evolução de **slices específicos**, mas **não bloqueiam** o refinamento geral do PRD. Cada item tem tipo, bloqueador concreto e slot decisório previsto.
+>
+> Convenção de IDs: `OQ-ARQ-NN` para decisões arquiteturais, `OQ-PM-NN` para decisões de produto do PM, `OQ-DSC-NN` para gaps que dependem de descoberta externa, `OQ-FUP-NN` para follow-ups editoriais.
+
+### Categoria 1 — Decisões Arquiteturais Antecipadas (viram ADRs)
+
+| ID | Questão | Destino | Bloqueador para | Status |
+|---|---|---|---|---|
+| OQ-ARQ-01 | Stack tecnológica (linguagem, framework, runtime de produção) | ADR-0001 | Qualquer slice de código | Aguarda PRD 100% refinado → `/decide-stack` |
+| OQ-ARQ-02 | Modelo de persistência (banco, estratégia de multi-tenancy, política de migrations) | ADR-0002 | Slices que persistem dados | Aguarda ADR-0001 |
+| OQ-ARQ-03 | Mensageria / filas / background jobs (provedor e padrão de uso) | ADR-0003 | Slices com operação assíncrona (NF-e, eSocial, reconciliação) | Aguarda ADR-0001 |
+| OQ-ARQ-04 | Identity provider (built-in vs externo — Auth0, Keycloak, WorkOS ou outro) | ADR-0004 | Slices TEN (tenancy) e SEG (autenticação) | Aguarda ADR-0001 |
+| OQ-ARQ-05 | Storage de documentos / GED (S3-compatível, nativo de nuvem ou self-hosted) | ADR-0005 | Slices DOC, CER, QUA | Aguarda ADR-0001 |
+| OQ-ARQ-06 | Stack de observabilidade (logs estruturados + métricas + tracing distribuído) | ADR-0006 | NFR-OBS em produção | Aguarda ADR-0001 |
+| OQ-ARQ-07 | Pipeline CI/CD e gates obrigatórios (verifier, reviewer, scan de vuln, SBOM) | ADR-0007 | Operação de slices em produção | Aguarda ADR-0001 |
+| OQ-ARQ-08 | Provedor de emissão fiscal (SEFAZ direto vs broker terceiro como NFE.io, Focus NFe, etc.) | ADR-0008 | Slices FIS | Aguarda PRD + pesquisa de mercado |
+
+### Categoria 2 — Decisões de Produto do PM (Aguardam Resposta)
+
+| ID | Pergunta em linguagem de produto | Impacto | Slot decisório previsto |
+|---|---|---|---|
+| OQ-PM-01 | Quais features **precisam** estar no MVP e quais ficam para depois do primeiro cliente pagante? | Define escopo dos primeiros 3-6 meses + ordem dos slices | Sessão dedicada ao MVP, após `/decide-stack` |
+| OQ-PM-02 | **Porte mínimo do cliente-alvo** — quantos técnicos, faturamento mínimo, número de equipamentos? | Pricing Starter + positioning comercial | Validação ICP em sessão de GTM |
+| OQ-PM-03 | Se um cliente muda de plano (downgrade ou cancelamento), o que acontece com dados, features e integrações já ativas? | Grandfathering em contratos Enterprise + retenção LGPD | Antes do slice de billing SaaS |
+| OQ-PM-04 | Política de reembolso e cancelamento — proporcional, período de graça, multa contratual? | Pricing e Termos de Uso | Antes do slice de assinatura SaaS |
+| OQ-PM-05 | Como precificar grupos empresariais com múltiplas Empresas sob o mesmo Tenant? (liga com R09) | Pricing Enterprise | Validação comercial com 3-5 prospects Enterprise |
+| OQ-PM-06 | Residência de dados — Brasil por padrão sempre, ou aceita região internacional quando o cliente permite? (liga com NFR-CMP-12) | Compliance + ADR-0005 | Antes do primeiro cliente Enterprise |
+| OQ-PM-07 | Quanto de customização Enterprise o produto aceita? Apenas parametrização, ou também extensões custom de código? (liga com NFR-OPE-05) | Escopo de slices custom + custo de manutenção | Validação com 3 prospects Enterprise |
+| OQ-PM-08 | Operação 24x7 — interno (Kalibrium opera oncall) ou terceirizado (NOC externo)? (liga com R12) | Custo operacional + cumprimento de NFR-CON | Antes do primeiro cliente Enterprise |
+| OQ-PM-09 | Certificado digital oficial — quem fornece ao tenant, como renova, como entrega de forma segura? | Operação NF-e + NFR-CMP-01 | Antes do primeiro tenant que emite fiscal |
+
+### Categoria 3 — Gaps Deliberados Aguardando Descoberta Externa
+
+| ID | Gap | Como resolver | Urgência |
+|---|---|---|---|
+| OQ-DSC-01 | As 8 personas (J1-J8) foram declaradas mas não validadas com entrevistas qualitativas reais | 3-5 entrevistas por persona antes do primeiro slice FLX | Alta (bloqueia design de fluxos) |
+| OQ-DSC-02 | Os KPIs de produto (§Métricas de Sucesso) não têm baseline real porque não há cliente em produção | Pilot com 1-2 clientes Design Partner para coletar baseline | Média (depende do pilot) |
+| OQ-DSC-03 | Curva de preço Enterprise é teórica sem negociação concreta | 5-10 conversas comerciais com tenants Enterprise alvo | Alta (bloqueia fechamento Enterprise) |
+| OQ-DSC-04 | Taxonomia de slices para rollout depende do MVP definido em OQ-PM-01 | Priorizar em ordem de valor por persona após OQ-PM-01 ser respondida | Média (depende de OQ-PM-01) |
+
+### Categoria 4 — Triagem dos 208 Marcadores Não-Resolvidos (D4.A — Pendente)
+
+> **Status:** ⏳ **Aguardando sessão dedicada em 2026-04-12 ou depois.**
+>
+> A auditoria `docs/audits/internal/prd-consistency-audit-2026-04-11.md §5` identificou **208 marcadores não-resolvidos** no corpo do PRD: 131 `TODO`, 67 `PENDENTE`, 9 `Gap` e 1 `"a definir"`. A decisão **D4.A** de 2026-04-11 aprovou que o agente categorize esses marcadores automaticamente em 4 baldes:
+>
+> | Balde | O que vai | Destino após triagem |
+> |---|---|---|
+> | **1 — Decisão PM** | Itens que precisam de resposta de produto do Product Manager | Migrar para Categoria 2 (OQ-PM-NN) com pergunta em linguagem R12 |
+> | **2 — Dado faltante** | Itens que precisam de pesquisa, validação ou consulta externa | Migrar para Categoria 3 (OQ-DSC-NN) |
+> | **3 — Duplicata** | Itens já cobertos por outra seção canônica do PRD | Absorver no canônico, remover marcador |
+> | **4 — Obsoleto** | Itens que não fazem mais sentido no escopo atual | Remover e registrar a remoção em changelog editorial |
+>
+> Após a triagem, esta Categoria 4 deixará de existir e os itens classificados migrarão para Categoria 2 ou 3 desta mesma seção. Expectativa: ~20-40 itens no balde "Decisão PM", que virarão OQ-PM-10 em diante.
+
+### Categoria 5 — Follow-ups Editoriais e de Normalização
+
+| ID | Item | Tipo | Agendamento |
+|---|---|---|---|
+| OQ-FUP-01 ✅ | Resíduos de acentuação PT-BR no corpo do texto não capturados pelo dicionário do Passo 2.4. **Resolvido na mesma sessão 2026-04-11:** 3 ondas adicionais de normalização aplicaram 443 substituições cobrindo 185 chaves distintas (sufixos -ação/-ações, -ência, -ário/-ório, -ável/-ível, -ético/-ático, -ônico + palavras individuais); verificação final confirmou zero resíduos ASCII remanescentes | Normalização mecânica — concluído | Concluído |
+| OQ-FUP-02 ✅ | Auditoria `docs/audits/internal/prd-consistency-audit-2026-04-11.md §4.3` tinha imprecisão na descrição do Par 5. **Resolvido na mesma sessão 2026-04-11:** o arquivo de auditoria foi corrigido in-place com a descrição estrutural real (`Trilhas Permanentes de Evolucao do Produto` L125 vs `Prioridades Estruturais do Produto` L368) e inclui nota de correção editorial preservando o histórico | Correção de auditoria — concluído | Concluído |
+| OQ-FUP-03 ✅ | Palavra `pais` (ambígua: `país` vs `pais`=parents). **Resolvido na mesma sessão 2026-04-11:** busca global revelou que a única ocorrência real de `pais` no PRD era o H2 "Calendário de Feriados por Município, Estado e Pais", já corrigido para "País" no Passo 2.4. Zero achados adicionais a corrigir | Normalização manual — concluído | Concluído |
+| OQ-FUP-04 ✅ | Verificação de referências quebradas ao H2 deletado `## NFRs Detalhados — Requisitos Não Funcionais Expandidos` (removido no Passo 4). **Resolvido na mesma sessão 2026-04-11:** busca global no PRD confirmou zero menções à seção deletada fora deste próprio registro histórico | Busca e correção — concluído | Concluído |
 
 ---
 
@@ -6032,19 +6021,19 @@ Define qual módulo é o único proprietário (master) de cada entidade principa
 
 | Entidade | Módulo Owner (Master) | Módulos Consumidores | Regra |
 |---|---|---|---|
-| **Colaborador / Técnico** | HR | WorkOrders, Agenda, Payroll, eSocial, Mobile | HR cria, inativa e gerencia o vínculo; WorkOrders usa apenas o ID e nome |
+| **Colaborador / Técnico** | HR | WorkOrders, Agenda, Payroll, eSocial, Mobile | HR cria, inativa e gerência o vínculo; WorkOrders usa apenas o ID e nome |
 | **Cliente** | CRM | Quotes, Contracts, Finance, Portal, WorkOrders, Fiscal | CRM é único ponto de cadastro; demais módulos referenciam por ID |
 | **Instrumento do cliente** | CRM (ficha do equipamento) | WorkOrders, Lab, Inmetro, Portal | Criado no CRM ao cadastrar equipamento; Lab e WorkOrders adicionam histórico mas não alteram dados mestres |
-| **Ativo patrimonial** | FixedAssets | Finance (depreciação), Fleet, Lab (padrões) | FixedAssets gerencia ciclo de vida; Lab lê apenas data de calibração do padrão |
+| **Ativo patrimonial** | FixedAssets | Finance (depreciação), Fleet, Lab (padrões) | FixedAssets gerência ciclo de vida; Lab lê apenas data de calibração do padrão |
 | **Ordem de Serviço** | WorkOrders | Finance, Fiscal, Lab, Portal, Mobile, Quality | WorkOrders é master de estado e timeline; Finance lê dados para faturar; Fiscal lê para emitir NF |
-| **Contrato** | Contracts | CRM (histórico), Finance (faturamento), Fiscal (NF), Portal | Contracts gerencia vigência, condições e ciclo; Finance executa o faturamento definido pelo Contracts |
+| **Contrato** | Contracts | CRM (histórico), Finance (faturamento), Fiscal (NF), Portal | Contracts gerência vigência, condições e ciclo; Finance executa o faturamento definido pelo Contracts |
 | **Fatura / Título** | Finance | Fiscal (emite NF sobre a fatura), Portal (exibe), CRM (histórico) | Finance gera e controla o título; Fiscal aciona emissão de NF ao receber evento de fatura aprovada |
 | **Nota Fiscal (NF-e/NFS-e)** | Fiscal | Finance (baixa automática ao pagar), GED (arquiva XML), Portal (disponibiliza) | Fiscal é master do documento; Finance atualiza status do título ao receber confirmação de pagamento |
 | **Chamado** | Service-Calls | WorkOrders (converte em OS), Helpdesk (acompanha), CRM (histórico) | Service-Calls cria o chamado; WorkOrders converte em OS (chamado permanece vinculado, não deletado) |
 | **Certificado de Calibração** | Lab | GED (arquiva PDF), Portal (disponibiliza), CRM (atualiza vencimento), Quality (NC se reprovado) | Lab emite e é master; GED só armazena; CRM só lê para atualizar portfólio |
-| **Documento GED** | GED | Quality (referencia em auditorias), HR (holerites, ASOs), Finance (NFs, contratos) | GED é repositório universal; nenhum outro módulo armazena arquivos fora do GED |
+| **Documento GED** | GED | Quality (referência em auditorias), HR (holerites, ASOs), Finance (NFs, contratos) | GED é repositório universal; nenhum outro módulo armazena arquivos fora do GED |
 | **Estoque / Saldo** | Inventory | WorkOrders (consumo), Procurement (entrada), Finance (custo) | Inventory é master de saldo; movimentos registrados via eventos; nunca atualizado diretamente por outros módulos |
-| **Vaga / Admissão** | Recruitment → HR | HR (efetiva admissão), eSocial (S-2200) | Recruitment gerencia o processo seletivo; ao admitir, transfere para HR que se torna master |
+| **Vaga / Admissão** | Recruitment → HR | HR (efetiva admissão), eSocial (S-2200) | Recruitment gerência o processo seletivo; ao admitir, transfere para HR que se torna master |
 | **Ponto / Jornada** | HR (REP-P) | Finance (horas extras → custo), Payroll (base de cálculo), eSocial | HR é master de marcações; Payroll lê para folha; nenhum outro módulo altera marcações |
 
 
@@ -6060,11 +6049,11 @@ O sistema usa eventos de negócio para fluxos entre módulos. Cada evento é ger
 | `fatura.aprovada` | Finance | Fiscal, Portal | Fiscal: emite NF-e ou NFS-e; Portal: disponibiliza fatura ao cliente |
 | `nf.autorizada` | Fiscal | Finance, GED, Portal | Finance: título marcado como "NF emitida"; GED: arquiva XML; Portal: PDF disponível ao cliente |
 | `pagamento.confirmado` | Finance | Contracts, CRM, Portal, Alerts | Contracts: atualiza saldo; CRM: atualiza histórico financeiro; Portal: baixa o débito do cliente; Alerts: cancela cobranças automáticas em curso |
-| `calibracao.aprovada` | Lab | CRM, Portal, GED, Alerts | CRM: atualiza vencimento do instrumento e dispara ciclo comercial; Portal: disponibiliza certificado; GED: arquiva PDF e XML |
-| `calibracao.reprovada` | Lab | CRM, Quality, WorkOrders, Portal | CRM: marca instrumento como inapto; Quality: abre NC automática; WorkOrders: bloqueia instrumento para novas OS; Portal: notifica cliente |
+| `calibração.aprovada` | Lab | CRM, Portal, GED, Alerts | CRM: atualiza vencimento do instrumento e dispara ciclo comercial; Portal: disponibiliza certificado; GED: arquiva PDF e XML |
+| `calibração.reprovada` | Lab | CRM, Quality, WorkOrders, Portal | CRM: marca instrumento como inapto; Quality: abre NC automática; WorkOrders: bloqueia instrumento para novas OS; Portal: notifica cliente |
 | `estoque.minimo_atingido` | Inventory | Procurement, Alerts | Procurement: gera requisição de compra; Alerts: notifica responsável |
 | `contrato.vencendo` | Contracts | CRM, Alerts, Finance | CRM: cria tarefa de renovação para o vendedor; Alerts: notifica gestor; Finance: verifica títulos pendentes para não renovar com inadimplência |
-| `tecnico.ausente` | HR | WorkOrders, Agenda, Alerts | WorkOrders: flag OS do técnico para redistribuição; Agenda: bloqueia novos agendamentos; Alerts: notifica coordenador |
+| `técnico.ausente` | HR | WorkOrders, Agenda, Alerts | WorkOrders: flag OS do técnico para redistribuição; Agenda: bloqueia novos agendamentos; Alerts: notifica coordenador |
 | `colaborador.admitido` | HR | eSocial, ESocial, Payroll, Alerts | eSocial: gera S-2200; Payroll: cria registro de folha; Alerts: notifica RH para onboarding |
 | `pagamento.atrasado` | Finance (rotina noturna) | Alerts, CRM, WorkOrders | Alerts: inicia régua de cobrança; CRM: atualiza score de crédito; WorkOrders: aplica bloqueio de nova OS se configurado |
 | `nf.denegada` | Fiscal | Finance, Alerts | Finance: título permanece sem NF, status "Problema Fiscal"; Alerts: notifica responsável fiscal com erro SEFAZ |
@@ -7090,7 +7079,7 @@ Complemento ao wizard técnico de importação com validações de regras de neg
 
 #### 51.11 Diff Visual Entre Versões de Proposta
 
-O histórico de versões de proposta já existe (seção existente). Esta seção especifica o diff visual:
+O histórico de versões de proposta já existe (seção existente). Esta seção específica o diff visual:
 
 **Interface de comparação:**
 - Ao abrir o histórico de versões de uma proposta, usuário pode selecionar duas versões e clicar em "Comparar"
@@ -7170,7 +7159,7 @@ A seção 53.3 define o padrão Saga Coreografado. Esta seção complementa com 
 
 Distinção e fluxo para manifestações formais que requerem tratamento diferenciado do helpdesk:
 
-**Tipos de manifestação na Ouvidoria:** usar a tabela canônica `Prazos Canonicos por Manifestacao` em `Sistema de Ouvidoria Formal`. Esta seção não redefine SLA; ela preserva detalhes de fluxo, segregação e confidencialidade.
+**Tipos de manifestação na Ouvidoria:** usar a tabela canônica `Prazos Canonicos por Manifestação` em `Sistema de Ouvidoria Formal`. Esta seção não redefine SLA; ela preserva detalhes de fluxo, segregação e confidencialidade.
 
 **Fluxo de manifestação:**
 1. Abertura via portal do cliente, e-mail dedicado ou canal de mensageria

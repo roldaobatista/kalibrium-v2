@@ -2,7 +2,7 @@
 
 **Origem:** `docs/audits/meta-audit-2026-04-10-action-plan.md` (commit `345b0a2`)
 **Decisão do PM:** `docs/decisions/pm-decision-meta-audit-2026-04-10.md` (commit `345b0a2`)
-**Status geral:** ✅ Bloco 1 completo — meta-audit #2 sessão 02 em andamento
+**Status geral:** ✅ Bloco 1 completo — meta-audit #2 sessão 02 em andamento — Blocos 8+9 ✅ aceitos pelo PM 2026-04-11 — **Bloco 10 (executability gap)** 📝 rascunho aguardando decisão PM 2026-04-11
 **Última atualização:** 2026-04-11
 
 ## Legenda
@@ -116,6 +116,92 @@
 - [ ] 7.1 Re-auditoria interna em sessão nova → `docs/audits/meta-audit-revalidation-YYYY-MM-DD.md`
 - [ ] 7.2 Smoke test integração `specs/000-smoke/` (7 cenários de ataque)
 - [ ] 7.3 Decisão formal Dia 1 → `docs/decisions/day1-go-no-go-YYYY-MM-DD.md` com 4 checkboxes
+
+---
+
+## Blocos 8 e 9 — Gaps derivados de guias externos (extensão 2026-04-11)
+
+**Status:** ✅ **aceito pelo PM em 2026-04-11** — execução em sessão nova
+**Plano completo:** [`docs/audits/progress/external-guides-action-plan.md`](external-guides-action-plan.md)
+**Decisão formal:** [`docs/decisions/pm-decision-external-guides-2026-04-11.md`](../../decisions/pm-decision-external-guides-2026-04-11.md)
+**Origem:** análise do documento externo `C:\PROJETOS\saas\Harness + Spec-Driven Development.md` (6 perspectivas consolidadas de Anthropic/OpenAI/Spec Kit/Cursor/Harness.io/acadêmico).
+**Sessão de análise e decisão:** 2026-04-11.
+**Próxima execução:** sessão nova, itens 9.1 e 9.3 em paralelo (auditorias sem dependência).
+
+### Bloco 8 — 8 gaps endereçáveis
+
+- [ ] 8.1 Skill `/clarify-slice` (etapa formal de clarificação de spec) — pós-Bloco 2, não selado
+- [ ] 8.2 Eval suite / benchmark de regressão — pós-Bloco 3, **SELADO** (pre-commit-gate)
+- [ ] 8.3 Observabilidade estruturada dos sub-agents (traces com hash-chain) — pós-Bloco 5, **SELADO**
+- [ ] 8.4 Cleanup workflow recorrente (garbage collection automático) — pós-Bloco 5, parcial
+- [ ] 8.5 Feedback loop <30s como KPI do harness — pós-Bloco 3, depende de auditoria
+- [ ] 8.6 `docs/environment-setup.md` consolidado — pós-Bloco 2, não selado
+- [ ] 8.7 `observability/` versionado no repo — pós-deploy, futuro
+- [ ] 8.8 Feature flags (decouple deploy/release) — pós-produção, futuro
+
+### Bloco 9 — 3 auditorias focadas (todas em sessão nova)
+
+- [ ] 9.1 Auditar `validate-review.sh` / `validate-verification.sh` (mechanical diff check?)
+- [ ] 9.2 Auditar ADR-0002 MCP Policy (code-exec ou tool-spam?)
+- [ ] 9.3 Auditar tamanho e escopo do `CLAUDE.md` (curto + docs/ vs carga PM-only?)
+
+**Restrições operacionais obrigatórias** (detalhadas no plano externo §1):
+1. Nenhum item toca selados sem passar por `relock-harness.sh` em terminal externo pelo PM.
+2. Auditorias do Bloco 9 **nunca** rodam na mesma sessão que o código que auditam (viés confirmatório).
+3. R9 zero bypass aplicado a todos os gates novos.
+4. Toda saída de decisão PM passa por R12.
+
+**Ação do PM (concluída 2026-04-11):** resposta `(a)` — aceitou integralmente como extensão oficial. Registro em `docs/decisions/pm-decision-external-guides-2026-04-11.md`.
+
+**Próxima ação do agente (sessão nova):** abrir sessão Claude Code fresh, ler a decisão + plano externo, executar 9.1 e 9.3 em paralelo, produzir os entregáveis em `docs/audits/internal/validate-scripts-audit-YYYY-MM-DD.md` e `docs/audits/internal/claude-md-sizing-audit-YYYY-MM-DD.md`.
+
+---
+
+## Bloco 10 — Executability Gap (extensão 2026-04-11)
+
+**Status:** 📝 **rascunho — aguardando decisão do PM**
+**Plano completo:** [`docs/audits/progress/executability-gap-action-plan.md`](executability-gap-action-plan.md)
+**Template de decisão:** [`docs/decisions/pm-decision-executability-gap-TEMPLATE-2026-04-11.md`](../../decisions/pm-decision-executability-gap-TEMPLATE-2026-04-11.md)
+**Origem:** pergunta do PM 2026-04-11 — *"nesse ambiente tem o risco do sistema ser construído e não conseguirmos executar os fluxos do prd, funções etc?"*
+**Restrição de desenho:** PM = não-desenvolvedor; única validação humana possível = walkthrough em navegador (`CLAUDE.md §3.1`).
+**Princípio P10 proposto:** *"Se o PM não pode clicar, não está pronto."*
+
+### Gap estrutural identificado
+
+Harness atual (Blocos 0-9) garante gates de slice/AC mas **não garante** que: o produto boota, fluxos PRD atravessam o sistema integrado, PM toca o produto em tela, slices compõem ou UI bate com a intenção do PM. Dia 1 pode fechar com todos os gates verdes e zero execução real.
+
+### Os 5 itens do Bloco 10
+
+- [ ] 10.1 Walking skeleton obrigatório no Slice 1 — **SELADO** (hook `block-slice-without-skeleton.sh`), depende de Bloco 2 + ADR-0003
+- [ ] 10.2 Gate de fluxo-PRD ponta-a-ponta — parcial **SELADO** (modifica `verify-slice.sh`), depende de Bloco 2 + Bloco 3 + 10.1
+- [ ] 10.3 **PM Browser Walkthrough Gate (peça central)** — **SELADO** (hook `block-merge-without-walkthrough.sh`), depende de 10.1 + Bloco 4
+- [ ] 10.4 Demo environment sempre ligado — não selado, depende de Bloco 2 + Bloco 5 + ADR-0004
+- [ ] 10.5 Visual regression + screenshot baseline — parcial **SELADO**, depende de 10.1 + 10.3
+
+### Alterações em artefatos vigentes
+
+- `docs/constitution.md §3` (DoD mecânica) — 3 itens novos (skeleton, flow coverage, walkthrough)
+- `docs/constitution.md §2` — princípio **P10** (executabilidade antes de "pronto")
+- `CLAUDE.md §6` (fluxo padrão) — passo 14 muda para incluir walkthrough
+- `CLAUDE.md §7` — comandos `/walkthrough NNN` e `/skeleton-gate`
+- `CLAUDE.md §8` — sub-agent novo `e2e-driver`
+
+### Restrições operacionais (mesmas dos Blocos 8+9)
+
+1. Nenhum item toca selados sem `relock-harness.sh` em terminal externo pelo PM.
+2. Auditoria deste plano (item **9.4** novo) roda em sessão nova — este arquivo foi escrito na mesma sessão em que o risco foi levantado pelo PM, viés confirmatório é inevitável.
+3. R9 zero bypass.
+4. R12 aplicado a toda saída PM (walkthrough files, mensagens de bloqueio, explain-slice).
+5. Admin bypass do PM **não pode** pular walkthrough — walkthrough é o próprio mecanismo pelo qual o PM exerce aprovação.
+
+### Próxima ação
+
+**Aguarda decisão do PM.** Template pronto em `docs/decisions/pm-decision-executability-gap-TEMPLATE-2026-04-11.md`. Três opções:
+- **(a)** Aceito integralmente como extensão oficial (análogo aos Blocos 8+9).
+- **(b)** Aceito com recortes — marca quais dos 5 itens aceita, justifica rejeições.
+- **(c)** Rejeita — registra justificativa e PM aceita conscientemente o risco residual.
+
+Enquanto o PM não decide, o Bloco 10 fica em rascunho e **não altera a sequência atual do tracker principal** (próxima execução real ainda é Bloco 2 via `/decide-stack` em sessão nova).
 
 ---
 

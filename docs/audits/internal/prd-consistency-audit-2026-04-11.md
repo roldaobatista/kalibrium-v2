@@ -104,9 +104,11 @@ A Diretriz Editorial lista explicitamente 5 pares de seções duplicadas que "de
 2. `Métricas de Sucesso` **vs** `KPIs de Produto — Matriz Subordinada` — ambas presentes
 3. `RBAC — Papéis e Permissões` **vs** `Matriz de Permissões RBAC por Modulo` — ambas presentes
 4. `Requisitos Não Funcionais` **vs** `NFRs Detalhados — Requisitos Nao Funcionais Expandidos` — ambas presentes
-5. `Trilhas Permanentes de Evolucao do Produto` (L229) **vs** `Roadmap e Trilhas Permanentes` (mencionado na navegação) — duas versões
+5. `Trilhas Permanentes de Evolucao do Produto` (L125) **vs** `Prioridades Estruturais do Produto` (L368) — duas versões
 
 **Impacto:** a Diretriz declara fonte canônica para cada par, mas as versões redundantes continuam no texto — o leitor não sabe qual ler sem ter lido a Diretriz primeiro.
+
+> **Nota de correção editorial (2026-04-11, mesma data):** a formulação original do Par 5 nesta auditoria descrevia-o como `Trilhas Permanentes` vs `Roadmap e Trilhas Permanentes (mencionado na navegação)`. A verificação feita durante o Passo 2.2 do refinamento do PRD revelou que **não havia menção "Roadmap e Trilhas Permanentes" em lugar nenhum** — a navegação nunca usou esse nome. O par estrutural real era `## Trilhas Permanentes de Evolucao do Produto` (L125, com subseções H3 completas) vs `## Prioridades Estruturais do Produto` (L368, tabela resumida com os mesmos 5 trilhas, 6 critérios e 6 itens de hierarquia). A consolidação foi executada com L125 como canônica e L368 como callout subordinado apontando pra canônica. Esta nota corrige retroativamente a descrição do par na auditoria para fins de rastreabilidade; a própria auditoria não é reexecutada — a re-auditoria do Passo 5 em sessão nova validará o estado final do PRD.
 
 ### 4.4. Nomes inconsistentes para o mesmo conceito
 
