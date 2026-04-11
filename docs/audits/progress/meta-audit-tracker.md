@@ -2,8 +2,8 @@
 
 **Origem:** `docs/audits/meta-audit-2026-04-10-action-plan.md` (commit `345b0a2`)
 **Decisão do PM:** `docs/decisions/pm-decision-meta-audit-2026-04-10.md` (commit `345b0a2`)
-**Status geral:** ✅ Bloco 1 completo
-**Última atualização:** 2026-04-10
+**Status geral:** ✅ Bloco 1 completo — meta-audit #2 sessão 02 em andamento
+**Última atualização:** 2026-04-11
 
 ## Legenda
 
@@ -191,9 +191,55 @@ Lista detalhada em `docs/reports/pm-manual-actions-2026-04-10.md`:
 
 ---
 
+## Meta-auditoria #2 — Sessão 02 (continuação do plano de ação)
+
+**Data:** 2026-04-11
+**Relatório:** `docs/reports/execution-meta-audit-2-2026-04-10-session02.md`
+**Escopo da sessão:** itens independentes abertos pela sessão 01 que não exigem relock, não dependem do Bloco 2 e não precisam de ação humana externa. Nenhum push. Nenhum arquivo selado tocado. Nenhum uso de admin bypass.
+
+### Resumo de entrega
+
+| Item do plano | Entregável | Commit |
+|---|---|---|
+| 4.8 | `docs/policies/r6-r7-policy.md` — categorias sem override (cálculo, conformidade, segurança crítica) | `956708b` |
+| 6.5 | `docs/policies/cooldown-policy.md` — 24h entre commits em classes críticas | `ecadcf2` |
+| 6.8 | seção "Edição externa de hooks por humano fora do Claude Code" em `docs/harness-limitations.md` (a outra seção exigida, admin bypass, já havia sido adicionada pela sessão 01) | `141f860` |
+| ajuste | `docs/audits/progress/adjustments-blocks-2-7.md` — reclassifica 6.6/6.7 como pending-block-2 e atualiza contador 5/22 → 8/22 | `5621c7a` |
+
+Cada item foi revisado por um segundo sub-agent em contexto isolado (R11) com orçamento de 30k tokens, veredito `ok` antes do commit, e varrido contra a lista de marcadores proibidos do plano.
+
+### Ações manuais do PM — estado entre sessões
+
+Nenhuma das quatro ações manuais abertas pela sessão 01 foi concluída entre sessões. `docs/reports/pm-manual-actions-2026-04-10.md` permanece com status `aberto`. Resumo:
+
+| Ação | Descrição | Estado |
+|---|---|---|
+| C4 | Selar `docs/harness-limitations.md` no MANIFEST via relock manual | aberto |
+| A3 | Gate de `advisor-review` no `pre-commit-gate.sh` via relock manual | aberto |
+| A4 | NDA + proposta comercial do advisor técnico externo | aberto |
+| DPO | Contratar DPO fracionário que vai assinar os 5 arquivos `draft-awaiting-dpo` | aberto |
+
+Evidências: `docs/reviews/` ainda não existe, `docs/decisions/` contém apenas `pm-decision-meta-audit-2026-04-10.md`, e `docs/harness-limitations.md` continua não selado no MANIFEST (motivo pelo qual a sessão 02 pôde adicionar a seção 6.8).
+
+### Arquivos `draft-awaiting-dpo`
+
+Os 5 arquivos (T2.1 a T2.5) permanecem em `draft-awaiting-dpo`. Nenhuma promoção foi feita nesta sessão porque o DPO ainda não foi contratado.
+
+### Push
+
+**Os 4 commits desta sessão ficam em `main` local, sem push.** O envio fica congelado até:
+- o Bloco 5 item 5.3 remover `current_user_can_bypass` do ruleset, ou
+- o PM autorizar explicitamente o consumo do último bypass (4/5 → 5/5), apenas para incidente P0 assinado.
+
+### Próximo passo único
+
+**Executar o passo 1 de `docs/reports/pm-manual-actions-2026-04-10.md`** (selar `docs/harness-limitations.md` no MANIFEST). Esse passo fecha o C4, protege as duas novas seções da sessão 02 (edição externa de hooks + admin bypass) contra alteração pelo agente, e desbloqueia o fechamento definitivo do Bloco 1.5 (item 1.5.14).
+
+---
+
 ## Operacional — congelamento de admin bypass (item C3 da meta-audit #2)
 
-**Congelamento de admin bypass ativo desde 2026-04-10.** Contador oficial: **4/5** (atualizado em 2026-04-11 após o push da sessão 01 do plano de ação da meta-auditoria #2). Política vigente em `docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`. Exceção permitida: incidente classificado P0 com assinatura do PM dentro do próprio arquivo de incidente. Teto absoluto: 5 envios diretos totais. Restam **1 bypass** disponível, e apenas mediante incident P0 assinado pelo PM. Se atingir 5/5, o projeto pausa para re-auditoria externa antes de qualquer novo slice.
+**Congelamento de admin bypass ativo desde 2026-04-10.** Contador oficial: **4/5** (inalterado pela sessão 02 — nenhum envio direto foi feito; último uso registrado foi o push da sessão 01 em 2026-04-11). Política vigente em `docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`. Exceção permitida: incidente classificado P0 com assinatura do PM dentro do próprio arquivo de incidente. Teto absoluto: 5 envios diretos totais. Restam **1 bypass** disponível, e apenas mediante incident P0 assinado pelo PM. Se atingir 5/5, o projeto pausa para re-auditoria externa antes de qualquer novo slice.
 
 Incident file com o contador oficial: `docs/incidents/bloco1-admin-bypass-2026-04-10.md §Contador oficial (após política de congelamento 2026-04-10)`.
 
