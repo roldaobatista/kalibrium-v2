@@ -24,8 +24,10 @@ Esta skill é complementar a `/forbidden-files-scan` (arquivos locais) — cobre
 
 ## Implementação
 ```bash
-bash scripts/hooks/mcp-check.sh
+bash scripts/mcp-check.sh
 ```
+
+> **Nota (meta-audit #2, item P1):** o script vive em `scripts/mcp-check.sh`, fora de `scripts/hooks/`. Antes da correção a skill apontava para `scripts/hooks/mcp-check.sh`, que nunca foi criado (e teria que ser selado pelo `hooks-lock`, dificultando evolução). Foi realocado para `scripts/` conforme decisão do meta-audit.
 
 ## Allowlist inicial sugerida para `.claude/allowed-mcps.txt`
 

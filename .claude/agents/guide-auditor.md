@@ -69,6 +69,18 @@ Slices com 2+ rejeições nos últimos 30 dias sem escalação humana registrada
 ### 9. Referência não marcada (R7)
 Arquivos em `docs/reference/**` sem cabeçalho `<!-- REFERÊNCIA NÃO-INSTRUCIONAL -->`.
 
+### 10. Skills referenciadas mas inexistentes
+Adicionado pelo meta-audit #2 (2026-04-11) — teria pegado sozinho o blocker P0-1 (`/merge-slice` citado em `.claude/skills/review-pr.md` e `.claude/agents/reviewer.md` mas sem skill nem script correspondente).
+
+**O que checar:**
+
+1. Para cada `.claude/skills/*.md`, extrair o bloco de `## Implementação` / fenced bash e confirmar que o script referenciado (`scripts/*.sh`) existe.
+2. Grep por `/[a-z-]+` em `.claude/skills/**`, `.claude/agents/**`, `docs/constitution.md`, `CLAUDE.md`. Para cada token com cara de slash-command, confirmar que há uma skill correspondente em `.claude/skills/NAME.md`.
+3. Flag qualquer skill citada em outra skill/agent/doc que **não exista** como arquivo `.claude/skills/NAME.md`.
+4. Flag qualquer skill que exista mas aponte para script **ausente**.
+
+**Status possíveis:** `ok` | `warn` (cita mas skill opcional) | `fail` (cadeia happy-path quebrada).
+
 ## Output
 `docs/audits/audit-YYYY-MM-DD.md` com:
 

@@ -27,6 +27,52 @@ if [ -e "$SLICE_DIR" ]; then
   exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# Gate: retrospectiva do slice anterior (meta-audit #2, item P1)
+#
+# Regra: se existir algum slice em specs/ com NNN menor que o atual,
+# o mais recente desses precisa ter retrospectiva registrada em
+# docs/retrospectives/slice-NNN.md. Sem isso, /new-slice recusa.
+#
+# Bypass legítimo (slice anterior abandonado ou ainda em andamento ativo):
+#   KALIB_SKIP_RETRO_GATE=1 bash scripts/new-slice.sh NNN "título"
+# Bypass fica registrado no output (auditável via telemetria do chamador).
+# ---------------------------------------------------------------------------
+if [ -d specs ]; then
+  PREV_NNN="$(
+    find specs -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null \
+      | grep -E '^[0-9]{3}$' \
+      | awk -v cur="$NNN" '$0 < cur' \
+      | sort -n | tail -1
+  )"
+  if [ -n "$PREV_NNN" ]; then
+    RETRO="docs/retrospectives/slice-${PREV_NNN}.md"
+    if [ ! -f "$RETRO" ]; then
+      if [ "${KALIB_SKIP_RETRO_GATE:-0}" = "1" ]; then
+        echo "[new-slice] WARN: retrospectiva de slice-${PREV_NNN} ausente ($RETRO)" >&2
+        echo "[new-slice] WARN: criando slice-${NNN} mesmo assim por KALIB_SKIP_RETRO_GATE=1" >&2
+      else
+        cat >&2 <<EOF
+[new-slice FAIL] retrospectiva do slice anterior ausente
+  Slice anterior detectado: slice-${PREV_NNN}
+  Retrospectiva esperada: $RETRO
+  Esse arquivo não existe.
+
+  Regra: cada slice precisa de retrospectiva antes de abrir o próximo.
+  Evita acúmulo de lições não capturadas. (meta-audit #2, P1.)
+
+  Próximos passos possíveis:
+    1. Rodar /retrospective ${PREV_NNN} para criar a retrospectiva
+    2. Se slice-${PREV_NNN} foi abandonado, documentar isso lá e rodar de novo
+    3. Bypass de emergência (só se slice-${PREV_NNN} ainda está em execução):
+         KALIB_SKIP_RETRO_GATE=1 bash scripts/new-slice.sh $NNN "$TITLE"
+EOF
+        exit 1
+      fi
+    fi
+  fi
+fi
+
 mkdir -p "$SLICE_DIR"
 
 DATE="$(date -u +%Y-%m-%d)"
