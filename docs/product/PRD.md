@@ -365,7 +365,7 @@ Quatro condições simultâneas: fluxos críticos operando com evidência; baixa
 
 
 
-## Prioridades Estruturais do Produto
+## Prioridades Estruturais do Produto (subordinada a §Trilhas Permanentes de Evolução do Produto)
 
 > **Seção subordinada a `§Trilhas Permanentes de Evolução do Produto`.** As 5 trilhas, os 6 critérios de priorização contínua e a hierarquia de decisão sob conflito estão integralmente detalhados na seção canônica (com subseções H3 explicativas). Esta seção existia como resumo executivo em tabela e foi consolidada para eliminar duplicação estrutural. Em caso de conflito de formulação, prevalece a seção canônica.
 
@@ -1979,7 +1979,7 @@ Essas famílias são agrupamentos operacionais de experiência e suporte, não n
 
 
 
-## Matriz de Permissões RBAC por Módulo
+## Matriz de Permissões RBAC por Módulo (subordinada a §RBAC — Papéis e Permissões)
 
 > **Seção histórica consolidada em `§RBAC — Papéis e Permissões`.** A fonte única de verdade para papéis, permissões e regras adicionais é a seção canônica. A permissão de `Compras`, que existia apenas nesta matriz duplicada, foi incorporada ao canônico.
 
