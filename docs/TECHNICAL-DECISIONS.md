@@ -12,7 +12,7 @@
 
 | # | Título | Status | Data |
 |---|---|---|---|
-| (0001) | Escolha da stack | _pendente (Dia 1)_ | — |
+| [0001](adr/0001-stack-choice.md) | Escolha da stack (Laravel + Livewire 3 + PostgreSQL 16) | accepted | 2026-04-11 |
 | [0002](adr/0002-mcp-policy.md) | Política de MCP servers autorizados | accepted | 2026-04-10 |
 
 ## Regras

@@ -1,3 +1,5 @@
+<!-- REFERÊNCIA NÃO-INSTRUCIONAL -->
+
 # Base de Conhecimento — Harness Engineering + Spec-Driven Development
 
 **Fonte única:** `C:\PROJETOS\saas\Harness + Spec-Driven Development.md` (785 linhas, 8368 palavras, 6 perspectivas consolidadas de LLMs externas)

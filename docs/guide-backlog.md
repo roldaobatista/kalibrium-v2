@@ -39,6 +39,63 @@ Itens resolvidos movem para o histórico no final.
 - **Ação:** criar helper que lê `verification.json` + `review.json` + `spec.md` e **automaticamente** traduz findings técnicos para linguagem de produto usando um prompt estruturado de tradução (pode ser um mini sub-agent `translator-pm`).
 - **Status:** aberto. Depende de ter o primeiro slice real para calibrar o tradutor.
 
+### [B-011] Drift semântico entre skill e script: `guide-check`
+
+- **Origem:** validação Sessão 3 da meta-audit #2 (2026-04-11).
+- **Evidência:** `.claude/skills/guide-check.md` descreve *"Spawn do sub-agent guide-auditor"* mas `scripts/guide-check.sh` (linha 2 comentário explícito) roda em **modo standalone**, sem spawnar sub-agent. A documentação mente sobre o comportamento real.
+- **Ação:** decidir uma de duas direções:
+  - **(a)** alinhar doc com impl — reescrever `guide-check.md` pra refletir modo standalone, e justificar por que não vira sub-agent
+  - **(b)** alinhar impl com doc — refatorar `guide-check.sh` pra virar um invocador que dispara `guide-auditor` como Agent tool
+- **Recomendação:** (a) é mais barato e a implementação standalone funciona. Mas (b) é mais fiel ao modelo de sub-agents com budget declarado (R8). Decisão precisa ADR ou discussão explícita.
+- **Risco se não resolvido:** gap de confiança — qualquer futura audit vai ler a skill e assumir comportamento que não existe. É exatamente o mesmo modo de falha que o check #10 que eu adicionei (skill referenciada mas inexistente) tenta prevenir, só que na outra direção.
+
+### [B-012] CHECK-4 (bypass history) false-positive recorrente
+
+- **Origem:** validação Sessão 3 da meta-audit #2 (2026-04-11) + memory `feedback_audit_regex_strictness.md` (pattern já reconhecido).
+- **Evidência:** Sessão 3 rodou `bash scripts/guide-check.sh` e CHECK-4 reportou FAIL listando commits **legítimos** do próprio harness: `relock pos-meta-audit`, `registra admin bypass`, `contador bypass 3/5 -> 4/5`. A regex casa qualquer menção a "bypass" sem considerar contexto.
+- **Ação:** refinar CHECK-4 em `scripts/guide-check.sh` (ou `.claude/agents/guide-auditor.md`) para excluir commits que **apenas** tocam paths do harness:
+  - `.claude/**`
+  - `scripts/hooks/**`
+  - `docs/incidents/**`
+  - `docs/audits/**`
+  - Autor em allowlist git-identity
+- **Proposta de regex refinada:** `grep -E "--no-verify|SKIP=|HUSKY=0|hook\s+(removido|desabilitado|renomeado)" --fixed-strings` focando em verbos de bypass efetivo, não na palavra "bypass" isolada.
+- **Status:** aberto. Prioridade média — enquanto não resolvido, toda execução de `/guide-check` gera ruído que esconde findings reais.
+
+### [B-013] Cadeia E2E verifier → reviewer → merge-slice NUNCA exercida
+
+- **Origem:** validação Sessão 3 da meta-audit #2 (2026-04-11).
+- **Evidência:** `specs/` está vazio, `.claude/telemetry/` só tem `meta.jsonl` (22 linhas de eventos do harness, zero eventos de slice real). Os componentes estão selados + smoke-testados unitariamente, mas nenhum slice real produziu `verification.json` + `review.json` + executou o merge-slice completo.
+- **Ação:** criar `slice-000-smoke` (descartável, fora do numbering de produção) antes do primeiro slice real do Kalibrium. Objetivo: exercitar toda a cadeia ponta-a-ponta sem lógica de domínio:
+  1. `/new-slice 000 "smoke ponta a ponta do harness"`
+  2. spec.md trivial (ex.: "endpoint GET /health retorna 200")
+  3. Executar: architect → ac-to-test → implementer → `/verify-slice` → `/review-pr` → `/merge-slice`
+  4. Produzir `verification.json` e `review.json` reais, rodar merge-slice com push real, gerar `slice-report` e `retrospective`
+  5. Quando OK: deletar branch + registrar aprendizados em retrospective + marcar este item resolvido
+- **Pré-requisito:** stack decidida (ADR-0001 ✅ já aceito 2026-04-11) + `post-edit-gate.sh` operacionalizado ([B-001]).
+- **Status:** **mandatório antes do primeiro slice de produção**. Bloqueia slice 1.
+
+### [B-014] Sessão de validação ("Sessão 3") não é read-only na prática
+
+- **Origem:** Sessão 3 rodada em 2026-04-11 para validar a meta-audit #2.
+- **Evidência:** o agente executor da Sessão 3 era esperado como READ-ONLY (rodar `/guide-check` + smoke-tests + ler agents/skills), mas **modificou o working tree**:
+  - Deletou `docs/adr/0001-stack-choice.md` no working tree (HEAD intacto — `d4b23b8`)
+  - "Editou" 18 scripts em `scripts/` (strip trailing newline — cosmético, mas mutação não autorizada)
+  - PM confirmou que **não abriu a pasta nem mexeu manualmente** — a modificação veio exclusivamente do agente
+- **Modo de falha:** o prompt da Sessão 3 dizia "agente fresh, sem contexto, valida ponta-a-ponta", mas não restringia permissões. O agente aplicou Edit/Write/Delete como parte do processo de "validação" (provavelmente auto-formatação ao salvar arquivos lidos, ou reestruturação acidental de ADR-0001).
+- **Ação:** próxima Sessão 3 (ou qualquer agente de validação independente no futuro) deve rodar com **uma de duas proteções**:
+  - **(a) Worktree isolada descartável** — `git worktree add /tmp/kalibrium-smoke main`, agente roda lá, nada do working tree principal é afetado
+  - **(b) Permissões restritas** — `settings.json` com `permissions.deny` incluindo `Edit`, `Write`, `Bash(git restore*)`, `Bash(rm*)` durante a sessão de validação
+- **Recomendação:** (a) é mais simples e mais aderente ao modelo R3 (verifier isolado em worktree) do próprio harness. Vira template pra Sessão 3 futura.
+- **Status:** aberto. Não bloqueia, mas toda Sessão 3 a partir de agora deve seguir essa regra.
+
+### [B-015] Nota descarte — "snapshot post-relock não criado" (Sessão 3 finding #7)
+
+- **Origem:** Sessão 3 da meta-audit #2 reportou: *"CHECK-2: settings.json divergiu de settings-2026-04-10.json — warning normal pós-relock, mas indica que `.claude/snapshots/settings-2026-04-11.json` não foi criado pelo fluxo atual"*.
+- **Verificação:** FALSO POSITIVO. O arquivo `.claude/snapshots/settings-2026-04-11.json` **existe** (criado 2026-04-11 13:07, pós-relock `f01fb46` que ocorreu 12:46). A Sessão 3 olhou estado defasado ou não refresh-ou o filesystem.
+- **Aprendizado:** validações de drift documentais devem sempre refazer `ls -la` do diretório relevante **imediatamente antes** de reportar o finding. Não cachear estado filesystem ao longo da sessão.
+- **Status:** descartado, registrado para histórico.
+
 ---
 
 ## Resolvido
@@ -96,3 +153,5 @@ Itens resolvidos movem para o histórico no final.
 - 2026-04-10 — inicial (B-001..B-008)
 - 2026-04-10 — B-003 resolvido pós smoke-test
 - 2026-04-10 — B-002, B-004, B-005, B-006, B-008 resolvidos; B-001 e B-007 marcados como bloqueados por ADR-0001
+- 2026-04-11 — B-009 e B-010 adicionados pós meta-audit #2
+- 2026-04-11 — B-011, B-012, B-013, B-014, B-015 adicionados pós validação Sessão 3 da meta-audit #2
