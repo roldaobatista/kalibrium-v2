@@ -1,3 +1,27 @@
+# Incidente — relock do harness
+
+**Data UTC:** 2026-04-11T16:48:50Z
+**Operador (git):** roldaobatista <roldaobatista@users.noreply.github.com>
+**Host:** Roldao-Solution
+**Origem:** `scripts/relock-harness.sh` invocado manualmente.
+
+## Por que existe este registro
+
+Cada relock do harness é uma operação privilegiada (recria os selos que
+protegem `.claude/settings.json` e `scripts/hooks/*` contra auto-modificação).
+Toda execução cria um incidente para auditoria — exigido pelo PM em
+2026-04-10 como parte do item 1.2 (adição) do meta-audit action plan.
+
+## Selos antes → depois
+
+| Arquivo | Hash anterior | Hash novo |
+|---|---|---|
+| `.claude/settings.json` | `d772762deaa2fa0c…` | `62e24a20920c181b…` |
+| `scripts/hooks/MANIFEST.sha256` (sha do próprio manifesto) | `f9adc7921c3a725a…` | `ee1c6b1efa66420b…` |
+
+## Hooks atualmente catalogados (17)
+
+```
 666ac6e787d14cad2d3ea9f8c4b0627d9c2ee1acbd2a06f972894177f0d57041  block-project-init.sh
 ccb65334d6d050fbcfb46d849595a7d3b93909424bb05f7e67cf8634bdcce3f5  collect-telemetry.sh
 bb7dcfb44cf734c3a447932e4832014f690dd805966e7efbfa4c6c9535738f36  edit-scope-check.sh
@@ -15,3 +39,11 @@ deb1db4cc0052c1d6eb4fd0b2fd0332ce4c0f131ac97aafea5764488458358da  session-start.
 a1bf1a8deec6a088a888d2c7d91ece0617ceb7c14a48f5f4c0ce512367fc3cbb  telemetry-lock.sh
 4169233825b1c89c731575c2faa7eb1f265ae34ae3f729ae2cb6a96699f0ebdb  user-prompt-submit.sh
 0e4bc0d13f1a9d26ab0a4c6fdb70a3cdaf1f1da518070469628e8c5115687b9f  verifier-sandbox.sh
+```
+
+## Ação requerida do PM
+
+- [ ] Validar que o relock é esperado (ex: você acabou de editar um hook intencionalmente)
+- [ ] Se NÃO esperado: investigar como ocorreu (possível bypass dos hooks de segurança)
+- [ ] Commitar este incidente junto com as mudanças do harness para rastreabilidade
+

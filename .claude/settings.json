@@ -15,6 +15,9 @@
       "Bash(git checkout*)",
       "Bash(git branch*)",
       "Bash(git stash*)",
+      "Bash(git push origin*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr merge*)",
       "Bash(ls*)",
       "Bash(pwd)",
       "Bash(mkdir*)",
@@ -156,6 +159,17 @@
           {
             "type": "command",
             "command": "bash scripts/hooks/stop-gate.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/record-subagent-usage.sh"
           }
         ]
       }
