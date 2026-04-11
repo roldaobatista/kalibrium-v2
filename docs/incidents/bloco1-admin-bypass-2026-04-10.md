@@ -62,6 +62,18 @@ Pré-requisitos atendidos pela sessão executora antes de invocar `git push`:
 
 **Observabilidade para retrospectiva:** este contador deve ser atualizado a cada bypass adicional até o Bloco 5 item 5.3 fechar o caminho. Na retrospectiva final do Dia 1 (Bloco 7), reportar o número total e validar que cada bypass tem incident correspondente em `docs/incidents/`.
 
+### Contador oficial (após política de congelamento 2026-04-10)
+
+**Contador oficial: 3/5** — após aplicação da política de congelamento definida pela meta-auditoria #2 (`docs/harness-limitations.md §Política operacional 2026-04-10: congelamento de admin bypass`).
+
+- **Bypass 1:** PR #1 admin merge (`pr-1-admin-merge.md`)
+- **Bypass 2:** push do Bloco 1 do meta-audit 2026-04-10 (commits `345b0a2` + `c061e3c`)
+- **Bypass 3:** este próprio incident file no momento do push (auto-referência honesta, coerente com a nota já registrada na §Auto-referência acima)
+- **Bypass 4:** disponível apenas mediante incident P0 assinado pelo PM
+- **Bypass 5:** disponível apenas mediante incident P0 assinado pelo PM
+
+Se o contador atingir 5/5, o projeto **pausa** conforme a política e entra em re-auditoria externa antes de qualquer novo slice. A contagem inclui todo push direto a `main` feito pelo PM (owner) que dispare `current_user_can_bypass`, independentemente do motivo.
+
 ---
 
 ## Auto-referência honesta
