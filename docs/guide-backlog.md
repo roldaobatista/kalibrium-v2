@@ -96,6 +96,80 @@ Itens resolvidos movem para o histórico no final.
 - **Aprendizado:** validações de drift documentais devem sempre refazer `ls -la` do diretório relevante **imediatamente antes** de reportar o finding. Não cachear estado filesystem ao longo da sessão.
 - **Status:** descartado, registrado para histórico.
 
+### [B-016] Tradução contínua técnico → produto em TODOS os sub-agents
+
+- **Origem:** análise 2026-04-11 da classe Hercules/Lovable/Bolt como UX pattern. PM hoje fica cego entre `/new-slice` e `/merge-slice` — só vê saída traduzida quando roda `/explain-slice` (escalação R6 ou a pedido). Entre os dois extremos, o harness opera em silêncio técnico.
+- **Ação:** cada sub-agent passa a emitir **2 outputs**:
+  1. Output técnico (para o próximo sub-agent consumir): `plan.md`, test files, `diff.patch`, `verification.json`, `review.json`
+  2. Output em linguagem de produto (para o PM ver na hora): `plan-pm.md`, `tests-pm.md`, `diff-pm.md`, `verification-pm.md`, `review-pm.md`
+- **Formato dos outputs-pm:** vocabulário permitido do R12 (definido em `/explain-slice`), seções fixas, sempre terminando com "próximo passo único: [ ] Sim [ ] Trocar X".
+- **Implementação mínima:**
+  - Mini sub-agent compartilhado `translator-pm` (budget ~10k) invocado no handoff de cada sub-agent
+  - Atualizar `.claude/agents/*.md` com a regra "emit both outputs" no Handoff
+  - `/explain-slice` vira ponto de **consolidação** (junta os \*-pm em um relatório único), não o único tradutor
+- **Status:** **alta prioridade**. Antes do `slice-000-smoke` (B-013) — PM precisa conseguir acompanhar sem ler código.
+
+### [B-017] Biblioteca de slice-kits — templates de spec+plan+ACs para padrões comuns
+
+- **Origem:** análise Hercules/Lovable ("auth/DB/payments out of the box"). Cada slice nosso começa do zero: PM escreve spec livre, architect gera plan único, ac-to-test escreve testes únicos. Slices 1-5 do Kalibrium vão ser CRUD/auth/PDF variantes — reinventar roda em cada um.
+- **Ação:** criar `.claude/slice-kits/` com templates para padrões recorrentes:
+  - `crud-entidade.md` — CRUD com escopo por tenant (cliente, equipamento, calibração)
+  - `integracao-pagamento.md` — Stripe/pagar.me com webhooks
+  - `auth-multi-tenant.md` — login + escopo por tenant + RBAC básico
+  - `relatorio-pdf.md` — gerador de PDF a partir de template (caso motivador: certificado de calibração)
+  - `endpoint-rest-autenticado.md` — API REST com middleware auth + tenant scope
+- **Integração com `/new-slice`:** flag opcional `--kit=crud-entidade`. `draft-spec.sh` pré-preenche ACs baseados no kit, PM só ajusta campos específicos de domínio.
+- **Formato de kit:** frontmatter com `stack_required` (Laravel/Livewire/PostgreSQL do ADR-0001), `placeholders` (lista de campos que PM preenche), `acs_template` (ACs em dado-quando-então parametrizados), `hint_files` (arquivos típicos que serão tocados pelo implementer).
+- **Status:** **alta prioridade**. Antes do primeiro slice de produção. Fecha a distância entre "PM escreve AC do zero" e "PM marca [x] no que muda".
+
+### [B-018] Sub-agent `designer` + skill `/preview NNN` (mockup visual antes do código)
+
+- **Origem:** análise Hercules/Lovable ("stunning designs"). PM descobre que a tela não era como imaginava só no final do slice. Nosso único output visual antes do código é `plan.md` (texto).
+- **Ação:** criar sub-agent `designer` (budget ~20k tokens) que roda **entre** `architect` e `ac-to-test`:
+  1. Lê `specs/NNN/plan.md` + `docs/glossary-domain.md`
+  2. Gera `specs/NNN/preview/` com uma das duas opções:
+     - **(a) HTML estático** (zero JS, só layout + textos + botões mockados, usa componentes Livewire como referência visual)
+     - **(b) Descrição estruturada** (`preview/tela-01-cadastro.md` com wireframe ASCII + campos + estados) — mais barato em tokens, não exige preview deploy
+- **Skill:** `/preview NNN` — abre `preview/index.html` no navegador do PM (ou exibe os .md formatados)
+- **Gate:** PM marca "ok, pode implementar" antes do `ac-to-test` rodar. Se PM pedir mudança, volta pro `architect` com feedback específico.
+- **Custo:** +1 sub-agent (~20k tokens/slice) + 1 gate PM (feature, não bug — força aprovação visual antes do investimento de implementação).
+- **Benefício:** pega ~80% dos erros "não era bem assim que eu imaginava" antes do slice gastar budget do implementer/verifier/reviewer.
+- **Status:** média prioridade. Depois do `slice-000-smoke` (B-013) confirmar que a cadeia base funciona, antes do slice 2 de produção.
+
+### [B-019] Publish-to-staging automático em cada `/merge-slice` aprovado
+
+- **Origem:** análise Hercules/Lovable ("1-click publish"). Nosso `/merge-slice` termina no merge+push mas PM não recebe URL clicável pra testar. A promessa R12 de "próximo passo único e claro" fica incompleta sem um link.
+- **Ação:** ao fim de `merge-slice.sh` (pós push aprovado), dispara passo `publish-staging`:
+  1. Deploy da branch na infra de homologação (depende de ADR-0005)
+  2. Gera URL previsível: `https://slice-NNN.kalibrium-staging.<provider>.app`
+  3. Aguarda healthcheck (máx 60s)
+  4. Retorna no output do `/explain-slice` como **primeira linha**: *"✅ Pronto pra testar aqui: https://..."*
+- **Candidatos a provider** (decisão em ADR-0005): Railway, Fly.io, Hostinger staging sub-domain, ou Cloudflare Workers+Pages se Laravel Octane permitir.
+- **Pré-requisito:** **ADR-0005 aceito** (ambiente de homologação).
+- **Status:** média prioridade. Bloqueado por ADR-0005.
+
+### [B-020] Wrapper 1-click pro relock (.bat desktop + bash wrapper)
+
+- **Origem:** atrito medido em 2026-04-11 durante meta-audit #2 — PM precisou abrir PowerShell, trocar pra Git Bash, copy-paste comando, digitar `RELOCK`, fazer commit separado. 5+ interações pra 1 ação.
+- **Ação:**
+  - `scripts/relock-and-commit.sh` — wrapper bash que roda `relock-harness.sh` + `git add -A` + `git commit` automático (mantém a digitação de `RELOCK` — camada 3 de confirmação preservada)
+  - `tools/relock.bat` — atalho Windows que PM pode deixar no desktop; duplo-click abre console, roda o wrapper, aguarda `RELOCK`, fecha ao final
+  - Opcional: atalho `.lnk` na barra de tarefas apontando pro `.bat`
+- **O que NÃO muda:** camada 2 (TTY check) e camada 3 (digitar `RELOCK`) permanecem intactas — a defesa mecânica contra o agente continua enforced.
+- **Status:** baixa prioridade. Ativar quando a próxima alteração de hook/settings aparecer — se o atrito incomodar de novo, priorizar.
+
+### [B-021] Implementer paralelo — dividir UI e API em sub-agents concorrentes
+
+- **Origem:** análise Hercules — AI builders entregam rápido porque fazem backend e frontend em paralelo. Nosso `implementer` é single-threaded.
+- **Ação:** quando `plan.md` marcar `parallelizable: true`, o implementer vira **dois sub-agents em worktrees separadas**:
+  - `implementer-api` — escopo: `app/Http/`, `app/Models/`, `database/migrations/`, `tests/Feature/`
+  - `implementer-ui` — escopo: `resources/views/`, `app/Livewire/`, `resources/css/`, `tests/Browser/`
+  - Main agent espera os 2 terminarem, merge de contexto, dispara `/verify-slice` único
+- **Scope enforcement:** `edit-scope-check.sh` precisa de lógica nova — hoje usa env var global, viraria regra por agent. Cada implementer só pode tocar arquivos do próprio escopo.
+- **Risco:** race condition em arquivos compartilhados (config, routes.php, composer.json). Decisão: se um arquivo aparece no diff dos dois, **falha o slice** e volta pro architect re-planejar.
+- **Benefício estimado:** tempo wall-clock do slice cai ~40% em slices CRUD (que têm muita UI + muita API).
+- **Status:** baixa prioridade. Otimização tardia — só depois de 3-4 slices de produção rodando single-thread, pra ter baseline real de tempo.
+
 ---
 
 ## Resolvido
@@ -155,3 +229,4 @@ Itens resolvidos movem para o histórico no final.
 - 2026-04-10 — B-002, B-004, B-005, B-006, B-008 resolvidos; B-001 e B-007 marcados como bloqueados por ADR-0001
 - 2026-04-11 — B-009 e B-010 adicionados pós meta-audit #2
 - 2026-04-11 — B-011, B-012, B-013, B-014, B-015 adicionados pós validação Sessão 3 da meta-audit #2
+- 2026-04-11 — B-016..B-021 adicionados pós análise de classe Hercules/Lovable/Bolt (UX pattern import; import do que funciona, descarte do que mataria os gates)
