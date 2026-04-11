@@ -1,9 +1,13 @@
 # Micro-ajustes aos blocos 2-7 (tracker)
 
 **Origem:** `docs/audits/meta-audit-completeness-2026-04-10-action-plan.md §6`
-**Status geral:** 5/22 entregues nesta sessão (os itens que não dependiam do Bloco 2 e não exigiam relock).
+**Status geral:** 6/22 entregues (5 na sessão 01 + 1 na sessão 02).
 
 ## Entregues
+
+### Bloco 4
+
+- [x] 4.8 `docs/policies/r6-r7-policy.md` — 2026-04-11 (sessão 02, commit a seguir)
 
 ### Bloco 6
 
@@ -28,7 +32,6 @@
 
 ## Pendentes — independentes mas fora do escopo desta sessão
 
-- [ ] 4.8 `r6-r7-policy.md` (independente — pode rodar em próxima sessão sem relock)
 - [ ] 6.5 `cooldown-policy.md` (independente)
 - [ ] 6.6 `fixtures-policy.md` (depende Bloco 2 para linguagem)
 - [ ] 6.7 `/project-status` skill (depende de 1.5.11, que é pending-block-2)
