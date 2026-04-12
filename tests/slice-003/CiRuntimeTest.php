@@ -100,14 +100,16 @@ test('AC-004 runtime: todos os jobs PHP dependem de harness (pipeline encadeado)
     $ciYmlPath = base_path('.github/workflows/ci.yml');
     $content = file_get_contents($ciYmlPath);
 
+    // Extrai bloco de cada job PHP e verifica 'needs: harness' por substring
     $phpJobs = ['php-lint', 'php-static', 'php-test', 'php-rector'];
 
     foreach ($phpJobs as $job) {
-        $pattern = sprintf('/%s:.*?needs:\s*(\[.*?\]|harness)/s', preg_quote($job, '/'));
-        $hasHarnessDep = (bool) preg_match($pattern, $content);
+        // Isola o bloco do job: do nome até o próximo job de mesmo nível
+        preg_match(sprintf('/^  %s:.*?(?=\n  \w|\z)/ms', preg_quote($job, '/')), $content, $block);
+        $jobBlock = $block[0] ?? '';
 
-        expect($hasHarnessDep)->toBeTrue(
-            "AC-004: job {$job} deve depender de harness para garantir integridade do pipeline."
+        expect(str_contains($jobBlock, 'needs: harness'))->toBeTrue(
+            "AC-004: job {$job} deve conter 'needs: harness' para garantir integridade do pipeline."
         );
     }
 })->group('slice-003', 'ac-004');
