@@ -24,7 +24,7 @@ test('AC-004: job php-rector existe no ci.yml (Rector --dry-run)', function (): 
     // Procura pela chave do job php-rector na seção jobs:
     expect(str_contains($content, 'php-rector:'))->toBeTrue(
         'AC-004 requer o job php-rector no ci.yml. '
-        . 'Sem ele, o check do GitHub não inclui validação de Rector e o pipeline está incompleto.'
+        .'Sem ele, o check do GitHub não inclui validação de Rector e o pipeline está incompleto.'
     );
 })->group('slice-003', 'ac-004');
 
@@ -41,7 +41,7 @@ test('AC-004: job php-rector usa flag --dry-run (CI read-only)', function (): vo
 
     expect($hasRectorDryRun)->toBeTrue(
         'AC-004 requer que o job php-rector execute `rector process --dry-run`. '
-        . 'Rector sem --dry-run aplicaria mudanças no runner (efeito colateral inaceitável em CI).'
+        .'Rector sem --dry-run aplicaria mudanças no runner (efeito colateral inaceitável em CI).'
     );
 })->group('slice-003', 'ac-004');
 
@@ -69,6 +69,6 @@ test('AC-004: todos os 7 jobs do pipeline estão presentes no ci.yml', function 
 
     expect($missingJobs)->toBeEmpty(
         'AC-004 requer que todos os jobs estejam definidos para o check do GitHub estar completo. '
-        . 'Jobs ausentes: ' . implode(', ', $missingJobs)
+        .'Jobs ausentes: '.implode(', ', $missingJobs)
     );
 })->group('slice-003', 'ac-004');

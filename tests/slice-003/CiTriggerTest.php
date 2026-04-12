@@ -36,7 +36,7 @@ test('AC-001: trigger push cobre todas as branches (não apenas main)', function
 
     expect($coversAllBranches)->toBeTrue(
         'AC-001 requer push.branches: ["**"] para que o job lint dispare em feature branches. '
-        . 'Atualmente o ci.yml só dispara em push para [main].'
+        .'Atualmente o ci.yml só dispara em push para [main].'
     );
 })->group('slice-003', 'ac-001');
 
@@ -55,7 +55,7 @@ test('AC-002: trigger push cobre feature branches para static-analysis disparar'
 
     expect($coversAllBranches)->toBeTrue(
         'AC-002 requer push.branches: ["**"] para que php-static dispare em feature branches. '
-        . 'PHPStan nível 8 nunca executaria em push de feature com a config atual.'
+        .'PHPStan nível 8 nunca executaria em push de feature com a config atual.'
     );
 })->group('slice-003', 'ac-002');
 
@@ -73,6 +73,6 @@ test('AC-003: trigger push cobre feature branches para o job tests disparar', fu
 
     expect($coversAllBranches)->toBeTrue(
         'AC-003 requer push.branches: ["**"] para que php-test dispare em feature branches. '
-        . 'Testes falhando nunca bloqueariam um push de feature com a config atual.'
+        .'Testes falhando nunca bloqueariam um push de feature com a config atual.'
     );
 })->group('slice-003', 'ac-003');

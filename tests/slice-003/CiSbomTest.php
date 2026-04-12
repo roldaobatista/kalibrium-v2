@@ -40,7 +40,7 @@ test('AC-005: geração do sbom-php.xml não usa || true (falha não pode ser si
 
     expect($hasSilentFallback)->toBeFalse(
         'AC-005 exige que a geração do SBOM falhe explicitamente (exit 1) se o CycloneDX falhar. '
-        . 'O scaffold atual usa "|| true" que mascara falhas — sbom-php.xml pode não existir e o job não falharia.'
+        .'O scaffold atual usa "|| true" que mascara falhas — sbom-php.xml pode não existir e o job não falharia.'
     );
 })->group('slice-003', 'ac-005');
 
@@ -73,8 +73,8 @@ test('AC-005: o step CycloneDX gera sbom-php.xml como arquivo de saída', functi
 
     expect($hasOutputFile)->toBeTrue(
         'AC-005 requer que o CycloneDX gere sbom-php.xml explicitamente. '
-        . 'O upload-artifact referencia sbom-php.xml — se o step não o gerar com esse nome, '
-        . 'o artefato não será publicado na aba Artifacts.'
+        .'O upload-artifact referencia sbom-php.xml — se o step não o gerar com esse nome, '
+        .'o artefato não será publicado na aba Artifacts.'
     );
 
     // Confirma que o step de instalação do CycloneDX não usa || true
@@ -85,6 +85,6 @@ test('AC-005: o step CycloneDX gera sbom-php.xml como arquivo de saída', functi
 
     expect($installLineWithSilentFallback)->toBeFalse(
         'AC-005: a instalação do cyclonedx-php-composer não pode usar || true. '
-        . 'Se a instalação falhar silenciosamente, o sbom-php.xml não será gerado.'
+        .'Se a instalação falhar silenciosamente, o sbom-php.xml não será gerado.'
     );
 })->group('slice-003', 'ac-005');
