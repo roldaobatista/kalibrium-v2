@@ -102,8 +102,12 @@ Itens resolvidos movem para o histórico no final.
   - ✅ `scripts/review-slice.sh --validate` dispara tradução (B-016 / G-11 estendido)
   - ✅ `.claude/agents/*.md` (5 sub-agents: architect, ac-to-test, implementer, verifier, reviewer) documentam que **não** geram tradução — seção "Output em linguagem de produto (B-016 / R12)" adicionada ao final de cada arquivo
   - ✅ `guide-auditor` não se aplica (audit report é standalone, fora do slice flow)
+- **Escopo resolvido no Bloco 2 (2026-04-12):**
+  - ✅ G-04 — `/draft-spec NNN` skill interativa NL→ACs + `scripts/draft-spec.sh` validador (já existia do meta-audit #2)
+  - ✅ G-05 — `/draft-plan NNN` skill wrapper do architect + `scripts/draft-plan.sh` validador (--check + --validate)
+  - ✅ G-07 — `/draft-tests NNN` skill wrapper do ac-to-test + `scripts/draft-tests.sh` validador (--check + --validate)
+  - Skills apresentam resultado ao PM em linguagem R12 (sem código/paths/jargão)
 - **Escopo pendente (B-016.1, abrir se necessário):**
-  - Auto-dispare do translate-pm em handoffs pré-verifier (spec → plan, plan → tests, tests → implementer). Hoje o relatório só começa a ser gerado pós-verify. Pra resolver G-05, G-07 da auditoria PM, criar skills `/draft-plan` + `/draft-tests` que disparam translate-pm antes de passar ao próximo sub-agent. Bloco 2 da Fase A.
   - Auto-dispare em `merge-slice.sh` (atualizar o relatório com status "merged").
 - **Evidência:** commits do Bloco 1 Fase A (B-010, G-11, B-016 parcial).
 
