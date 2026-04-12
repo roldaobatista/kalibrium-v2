@@ -1,0 +1,67 @@
+{
+  "slice_id": "slice-005",
+  "verdict": "approved",
+  "timestamp": "2026-04-12T23:00:00Z",
+  "severity_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 1,
+    "info": 1
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "severity": "medium",
+      "category": "security_misconfiguration",
+      "file": "app/Http/Middleware/HealthCheckRateLimit.php",
+      "line": 23,
+      "description": "Rate limit implementado com Cache::store('array'), que e um store em memoria por processo e nao persiste entre requisicoes HTTP distintas. Em producao (PHP-FPM com workers independentes), cada requisicao recebe um contador zerado, tornando o rate limit completamente ineficaz como controle contra T-010 (flood/DoS).",
+      "recommendation": "Substituir Cache::store('array') por Cache::store('redis') ou o store padrao configurado via CACHE_STORE. O driver array e aceitavel apenas em testes unitarios.",
+      "owasp": "A5"
+    },
+    {
+      "id": "SEC-002",
+      "severity": "low",
+      "category": "sensitive_data",
+      "file": "app/Http/Controllers/HealthCheckController.php",
+      "line": 35,
+      "description": "Resposta publica expoe estado granular de cada dependencia interna ('db': 'connected'/'disconnected', 'redis': 'connected'/'disconnected'). Para um atacante, o estado 'disconnected' do Redis revela topologia interna e pode guiar ataques direcionados.",
+      "recommendation": "Considerar retornar apenas 'status': 'ok'/'degraded' sem detalhar qual dependencia esta falhando, ou restringir o detalhe a redes internas (ex: verificar IP de origem ou adicionar token de acesso para resposta detalhada).",
+      "owasp": "A3"
+    },
+    {
+      "id": "SEC-003",
+      "severity": "info",
+      "category": "security_misconfiguration",
+      "file": "routes/web.php",
+      "line": 11,
+      "description": "Endpoint publico /health nao aplica security headers especificos (X-Content-Type-Options, X-Frame-Options). Em producao, esses headers sao geralmente configurados em middleware global ou no proxy reverso, mas nao ha evidencia de cobertura no escopo deste slice.",
+      "recommendation": "Verificar se o middleware global do Laravel ou o proxy reverso (Nginx) ja adiciona os headers de segurança para todas as rotas. Se nao, adicionar middleware de security headers.",
+      "owasp": "A6"
+    }
+  ],
+  "lgpd_checks": [
+    {
+      "check": "pii_in_response",
+      "status": "pass",
+      "evidence": "Resposta contem apenas status de conectividade de servicos. Nenhum dado pessoal retornado."
+    },
+    {
+      "check": "pii_in_logs",
+      "status": "pass",
+      "evidence": "Controller nao emite logs. Middleware nao loga dados do usuario, apenas usa IP como chave de rate limit opaca."
+    },
+    {
+      "check": "pii_collected",
+      "status": "pass",
+      "evidence": "Endpoint healthcheck nao coleta, armazena nem processa dados pessoais."
+    },
+    {
+      "check": "base_legal_documented",
+      "status": "not_applicable",
+      "evidence": "Nenhum tratamento de dados pessoais neste slice. Base legal nao se aplica."
+    }
+  ],
+  "next_action": "approved"
+}
