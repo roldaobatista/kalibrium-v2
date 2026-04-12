@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plan Review Output",
+  "description": "Schema para output do plan-reviewer agent",
+  "type": "object",
+  "required": ["schema_version", "slice_id", "review_date", "verdict", "summary", "checks", "findings", "stats"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "slice_id": { "type": "string", "pattern": "^slice-\\d{3}$" },
+    "review_date": { "type": "string", "format": "date" },
+    "verdict": { "type": "string", "enum": ["approved", "rejected"] },
+    "summary": { "type": "string", "minLength": 10 },
+    "checks": {
+      "type": "object",
+      "required": ["ac_coverage", "architectural_decisions", "technical_feasibility", "risks_mitigations", "security", "simplicity"],
+      "additionalProperties": false,
+      "properties": {
+        "ac_coverage": { "$ref": "#/$defs/check" },
+        "architectural_decisions": { "$ref": "#/$defs/check" },
+        "technical_feasibility": { "$ref": "#/$defs/check" },
+        "risks_mitigations": { "$ref": "#/$defs/check" },
+        "security": { "$ref": "#/$defs/check" },
+        "simplicity": { "$ref": "#/$defs/check" }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "category", "location", "description", "recommendation"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^PR-\\d{3}$" },
+          "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+          "category": { "type": "string", "enum": ["ac_coverage", "decision", "feasibility", "risk", "security", "simplicity"] },
+          "location": { "type": "string" },
+          "description": { "type": "string" },
+          "recommendation": { "type": "string" }
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "required": ["total_checks", "passed", "failed", "findings_critical", "findings_major", "findings_minor"],
+      "properties": {
+        "total_checks": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "failed": { "type": "integer" },
+        "findings_critical": { "type": "integer" },
+        "findings_major": { "type": "integer" },
+        "findings_minor": { "type": "integer" }
+      }
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "required": ["status", "details"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pass", "fail"] },
+        "details": { "type": "string" }
+      }
+    }
+  }
+}
