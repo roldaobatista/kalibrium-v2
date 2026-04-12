@@ -95,9 +95,9 @@ Arquivo unico: `functional-review-input/functional-review.json`
 
 ## Regras de decisao
 1. Qualquer AC com `met: false` → `verdict: rejected`
-2. Qualquer finding `critical` → `verdict: rejected`
-3. 2+ findings `high` → `verdict: rejected`
-4. Todos ACs atendidos + sem findings criticos → `verdict: approved`
+2. **Qualquer** finding (critical, high, medium OU low) → `verdict: rejected`
+3. `approved` = todos ACs `met: true` + `findings: []` em TODAS as categorias (ux, consistency, business_rule) — arrays VAZIOS
+4. **ZERO TOLERANCE:** nenhum finding é aceito. O fixer corrige TUDO e o gate re-roda até zero findings.
 
 ## Proibido
 - Emitir prosa livre fora do JSON

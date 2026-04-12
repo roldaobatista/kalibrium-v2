@@ -105,9 +105,9 @@ Arquivo unico: `security-review-input/security-review.json`
 - `next_action` in `{"approved", "return_to_fixer", "escalate_human"}`
 
 ## Regras de decisao
-1. Qualquer finding `critical` ou `high` → `verdict: rejected`
-2. 3+ findings `medium` → `verdict: rejected`
-3. Apenas `low`/`info` → `verdict: approved`
+1. **Qualquer** finding (critical, high, medium, low OU info) → `verdict: rejected`
+2. `approved` = `findings: []` (array VAZIO — zero findings de qualquer severidade)
+3. **ZERO TOLERANCE:** nenhum finding é aceito. O fixer corrige TUDO e o gate re-roda até `findings: []`.
 4. `rejected` → `next_action: return_to_fixer`
 
 ## Proibido

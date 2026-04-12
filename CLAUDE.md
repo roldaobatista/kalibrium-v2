@@ -149,16 +149,16 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ### Fase E — Pipeline de Gates (por slice)
 
-> **Ordem definida no orchestrator.md:** verifier (1º) → reviewer (2º, só se verifier aprovou) → [security + test-audit + functional] (3º, em paralelo). Cadeia de correção: gate rejeita → fixer corrige → re-run do mesmo gate.
+> **Ordem definida no orchestrator.md:** verifier (1º) → reviewer (2º, só se verifier aprovou) → [security + test-audit + functional] (3º, em paralelo). **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. Gate só aprova com `findings: []`. Loop: gate rejeita → fixer corrige TODOS → re-run do mesmo gate → repete até zero findings.
 
 18. `/verify-slice NNN` → verifier em worktree isolada → `verification.json`.
 19. `/review-pr NNN` → reviewer em worktree isolada → `review.json`.
 20. `/security-review NNN` → security-reviewer em worktree isolada → `security-review.json`.
 21. `/test-audit NNN` → test-auditor em worktree isolada → `test-audit.json`.
 22. `/functional-review NNN` → functional-reviewer em worktree isolada → `functional-review.json`.
-23. Se qualquer gate `rejected` → `/fix NNN [gate]` → fixer corrige → **re-run do mesmo gate** (não pula).
+23. Se qualquer gate emitir findings (mesmo minor/low/info) → `/fix NNN [gate]` → fixer corrige TODOS → **re-run do mesmo gate** (não pula). Repete até `findings: []`.
 24. Se segundo `rejected` consecutivo (R6) → parar, escalar humano via `/explain-slice NNN`.
-25. Todos os gates `approved` → `/merge-slice NNN`.
+25. Todos os gates `approved` com zero findings → `/merge-slice NNN`.
 
 ### Fase F — Encerramento
 26. `/slice-report NNN` e `/retrospective NNN` obrigatórios pós-merge.

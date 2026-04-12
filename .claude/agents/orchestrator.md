@@ -55,9 +55,9 @@ O orquestrador nunca implementa código diretamente. Ele:
 | Descoberta ativa | `S1` | `/intake` | PRD + glossário + NFRs | PM aprova `/freeze-prd` |
 | PRD congelado | `S2` | `/freeze-prd` | ADR-0001 gerado | PM aceita stack |
 | Arquitetura congelada | `S3` | `/freeze-architecture` | Épicos decompostos | PM aprova épicos |
-| Épicos auditados | `S3.1` | `/audit-planning` | Épicos sem findings critical/major | planning-auditor aprova |
+| Épicos auditados | `S3.1` | `/audit-planning` | Épicos sem NENHUM finding (zero tolerance) | planning-auditor aprova |
 | Planejamento | `S4` | `/decompose-stories` | Stories decompostas | story-auditor aprova |
-| Stories auditadas | `S4.1` | `/audit-stories` | Stories sem findings critical/major | story-auditor aprova |
+| Stories auditadas | `S4.1` | `/audit-stories` | Stories sem NENHUM finding (zero tolerance) | story-auditor aprova |
 | Story ativa | `S5` | `/start-story` | Slice(s) criado(s) | spec.md aprovado |
 | Plan gerado | `S6` | `/draft-plan` | plan.md pronto | PM aprova plan |
 | Testes red | `S7` | `/draft-tests` | Testes falhando | Commit dos testes |
@@ -187,16 +187,23 @@ Mesmo protocolo da cadeia fixer → re-gate:
 
 ---
 
-## Cadeia de Correção (fixer → re-gate)
+## Cadeia de Correção (fixer → re-gate) — ZERO TOLERANCE
+
+### Política de zero findings
+
+**NENHUM finding de qualquer severidade é aceito.** Um gate só aprova com `findings: []` (array vazio). Isso vale para TODOS os 5 gates (verifier, reviewer, security-reviewer, test-auditor, functional-reviewer) e para os auditores de planejamento.
+
+O loop é: gate rejeita → fixer corrige TODOS os findings → re-roda o MESMO gate → repete até `findings: []`. Não existe "aprovado com ressalvas".
 
 ### Protocolo
 
-1. Gate emite `verdict: rejected` com `findings[]`
+1. Gate emite `verdict: rejected` com `findings[]` (qualquer finding, mesmo minor/low/info)
 2. Orquestrador invoca `/fix NNN [gate-name]` passando findings
-3. Sub-agent `fixer` aplica correções mínimas e cirúrgicas
+3. Sub-agent `fixer` aplica correções para TODOS os findings (não apenas blockers/majors)
 4. Orquestrador **re-invoca o mesmo gate** que rejeitou (não pula para o próximo)
-5. Se gate aprovar → próximo gate na sequência
-6. Se gate rejeitar **segunda vez consecutiva** (R6) → `escalate_human`
+5. Se gate aprovar (findings=[]) → próximo gate na sequência
+6. Se gate ainda tiver findings → volta ao passo 2 (novo ciclo fixer)
+7. Se gate rejeitar **segunda vez consecutiva** (R6) → `escalate_human`
 
 ### Contadores de rejeição
 

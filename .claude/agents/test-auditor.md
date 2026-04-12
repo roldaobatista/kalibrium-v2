@@ -113,10 +113,11 @@ Arquivo unico: `test-audit-input/test-audit.json`
 
 ## Regras de decisao
 1. Qualquer AC sem teste → `verdict: rejected`
-2. Qualquer AC sem teste de caminho de erro → `verdict: rejected`
-3. Anti-pattern `critical` encontrado → `verdict: rejected`
-4. 3+ findings `medium` → `verdict: rejected`
-5. Todos ACs cobertos + sem anti-patterns criticos → `verdict: approved`
+2. Anti-pattern encontrado (qualquer severidade) → `verdict: rejected`
+3. **Qualquer** finding (critical, high, medium OU low) → `verdict: rejected`
+4. `approved` = todos ACs cobertos + `findings: []` (array VAZIO) + zero anti-patterns
+5. **ZERO TOLERANCE:** nenhum finding é aceito. O fixer corrige TUDO e o gate re-roda até `findings: []`.
+6. **Nota sobre error paths em slices de infraestrutura:** se o AC testa um comando retornando exit 0 (ex: phpstan, pint, migrate), o "error path" é coberto pelas pre-condicoes do teste (ex: arquivo nao existe → FAIL). Nao exigir error paths artificiais que requerem derrubar infraestrutura no meio do teste.
 
 ## Proibido
 - Emitir prosa livre fora do JSON

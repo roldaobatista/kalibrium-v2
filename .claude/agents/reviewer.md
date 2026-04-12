@@ -77,12 +77,12 @@ Schema obrigatório (validação por `validate-review.sh` — outputs inválidos
 
 ### Regras de decisão
 
-1. **Qualquer** finding `severity=blocker` → `verdict: rejected`
-2. **≥3 findings `severity=major`** → `verdict: rejected`
+1. **Qualquer** finding (blocker, major OU minor) → `verdict: rejected`
+2. `approved` = todas as categorias `pass` + `findings: []` (array VAZIO — zero findings)
 3. Security issues → sempre blocker
 4. Contradição com ADR aceita → sempre blocker
 5. Secret hardcoded → sempre blocker
-6. `approved` = todas as categorias relevantes `pass` + nenhum blocker + <3 major
+6. **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. O fixer corrige TUDO e o gate re-roda até `findings: []`.
 7. `rejected` primeira vez → `next_action: return_to_implementer`
 8. `rejected` segunda vez consecutiva (R6) → `next_action: escalate_human`
 
