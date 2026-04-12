@@ -8,19 +8,6 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
-### [B-001] Operacionalizar post-edit-gate pós ADR-0001
-
-- **Origem:** `post-edit-gate.sh` atual é stack-agnóstico e faz format/lint/testes apenas se as ferramentas existem.
-- **Ação:** após ADR-0001 (stack escolhida), atualizar `post-edit-gate.sh` com comandos concretos e convenção de mapeamento arquivo→teste validada.
-- **Status:** **bloqueado por ADR-0001** (stack ainda não decidida). Item ativo no Dia 1.
-- **Bloqueia:** slice 1.
-
-### [B-007] Integração com CI externo
-
-- **Origem:** P8 (suite full em CI).
-- **Ação:** quando stack estiver definida, configurar GitHub Actions (ou equivalente) rodando lint + types + suite full + security scan.
-- **Status:** **bloqueado por ADR-0001**. Item ativo no Dia 1.
-
 ### [B-009] GitHub Action para auto-aprovar PR quando verifier + reviewer passam
 
 - **Origem:** Fase 2 (R11). Hoje o merge de PR requer admin bypass do owner, o que é aceitável mas não ideal.
@@ -148,16 +135,6 @@ Itens resolvidos movem para o histórico no final.
 - **Pré-requisito:** **ADR-0005 aceito** (ambiente de homologação).
 - **Status:** média prioridade. Bloqueado por ADR-0005.
 
-### [B-020] Wrapper 1-click pro relock (.bat desktop + bash wrapper)
-
-- **Origem:** atrito medido em 2026-04-11 durante meta-audit #2 — PM precisou abrir PowerShell, trocar pra Git Bash, copy-paste comando, digitar `RELOCK`, fazer commit separado. 5+ interações pra 1 ação.
-- **Ação:**
-  - `scripts/relock-and-commit.sh` — wrapper bash que roda `relock-harness.sh` + `git add -A` + `git commit` automático (mantém a digitação de `RELOCK` — camada 3 de confirmação preservada)
-  - `tools/relock.bat` — atalho Windows que PM pode deixar no desktop; duplo-click abre console, roda o wrapper, aguarda `RELOCK`, fecha ao final
-  - Opcional: atalho `.lnk` na barra de tarefas apontando pro `.bat`
-- **O que NÃO muda:** camada 2 (TTY check) e camada 3 (digitar `RELOCK`) permanecem intactas — a defesa mecânica contra o agente continua enforced.
-- **Status:** baixa prioridade. Ativar quando a próxima alteração de hook/settings aparecer — se o atrito incomodar de novo, priorizar.
-
 ### [B-021] Implementer paralelo — dividir UI e API em sub-agents concorrentes
 
 - **Origem:** análise Hercules — AI builders entregam rápido porque fazem backend e frontend em paralelo. Nosso `implementer` é single-threaded.
@@ -173,6 +150,45 @@ Itens resolvidos movem para o histórico no final.
 ---
 
 ## Resolvido
+
+### [B-001] Operacionalizar post-edit-gate pós ADR-0001 — RESOLVIDO 2026-04-12
+
+- **Origem:** `post-edit-gate.sh` anterior era stack-agnóstico e rodava format/lint/testes apenas se as ferramentas existiam.
+- **Resolução (Bloco 0 / Fase A pós-auditoria PM):** novo `post-edit-gate.sh` com comandos concretos da stack ADR-0001:
+  - Format: Pint (PHP) + Prettier (JS/TS/Vue/CSS/MD)
+  - Lint: ESLint (JS/TS/Vue); PHP coberto por PHPStan no step 3
+  - Type-check: PHPStan/Larastan nível 8 incremental + `tsc --noEmit`
+  - Test mapping: `app/**/*.php` → `tests/Unit/**` E `tests/Feature/**` (roda ambos se existirem, cobre convenções Pest sem forçar uma)
+  - Skips silenciosos para migrations/seeders/factories/routes/blade/config/bootstrap
+- **Tolerância a ferramentas ausentes preservada:** cada passo só roda se o binário existir, permitindo edição de docs/config antes de `composer install`.
+- **Evidência:** commit `75994ea` (pós-relock) + incidente `docs/incidents/harness-relock-2026-04-12T00-56-44Z.md`.
+- **Impacto:** P4 + P8 agora enforced com comandos reais da stack.
+
+### [B-007] Integração com CI externo — RESOLVIDO 2026-04-12
+
+- **Origem:** P8 (suite full em CI).
+- **Resolução (Bloco 0 / Fase A):** `.github/workflows/ci.yml` com 6 jobs:
+  1. Harness integrity (smoke-test de hooks + scripts + scan de arquivos proibidos)
+  2. PHP lint (Pint `--test`)
+  3. PHP static analysis (Larastan nível 8)
+  4. PHP tests (Pest 3 + PostgreSQL 16 como service)
+  5. JS lint (ESLint + Prettier)
+  6. Security scan (composer audit + npm audit + CycloneDX SBOM)
+- **Design dormant:** jobs de PHP/JS usam `if: hashFiles('composer.json'|'package.json') != ''`. O workflow existe pré-`composer create-project` e "acorda" automaticamente quando Laravel inicializar. Jobs marcados como "skipped" até lá — válido, não falha.
+- **Evidência:** commit `0d34a27`.
+
+### [B-020] Wrapper 1-click pro relock — RESOLVIDO 2026-04-12
+
+- **Origem:** atrito medido em 2026-04-11 durante meta-audit #2 — 5+ interações pra 1 relock.
+- **Resolução (Bloco 0 / Fase A):**
+  - `scripts/relock-and-commit.sh` — wrapper bash que detecta mudança em arquivos selados, pergunta descrição, chama `relock-harness.sh`, faz stage cirúrgico + commit com mensagem `chore(harness): <desc>`.
+  - `tools/relock.bat` — atalho Windows, duplo-clique abre Git Bash em janela interativa e roda o wrapper.
+  - `tools/apply-b001.bat` — one-click applier específico pro B-001 (copia draft por cima do hook selado + chama `relock.bat`). Serve como **template** pra futuros appliers one-shot quando um bloco tiver apenas 1 item selado.
+- **Salvaguardas preservadas:** camadas 2 (TTY interativa) e 3 (digitação literal `RELOCK`) permanecem intactas. Só a camada 1 (`KALIB_RELOCK_AUTHORIZED`) foi internalizada no wrapper (conveniência).
+- **Exercitado por caso real:** usado para ativar B-001 (commit `75994ea`). Primeiro uso end-to-end do wrapper.
+- **Evidência:** commits `c532a43` (wrapper) + `7d1731a` (applier one-shot).
+- **Nota de prioridade:** elevado de "baixa" para "alta" pela auditoria de operabilidade PM 2026-04-12 (`docs/audits/pm-operability-audit-2026-04-12.md`).
+- **Follow-up proposto:** skill `/batch-harness-changes` (coletora de múltiplos drafts num único applier) vai nascer no primeiro bloco futuro que tiver 2+ itens selados simultâneos. Até lá, applier one-shot (template do `apply-b001.bat`) resolve.
 
 ### [B-003] Smoke-test dos hooks no Windows — RESOLVIDO 2026-04-10
 
@@ -230,3 +246,5 @@ Itens resolvidos movem para o histórico no final.
 - 2026-04-11 — B-009 e B-010 adicionados pós meta-audit #2
 - 2026-04-11 — B-011, B-012, B-013, B-014, B-015 adicionados pós validação Sessão 3 da meta-audit #2
 - 2026-04-11 — B-016..B-021 adicionados pós análise de classe Hercules/Lovable/Bolt (UX pattern import; import do que funciona, descarte do que mataria os gates)
+- 2026-04-12 — Fase B: auditoria de operabilidade PM entrega 23 gaps novos (G-01..G-23) em `docs/audits/pm-operability-audit-2026-04-12.md` + revisão de prioridades do backlog existente
+- 2026-04-12 — Fase A / Bloco 0: B-001, B-007, B-020 resolvidos (post-edit-gate Laravel + CI dormant + wrapper relock exercitado por caso real)
