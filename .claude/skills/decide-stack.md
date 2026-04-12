@@ -97,3 +97,15 @@ bash scripts/decide-stack.sh "$@"
 ❌ "Laravel 11 com Eloquent ORM e Livewire para server-side rendering reativo."
 
 ✅ "Laravel — base do projeto em PHP, mais antiga mas super comum no Brasil, fácil de achar quem mexe, já tem pronto quase tudo que precisamos (login, envio de e-mail, fila de tarefas em segundo plano). As telas se atualizam sozinhas sem precisar do usuário apertar F5."
+
+## Agentes
+Nenhum — executada pelo orquestrador.
+
+## Erros e Recuperação
+
+| Erro | Recuperação |
+|---|---|
+| `docs/product/PRD.md` não existe | Abortar e informar PM que o PRD é pré-requisito. Sugerir criação do PRD ou `/intake` se ainda não foi feito. |
+| `docs/adr/0001-stack-choice.md` já existe | Abortar e informar que a stack já foi decidida. Sugerir revisão via ADR formal se quiser mudar. |
+| PM não entende as opções apresentadas | Reformular usando analogias do cotidiano (R12 reforçada). Oferecer "quer conversar mais antes de decidir". |
+| `scripts/decide-stack.sh` falha na execução | Verificar se o script existe e tem permissão de execução. Gerar o ADR manualmente se o script estiver indisponível. |

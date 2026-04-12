@@ -53,6 +53,21 @@ Após o `verifier` ter emitido `verification.json` com `verdict: approved`. **Nu
 bash scripts/review-slice.sh "$1"
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `verification.json` não existe ou não tem `verdict: approved` | Abortar. Rodar `/verify-slice NNN` primeiro — reviewer nunca roda antes do verifier. |
+| `review.json` não passa na validação contra schema | Re-spawn reviewer. Se falhar 2x, escalar humano (R6). |
+| Reviewer reprova pela 2ª vez consecutiva (R6) | Criar incident file, bloquear implementer, invocar `/explain-slice NNN` para traduzir ao PM. |
+| Worktree isolada falha ao ser criada | Verificar espaço em disco e estado do git. Tentar novamente. Se persistir, reportar erro ao PM. |
+
+## Agentes
+
+| Sub-agent | Isolamento | Budget |
+|---|---|---|
+| `reviewer` | worktree isolada | 30k tokens |
+
 ## Handoff
 
 - **Ambos aprovam** → merge automático via `/merge-slice NNN`

@@ -113,6 +113,19 @@ Proximo passo: revisar o PRD com essas informacoes incorporadas.
 Quer seguir para /freeze-prd ou ajustar algo?
 ```
 
+## Agentes
+- `domain-analyst` — produz glossario, modelo de dominio, riscos e suposicoes (serializado, executa primeiro)
+- `nfr-analyst` — produz NFRs estruturados com metricas mensuraveis (serializado, executa apos domain-analyst)
+
+## Erros e Recuperacao
+
+| Erro | Recuperacao |
+|---|---|
+| PM nao responde a uma pergunta (nao sabe) | Registrar como "pendente" no intake-responses.md. Prosseguir com as demais. Revisitar antes de `/freeze-prd`. |
+| `domain-analyst` falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Se falhar 2x, escalar humano (R6). |
+| `nfr-analyst` falha porque glossario nao existe | Garantir que `domain-analyst` completou com sucesso antes de spawnar `nfr-analyst`. Reexecutar domain-analyst se necessario. |
+| PM contradiz respostas anteriores durante a entrevista | Parar, apresentar a contradicao em linguagem R12, pedir esclarecimento antes de registrar. |
+
 ## Handoff
 - PM satisfeito → `/freeze-prd`
 - PM quer ajustar → reexecutar perguntas especificas

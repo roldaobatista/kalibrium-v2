@@ -81,6 +81,19 @@ Acao necessaria: corrigir problemas funcionais.
 Copiar `functional-review.json` para `specs/NNN/functional-review.json`.
 Atualizar `project-state.json` gates_status.
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| Pré-condição falha (gates anteriores não aprovados) | Listar quais gates faltam. Orientar a rodar o pipeline na ordem: `/verify-slice` → `/review-pr` → `/security-review` → `/test-audit` → `/functional-review`. |
+| Sub-agent `functional-reviewer` falha ou excede budget (25k tokens) | Re-invocar com contexto reduzido. Se persistir, verificar se o slice é muito grande e sugerir decomposição. |
+| Segundo `rejected` consecutivo (R6) | Parar imediatamente. Invocar `/explain-slice NNN` para traduzir o problema ao PM. Escalar decisão humana — não tentar corrigir sem orientação. |
+| PM cancela a revisão funcional | Registrar estado parcial em `project-state.json`. O slice não avança para merge. PM pode retomar com `/functional-review NNN` quando desejar. |
+
+## Agentes
+
+- `functional-reviewer` (budget: 25k tokens) — executa em worktree isolada, avalia ACs do ponto de vista de produto/UX. Emite `functional-review.json`.
+
 ## Handoff
 - `approved` (todos os gates) → `/merge-slice NNN`
 - `rejected` → `/fix NNN functional` → re-run `/functional-review NNN`

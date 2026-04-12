@@ -38,3 +38,20 @@ plugin:github:github
 ```
 
 (Ajustar conforme `docs/adr/NNNN-mcp-policy.md` — quando for criado.)
+
+## Pré-condições
+
+Nenhuma — pode ser executada a qualquer momento. Se `.claude/allowed-mcps.txt` não existir, a skill alerta que a allowlist precisa ser criada.
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `.claude/allowed-mcps.txt` não existe | Alertar PM. Criar o arquivo com a allowlist inicial sugerida (ver seção acima) ou rodar `/adr` para formalizar política de MCPs primeiro. |
+| MCP ativo não está na allowlist (alerta de contaminação) | Investigar imediatamente qual MCP é e quem o adicionou. Se não for reconhecido, desativar e registrar incidente em `docs/incidents/`. |
+| Script `scripts/mcp-check.sh` não existe | Verificar integridade do harness. O script vive em `scripts/` (fora de `hooks/`). Pode precisar ser criado se o scaffold não o incluiu. |
+| Comando `claude mcp list` não disponível no ambiente | Usar método alternativo de detecção (inspecionar output da sessão). Registrar limitação no relatório. |

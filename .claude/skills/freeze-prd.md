@@ -73,6 +73,17 @@ Opcoes:
 Qual prefere?
 ```
 
+## Agentes
+Nenhum — executada pelo orquestrador.
+
+## Erros e Recuperacao
+
+| Erro | Recuperacao |
+|---|---|
+| Pre-condicao falha (arquivo ausente) | Listar todos os arquivos faltantes de uma vez. Sugerir a skill que gera cada um (ex: `/intake` para intake-responses.md). |
+| Inconsistencia detectada entre PRD e intake-responses | Apresentar a inconsistencia ao PM em linguagem R12. Nao congelar ate resolver. PM decide qual versao prevalece. |
+| `project-state.json` nao existe ou esta corrompido | Criar/recriar o arquivo com estado minimo antes de registrar o freeze. Informar PM que estado foi reconstruido. |
+
 ## Handoff
 - PM confirma → congelar e sugerir proximo passo
 - PM recusa → listar o que quer mudar, voltar ao PRD

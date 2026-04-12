@@ -73,6 +73,19 @@ Quer encerrar a sessao ou continuar trabalhando?
 5. Write docs/handoffs/latest.md (copia)
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `docs/schemas/project-state.schema.json` não existe | Criar o schema primeiro ou salvar `project-state.json` sem validação, registrando o débito. |
+| Diretório `docs/handoffs/` não existe | Criar o diretório automaticamente antes de escrever o handoff. |
+| Estado do projeto inconsistente (artefatos referenciados não existem) | Registrar warnings no handoff. Marcar campos ausentes como `"unknown"` no JSON. Não falhar — checkpoint parcial é melhor que nenhum. |
+| Escrita do `project-state.json` falha (disco cheio, permissão) | Informar PM imediatamente. Tentar salvar pelo menos o handoff `.md` como fallback. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
 ## Handoff
 - PM quer encerrar → confirmar que checkpoint esta salvo
 - PM quer continuar → checkpoint salvo, prosseguir normalmente

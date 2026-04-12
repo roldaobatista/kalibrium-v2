@@ -80,6 +80,21 @@ Proximo passo: re-rodar o gate que reprovou.
 5. Apos fixer terminar, reportar resultado
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| Nenhum JSON de review encontrado com findings | Abortar. Nenhum gate rejeitou — não há o que corrigir. Sugerir verificar estado com `/status`. |
+| Slice bloqueado por R6 (2 rejeições consecutivas) | Bloquear execução do fixer. Invocar `/explain-slice NNN` para traduzir problema ao PM. Aguardar decisão humana. |
+| Fixer não consegue resolver um finding após tentativa | Reportar finding não resolvido ao PM. Se for segunda falha consecutiva, escalar via R6. |
+| Gate especificado não existe ou nome inválido | Listar gates válidos (verifier, reviewer, security, tests, functional) e pedir ao PM para especificar novamente. |
+
+## Agentes
+
+| Sub-agent | Isolamento | Budget |
+|---|---|---|
+| `fixer` | mesmo contexto | 60k tokens |
+
 ## Handoff
 - Fixes aplicados → sugerir re-run do gate que reprovou
 - Algum fix nao convergiu → reportar e sugerir escalacao

@@ -84,6 +84,19 @@ Ou, se quiser revisar o spec primeiro:
 Posso prosseguir com /draft-plan?
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| Story Contract não encontrado em `epics/ENN/stories/ENN-SNN.md` | Verificar se `/decompose-stories ENN` foi executado. Se não, executar primeiro. |
+| Story Contract incompleto (seções obrigatórias faltando) | Listar seções faltantes ao PM. Não prosseguir até que o contrato esteja completo. |
+| Dependências da story não satisfeitas | Listar stories bloqueantes e sugerir executá-las primeiro ou reordenar prioridades. |
+| Slice ativo bloqueado por R6 | Resolver escalação R6 pendente antes de iniciar nova story. Sugerir `/explain-slice NNN` para o PM entender o bloqueio. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
 ## Handoff
 - PM confirma → `/draft-plan NNN` → `/draft-tests NNN` → implementacao
 - PM quer ajustar spec → editar `specs/NNN/spec.md` e reapresentar

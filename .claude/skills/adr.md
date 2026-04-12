@@ -38,3 +38,23 @@ bash scripts/adr-new.sh "$1" "$2"
 - **Referências:** links para specs/slices afetados
 
 Sem alternativas consideradas, o ADR é rejeitado em code review.
+
+## Pré-condições
+
+1. Diretório `docs/adr/` existe no repositório.
+2. Template `docs/adr/0000-template.md` existe.
+3. `docs/TECHNICAL-DECISIONS.md` existe (para registrar referência ao novo ADR).
+4. `NNNN` informado é 4 dígitos e `docs/adr/NNNN-*.md` ainda não existe.
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `docs/adr/` ou template não existe | Criar diretório e template antes de invocar. Verificar se o scaffold do projeto foi executado. |
+| ADR com número `NNNN` já existe | Escolher outro número sequencial. Consultar `docs/TECHNICAL-DECISIONS.md` para ver o próximo disponível. |
+| Script `scripts/adr-new.sh` falha (permissão, path) | Verificar que o script existe e tem permissão de execução. Rodar `bash scripts/adr-new.sh` manualmente para diagnóstico. |
+| PM cancela antes de preencher o ADR | Remover o arquivo gerado (`docs/adr/NNNN-*.md`) e a linha adicionada em `TECHNICAL-DECISIONS.md`. Nenhum commit foi feito. |

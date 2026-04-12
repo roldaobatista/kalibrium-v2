@@ -71,6 +71,17 @@ Atualizar `project-state.json`:
 }
 ```
 
+## Agentes
+- `epic-decomposer` — decompoe PRD em epicos com dependencias, prioridades e estimativas de stories
+
+## Erros e Recuperacao
+
+| Erro | Recuperacao |
+|---|---|
+| `epic-decomposer` gera epicos sem dependencias claras | Re-spawnar com instrucao explicita para mapear dependencias. Se falhar 2x, escalar humano (R6). |
+| Epicos gerados extrapolam o escopo do MVP | Comparar com `docs/product/mvp-scope.md`. Remover epicos fora do MVP e marcar como "pos-MVP" no roadmap. |
+| Pre-condicao falha (PRD ou arquitetura nao frozen) | Listar o que falta e sugerir `/freeze-prd` ou `/freeze-architecture` conforme o caso. |
+
 ## Handoff
 - PM aprova roadmap → `/decompose-stories E01` (primeiro epico)
 - PM quer ajustar → reexecutar com feedback

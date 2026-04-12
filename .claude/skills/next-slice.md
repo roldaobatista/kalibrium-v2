@@ -177,6 +177,24 @@ Tamanho estimado: médio (1-2 dias de trabalho do agente).
 - **SE** algum slice tiver ADR bloqueante, **destacar antes** de apresentar. O PM pode querer rodar `/decide-stack` ou `/adr NNNN` primeiro.
 - **SE** o roadmap estiver desatualizado (ex.: novo requisito surgiu), o PM pode pedir pra regenerar. Nesse caso o agente **renomeia** `roadmap.md` → `roadmap-v1-backup-YYYY-MM-DD.md` e dispara o modo wizard de novo.
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `docs/product/PRD.md` não existe | Rodar `/intake` e `/freeze-prd` primeiro. Sem PRD não há base para recomendar slices. |
+| `docs/product/mvp-scope.md` não existe | Criar mvp-scope.md definindo módulos IN/OUT do MVP antes de rodar `/next-slice`. |
+| Roadmap gerado com dependências circulares | Renomear roadmap atual para backup e rodar `/next-slice` novamente para regenerar. |
+| Todos os slices do roadmap já iniciados | Informar ao PM que o roadmap está completo. Sugerir `/release-readiness` ou expansão de escopo. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+- `project-state.json` existe OU `docs/product/PRD.md` existe.
+- `docs/product/mvp-scope.md` existe.
+
 ## Handoff
 
 Após `/new-slice NNN "título"` ser aceito e criado, o próximo passo é:

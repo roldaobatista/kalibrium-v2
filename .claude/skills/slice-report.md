@@ -58,5 +58,22 @@ Lê `.claude/telemetry/slice-NNN.jsonl` e gera `docs/retrospectives/slice-NNN-re
 bash scripts/slice-report.sh "$1"
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `.claude/telemetry/slice-NNN.jsonl` não existe | Verificar se o slice NNN foi executado com telemetria habilitada. Sem dados, relatório não pode ser gerado. |
+| Telemetria com eventos corrompidos (JSON inválido em alguma linha) | Pular linhas inválidas e gerar relatório parcial, alertando sobre dados incompletos. |
+| Diretório `docs/retrospectives/` não existe | Criar o diretório antes de gerar o relatório. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+- Slice NNN merged (ou pelo menos com `/verify-slice` concluído).
+- `.claude/telemetry/slice-NNN.jsonl` existe com dados de telemetria.
+
 ## Handoff
 Output alimenta `/retrospective NNN`, que adiciona análise qualitativa em cima dos números.

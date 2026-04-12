@@ -92,6 +92,22 @@ Sequencia de leitura:
 6. Carregar arquivos da fase atual
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `project-state.json` corrompido ou com JSON inválido | Reconstruir estado a partir de `docs/handoffs/`, telemetria e `git log`. Alertar PM. |
+| Nenhum estado anterior encontrado (nenhuma das 3 fontes existe) | Apresentar opções: `/intake` (projeto novo), `/status` (explorar repo), ou pedir contexto ao PM. |
+| Estado inconsistente (project-state diz slice ativo mas working tree limpo) | Alertar PM sobre a divergência e pedir decisão: retomar slice ou marcar como concluído. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+- `project-state.json` existe (ou pelo menos `docs/handoffs/` ou `.claude/telemetry/` com dados).
+
 ## Handoff
 - PM quer continuar → retomar exatamente da proxima acao
 - PM quer fazer outra coisa → ajustar e sugerir skill adequada

@@ -54,3 +54,15 @@ bash scripts/draft-spec.sh "$1" --check
 
 ## Regra de ouro
 Um AC só vale se **um teste automatizado** consegue dizer "passou" ou "falhou" sem opinião humana (P2). Se o PM descrever algo subjetivo ("a página tem que ficar bonita"), a skill pede reformulação: "PM, como eu sei automaticamente que está bonita? Ex: tempo de carregamento < 2s, todos os elementos dentro da viewport, score Lighthouse > 90."
+
+## Agentes
+Nenhum — executada pelo orquestrador. O validador mecânico é `scripts/draft-spec.sh`, não um sub-agent.
+
+## Erros e Recuperação
+
+| Erro | Recuperação |
+|---|---|
+| `specs/NNN/spec.md` não existe (template ausente) | Sugerir `/new-slice NNN "título"` primeiro para criar o esqueleto. |
+| `scripts/draft-spec.sh NNN --check` falha (ACs inválidos) | Mostrar ao PM exatamente quais ACs falharam e por quê. Corrigir e revalidar. |
+| PM descreve requisito subjetivo/não-testável | Aplicar regra de ouro: pedir reformulação com exemplo de métrica objetiva. Não registrar AC até ser testável. |
+| PM não consegue descrever o comportamento desejado | Fazer perguntas de esclarecimento em linguagem R12. Se após 3 tentativas não houver clareza, registrar "spec em pausa" e encerrar. |

@@ -49,3 +49,19 @@ bash scripts/hooks/forbidden-files-scan.sh
 - Após merge de PR que tocou configs
 - Quando `session-start.sh` falhar sem motivo aparente
 - Antes de cada `/guide-check`
+
+## Pré-condições
+
+Nenhuma — pode ser executada a qualquer momento, em qualquer estado do projeto.
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| Script `scripts/hooks/forbidden-files-scan.sh` não existe ou sem permissão | Verificar integridade do harness. Rodar `/guide-check` para diagnóstico completo. O script é selado — se ausente, pode indicar tampering. |
+| Scan encontra arquivos proibidos (exit 1) | Listar cada violação. Remover os arquivos proibidos (com confirmação do PM). Registrar incidente em `docs/incidents/` se a origem for desconhecida. |
+| Falso positivo (arquivo legítimo contém padrão `^You are`) | Verificar se o arquivo está na lista de exceções (`CLAUDE.md`, `docs/constitution.md`, `.claude/*`). Se for legítimo, ajustar o script de scan (via procedimento de relock do harness). |

@@ -2,8 +2,8 @@
 
 **Este é o único arquivo de instruções válido deste repositório.** Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida por **R1** e bloqueada por hook no SessionStart.
 
-Versão: 2.0.0 — 2026-04-11 (fábrica agentic: 14 agents, 32 skills, pipeline de 5 gates, estado persistido).
-<!-- Contagem: 14 agents em .claude/agents/, 32 skills em .claude/skills/ -->
+Versão: 2.1.0 — 2026-04-11 (fábrica agentic: 15 agents, 33 skills, pipeline de 5 gates, orquestrador formal, estado persistido).
+<!-- Contagem: 15 agents em .claude/agents/ (14 sub-agents + 1 orchestrator), 33 skills em .claude/skills/ -->
 
 ---
 
@@ -148,13 +148,16 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 17. Sub-agent `implementer` faz testes virarem verdes, task por task.
 
 ### Fase E — Pipeline de Gates (por slice)
+
+> **Ordem definida no orchestrator.md:** verifier (1º) → reviewer (2º, só se verifier aprovou) → [security + test-audit + functional] (3º, em paralelo). Cadeia de correção: gate rejeita → fixer corrige → re-run do mesmo gate.
+
 18. `/verify-slice NNN` → verifier em worktree isolada → `verification.json`.
 19. `/review-pr NNN` → reviewer em worktree isolada → `review.json`.
 20. `/security-review NNN` → security-reviewer em worktree isolada → `security-review.json`.
 21. `/test-audit NNN` → test-auditor em worktree isolada → `test-audit.json`.
 22. `/functional-review NNN` → functional-reviewer em worktree isolada → `functional-review.json`.
-23. Se qualquer gate `rejected` → `/fix NNN [gate]` → fixer corrige → re-run gate.
-24. Se segundo `rejected` consecutivo (R6) → parar, escalar humano.
+23. Se qualquer gate `rejected` → `/fix NNN [gate]` → fixer corrige → **re-run do mesmo gate** (não pula).
+24. Se segundo `rejected` consecutivo (R6) → parar, escalar humano via `/explain-slice NNN`.
 25. Todos os gates `approved` → `/merge-slice NNN`.
 
 ### Fase F — Encerramento
@@ -214,6 +217,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 | Traduzir slice para PM (R12) | `/explain-slice NNN` |
 | Próximo slice recomendado | `/next-slice` |
 | Onde estou (detalhes técnicos) | `/where-am-i` |
+| Verificar saúde do contexto | `/context-check` |
 | Onboarding dia 1 | `/start` |
 
 ### Qualidade e Governança
@@ -262,9 +266,16 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 ### Núcleo de Governança
 | Nome | Papel | Budget |
 |---|---|---|
-| `guide-auditor` | Auditor periódico de drift no harness | 15k |
+| `guide-auditor` | Auditor periódico de drift no harness, emite `guide-audit.json` | 15k |
 
-Detalhes em `.claude/agents/*.md`. Total: 14 sub-agents organizados em 5 núcleos.
+### Orquestrador
+| Nome | Papel | Budget |
+|---|---|---|
+| `orchestrator` | Coordena todos os sub-agents, máquina de estados, cadeia fixer→re-gate | 100k |
+
+> O orquestrador não é um sub-agent — é o papel principal do Claude Code. Definido em `.claude/agents/orchestrator.md` com regras de sequenciamento, paralelismo e checkpoint.
+
+Detalhes em `.claude/agents/*.md`. Total: 15 agents (14 sub-agents + 1 orchestrator) organizados em 6 núcleos.
 
 ---
 

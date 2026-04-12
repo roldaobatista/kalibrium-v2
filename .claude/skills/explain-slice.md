@@ -99,3 +99,22 @@ bash scripts/explain-slice.sh "$1"
 2. **Sempre** explicar impacto no usuário final ou no cliente do tenant.
 3. **Nunca** deixar o humano sem próximo passo claro.
 4. Se a tradução for ambígua ou impossível, escrever "precisa de revisão técnica" e marcar o slice pra não mergear até um humano técnico estar disponível (no futuro).
+
+## Pré-condições
+
+1. `specs/NNN/spec.md` existe (slice já foi criado).
+2. Pelo menos um artefato técnico do slice existe (`verification.json`, `review.json`, ou telemetria em `.claude/telemetry/slice-NNN.jsonl`).
+3. Em caso de escalação R6: os dois `rejected` consecutivos devem estar registrados em `verification.json` ou `review.json`.
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| Slice `NNN` não existe (`specs/NNN/` ausente) | Informar PM que o slice não foi encontrado. Verificar numeração correta com `/where-am-i` ou `/status`. |
+| Artefatos técnicos incompletos (sem `verification.json`, sem testes) | Gerar explicação parcial com o que estiver disponível. Indicar claramente quais informações estão faltando no relatório. |
+| Tradução impossível (termo técnico sem equivalente de produto) | Usar a regra 4 do tradutor: marcar "precisa de revisão técnica" e colocar o termo em seção colapsável de detalhes técnicos. |
+| PM não entende a explicação gerada | Simplificar ainda mais, usando analogias do dia-a-dia. Perguntar ao PM qual parte ficou confusa e reformular. |

@@ -72,6 +72,21 @@ Acao necessaria: corrigir testes.
 Copiar `test-audit.json` para `specs/NNN/test-audit.json`.
 Atualizar `project-state.json` gates_status.
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `security-review.json` não existe ou não tem `verdict: approved` | Abortar. Rodar `/security-review NNN` primeiro — pipeline de gates é sequencial. |
+| Testes do slice falham durante montagem de `test-audit-input/` | Abortar. Testes devem estar verdes antes do audit. Sugerir `/fix NNN verifier` ou corrigir manualmente. |
+| `test-audit.json` não passa na validação contra schema | Re-spawn test-auditor. Se falhar 2x, escalar humano (R6). |
+| Cobertura de ACs parcial (AC sem teste correspondente) | test-auditor emite `rejected` com finding por AC descoberto. Sugerir `/fix NNN tests` para adicionar testes faltantes. |
+
+## Agentes
+
+| Sub-agent | Isolamento | Budget |
+|---|---|---|
+| `test-auditor` | worktree isolada | 25k tokens |
+
 ## Handoff
 - `approved` → proximo gate (`/functional-review NNN`)
 - `rejected` → `/fix NNN tests` → re-run `/test-audit NNN`

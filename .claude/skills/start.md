@@ -63,6 +63,22 @@ Os três resolvem diferentes momentos da jornada PM:
 - Quero o estado detalhado → `/where-am-i`
 - Não sei nem o que perguntar → `/start`
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `scripts/where-am-i.sh` falha ou não existe | Degradar graciosamente: mostrar boas-vindas + menu sem a seção de estado detalhado. |
+| Nenhum ADR encontrado em `docs/adr/` | Seção de decisões pendentes mostra "nenhuma decisão técnica registrada ainda". Sugerir `/decide-stack`. |
+| Repositório em estado inconsistente (hooks falhando) | Alertar PM e sugerir `/guide-check` para diagnosticar o harness. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+Nenhuma — `/start` é o ponto de entrada universal. Funciona em qualquer estado do projeto.
+
 ## Handoff
 
 Nenhum handoff automático — `/start` é puramente informativo. PM lê, decide, digita o próximo comando livremente.

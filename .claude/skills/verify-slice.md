@@ -97,3 +97,18 @@ bash scripts/verify-slice.sh "$1"
   Implementer BLOQUEADO até decisão humana.
 ================================================================
 ```
+
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| AC-tests não estão todos verdes | Abortar. Implementer deve corrigir testes antes de verificar. Sugerir rodar testes filtrados do slice. |
+| `verification.json` não passa na validação contra schema (R4) | Re-spawn verifier. Se falhar 2x, escalar humano (R6). |
+| Worktree isolada falha ao ser criada | Verificar espaço em disco e estado do git. Tentar novamente. Se persistir, reportar erro ao PM. |
+| Verifier rejeita pela 2ª vez consecutiva (R6) | Criar incident file automaticamente, bloquear implementer, gerar relatório PM via `scripts/explain-slice.sh`. Aguardar decisão humana. |
+
+## Agentes
+
+| Sub-agent | Isolamento | Budget |
+|---|---|---|
+| `verifier` | worktree isolada | 25k tokens |

@@ -63,6 +63,22 @@ bash scripts/where-am-i.sh "$1"
 | Limite | 3 slices ativos | todos os slices |
 | Escopo | só ativos | ativos + concluídos |
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| Diretório `specs/` não existe ou está vazio | Informar PM que nenhum slice foi criado ainda. Sugerir `/new-slice NNN "título"` ou `/next-slice`. |
+| Script `scripts/where-am-i.sh` falha ou não encontrado | Executar lógica equivalente inline (listar specs/*/spec.md, ler telemetria, inferir estado). |
+| Telemetria vazia para um slice existente | Inferir estado apenas pelos artefatos presentes (spec.md, plan.md, verification.json, etc.). |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+- Nenhuma — funciona em qualquer estado do projeto, inclusive vazio.
+
 ## Handoff
 
 Nenhum — é só leitura. Após ler o relatório, PM decide o próximo passo livremente (criar novo slice, retomar existente, rodar verify/review/merge, etc.).

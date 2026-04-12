@@ -56,3 +56,20 @@ bash scripts/retrospective.sh "$1"
 ## Quando NÃO pular
 - Nunca pular. Slice sem retrospectiva = dívida de aprendizado.
 - Se o slice foi abandonado/escalado, a retrospectiva é **ainda mais importante** — o que deu errado é o que queremos capturar.
+
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `docs/retrospectives/slice-NNN-report.md` não existe | Rodar `/slice-report NNN` primeiro. Retrospectiva depende do relatório quantitativo. |
+| Telemetria do slice vazia ou incompleta | Gerar retrospectiva com dados parciais, marcando seções sem dados como "dados indisponíveis". |
+| `docs/guide-backlog.md` não existe | Criar o arquivo com cabeçalho antes de alimentar mudanças propostas. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+- Slice NNN merged (todos os gates aprovados e merge concluído).
+- `/slice-report NNN` já executado (gera o relatório quantitativo base).

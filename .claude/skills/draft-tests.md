@@ -80,6 +80,18 @@ Próximo passo:
 - **PM pede ajuste** → re-disparar ac-to-test com instruções adicionais
 - **PM quer pausar** → registrar estado e encerrar
 
+## Agentes
+- `ac-to-test` — gera testes red a partir de spec.md + plan.md, um teste por AC no mínimo
+
+## Erros e Recuperação
+
+| Erro | Recuperação |
+|---|---|
+| `specs/NNN/plan.md` não existe ou não está `approved` | Abortar e sugerir `/draft-plan NNN` para gerar/aprovar o plan primeiro. |
+| `ac-to-test` gera teste que nasce verde (não falha) | Rejeitar o teste via `post-edit-gate.sh`. Re-spawnar ac-to-test com instrução para garantir red. Se falhar 2x, escalar humano (R6). |
+| `draft-tests.sh --validate` detecta AC sem teste correspondente | Listar os ACs descobertos e re-spawnar ac-to-test com foco nos ACs faltantes. |
+| Stack/framework ainda não está instalado para rodar testes | Informar PM que a infraestrutura de testes precisa ser configurada primeiro. Sugerir resolução antes de prosseguir. |
+
 ## Regras
 - Todo AC do spec DEVE ter pelo menos 1 teste (P2)
 - Todo teste DEVE falhar na primeira execução (red) — nascer verde é bug do teste

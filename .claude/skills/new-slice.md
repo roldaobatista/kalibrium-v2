@@ -30,6 +30,25 @@ Executar:
 bash scripts/new-slice.sh "$1" "$2"
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `specs/NNN/` já existe | Escolher outro número ou verificar se o slice existente é o desejado. |
+| Templates não encontrados em `docs/templates/` | Verificar que `docs/templates/spec.md`, `plan.md` e `tasks.md` existem. Se não, restaurar do commit inicial do harness. |
+| `docs/slice-registry.md` não existe | Criar o arquivo com o cabeçalho da tabela antes de rodar novamente. |
+| NNN fora do formato 3 dígitos | Usar formato correto (001-999). O script valida e rejeita formatos inválidos. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+- Arquitetura congelada (`/freeze-architecture` executado).
+- Templates existem em `docs/templates/` (spec.md, plan.md, tasks.md).
+- `docs/slice-registry.md` existe.
+
 ## Handoff
 
 Após criação bem-sucedida:

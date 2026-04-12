@@ -83,6 +83,18 @@ Para ver o que o harness tem hoje: /where-am-i
 
 Ler `project-state.json` (se existir) e complementar com dados do git e filesystem. Nao criar o arquivo — isso e papel de `/checkpoint`.
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `project-state.json` não existe | Degradar gracefully — construir estado a partir de git log, specs/ e docs/. Sugerir `/checkpoint` para persistir estado. |
+| `project-state.json` com formato inválido ou corrompido | Ignorar arquivo corrompido, reconstruir estado do filesystem. Alertar PM e sugerir `/checkpoint` para regenerar. |
+| Nenhum artefato encontrado (projeto vazio) | Apresentar mensagem de boas-vindas e sugerir `/intake` para iniciar ou `/start` para onboarding. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
 ## Handoff
 - PM quer avancar → sugerir proxima skill baseada na fase
 - PM quer detalhes → sugerir `/where-am-i` para detalhes tecnicos

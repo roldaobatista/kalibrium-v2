@@ -105,6 +105,25 @@ Acao recomendada:
 Quer que eu ajude com algum desses itens?
 ```
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `project-state.json` não existe | Rodar `/checkpoint` para gerar o estado atual antes de validar readiness. |
+| Suite de testes falha durante validação | Identificar testes falhando, listar ao PM, e sugerir `/fix` para cada slice afetado. |
+| Slice sem todos os gates aprovados | Listar gates pendentes e sugerir a sequência de gates faltantes para cada slice. |
+| Vulnerabilidades críticas em dependências | Bloquear release, listar CVEs encontrados, e recomendar atualização de dependências. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador.
+
+## Pré-condições
+
+- Todos os épicos do MVP completos (todas as stories merged).
+- `project-state.json` existe.
+- Pelo menos 1 épico com todos os slices passando por todos os 5 gates.
+
 ## Handoff
 - Tudo verde → PM aprova deploy
 - Itens pendentes → listar acoes e ajudar a resolver

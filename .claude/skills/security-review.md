@@ -69,6 +69,26 @@ Copiar `security-review.json` para `specs/NNN/security-review.json`.
 Atualizar `project-state.json` gates_status.
 Registrar em telemetria.
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `verification.json` ou `review.json` não existe ou não está `approved` | Rodar `/verify-slice NNN` e `/review-pr NNN` primeiro. Security review é o 3o gate. |
+| Worktree isolada falha ao ser criada | Verificar que não há worktrees órfãs (`git worktree list`). Limpar com `git worktree prune`. |
+| `security-review.json` não passa validação do schema | Descartar output inválido e re-executar o security-reviewer. Se persistir, verificar schema em `docs/schemas/`. |
+| `docs/security/threat-model.md` não existe | Alertar PM que threat model é necessário. Criar esqueleto mínimo antes de prosseguir. |
+
+## Agentes
+
+- **security-reviewer** — executado em worktree isolada, sem acesso ao contexto do implementer. Emite `security-review.json`.
+
+## Pré-condições
+
+- `specs/NNN/verification.json` existe com `verdict: approved`.
+- `specs/NNN/review.json` existe com `verdict: approved`.
+- `specs/NNN/spec.md` existe.
+- Arquivos de código do slice identificados via `git diff`.
+
 ## Handoff
 - `approved` → proximo gate (`/test-audit NNN`)
 - `rejected` → `/fix NNN security` → re-run `/security-review NNN`

@@ -71,6 +71,18 @@ e depois em stories (unidades implementaveis).
 Quer iniciar? → /decompose-epics
 ```
 
+## Agentes
+Nenhum — executada pelo orquestrador.
+
+## Erros e Recuperacao
+
+| Erro | Recuperacao |
+|---|---|
+| PRD nao esta FROZEN | Abortar e sugerir `/freeze-prd` primeiro. Nao tentar congelar arquitetura sem PRD frozen. |
+| ADR-0001 nao existe | Abortar e sugerir `/decide-stack`. Informar PM que a decisao de stack e pre-requisito. |
+| Contradicao entre ADRs (ex: stack vs deploy) | Listar as contradicoes ao PM em linguagem R12. Sugerir revisao dos ADRs conflitantes antes de congelar. |
+| Threat model nao cobre dados sensiveis do intake | Listar os dados sensiveis descobertos no intake que faltam no threat model. Nao congelar ate resolver. |
+
 ## Handoff
 - PM confirma → congelar e iniciar planejamento
 - PM recusa → listar o que quer mudar

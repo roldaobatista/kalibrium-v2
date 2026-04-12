@@ -74,6 +74,18 @@ Próximo passo:
 - **PM pede ajuste** → re-disparar architect com instruções adicionais
 - **PM quer pausar** → registrar estado e encerrar sem bloquear
 
+## Agentes
+- `architect` — gera `specs/NNN/plan.md` a partir de spec.md, constitution e ADRs
+
+## Erros e Recuperação
+
+| Erro | Recuperação |
+|---|---|
+| `specs/NNN/spec.md` não passa validação (`draft-spec.sh --check`) | Abortar e sugerir `/draft-spec NNN` para corrigir o spec antes de gerar o plan. |
+| `architect` gera plan.md que falha na validação (`draft-plan.sh --validate`) | Re-instruir o architect com o motivo da falha. Máximo 2 tentativas; na 3ª, escalar humano (R6). |
+| `architect` inventa requisitos que não estão no spec | Rejeitar o plan, re-spawnar architect com instrução explícita de manter escopo do spec. |
+| PM não entende o resumo R12 do plan | Reformular com analogias mais simples. Oferecer "quer que eu explique de outro jeito?" antes de prosseguir. |
+
 ## Regras
 - Não inventar requisitos além do spec
 - Se o architect gerar ADR, mencionar ao PM: "surgiu uma decisão que afeta o projeto todo — rode /decide-stack ou peça mais detalhes"

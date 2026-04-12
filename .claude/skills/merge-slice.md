@@ -32,6 +32,19 @@ Fecha o último elo da cadeia happy-path identificada como blocker P0-1 no meta-
    - Se `Bash(git push origin*)` **e** `Bash(gh pr create*)` estiverem em `permissions.allow` → executa `git push -u origin <branch>` + `gh pr create` + grava URL em `specs/NNN/pr-url.txt`.
    - Se **não** estiverem → imprime banner vermelho apontando para `docs/explanations/meta-audit-2-fixes.md §1` e sai com exit 3. **Nunca** tenta `--no-verify`, `--force` ou bypass.
 
+## Erros e Recuperação
+
+| Cenário | Recuperação |
+|---|---|
+| `verification.json` ou `review.json` sem `verdict: approved` | Abortar com exit 1. Rodar o gate faltante primeiro (`/verify-slice NNN` ou `/review-pr NNN`). |
+| Drift detectado no harness (hooks-lock ou settings-lock falham) | Abortar. PM deve investigar drift e rodar `relock-harness.sh` em terminal externo se a alteração for legítima. |
+| Push não autorizado em `.claude/settings.json` | Sair com exit 3 e imprimir roteiro para PM liberar push em terminal externo. Não tentar bypass. |
+| Branch atual é `main` | Abortar. Merge só ocorre via PR de feature branch. Verificar se o slice foi implementado em branch dedicada. |
+
+## Agentes
+
+Nenhum — executada pelo orquestrador. Validações são feitas por scripts selados (`hooks-lock`, `settings-lock`).
+
 ## Handoff
 
 - **Push autorizado + PR criado** → próximo passo = PM abre URL, testa visualmente (se UI), aprova merge no GitHub.
