@@ -40,7 +40,7 @@ fi
 # ---------------------------------------------------------------------------
 if [ -d specs ]; then
   PREV_NNN="$(
-    find specs -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null \
+    find specs -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sed 's|.*/||' \
       | grep -E '^[0-9]{3}$' \
       | awk -v cur="$NNN" '$0 < cur' \
       | sort -n | tail -1

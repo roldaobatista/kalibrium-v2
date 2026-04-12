@@ -1,5 +1,5 @@
 ---
-description: Roda auditoria independente de testes em worktree isolada. Monta test-audit-input/, spawn test-auditor, valida JSON contra schema. Verifica cobertura de ACs, edge cases e anti-patterns. Uso: /test-audit NNN.
+description: Roda auditoria independente de testes (isolado por hook, sem worktree). Monta test-audit-input/, spawn test-auditor, valida JSON contra schema. Verifica cobertura de ACs, edge cases e anti-patterns. Uso: /test-audit NNN.
 ---
 
 # /test-audit
@@ -32,10 +32,11 @@ Apos `/security-review NNN` retornar `approved`. Parte do pipeline de gates.
 - `test-results.txt` — output da execucao dos testes
 - `coverage-report.json` — relatorio de cobertura (se disponivel)
 
-### 2. Spawn test-auditor em worktree isolada
+### 2. Spawn test-auditor (sem worktree)
 ```
-Agent(subagent_type="test-auditor", isolation="worktree")
+Agent(subagent_type="test-auditor")
 ```
+**Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
 ### 3. Validar output
 Validar `test-audit.json` contra `docs/schemas/test-audit.schema.json`.

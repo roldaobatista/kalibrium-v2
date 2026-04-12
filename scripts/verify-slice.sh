@@ -253,16 +253,21 @@ say "verification-input/ montado:"
 ls -la "$INPUT_DIR"
 say ""
 say "======================================================================"
-say "  PRÓXIMO PASSO — spawn do verifier em worktree isolada"
+say "  PRÓXIMO PASSO — spawn do verifier"
 say "======================================================================"
+say ""
+say "  IMPORTANTE: NÃO usar isolation: worktree."
+say "  A worktree é uma cópia limpa do git e NÃO contém verification-input/"
+say "  (que é untracked). O isolamento é garantido pelo hook"
+say "  verifier-sandbox.sh, que bloqueia reads fora de verification-input/."
+say "  Isso mantém P3 (verificação em contexto isolado) sem worktree."
 say ""
 say "  No Claude Code principal, invoque o Agent tool com:"
 say ""
 say '    subagent_type: "verifier"'
-say '    isolation:     "worktree"'
 say '    description:   "Verify slice-'"$NNN"'"'
 say '    prompt:        "Leia APENAS verification-input/. Escreva'
-say '                    verification-input/verification.json seguindo o'
+say '                    specs/'"$NNN"'/verification.json seguindo o'
 say '                    schema de R4 (docs/schemas/verification.schema.json).'
 say '                    Sem prosa, apenas o JSON."'
 say ""

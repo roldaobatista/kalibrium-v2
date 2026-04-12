@@ -1,5 +1,5 @@
 ---
-description: Roda revisao funcional independente em worktree isolada. Avalia se ACs sao atendidos do ponto de vista do produto/usuario. Monta functional-review-input/, spawn functional-reviewer. Uso: /functional-review NNN.
+description: Roda revisao funcional independente (isolado por hook, sem worktree). Avalia se ACs sao atendidos do ponto de vista do produto/usuario. Monta functional-review-input/, spawn functional-reviewer. Uso: /functional-review NNN.
 ---
 
 # /functional-review
@@ -34,10 +34,11 @@ Apos `/test-audit NNN` retornar `approved`. Ultimo gate antes de apresentar ao P
 - `journeys.md` — copia de jornadas
 - `glossary-pm.md` — glossario de produto
 
-### 2. Spawn functional-reviewer em worktree isolada
+### 2. Spawn functional-reviewer (sem worktree)
 ```
-Agent(subagent_type="functional-reviewer", isolation="worktree")
+Agent(subagent_type="functional-reviewer")
 ```
+**Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
 ### 3. Validar output
 Validar `functional-review.json` contra `docs/schemas/functional-review.schema.json`.

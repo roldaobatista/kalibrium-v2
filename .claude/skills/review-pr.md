@@ -29,8 +29,7 @@ Após o `verifier` ter emitido `verification.json` com `verdict: approved`. **Nu
 
 2. **Spawn do sub-agent `reviewer`** via Agent tool:
    - `subagent_type: "reviewer"`
-   - `isolation: "worktree"`
-   - Hook `verifier-sandbox.sh` é estendido para **também** bloquear leitura de `verification-input/` quando o agente for `reviewer` (R11: reviewer não vê output do verifier)
+   - **Sem** `isolation: "worktree"` — o input package (`review-input/`) é untracked e não existiria na worktree. O isolamento é garantido pelo hook `verifier-sandbox.sh`, que também bloqueia leitura de `verification-input/` quando o agente for `reviewer` (R11: reviewer não vê output do verifier)
 
 3. **Aguarda** `review-input/review.json` ser escrito pelo reviewer
 

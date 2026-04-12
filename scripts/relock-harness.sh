@@ -98,7 +98,7 @@ say "selado: .claude/settings.json → ${NEW_SETTINGS_HASH:0:12}…"
 (
   cd scripts/hooks
   # Lista todos os .sh (basenames). Ordenado para reprodutibilidade.
-  HOOK_FILES=$(find . -maxdepth 1 -type f -name '*.sh' -printf '%f\n' 2>/dev/null | sort)
+  HOOK_FILES=$(find . -maxdepth 1 -type f -name '*.sh' 2>/dev/null | sed 's|.*/||' | sort)
   [ -z "$HOOK_FILES" ] && { echo "[relock-harness FAIL] nenhum hook encontrado em scripts/hooks/" >&2; exit 1; }
   # --text força modo portátil (dois espaços, sem '*' do Windows binary mode)
   echo "$HOOK_FILES" | xargs sha256sum --text > MANIFEST.sha256

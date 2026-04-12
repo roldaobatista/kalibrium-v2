@@ -1,5 +1,5 @@
 ---
-description: Monta verification-input/, spawn verifier em worktree isolada, valida JSON resultante contra schema, atualiza contador de reprovações (R6), dispara relatório PM-ready automaticamente (G-11). Use após todos os AC-tests estarem verdes. Uso: /verify-slice NNN.
+description: Monta verification-input/, spawn verifier (isolado por hook, sem worktree), valida JSON contra schema, atualiza R6, dispara relatorio PM-ready (G-11). Use apos AC-tests verdes. Uso: /verify-slice NNN.
 ---
 
 # /verify-slice
@@ -25,7 +25,7 @@ description: Monta verification-input/, spawn verifier em worktree isolada, vali
    - `files-changed.txt` (`git diff --name-only base...HEAD` do slice)
    - `constitution-snapshot.md` (cópia de `docs/constitution.md` no estado atual)
 
-2. **Spawn do verifier em worktree isolada** via Claude Code `Agent` com `subagent_type: verifier`, `isolation: worktree`. O hook `verifier-sandbox.sh` bloqueia reads fora de `verification-input/`.
+2. **Spawn do verifier SEM worktree** via Claude Code `Agent` com `subagent_type: verifier` (sem `isolation: worktree`). O isolamento é garantido pelo hook `verifier-sandbox.sh`, que bloqueia reads fora de `verification-input/`. Worktree não é usada porque o input package é untracked e não existiria na worktree.
 
 3. **Aguarda** o verifier escrever `verification-input/verification.json`.
 

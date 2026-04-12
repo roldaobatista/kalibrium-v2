@@ -1,5 +1,5 @@
 ---
-description: Roda gate de seguranca independente em worktree isolada. Monta security-review-input/, spawn security-reviewer, valida JSON contra schema. Gate obrigatorio antes de merge. Uso: /security-review NNN.
+description: Roda gate de seguranca independente (isolado por hook, sem worktree). Monta security-review-input/, spawn security-reviewer, valida JSON contra schema. Gate obrigatorio antes de merge. Uso: /security-review NNN.
 ---
 
 # /security-review
@@ -31,10 +31,11 @@ Apos `/verify-slice NNN` retornar `approved`. Parte do pipeline de gates antes d
 - `lgpd-base-legal.md` — copia de `docs/security/lgpd-base-legal.md`
 - `constitution-snapshot.md` — copia da constitution
 
-### 2. Spawn security-reviewer em worktree isolada
+### 2. Spawn security-reviewer (sem worktree)
 ```
-Agent(subagent_type="security-reviewer", isolation="worktree")
+Agent(subagent_type="security-reviewer")
 ```
+**Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
 ### 3. Validar output
 Validar `security-review.json` contra `docs/schemas/security-review.schema.json`.
