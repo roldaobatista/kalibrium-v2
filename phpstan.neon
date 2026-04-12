@@ -6,3 +6,6 @@ parameters:
         - app/
     level: 8
     tmpDir: .phpstan-cache
+    parallel:
+        maximumNumberOfProcesses: 1
+        minimumNumberOfJobsPerProcess: 1
