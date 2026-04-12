@@ -6,3 +6,4 @@
 plugin:context-mode:context-mode
 plugin:context7:context7
 plugin:github:github
+codex

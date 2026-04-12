@@ -2,6 +2,7 @@
 
 **Status:** accepted
 **Data:** 2026-04-10
+**Versão:** 2
 **Autor:** humano + Co-Authored-By Claude Opus 4.6
 
 ---
@@ -90,6 +91,7 @@ Registrada em `.claude/allowed-mcps.txt`:
 | `plugin:context-mode:context-mode` | Compressão de contexto para outputs grandes (logs, arquivos) — reduz consumo de tokens e mantém raw data fora do contexto. Alinhado com R8. |
 | `plugin:context7:context7` | Documentação oficial de libs/frameworks em tempo real — evita que o agente invente APIs. Alinhado com "explorar antes de responder" do CLAUDE.md global. |
 | `plugin:github:github` | Operações de issue/PR/review no GitHub — único canal oficial para abrir PRs do V2. |
+| `codex` | Consultoria técnica via MCP para análise de código e apoio ao orquestrador. Uso esperado via MCP: leitura, revisão e sugestões; alterações no projeto continuam passando pelo orquestrador ativo, gates e regras R2/R9. Uso do Codex CLI como orquestrador alternativo é tratado separadamente na ADR-0008. |
 
 Adições futuras a este ADR devem:
 1. Adicionar linha à tabela com justificativa.

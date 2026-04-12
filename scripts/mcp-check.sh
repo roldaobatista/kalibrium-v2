@@ -45,9 +45,10 @@ elif [ -f .mcp.json ]; then
   # Heurística: chaves de primeiro nível do objeto raiz
   ACTIVE="$(grep -oE '"[a-zA-Z0-9_:.-]+"\s*:\s*\{' .mcp.json | sed -E 's/"([^"]+)".*/\1/' | tr -d ' \t' | grep -v '^$' || true)"
   SOURCE=".mcp.json"
-elif command -v claude >/dev/null 2>&1; then
-  ACTIVE="$(claude mcp list 2>/dev/null | awk 'NR>1 {print $1}' | grep -v '^$' || true)"
-  SOURCE="claude mcp list"
+elif command -v claude >/dev/null 2>&1 || command -v claude.exe >/dev/null 2>&1; then
+  CLAUDE_BIN="$(command -v claude 2>/dev/null || command -v claude.exe 2>/dev/null)"
+  ACTIVE="$("$CLAUDE_BIN" mcp list 2>/dev/null | sed -nE 's/^(.+): .*/\1/p' | tr -d ' \t' | grep -v '^$' || true)"
+  SOURCE="$CLAUDE_BIN mcp list"
 else
   warn "nenhuma fonte de MCPs ativos detectada — assumindo lista vazia"
   ACTIVE=""

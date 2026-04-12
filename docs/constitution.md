@@ -1,10 +1,11 @@
 # Constituição do Kalibrium V2
 
-**Versão:** 1.1.0 — 2026-04-10 (adiciona R11 + R12 — modelo humano=PM)
+**Versão:** 1.2.0 — 2026-04-12 (autoriza Codex CLI como orquestrador alternativo exclusivo)
 **Status:** vigente
 **Alteração:** permitida **apenas** via ADR + retrospectiva documentada (§5)
 
 ## Histórico de versões
+- **1.2.0** (2026-04-12) — altera R2 para permitir Claude Code ou Codex CLI como orquestrador ativo, desde que apenas um deles toque a branch ativa por vez. Ver `docs/adr/0008-codex-cli-orchestrator.md`.
 - **1.1.0** (2026-04-10) — adiciona R11 (dual-verifier) e R12 (linguagem de produto) após incident do PR #1. Modelo operacional agora reconhece que o humano do projeto é **Product Manager, não desenvolvedor**. Ver `docs/incidents/pr-1-admin-merge.md`.
 - **1.0.0** (2026-04-10) — inicial (P1-P9, R1-R10, DoD, §5 amendment)
 
@@ -88,9 +89,9 @@ Qualquer item falho = não done. Sem exceção. Sem "aprovação humana bypassan
 **Proibido:** `.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.agents/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`, `.continue/`, qualquer arquivo que contenha padrão `^You are|^Your role|^As an agent` fora de `.claude/`.
 **Enforcement:** `session-start.sh` (boot) + `forbidden-files-scan.sh` (on demand) + `guide-auditor` (periódico).
 
-### R2. Um harness por branch
-Só Claude Code toca o código na branch ativa. Nenhum outro LLM-tool (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf) rodando simultaneamente.
-**Enforcement:** verificação manual no início de sessão + `guide-auditor` inspeciona `git log --format=%an` por múltiplos autores não-humanos.
+### R2. Um orquestrador ativo por branch
+Claude Code ou Codex CLI podem tocar o código na branch ativa, mas **apenas um orquestrador por vez**. Sessões concorrentes com outro LLM-tool editando código (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf, ou o outro orquestrador não-ativo) continuam proibidas. O orquestrador ativo deve seguir `CLAUDE.md`, esta constituição, ADRs, skills e gates locais; quando a plataforma não disparar hooks do Claude Code, deve executar manualmente os checks equivalentes antes de afirmar status.
+**Enforcement:** verificação manual no início de sessão + `guide-auditor` inspeciona `git log --format=%an` por múltiplos autores não-humanos + ADR-0008 define o modo de operação exclusivo.
 
 ### R3. Verifier em contexto isolado
 `verifier` é spawn-ado **sem** `isolation: worktree` (porque `verification-input/` é untracked e não existiria na worktree). O isolamento é garantido por `verifier-sandbox.sh`, que restringe acesso de leitura ao diretório de input pré-montado (`verification-input/` para verifier, `review-input/` para reviewer). O pacote de input é montado pelo skill `/verify-slice` antes do spawn.
@@ -227,7 +228,7 @@ Mudanças em skills, sub-agents ou hooks que **não** alteram P/R: commit normal
 - **DoD** — Definition of Done. Checklist mecânico do §3.
 - **Gate** — verificação automática bloqueante.
 - **Harness** — o conjunto de hooks, sub-agents, skills e settings.
-- **Hook** — script shell disparado por evento do Claude Code (SessionStart, PreToolUse, PostToolUse, Stop, UserPromptSubmit).
+- **Hook** — script shell disparado por evento do Claude Code (SessionStart, PreToolUse, PostToolUse, Stop, UserPromptSubmit). Quando Codex CLI é o orquestrador ativo, checks equivalentes devem ser executados por comando, pois esses eventos são específicos do Claude Code.
 - **Slice** — unidade vertical de entrega (spec + plan + tasks + implementação + verificação).
-- **Sub-agent** — instância Claude Code com papel e contexto isolados.
+- **Sub-agent** — instância Claude Code com papel e contexto isolados, ou papel equivalente executado pelo orquestrador ativo quando a plataforma não oferece sub-agents nativos do projeto.
 - **Verifier** — sub-agent que valida slice em worktree descartável.

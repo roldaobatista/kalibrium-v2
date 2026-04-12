@@ -12,7 +12,7 @@ tools: Agent, Read, Write, Edit, Grep, Glob, Bash, TaskCreate, TaskUpdate, Skill
 
 # Orquestrador Mestre
 
-O orquestrador **não é um sub-agent** — é o papel principal do Claude Code neste projeto. Este documento define as regras que governam como o agente principal coordena os 14 sub-agents especializados.
+O orquestrador **não é um sub-agent** — é o papel principal do orquestrador ativo neste projeto. O orquestrador ativo pode ser Claude Code ou Codex CLI, em modo exclusivo por branch conforme R2/ADR-0008. Este documento define as regras que governam como o agente principal coordena os sub-agents especializados ou seus equivalentes operacionais.
 
 ## Princípio central
 

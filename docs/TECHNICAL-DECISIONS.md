@@ -14,6 +14,7 @@
 |---|---|---|---|---|
 | [0001](adr/0001-stack-choice.md) | Escolha da stack (Laravel 13 + Livewire 4 + PostgreSQL 18) | accepted | 2026-04-11 | Stack principal |
 | [0002](adr/0002-mcp-policy.md) | Política de MCP servers autorizados | accepted | 2026-04-10 | Tooling |
+| [0008](adr/0008-codex-cli-orchestrator.md) | Codex CLI como orquestrador alternativo exclusivo | accepted | 2026-04-12 | Harness |
 
 ## Decisões Pendentes
 

@@ -2,7 +2,7 @@
 
 **Este é o único arquivo de instruções válido deste repositório.** Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida por **R1** e bloqueada por hook no SessionStart.
 
-Versão: 2.1.0 — 2026-04-11 (fábrica agentic: 15 agents, 33 skills, pipeline de 5 gates, orquestrador formal, estado persistido).
+Versão: 2.2.0 — 2026-04-12 (Codex CLI autorizado como orquestrador alternativo exclusivo; pipeline de 5 gates preservado).
 <!-- Contagem: 15 agents em .claude/agents/ (14 sub-agents + 1 orchestrator), 33 skills em .claude/skills/ -->
 
 ---
@@ -47,7 +47,7 @@ Detalhes completos em `docs/constitution.md §2`. Lista curta para consulta ráp
 Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 
 - **R1** — Fonte única de instrução. Sem `.cursorrules`/`AGENTS.md`/etc.
-- **R2** — Um harness por branch. Sem Cursor/Copilot/Gemini concorrentes.
+- **R2** — Um orquestrador ativo por branch. Claude Code ou Codex CLI podem operar, mas nunca os dois editando em paralelo na mesma branch.
 - **R3** — Verifier em worktree descartável.
 - **R4** — Verifier emite JSON validado, não prosa.
 - **R5** — Autor humano-identificável em commits.
@@ -273,7 +273,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 |---|---|---|
 | `orchestrator` | Coordena todos os sub-agents, máquina de estados, cadeia fixer→re-gate | 100k |
 
-> O orquestrador não é um sub-agent — é o papel principal do Claude Code. Definido em `.claude/agents/orchestrator.md` com regras de sequenciamento, paralelismo e checkpoint.
+> O orquestrador não é um sub-agent — é o papel principal do orquestrador ativo (Claude Code ou Codex CLI em modo exclusivo). Definido em `.claude/agents/orchestrator.md` com regras de sequenciamento, paralelismo e checkpoint.
 
 Detalhes em `.claude/agents/*.md`. Total: 15 agents (14 sub-agents + 1 orchestrator) organizados em 6 núcleos.
 
