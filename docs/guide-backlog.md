@@ -83,18 +83,29 @@ Itens resolvidos movem para o histórico no final.
 - **Aprendizado:** validações de drift documentais devem sempre refazer `ls -la` do diretório relevante **imediatamente antes** de reportar o finding. Não cachear estado filesystem ao longo da sessão.
 - **Status:** descartado, registrado para histórico.
 
-### [B-016] Tradução contínua técnico → produto em TODOS os sub-agents
+### [B-016] Tradução contínua técnico → produto em TODOS os sub-agents — PARCIAL 2026-04-12
 
 - **Origem:** análise 2026-04-11 da classe Hercules/Lovable/Bolt como UX pattern. PM hoje fica cego entre `/new-slice` e `/merge-slice` — só vê saída traduzida quando roda `/explain-slice` (escalação R6 ou a pedido). Entre os dois extremos, o harness opera em silêncio técnico.
-- **Ação:** cada sub-agent passa a emitir **2 outputs**:
-  1. Output técnico (para o próximo sub-agent consumir): `plan.md`, test files, `diff.patch`, `verification.json`, `review.json`
-  2. Output em linguagem de produto (para o PM ver na hora): `plan-pm.md`, `tests-pm.md`, `diff-pm.md`, `verification-pm.md`, `review-pm.md`
-- **Formato dos outputs-pm:** vocabulário permitido do R12 (definido em `/explain-slice`), seções fixas, sempre terminando com "próximo passo único: [ ] Sim [ ] Trocar X".
-- **Implementação mínima:**
-  - Mini sub-agent compartilhado `translator-pm` (budget ~10k) invocado no handoff de cada sub-agent
-  - Atualizar `.claude/agents/*.md` com a regra "emit both outputs" no Handoff
-  - `/explain-slice` vira ponto de **consolidação** (junta os \*-pm em um relatório único), não o único tradutor
-- **Status:** **alta prioridade**. Antes do `slice-000-smoke` (B-013) — PM precisa conseguir acompanhar sem ler código.
+- **Proposta original:** cada sub-agent emite **2 outputs** (técnico + `-pm.md` irmão, ex.: `plan-pm.md`, `tests-pm.md`, `diff-pm.md`, `verification-pm.md`, `review-pm.md`).
+- **Divergência arquitetural adotada (2026-04-12 / Fase A Bloco 1):** após implementar B-010 (`scripts/translate-pm.sh`) e G-11 (auto-dispare no `verify-slice.sh`), adotou-se modelo **centralizado** em vez de distribuído:
+  - Sub-agents **não** geram tradução PM — emitem apenas saída técnica (JSON, plan.md, testes, código).
+  - Tradução PM é centralizada em `scripts/translate-pm.sh`, invocada pelos **scripts orquestradores** (`verify-slice.sh --validate`, `review-slice.sh --validate`) ao final de cada handoff.
+  - Resultado: único arquivo consolidado `docs/explanations/slice-NNN.md` que "cresce" naturalmente a cada handoff (verify → review → merge).
+- **Razões da divergência:**
+  - 1 fonte de tradução → upgrade de qualidade acontece em 1 lugar
+  - Sub-agents não gastam tokens em R12 (economia ~3-5k por invocação × 6 agentes)
+  - Já exercitado no G-11 (B-010 + verify-slice auto-dispare)
+  - Consistência: mesma tradução independente de qual agent produziu
+- **Escopo resolvido no Bloco 1 (2026-04-12):**
+  - ✅ `scripts/translate-pm.sh` como único tradutor (B-010)
+  - ✅ `scripts/verify-slice.sh --validate` dispara tradução (G-11)
+  - ✅ `scripts/review-slice.sh --validate` dispara tradução (B-016 / G-11 estendido)
+  - ✅ `.claude/agents/*.md` (5 sub-agents: architect, ac-to-test, implementer, verifier, reviewer) documentam que **não** geram tradução — seção "Output em linguagem de produto (B-016 / R12)" adicionada ao final de cada arquivo
+  - ✅ `guide-auditor` não se aplica (audit report é standalone, fora do slice flow)
+- **Escopo pendente (B-016.1, abrir se necessário):**
+  - Auto-dispare do translate-pm em handoffs pré-verifier (spec → plan, plan → tests, tests → implementer). Hoje o relatório só começa a ser gerado pós-verify. Pra resolver G-05, G-07 da auditoria PM, criar skills `/draft-plan` + `/draft-tests` que disparam translate-pm antes de passar ao próximo sub-agent. Bloco 2 da Fase A.
+  - Auto-dispare em `merge-slice.sh` (atualizar o relatório com status "merged").
+- **Evidência:** commits do Bloco 1 Fase A (B-010, G-11, B-016 parcial).
 
 ### [B-017] Biblioteca de slice-kits — templates de spec+plan+ACs para padrões comuns
 

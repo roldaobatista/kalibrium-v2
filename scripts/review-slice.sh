@@ -102,25 +102,44 @@ R6 + R11: reviewer reprovou 2x consecutivamente. Humano é PM não-técnico — 
 ## Decisão humana
 _(preencher em docs/explanations/slice-${NNN}.md)_
 EOF
+
+    # Copia review.json para specs/NNN/ antes de traduzir (translate-pm lê de lá)
+    cp "$RJSON" "$SLICE_DIR/review.json"
+
+    # B-016 / G-11-estendido: dispara tradução PM-ready antes de escalar
+    say "gerando relatório PM-ready (R6 reviewer escalation)..."
+    bash "$SCRIPT_DIR/explain-slice.sh" "$NNN" >/dev/null || \
+      say "aviso: translate-pm falhou — relatório não gerado, PM verá JSON cru"
+
     echo ""
     echo "================================================================"
     echo "  R6 ESCALAÇÃO — reviewer reprovou slice-${NNN} 2x"
     echo "================================================================"
     echo "  Incidente: $INCIDENT"
-    echo "  PRÓXIMO PASSO: rodar /explain-slice ${NNN} para humano decidir"
+    echo "  Relatório PM (em PT-BR): docs/explanations/slice-${NNN}.md"
+    echo "  Implementer BLOQUEADO até decisão humana."
     echo "================================================================"
     exit 2
   fi
 
   cp "$RJSON" "$SLICE_DIR/review.json"
 
+  # B-016 / G-11-estendido: em qualquer verdict, dispara explain-slice
+  # automaticamente. Relatório cresce a cada handoff (verify + review + merge).
+  say "gerando relatório PM-ready..."
+  bash "$SCRIPT_DIR/explain-slice.sh" "$NNN" >/dev/null || \
+    say "aviso: translate-pm falhou — relatório não gerado, PM verá JSON cru"
+  PM_REPORT="docs/explanations/slice-${NNN}.md"
+
   case "$VERDICT" in
     approved)
       say "✓ reviewer aprovou — próximo passo: /merge-slice ${NNN} (se verifier também aprovou)"
+      say "  relatório PM: $PM_REPORT"
       exit 0
       ;;
     rejected)
       say "✗ reviewer rejeitou ($CURRENT_REJECTS/2) — implementer deve tratar findings"
+      say "  relatório PM (leia este, não o JSON): $PM_REPORT"
       exit 1
       ;;
     *)

@@ -45,3 +45,7 @@ Ao terminar:
 1. Escrever `specs/NNN/plan.md`.
 2. Parar. Humano revisa e aprova.
 3. Só então invocar `ac-to-test`.
+
+## Output em linguagem de produto (B-016 / R12)
+
+Este agente **não** emite tradução para o PM. Toda saída é técnica (plan.md). O relatório PM-ready em `docs/explanations/slice-NNN.md` é gerado automaticamente pelo script orquestrador ao final do handoff da cadeia verifier → reviewer → merge, via `scripts/translate-pm.sh` (B-010). Foque apenas na saída técnica documentada acima — a tradução acontece em camada separada, sem consumir tokens deste agente.

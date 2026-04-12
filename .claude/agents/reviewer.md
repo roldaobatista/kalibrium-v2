@@ -100,6 +100,10 @@ Ao terminar:
 3. Se `rejected` → parent retorna ao implementer com a lista de `findings`
 4. Se 2ª rejeição → parent cria `docs/incidents/slice-NNN-review-escalation-*.md` e bloqueia até decisão humana
 
+## Output em linguagem de produto (B-016 / R12)
+
+Este agente **não** emite tradução para o PM. Toda saída é JSON técnico (`review.json`). O relatório PM-ready em `docs/explanations/slice-NNN.md` é gerado automaticamente pelo script orquestrador `review-slice.sh` ao final do handoff (B-016 / G-11 estendido), via `scripts/translate-pm.sh` (B-010). O relatório traduz `findings` por `severity` e `category` para frases de produto usando mapa fixo + `docs/product/glossary-pm.md`. Foque apenas na saída JSON documentada acima — a tradução acontece em camada separada, sem consumir tokens deste agente.
+
 ## Relacionamento com o verifier
 
 | Aspecto | verifier | reviewer |

@@ -50,3 +50,7 @@ Ao terminar:
 3. Humano revisa que cada AC tem teste e que todos estão vermelhos.
 4. Commit `test(slice-NNN): AC tests red`.
 5. Só então invocar `implementer`.
+
+## Output em linguagem de produto (B-016 / R12)
+
+Este agente **não** emite tradução para o PM. Toda saída é técnica (arquivos de teste). O relatório PM-ready em `docs/explanations/slice-NNN.md` é gerado automaticamente pelo script orquestrador ao final do handoff da cadeia verifier → reviewer → merge, via `scripts/translate-pm.sh` (B-010). Foque apenas na saída técnica documentada acima — a tradução acontece em camada separada, sem consumir tokens deste agente.

@@ -72,3 +72,11 @@ Schema obrigatório (validação por `verify-slice` skill — outputs inválidos
 - Aprovar com comentário "poderia melhorar X" — ou reprova ou aprova limpo.
 - Inventar novas regras não listadas em P1-P9 / R1-R10.
 - Sugerir correções (esse é papel do implementer após ler as violations).
+
+## Handoff
+
+Ao terminar, gravar `verification-input/verification.json` válido contra `docs/schemas/verification.schema.json`. Parar. O script orquestrador `verify-slice.sh --validate` valida o schema, aplica R6, persiste em `specs/NNN/verification.json` e dispara o handoff seguinte.
+
+## Output em linguagem de produto (B-016 / R12)
+
+Este agente **não** emite tradução para o PM. Toda saída é JSON técnico (`verification.json`). O relatório PM-ready em `docs/explanations/slice-NNN.md` é gerado automaticamente pelo script orquestrador `verify-slice.sh` ao final do handoff (G-11), via `scripts/translate-pm.sh` (B-010). O relatório traduz `ac_checks`, `violations` e `next_action` para linguagem de produto usando `docs/product/glossary-pm.md` como dicionário canônico. Foque apenas na saída JSON documentada acima — a tradução acontece em camada separada, sem consumir tokens deste agente.
