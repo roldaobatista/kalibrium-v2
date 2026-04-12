@@ -23,8 +23,9 @@ copilot-instructions.md
 .cursor/
 .continue/
 
-# ---------- Worktrees temporárias (verifier) ----------
+# ---------- Worktrees temporárias (verifier/reviewer) ----------
 verification-input/
+review-input/
 .verify-*.tmp/
 
 # ---------- Telemetria efêmera ----------
@@ -46,6 +47,9 @@ docs/audits/audit-*.md
 /auth.json
 .phpunit.cache
 .phpunit.result.cache
+
+# ---------- Artefatos efêmeros ----------
+dump.rdb
 
 # ---------- Build/vendored (stack-agnóstico) ----------
 node_modules/
