@@ -59,13 +59,12 @@ jobs:
             --exclude='storage/logs/' \
             --exclude='storage/framework/cache/' \
             --exclude='tests/' \
-            -e "ssh -i ~/.ssh/staging_key -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/staging_key" \
             ./ \
             "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:${{ secrets.STAGING_PATH }}"
 
       - name: Run deploy script on VPS
         run: |
           ssh -i ~/.ssh/staging_key \
-            -o StrictHostKeyChecking=no \
             "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
             "cd ${{ secrets.STAGING_PATH }} && bash scripts/deploy.sh"
