@@ -38,18 +38,18 @@
     "current_epic": "E01",
     "current_story": "E01-S03",
     "current_slice": "003",
-    "slice_status": "spec",
-    "last_green_commit": "4297e9a",
+    "slice_status": "merged",
+    "last_green_commit": "cfc2ef5",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
-    "verifier": "pending",
-    "reviewer": "pending",
-    "security_reviewer": "pending",
-    "test_auditor": "pending",
-    "functional_reviewer": "pending"
+    "verifier": "approved",
+    "reviewer": "approved",
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved"
   },
   "pending_decisions": [
     {
@@ -85,7 +85,7 @@
   },
   "handoff": {
     "last_session_summary": "Slices 001+002 concluidos e limpos. Politica zero-tolerance implementada em todos os agents. 14 findings retroativos corrigidos e re-auditados (0 findings em todos os 5 gates). PostgreSQL 18 + Redis 8 nativos instalados via Scoop. Story E01-S03 pronta para iniciar.",
-    "next_action": "Gerar plano tecnico para slice 003 via /draft-plan 003.",
+    "next_action": "Iniciar story E01-S04 (Deploy staging) ou proxima story do roadmap.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
