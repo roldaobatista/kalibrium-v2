@@ -67,6 +67,7 @@ Também existe uma diferença técnica importante: hooks como `SessionStart`, `P
 - O PM pode usar Codex CLI normal no terminal sem violar R2, desde que Claude Code não esteja editando a mesma branch em paralelo.
 - A política fica explícita: um orquestrador ativo por branch.
 - Codex MCP e Codex CLI ficam separados: MCP é consultoria; CLI pode ser orquestrador quando escolhido como ativo.
+- Codex CLI carrega `CLAUDE.md` como instrução de projeto via `project_doc_fallback_filenames = ["CLAUDE.md"]` em `~/.codex/config.toml`, sem criar `AGENTS.md` no repositório.
 
 ### Negativas
 - Os hooks específicos do Claude Code não disparam automaticamente no Codex CLI.
@@ -81,6 +82,7 @@ Também existe uma diferença técnica importante: hooks como `SessionStart`, `P
 ### Impacto em outros artefatos
 - Hooks afetados: nenhum hook alterado nesta ADR. Quando Codex CLI é o orquestrador ativo, checks equivalentes devem ser chamados explicitamente por comando.
 - Sub-agents afetados: `.claude/agents/orchestrator.md` passa a declarar "orquestrador ativo" em vez de "Claude Code" como único papel principal.
+- Configuração Codex afetada: `~/.codex/config.toml` deve incluir `project_doc_fallback_filenames = ["CLAUDE.md"]` para carregar o harness do projeto sem violar R1.
 - ADRs relacionados: ADR-0002 separa Codex MCP de Codex CLI.
 - Constitution: R2 alterada para "um orquestrador ativo por branch".
 

@@ -1,10 +1,11 @@
 # Constituição do Kalibrium V2
 
-**Versão:** 1.2.0 — 2026-04-12 (autoriza Codex CLI como orquestrador alternativo exclusivo)
+**Versão:** 1.2.1 — 2026-04-12 (bootstrap Codex CLI via `CLAUDE.md` fallback)
 **Status:** vigente
 **Alteração:** permitida **apenas** via ADR + retrospectiva documentada (§5)
 
 ## Histórico de versões
+- **1.2.1** (2026-04-12) — explicita que Codex CLI deve carregar `CLAUDE.md` via `project_doc_fallback_filenames`, sem criar `AGENTS.md` no repositório. Ver `docs/adr/0008-codex-cli-orchestrator.md`.
 - **1.2.0** (2026-04-12) — altera R2 para permitir Claude Code ou Codex CLI como orquestrador ativo, desde que apenas um deles toque a branch ativa por vez. Ver `docs/adr/0008-codex-cli-orchestrator.md`.
 - **1.1.0** (2026-04-10) — adiciona R11 (dual-verifier) e R12 (linguagem de produto) após incident do PR #1. Modelo operacional agora reconhece que o humano do projeto é **Product Manager, não desenvolvedor**. Ver `docs/incidents/pr-1-admin-merge.md`.
 - **1.0.0** (2026-04-10) — inicial (P1-P9, regras operacionais iniciais, DoD, §5 amendment)
@@ -90,7 +91,7 @@ Qualquer item falho = não done. Sem exceção. Sem "aprovação humana bypassan
 **Enforcement:** `session-start.sh` (boot) + `forbidden-files-scan.sh` (on demand) + `guide-auditor` (periódico).
 
 ### R2. Um orquestrador ativo por branch
-Claude Code ou Codex CLI podem tocar o código na branch ativa, mas **apenas um orquestrador por vez**. Sessões concorrentes com outro LLM-tool editando código (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf, ou o outro orquestrador não-ativo) continuam proibidas. O orquestrador ativo deve seguir `CLAUDE.md`, esta constituição, `.claude/agents/*.md`, `.claude/skills/*.md` e gates locais; ADRs são registros de decisão consultivos quando esses documentos os referenciam. Quando a plataforma não disparar hooks do Claude Code, deve executar manualmente os checks equivalentes antes de afirmar status.
+Claude Code ou Codex CLI podem tocar o código na branch ativa, mas **apenas um orquestrador por vez**. Sessões concorrentes com outro LLM-tool editando código (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf, ou o outro orquestrador não-ativo) continuam proibidas. O orquestrador ativo deve seguir `CLAUDE.md`, esta constituição, `.claude/agents/*.md`, `.claude/skills/*.md` e gates locais; ADRs são registros de decisão consultivos quando esses documentos os referenciam. Quando a plataforma não disparar hooks do Claude Code, deve executar manualmente os checks equivalentes antes de afirmar status. Para Codex CLI, `~/.codex/config.toml` deve listar `CLAUDE.md` em `project_doc_fallback_filenames`, porque `AGENTS.md` é proibido por R1 neste repositório.
 **Enforcement:** verificação manual no início de sessão + `guide-auditor` inspeciona `git log --format=%an` por múltiplos autores não-humanos + ADR-0008 define o modo de operação exclusivo.
 
 ### R3. Verifier em contexto isolado

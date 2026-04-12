@@ -2,12 +2,44 @@
 
 **Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
-Versão: 2.2.1 — 2026-04-12 (gate documental incorporado; contagem de agentes/skills atualizada).
-<!-- Contagem: 21 agents em .claude/agents/ (20 sub-agents + 1 orchestrator), 35 skills em .claude/skills/ -->
+Versão: 2.3.0 — 2026-04-12 (bootstrap obrigatório do Codex CLI incorporado ao harness).
+<!-- Contagem: 21 agents em .claude/agents/ (20 sub-agents + 1 orchestrator), 36 skills em .claude/skills/ -->
 
 ---
 
 ## 0. Leitura obrigatória em toda sessão
+
+### 0.0. Bootstrap obrigatório quando o orquestrador ativo é Codex CLI
+
+O Codex CLI **não dispara automaticamente** todos os eventos de hook do Claude Code. Portanto, quando o orquestrador ativo for Codex CLI, o primeiro ato operacional da sessão é executar mentalmente e por comando o equivalente a `/codex-bootstrap` antes de qualquer trabalho de produto, código, documentação ou auditoria.
+
+Sequência obrigatória no início de toda sessão Codex neste repositório:
+
+1. Ler `CLAUDE.md`.
+2. Ler `docs/constitution.md`.
+3. Ler `docs/TECHNICAL-DECISIONS.md`.
+4. Ler `docs/documentation-requirements.md`.
+5. Ler `project-state.json`.
+6. Ler `docs/handoffs/latest.md`.
+7. Ler `.claude/agents/orchestrator.md`.
+8. Rodar `git status --short`.
+9. Rodar `bash scripts/hooks/session-start.sh`.
+10. Rodar `bash scripts/hooks/settings-lock.sh --check`.
+11. Rodar `bash scripts/hooks/hooks-lock.sh --check`.
+12. Confirmar ao PM o estado restaurado, a branch/commit atual e a próxima ação antes de alterar arquivos.
+
+Sequência obrigatória antes de encerrar uma sessão Codex:
+
+1. Atualizar `project-state.json`.
+2. Criar `docs/handoffs/handoff-YYYY-MM-DD-HHMM.md`.
+3. Atualizar `docs/handoffs/latest.md`.
+4. Validar JSON e `git diff --check`.
+5. Confirmar que arquivos selados não foram alterados.
+6. Commitar o checkpoint/handoff ou declarar explicitamente por que ele ficará pendente.
+
+Para que o Codex CLI carregue este arquivo automaticamente sem violar R1, a configuração global do Codex deve conter `project_doc_fallback_filenames = ["CLAUDE.md"]`. Não criar `AGENTS.md` neste repositório.
+
+---
 
 Antes de qualquer ferramenta ser invocada, ler nesta ordem:
 
@@ -214,6 +246,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 | Intenção | Comando |
 |---|---|
 | Ver estado do projeto (R12) | `/project-status` |
+| Inicializar sessão Codex CLI pelo harness | `/codex-bootstrap` |
 | Salvar checkpoint | `/checkpoint` |
 | Restaurar sessão anterior | `/resume` |
 | Traduzir slice para PM (R12) | `/explain-slice NNN` |

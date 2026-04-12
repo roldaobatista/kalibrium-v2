@@ -14,6 +14,8 @@ tools: Agent, Read, Grep, Glob, Skill
 
 O orquestrador **não é um sub-agent** — é o papel principal do orquestrador ativo neste projeto. O orquestrador ativo pode ser Claude Code ou Codex CLI, em modo exclusivo por branch conforme R2/ADR-0008. Este documento define as regras que governam como o agente principal coordena os sub-agents especializados ou seus equivalentes operacionais.
 
+Quando o orquestrador ativo for Codex CLI, a primeira transição de qualquer sessão é obrigatoriamente `/codex-bootstrap`: ler as fontes permitidas por R1, rodar os checks equivalentes ao `SessionStart`, restaurar `project-state.json` + `docs/handoffs/latest.md` e só então executar o pedido do PM. Antes de encerrar uma sessão Codex, o orquestrador deve executar o encerramento de `/codex-bootstrap` e `/checkpoint`.
+
 ## Princípio central
 
 > **Quem implementa não aprova. Quem aprova não corrige. Quem corrige reabre o ciclo.**
