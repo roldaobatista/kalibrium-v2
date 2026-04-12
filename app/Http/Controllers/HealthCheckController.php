@@ -12,7 +12,7 @@ final class HealthCheckController
 {
     public function __invoke(): JsonResponse
     {
-        $db    = 'disconnected';
+        $db = 'disconnected';
         $redis = 'disconnected';
 
         try {
@@ -29,13 +29,13 @@ final class HealthCheckController
             // falha capturada
         }
 
-        $status   = ($db === 'connected' && $redis === 'connected') ? 'ok' : 'degraded';
+        $status = ($db === 'connected' && $redis === 'connected') ? 'ok' : 'degraded';
         $httpCode = $status === 'ok' ? 200 : 503;
 
         return response()->json([
-            'status'    => $status,
-            'db'        => $db,
-            'redis'     => $redis,
+            'status' => $status,
+            'db' => $db,
+            'redis' => $redis,
             'timestamp' => now()->toIso8601String(),
         ], $httpCode);
     }

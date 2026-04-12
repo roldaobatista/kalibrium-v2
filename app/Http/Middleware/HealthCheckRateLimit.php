@@ -12,12 +12,13 @@ use Symfony\Component\HttpFoundation\Response;
 final class HealthCheckRateLimit
 {
     private const MAX_REQUESTS = 60;
+
     private const WINDOW_SECONDS = 60;
 
     public function handle(Request $request, Closure $next): Response
     {
-        $ip  = $request->ip() ?? 'unknown';
-        $key = 'healthcheck_rate_limit:' . $ip;
+        $ip = $request->ip() ?? 'unknown';
+        $key = 'healthcheck_rate_limit:'.$ip;
 
         $store = Cache::store('array');
 
@@ -25,8 +26,8 @@ final class HealthCheckRateLimit
 
         if ($hits >= self::MAX_REQUESTS) {
             return response()->json([
-                'error'   => 'Too Many Requests',
-                'message' => 'Rate limit exceeded: max ' . self::MAX_REQUESTS . ' requests per minute.',
+                'error' => 'Too Many Requests',
+                'message' => 'Rate limit exceeded: max '.self::MAX_REQUESTS.' requests per minute.',
             ], 429);
         }
 

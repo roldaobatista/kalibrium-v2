@@ -51,7 +51,7 @@ test('AC-001: GET /health retorna status "ok" no JSON quando todos os componente
     $response = $this->getJson('/health');
 
     $response->assertStatus(200)
-             ->assertJson(['status' => 'ok']);
+        ->assertJson(['status' => 'ok']);
 })->group('slice-005', 'ac-001');
 
 // ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ test('AC-002: resposta JSON contém os campos obrigatórios status, db, redis e 
     $response = $this->getJson('/health');
 
     $response->assertStatus(200)
-             ->assertJsonStructure(['status', 'db', 'redis', 'timestamp']);
+        ->assertJsonStructure(['status', 'db', 'redis', 'timestamp']);
 })->group('slice-005', 'ac-002');
 
 test('AC-002: campos db e redis retornam "connected" quando os serviços estão up', function (): void {
@@ -87,10 +87,10 @@ test('AC-002: campos db e redis retornam "connected" quando os serviços estão 
     $response = $this->getJson('/health');
 
     $response->assertStatus(200)
-             ->assertJson([
-                 'db'    => 'connected',
-                 'redis' => 'connected',
-             ]);
+        ->assertJson([
+            'db' => 'connected',
+            'redis' => 'connected',
+        ]);
 })->group('slice-005', 'ac-002');
 
 test('AC-002: campo timestamp é uma string ISO 8601 com timezone', function (): void {
@@ -124,7 +124,7 @@ test('AC-003: GET /health retorna HTTP 503 quando DB está indisponível', funct
     DB::shouldReceive('select')
         ->once()
         ->with('SELECT 1')
-        ->andThrow(new \Exception('Connection refused'));
+        ->andThrow(new Exception('Connection refused'));
 
     Redis::shouldReceive('ping')
         ->once()
@@ -139,7 +139,7 @@ test('AC-003: status é "degraded" e db é "disconnected" quando DB falha', func
     DB::shouldReceive('select')
         ->once()
         ->with('SELECT 1')
-        ->andThrow(new \Exception('Connection refused'));
+        ->andThrow(new Exception('Connection refused'));
 
     Redis::shouldReceive('ping')
         ->once()
@@ -148,11 +148,11 @@ test('AC-003: status é "degraded" e db é "disconnected" quando DB falha', func
     $response = $this->getJson('/health');
 
     $response->assertStatus(503)
-             ->assertJson([
-                 'status' => 'degraded',
-                 'db'     => 'disconnected',
-                 'redis'  => 'connected',
-             ]);
+        ->assertJson([
+            'status' => 'degraded',
+            'db' => 'disconnected',
+            'redis' => 'connected',
+        ]);
 })->group('slice-005', 'ac-003');
 
 test('AC-003: GET /health retorna HTTP 503 quando Redis está indisponível', function (): void {
@@ -163,16 +163,16 @@ test('AC-003: GET /health retorna HTTP 503 quando Redis está indisponível', fu
 
     Redis::shouldReceive('ping')
         ->once()
-        ->andThrow(new \Exception('Redis connection refused'));
+        ->andThrow(new Exception('Redis connection refused'));
 
     $response = $this->getJson('/health');
 
     $response->assertStatus(503)
-             ->assertJson([
-                 'status' => 'degraded',
-                 'db'     => 'connected',
-                 'redis'  => 'disconnected',
-             ]);
+        ->assertJson([
+            'status' => 'degraded',
+            'db' => 'connected',
+            'redis' => 'disconnected',
+        ]);
 })->group('slice-005', 'ac-003');
 
 // ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 # Plano técnico do slice 005 — Healthcheck endpoint `/health`
 
 **Gerado por:** architect sub-agent
-**Status:** draft
+**Status:** approved
 **Spec de origem:** `specs/005/spec.md`
 
 ---
