@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-12T12:00:00Z",
+  "updated_at": "2026-04-12T22:10:00Z",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,7 +39,7 @@
     "current_story": "E01-S03",
     "current_slice": "003",
     "slice_status": "merged",
-    "last_green_commit": "cfc2ef5",
+    "last_green_commit": "8d8d534",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -84,7 +84,7 @@
     "schemas": 8
   },
   "handoff": {
-    "last_session_summary": "Slices 001+002 concluidos e limpos. Politica zero-tolerance implementada em todos os agents. 14 findings retroativos corrigidos e re-auditados (0 findings em todos os 5 gates). PostgreSQL 18 + Redis 8 nativos instalados via Scoop. Story E01-S03 pronta para iniciar.",
+    "last_session_summary": "Slice 003 (E01-S03 Pipeline CI) concluido. 7 jobs no CI (harness, lint, static, test, rector, js-lint, security). 19 testes, 5 ACs, 5 gates approved zero findings. Bug harness next_action corrigido. Raiz limpa (.bat obsoletos removidos). 3 stories do E01 completas (S01 scaffold, S02 DB, S03 CI).",
     "next_action": "Iniciar story E01-S04 (Deploy staging) ou proxima story do roadmap.",
     "context_files_to_load": [
       "CLAUDE.md",
