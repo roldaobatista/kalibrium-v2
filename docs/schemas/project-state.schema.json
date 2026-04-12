@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project State",
+  "description": "Estado canonico do projeto — fonte unica de verdade para /status e /resume",
+  "type": "object",
+  "required": ["version", "project", "phase", "updated_at"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "project": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string",
+      "enum": ["discovery", "strategy", "planning", "execution", "release", "maintenance"]
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "discovery": {
+      "type": "object",
+      "properties": {
+        "intake_complete": { "type": "boolean" },
+        "prd_status": { "type": "string", "enum": ["draft", "review", "frozen"] },
+        "nfr_status": { "type": "string", "enum": ["draft", "review", "frozen"] },
+        "domain_model_exists": { "type": "boolean" },
+        "glossary_exists": { "type": "boolean" },
+        "risks_documented": { "type": "boolean" }
+      }
+    },
+    "strategy": {
+      "type": "object",
+      "properties": {
+        "architecture_status": { "type": "string", "enum": ["pending", "draft", "review", "frozen"] },
+        "adrs_count": { "type": "integer", "minimum": 0 },
+        "threat_model_exists": { "type": "boolean" },
+        "deploy_profile_exists": { "type": "boolean" }
+      }
+    },
+    "planning": {
+      "type": "object",
+      "properties": {
+        "epics_total": { "type": "integer", "minimum": 0 },
+        "epics_decomposed": { "type": "integer", "minimum": 0 },
+        "stories_total": { "type": "integer", "minimum": 0 },
+        "stories_with_contract": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "current_epic": { "type": ["string", "null"] },
+        "current_story": { "type": ["string", "null"] },
+        "current_slice": { "type": ["string", "null"] },
+        "slice_status": { "type": "string", "enum": ["not_started", "spec", "plan", "tests_red", "implementing", "verifying", "review", "approved", "merged"] },
+        "last_green_commit": { "type": ["string", "null"] },
+        "consecutive_rejections": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "blocked": { "type": "boolean" },
+        "blocked_reason": { "type": ["string", "null"] }
+      }
+    },
+    "gates_status": {
+      "type": "object",
+      "properties": {
+        "verifier": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "reviewer": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "security_reviewer": { "type": "string", "enum": ["pending", "approved", "rejected", "skipped"] },
+        "test_auditor": { "type": "string", "enum": ["pending", "approved", "rejected", "skipped"] },
+        "functional_reviewer": { "type": "string", "enum": ["pending", "approved", "rejected", "skipped"] }
+      }
+    },
+    "pending_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "created_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "question": { "type": "string" },
+          "options": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "resolved_at": { "type": ["string", "null"] },
+          "decision": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "properties": {
+        "last_session_summary": { "type": "string" },
+        "next_action": { "type": "string" },
+        "context_files_to_load": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

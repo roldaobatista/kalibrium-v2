@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Test Audit Output",
+  "description": "Output estruturado do test-auditor agent",
+  "type": "object",
+  "required": ["slice_id", "verdict", "timestamp", "coverage_summary", "ac_coverage", "findings", "anti_patterns", "next_action"],
+  "properties": {
+    "slice_id": {
+      "type": "string",
+      "pattern": "^slice-\\d{3}$"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["approved", "rejected"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "coverage_summary": {
+      "type": "object",
+      "required": ["acs_total", "acs_covered", "test_count"],
+      "properties": {
+        "acs_total": { "type": "integer", "minimum": 0 },
+        "acs_covered": { "type": "integer", "minimum": 0 },
+        "acs_with_edge_cases": { "type": "integer", "minimum": 0 },
+        "test_count": { "type": "integer", "minimum": 0 },
+        "line_coverage_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "ac_coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ac", "tests_found", "happy_path", "error_path", "status"],
+        "properties": {
+          "ac": { "type": "string", "pattern": "^AC-\\d{3}$" },
+          "tests_found": { "type": "array", "items": { "type": "string" } },
+          "happy_path": { "type": "boolean" },
+          "error_path": { "type": "boolean" },
+          "edge_cases": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "enum": ["adequate", "insufficient", "missing"] }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "category", "description"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^TEST-\\d{3}$" },
+          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "category": { "type": "string", "enum": ["missing_test", "missing_edge_case", "fragile_test", "wrong_assertion", "test_isolation", "coverage_gap"] },
+          "ac": { "type": "string" },
+          "file": { "type": "string" },
+          "description": { "type": "string" },
+          "recommendation": { "type": "string" }
+        }
+      }
+    },
+    "anti_patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "pattern", "file", "description"],
+        "properties": {
+          "id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "pattern": { "type": "string" },
+          "file": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "enum": ["approved", "return_to_fixer", "escalate_human"]
+    }
+  }
+}

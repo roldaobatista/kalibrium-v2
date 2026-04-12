@@ -2,7 +2,8 @@
 
 **Este é o único arquivo de instruções válido deste repositório.** Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida por **R1** e bloqueada por hook no SessionStart.
 
-Versão: 1.0.0 — 2026-04-10.
+Versão: 2.0.0 — 2026-04-11 (fábrica agentic: 14 agents, 32 skills, pipeline de 5 gates, estado persistido).
+<!-- Contagem: 14 agents em .claude/agents/, 32 skills em .claude/skills/ -->
 
 ---
 
@@ -119,39 +120,109 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ---
 
-## 6. Fluxo padrão de um slice
+## 6. Fluxo completo do projeto
 
-1. Humano descreve o slice em linguagem natural.
-2. `/new-slice NNN "título"` cria esqueleto.
-3. Humano edita `specs/NNN/spec.md` com ACs numerados.
-4. Sub-agent `architect` gera `specs/NNN/plan.md`.
-5. Humano aprova o plan.
-6. Sub-agent `ac-to-test` gera testes red em `tests/.../ac-NNN-*`.
-7. Humano revisa que cada AC tem teste e que os testes nascem vermelhos.
-8. Commit: `test(slice-NNN): AC tests red`.
-9. Sub-agent `implementer` faz os testes virarem verdes, task por task.
-10. `/verify-slice NNN` → spawn verifier em worktree isolada → produz `verification.json`.
-11. Se `verdict: approved` → abrir PR.
-12. Se `rejected` → implementer corrige com base em `violations`, re-verifica.
-13. Se segundo `rejected` (R6) → parar, escalar humano.
-14. PR → CI full → revisão humana → merge.
-15. `/slice-report NNN` e `/retrospective NNN` obrigatórios pós-merge.
+### Fase A — Descoberta
+1. `/intake` — entrevista guiada com as 10 perguntas estratégicas.
+2. Sub-agents `domain-analyst` + `nfr-analyst` produzem glossário, modelo de domínio, riscos, NFRs.
+3. PM revisa artefatos.
+4. `/freeze-prd` — congela PRD. Nenhuma decisão técnica antes deste gate.
+
+### Fase B — Estratégia Técnica
+5. `/decide-stack` — gera recomendação de stack (ADR-0001).
+6. ADRs adicionais conforme necessário (auth, dados, deploy).
+7. `/freeze-architecture` — congela arquitetura. Nenhum código antes deste gate.
+
+### Fase C — Planejamento
+8. `/decompose-epics` — decompõe PRD em épicos com roadmap.
+9. PM aprova sequência e prioridades.
+10. `/decompose-stories ENN` — decompõe épico em stories com Story Contract.
+11. PM aprova cada Story Contract.
+
+### Fase D — Execução (por story)
+12. `/start-story ENN-SNN` — cria slice(s) a partir do Story Contract.
+13. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
+14. PM aprova plan.
+15. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
+16. Commit: `test(slice-NNN): AC tests red`.
+17. Sub-agent `implementer` faz testes virarem verdes, task por task.
+
+### Fase E — Pipeline de Gates (por slice)
+18. `/verify-slice NNN` → verifier em worktree isolada → `verification.json`.
+19. `/review-pr NNN` → reviewer em worktree isolada → `review.json`.
+20. `/security-review NNN` → security-reviewer em worktree isolada → `security-review.json`.
+21. `/test-audit NNN` → test-auditor em worktree isolada → `test-audit.json`.
+22. `/functional-review NNN` → functional-reviewer em worktree isolada → `functional-review.json`.
+23. Se qualquer gate `rejected` → `/fix NNN [gate]` → fixer corrige → re-run gate.
+24. Se segundo `rejected` consecutivo (R6) → parar, escalar humano.
+25. Todos os gates `approved` → `/merge-slice NNN`.
+
+### Fase F — Encerramento
+26. `/slice-report NNN` e `/retrospective NNN` obrigatórios pós-merge.
+27. Quando todos os épicos MVP completos → `/release-readiness`.
+
+### Gestão de estado (transversal)
+- `/checkpoint` — salva estado em `project-state.json` + handoff a qualquer momento.
+- `/resume` — restaura contexto no início de sessão.
+- `/status` — mostra estado atual em linguagem de produto.
 
 ---
 
 ## 7. Comandos (skills)
 
+### Descoberta e Estratégia
 | Intenção | Comando |
 |---|---|
-| Criar slice | `/new-slice NNN "título"` |
+| Entrevista de descoberta (10 perguntas) | `/intake` |
+| Congelar PRD | `/freeze-prd` |
+| Gerar recomendação de stack (ADR-0001) | `/decide-stack` |
+| Congelar arquitetura | `/freeze-architecture` |
 | Criar ADR | `/adr NNN "título"` |
+
+### Planejamento
+| Intenção | Comando |
+|---|---|
+| Decompor PRD em épicos | `/decompose-epics` |
+| Decompor épico em stories | `/decompose-stories ENN` |
+| Iniciar story (criar slice) | `/start-story ENN-SNN` |
+
+### Execução (slice)
+| Intenção | Comando |
+|---|---|
+| Criar slice manual | `/new-slice NNN "título"` |
+| Gerar spec a partir de descrição PM | `/draft-spec NNN` |
+| Gerar plan técnico | `/draft-plan NNN` |
+| Gerar testes red | `/draft-tests NNN` |
+
+### Pipeline de Gates
+| Intenção | Comando |
+|---|---|
 | Verificar slice (mecânico) | `/verify-slice NNN` |
-| **Revisar slice (estrutural, R11)** | **`/review-pr NNN`** |
-| **Traduzir slice para PM (R12)** | **`/explain-slice NNN`** |
-| **Gerar ADR-0001 para PM (R10+R12)** | **`/decide-stack`** |
+| Revisar slice (estrutural, R11) | `/review-pr NNN` |
+| Revisão de segurança (OWASP, LGPD) | `/security-review NNN` |
+| Auditoria de testes (cobertura, qualidade) | `/test-audit NNN` |
+| Revisão funcional (produto/UX) | `/functional-review NNN` |
+| Corrigir findings de gate | `/fix NNN [gate]` |
+| Merge após todos os gates | `/merge-slice NNN` |
+
+### Estado e Retomada
+| Intenção | Comando |
+|---|---|
+| Ver estado do projeto (R12) | `/status` |
+| Salvar checkpoint | `/checkpoint` |
+| Restaurar sessão anterior | `/resume` |
+| Traduzir slice para PM (R12) | `/explain-slice NNN` |
+| Próximo slice recomendado | `/next-slice` |
+| Onde estou (detalhes técnicos) | `/where-am-i` |
+| Onboarding dia 1 | `/start` |
+
+### Qualidade e Governança
+| Intenção | Comando |
+|---|---|
 | Auditoria do harness | `/guide-check` |
 | Relatório de slice | `/slice-report NNN` |
 | Retrospectiva | `/retrospective NNN` |
+| Validar prontidão para release | `/release-readiness` |
 | Procurar arquivos proibidos | `/forbidden-files-scan` |
 | Validar MCPs ativos | `/mcp-check` |
 
@@ -159,16 +230,41 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ## 8. Sub-agents disponíveis
 
+### Núcleo de Descoberta
+| Nome | Papel | Budget |
+|---|---|---|
+| `domain-analyst` | Extrai glossário, modelo de domínio, riscos, suposições | 30k |
+| `nfr-analyst` | Extrai e estrutura NFRs com métricas mensuráveis | 25k |
+
+### Núcleo de Planejamento
 | Nome | Papel | Budget |
 |---|---|---|
 | `architect` | Gera plan.md a partir de spec.md | 30k |
+| `epic-decomposer` | Decompõe PRD em épicos com dependências | 30k |
+| `story-decomposer` | Decompõe épico em stories com Story Contract | 30k |
 | `ac-to-test` | Gera testes red a partir de ACs | 40k |
-| `implementer` | Faz testes red virarem verdes | 80k |
-| `verifier` | Valida slice em worktree isolada, emite `verification.json` | 25k |
-| `reviewer` | Revisa slice em worktree isolada **independente** do verifier, emite `review.json` (R11) | 30k |
-| `guide-auditor` | Auditor periódico de drift | 15k |
 
-Detalhes em `.claude/agents/*.md`. Nunca adicionar novo sub-agent sem ADR justificando.
+### Núcleo de Execução
+| Nome | Papel | Budget |
+|---|---|---|
+| `implementer` | Faz testes red virarem verdes | 80k |
+| `fixer` | Corrige findings de qualquer gate de review | 60k |
+
+### Núcleo de Qualidade (gates independentes em worktree isolada)
+| Nome | Papel | Budget |
+|---|---|---|
+| `verifier` | Valida slice mecanicamente, emite `verification.json` | 25k |
+| `reviewer` | Revisão estrutural de código, emite `review.json` (R11) | 30k |
+| `security-reviewer` | Revisão de segurança (OWASP, LGPD, secrets), emite `security-review.json` | 25k |
+| `test-auditor` | Auditoria de cobertura e qualidade de testes, emite `test-audit.json` | 25k |
+| `functional-reviewer` | Revisão funcional (produto/UX/ACs), emite `functional-review.json` | 25k |
+
+### Núcleo de Governança
+| Nome | Papel | Budget |
+|---|---|---|
+| `guide-auditor` | Auditor periódico de drift no harness | 15k |
+
+Detalhes em `.claude/agents/*.md`. Total: 14 sub-agents organizados em 5 núcleos.
 
 ---
 
