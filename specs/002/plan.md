@@ -131,7 +131,7 @@ Exit code: `0` em sucesso. Exit code: `1` em falha de qualquer conexão, com men
 - **Distinção entre `SET row_security = on` (GUC de sessão) e `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` (estado da tabela)** → mitigação: o AC-003 valida `current_setting('rls.enabled', true)` que é um GUC customizado definido via `set_config`, não o estado de RLS em tabelas específicas. Documentar claramente no comentário do script SQL que `ALTER TABLE ENABLE ROW LEVEL SECURITY` por tabela é escopo de E02, quando as tabelas de negócio existirem.
 - **Migration RLS re-executada em `migrate:fresh`** → mitigação: `set_config` é idempotente; a migration pode ser re-executada sem efeito colateral. Não há `ALTER TABLE` nem criação de policies neste slice.
 - **Config cache com driver Redis e Redis indisponível em CI** → mitigação: usar `CACHE_STORE=array`, `SESSION_DRIVER=array` e `QUEUE_CONNECTION=sync` no `.env.testing` para isolar testes de integração da disponibilidade do Redis. Testes do `DbCheckCommand` que precisam de Redis real devem ser marcados como `@group integration` e documentados como dependentes de infraestrutura local.
-- **Predis e PHPStan nível 8** → mitigação: verificar se `predis/predis ^2.0` tem stubs PHPStan. Se necessário, adicionar `ignoreErrors` pontual no `phpstan.neon` para métodos dinâmicos do Predis, documentando o motivo. Não relaxar o nível de análise (violaria ADR-0001).
+- **Predis e PHPStan nível 8** → mitigação: verificar se `predis/predis ^3.4` tem stubs PHPStan. Se necessário, adicionar `ignoreErrors` pontual no `phpstan.neon` para métodos dinâmicos do Predis, documentando o motivo. Não relaxar o nível de análise (violaria ADR-0001).
 
 ---
 

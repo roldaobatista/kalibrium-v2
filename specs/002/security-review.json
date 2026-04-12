@@ -1,100 +1,83 @@
 {
   "slice_id": "slice-002",
   "verdict": "approved",
-  "timestamp": "2026-04-12T00:00:00Z",
-  "checks": [
-    {
-      "category": "sql_injection",
-      "status": "pass",
-      "evidence": "DB::select('SELECT 1') e DB::statement() usam literais. DB::unprepared() carrega arquivo local controlado (database_path fixo), sem input de usuario."
-    },
-    {
-      "category": "secrets_hardcoded",
-      "status": "pass",
-      "evidence": "phpunit.xml tem DB_PASSWORD vazio (aceitavel para CI local). Nenhum token, chave de API ou senha real no codigo. .env bloqueado pelo sandbox conforme esperado."
-    },
-    {
-      "category": "path_traversal",
-      "status": "pass",
-      "evidence": "file_get_contents usa database_path('setup/enable-rls.sql') — path fixo gerado pelo framework, sem componente de input externo."
-    },
-    {
-      "category": "insecure_deserialization",
-      "status": "pass",
-      "evidence": "config/session.php define serialization = 'json'. config/cache.php define serializable_classes = false. Sem risco de gadget chain."
-    },
-    {
-      "category": "lgpd_pii",
-      "status": "pass",
-      "evidence": "Slice de infraestrutura pura. Nenhum dado pessoal coletado, processado ou armazenado. Sem PII em logs ou outputs."
-    },
-    {
-      "category": "broken_access_control",
-      "status": "pass",
-      "evidence": "DbCheckCommand e' comando artisan interno, sem endpoint HTTP exposto. RLS preparado via GUC de sessao."
-    },
-    {
-      "category": "dependencies_cve",
-      "status": "pass",
-      "evidence": "laravel/framework ^13.0, predis/predis ^3.4, stancl/tenancy ^3.10, owen-it/laravel-auditing ^14.0 — versoes recentes sem CVEs conhecidos no corte de agosto/2025."
-    },
-    {
-      "category": "ssl_tls",
-      "status": "warn",
-      "evidence": "config/database.php linha 99: sslmode default 'prefer' para pgsql. Se DB_SSLMODE nao for definido em producao, conexao pode ocorrer sem SSL."
-    },
-    {
-      "category": "session_security",
-      "status": "warn",
-      "evidence": "config/session.php linha 172: SESSION_SECURE_COOKIE sem valor default (null). Sem configuracao explícita no .env de producao, cookie pode trafegar em HTTP."
-    }
-  ],
-  "findings": [
-    {
-      "severity": "medium",
-      "category": "security_misconfiguration",
-      "file": "config/database.php",
-      "line": 99,
-      "message": "sslmode default 'prefer' para pgsql. Em producao sem DB_SSLMODE definido, a conexao pode ser estabelecida sem SSL, expondo credenciais e dados em transito."
-    },
-    {
-      "severity": "medium",
-      "category": "security_misconfiguration",
-      "file": "config/session.php",
-      "line": 172,
-      "message": "SESSION_SECURE_COOKIE sem valor default (null). Se nao configurado explicitamente em producao, o cookie de sessao sera transmitido em conexoes HTTP nao criptografadas."
-    },
-    {
-      "severity": "low",
-      "category": "security_misconfiguration",
-      "file": "config/session.php",
-      "line": 50,
-      "message": "SESSION_ENCRYPT default false. Dados de sessao armazenados no Redis nao sao criptografados por padrao. Recomendado habilitar em producao via .env."
-    },
-    {
-      "severity": "low",
-      "category": "security_misconfiguration",
-      "file": "config/queue.php",
-      "line": 106,
-      "message": "batching.database e failed.database usam fallback hardcoded 'sqlite' em vez de env('DB_CONNECTION'). Em producao sem configuracao explicita, jobs falhos podem ser registrados em SQLite silenciosamente."
-    }
-  ],
+  "timestamp": "2026-04-13T00:00:00Z",
+  "severity_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 0
+  },
+  "findings": [],
   "lgpd_checks": [
     {
       "check": "pii_in_logs",
       "status": "pass",
-      "evidence": "Nenhum log contem dados pessoais. DbCheckCommand emite apenas status de conexao (connected/disconnected)."
+      "evidence": "Nenhum dado pessoal identificado nos arquivos de configuracao revisados"
     },
     {
-      "check": "base_legal",
+      "check": "sensitive_data_encryption",
       "status": "pass",
-      "evidence": "Slice nao processa dados pessoais. Nao aplicavel nesta fase de infraestrutura."
+      "evidence": "SESSION_ENCRYPT default true em config/session.php linha 50; sslmode=require em config/database.php linha 99"
     },
     {
-      "check": "data_at_rest_encryption",
+      "check": "credentials_hardcoded",
       "status": "pass",
-      "evidence": "Nenhum dado pessoal armazenado neste slice. Tabela _sanity_check contem apenas id e timestamp."
+      "evidence": "Todas as credenciais usam env() sem fallback ou com fallback vazio: DB_USERNAME default '', DB_PASSWORD default '', REDIS_PASSWORD sem fallback"
+    },
+    {
+      "check": "secrets_in_test_config",
+      "status": "pass",
+      "evidence": "phpunit.xml contem apenas APP_ENV=testing, DB_URL vazio e configuracoes funcionais de teste; nenhuma credencial real"
     }
   ],
-  "next_action": "open_pr"
+  "owasp_checks": [
+    {
+      "check": "A2_broken_authentication",
+      "status": "pass",
+      "evidence": "SESSION_SECURE_COOKIE default true (linha 172 session.php); SESSION_HTTP_ONLY default true (linha 185); same_site=lax (linha 202); serialization=json previne gadget chain attacks (linha 231)"
+    },
+    {
+      "check": "A3_sensitive_data_exposure",
+      "status": "pass",
+      "evidence": "TLS obrigatorio via sslmode=require (database.php linha 99); sessao criptografada por padrao (session.php linha 50)"
+    },
+    {
+      "check": "A5_broken_access_control",
+      "status": "pass",
+      "evidence": "X-Frame-Options DENY em SecurityHeaders.php linha 15 previne clickjacking"
+    },
+    {
+      "check": "A6_security_misconfiguration",
+      "status": "pass",
+      "evidence": "SecurityHeaders middleware ativo globalmente via bootstrap/app.php linha 15; HSTS condicional correto (apenas em HTTPS, linha 21-23 SecurityHeaders.php); DB default pgsql nao sqlite"
+    },
+    {
+      "check": "A7_xss",
+      "status": "pass",
+      "evidence": "X-Content-Type-Options nosniff (linha 16); X-XSS-Protection 1; mode=block (linha 17); Content-Security-Policy ausente mas nao e escopo deste slice"
+    },
+    {
+      "check": "A8_insecure_deserialization",
+      "status": "pass",
+      "evidence": "session serialization=json (nao php) em session.php linha 231 elimina risco de gadget chain"
+    },
+    {
+      "check": "A9_vulnerable_components",
+      "status": "pass",
+      "evidence": "Dependencias declaradas: laravel/framework ^13.0, predis/predis ^3.4, stancl/tenancy ^3.10, owen-it/laravel-auditing ^14.0 — versoes atuais sem CVE critico conhecido"
+    },
+    {
+      "check": "queue_batching_database",
+      "status": "pass",
+      "evidence": "queue.php linha 106: batching.database usa env('DB_CONNECTION','pgsql') — nao sqlite"
+    },
+    {
+      "check": "queue_failed_database",
+      "status": "pass",
+      "evidence": "queue.php linha 125: failed.database usa env('DB_CONNECTION','pgsql') — nao sqlite"
+    }
+  ],
+  "next_action": "approved"
 }
