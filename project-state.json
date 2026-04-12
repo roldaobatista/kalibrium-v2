@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-12T19:32:02-04:00",
+  "updated_at": "2026-04-12T19:52:09-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -40,7 +40,7 @@
     "current_story": null,
     "current_slice": null,
     "slice_status": "not_started",
-    "last_green_commit": "bf26899",
+    "last_green_commit": "1527c69",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -72,22 +72,25 @@
   ],
   "harness": {
     "agents": 21,
-    "skills": 35,
+    "skills": 36,
     "hooks": 17,
     "schemas": 9,
     "last_relock_commit": "a84371f",
-    "codex_orchestrator_commit": "6f7d629"
+    "codex_orchestrator_commit": "6f7d629",
+    "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Claude Code parou por limite de uso durante a geracao da documentacao de design. A sessao Codex assumiu como orquestrador, continuou a auditoria documental, aplicou todas as correcoes levantadas e gerou o commit bf26899. O usuario decidiu encerrar esta sessao e refazer a auditoria em outro terminal.",
-    "next_action": "Abrir outro terminal no repo e pedir ao Codex para refazer do zero a auditoria documental do commit bf26899 contra HEAD~1, sem editar arquivos e sem rodar suite full.",
+    "last_session_summary": "A sessao Codex corrigiu o gap de boot: configurou o Codex para carregar CLAUDE.md via project_doc_fallback_filenames, criou /codex-bootstrap em .claude/skills e .claude/commands, atualizou CLAUDE.md, orchestrator, constitution e ADR-0008, e commitou em 1527c69.",
+    "next_action": "Abrir nova sessao Codex no repo. Ela deve carregar CLAUDE.md automaticamente e executar o bootstrap. Se o objetivo continuar sendo a auditoria documental anterior, auditar explicitamente bf26899^..bf26899, nao HEAD.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
       "docs/TECHNICAL-DECISIONS.md",
       "docs/documentation-requirements.md",
       "docs/handoffs/latest.md",
-      "project-state.json"
+      "project-state.json",
+      ".claude/skills/codex-bootstrap.md",
+      ".claude/agents/orchestrator.md"
     ]
   }
 }
