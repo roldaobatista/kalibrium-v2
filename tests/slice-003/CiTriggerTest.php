@@ -3,30 +3,34 @@
 declare(strict_types=1);
 
 /**
- * Slice 003 — AC-001, AC-002, AC-003
+ * Slice 003 — AC-001, AC-002, AC-003 (estrutura YAML).
  *
- * Verifica que o trigger `push` do ci.yml cobre feature branches (não apenas main).
- * Sem `branches: ['**']`, os jobs lint/static-analysis/tests nunca rodam em push
- * de feature branch — tornando AC-001, AC-002 e AC-003 não verificáveis mecanicamente.
+ * Verifica que o trigger `push` do ci.yml cobre feature branches.
  */
-dataset('ci-trigger-acs', [
-    'AC-001 (lint)' => ['ac-001', 'o job lint dispare em feature branches'],
-    'AC-002 (static-analysis)' => ['ac-002', 'php-static dispare em feature branches'],
-    'AC-003 (tests)' => ['ac-003', 'php-test dispare em feature branches'],
-]);
+function ciYmlCoversAllBranches(): bool
+{
+    $content = file_get_contents(base_path('.github/workflows/ci.yml'));
 
-test('trigger push cobre todas as branches para que', function (string $group, string $descricao): void {
-    $ciYmlPath = base_path('.github/workflows/ci.yml');
-    expect(file_exists($ciYmlPath))->toBeTrue("ci.yml não encontrado em {$ciYmlPath}");
-
-    $content = file_get_contents($ciYmlPath);
-
-    $coversAllBranches = (bool) preg_match(
+    return (bool) preg_match(
         '/on:\s.*?push:\s.*?branches:\s*\[[\'"]\*\*[\'"]\]/s',
         $content,
     );
+}
 
-    expect($coversAllBranches)->toBeTrue(
-        "Requer push.branches: [\"**\"] para que {$descricao}."
+test('AC-001: trigger push cobre todas as branches para lint disparar em feature branches', function (): void {
+    expect(ciYmlCoversAllBranches())->toBeTrue(
+        'AC-001 requer push.branches: ["**"] para que o job lint dispare em feature branches.'
     );
-})->with('ci-trigger-acs')->group('slice-003');
+})->group('slice-003', 'ac-001');
+
+test('AC-002: trigger push cobre todas as branches para static-analysis disparar', function (): void {
+    expect(ciYmlCoversAllBranches())->toBeTrue(
+        'AC-002 requer push.branches: ["**"] para que php-static dispare em feature branches.'
+    );
+})->group('slice-003', 'ac-002');
+
+test('AC-003: trigger push cobre todas as branches para tests disparar', function (): void {
+    expect(ciYmlCoversAllBranches())->toBeTrue(
+        'AC-003 requer push.branches: ["**"] para que php-test dispare em feature branches.'
+    );
+})->group('slice-003', 'ac-003');

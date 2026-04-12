@@ -19,7 +19,7 @@ Desenvolvedor faz push para branch de feature → GitHub Actions executa automat
 - **AC-002:** Push para branch de feature com erro de tipo PHPStan nível 8 faz o job `static-analysis` falhar.
 - **AC-003:** Push para branch de feature com teste falhando faz o job `tests` falhar.
 - **AC-004:** Pull request para `main` com todos os jobs verdes exibe check verde no GitHub (status `success` via GitHub API).
-- **AC-005:** Artefato `sbom.xml` é gerado e disponibilizado na aba "Artifacts" do workflow após execução bem-sucedida.
+- **AC-005:** Artefato `sbom-php.xml` é gerado e disponibilizado na aba "Artifacts" do workflow após execução bem-sucedida.
 
 ## Fora de escopo
 
