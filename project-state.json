@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-13T04:00:00Z",
+  "updated_at": "2026-04-12T08:30:00Z",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -38,18 +38,18 @@
     "current_epic": "E01",
     "current_story": "E01-S01",
     "current_slice": "001",
-    "slice_status": "tests-red",
-    "last_green_commit": "00cf8e4",
+    "slice_status": "merged",
+    "last_green_commit": "56e34db",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
-    "verifier": null,
-    "reviewer": null,
-    "security_reviewer": null,
-    "test_auditor": null,
-    "functional_reviewer": null
+    "verifier": "approved",
+    "reviewer": "approved",
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved"
   },
   "pending_decisions": [
     {
@@ -84,8 +84,8 @@
     "schemas": 8
   },
   "handoff": {
-    "last_session_summary": "Fase D (Execucao) iniciada. Versoes atualizadas para PHP 8.5/Laravel 13/Livewire 4/Tailwind CSS 4/PostgreSQL 18/Redis 8/Pest 4. Story E01-S01 iniciada, slice 001 criado com spec+plan aprovados e testes red (5 ACs). PM instalou PHP 8.5.5 via Scoop. Proximo: atualizar refs 8.4→8.5, scaffoldar Laravel 13, fazer ACs verdes.",
-    "next_action": "Atualizar refs para PHP 8.5, scaffoldar Laravel 13, fazer 5 ACs verdes",
+    "last_session_summary": "Slice 001 concluido: scaffold Laravel 13.1.2 com Pest 4, Larastan 8, Pint, Rector, stancl/tenancy, laravel-auditing. 5/5 ACs verdes. Pipeline de 5 gates aprovado. Bug de enum review-telemetry registrado como incidente.",
+    "next_action": "Iniciar slice 002 (E01-S02: configuracao de banco de dados PostgreSQL)",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
