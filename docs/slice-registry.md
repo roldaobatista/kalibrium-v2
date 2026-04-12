@@ -4,4 +4,4 @@
 
 | NNN | Título | Status | Criado | Mergeado |
 |---|---|---|---|---|
-| _(vazio — primeiro slice vem após Dia 1)_ | | | | |
+| 900 | smoke-test: validar pipeline end-to-end | in-progress | 2026-04-12 | — |
