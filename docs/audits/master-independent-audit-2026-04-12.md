@@ -11,7 +11,7 @@
 | # | Achado | Status | Evidência |
 |---|---|---|---|
 | F1 | Gate JSONs inválidos | **CORRIGIDO** | 4 JSONs reescritos conforme schema. `verify-slice.sh 900 --validate` → exit 0 |
-| F2 | Isolamento 3 gates | **PENDENTE PM** | Arquivo selado. PM dá dois cliques em `APLICAR-F2-ISOLAMENTO.bat` e digita AUTORIZO |
+| F2 | Isolamento 3 gates | **CORRIGIDO** | `verifier-sandbox.sh` com sandbox para 5 gates. Selos OK. Smoke 75/75. Commit `a96d588` |
 | F3 | Smoke test destrutivo | **CORRIGIDO** | `smoke-test-hooks.sh` usa mv/restore. 75/75 passam |
 | F4 | CRLF smoke-test-scripts | **CORRIGIDO** | Arquivo reescrito com LF. 21/21 passam |
 | F5 | PHP no Bash | **FALSO POSITIVO** | `mechanical-gates.sh 900 --quick` → exit 0 |
