@@ -99,8 +99,8 @@ elif [ ! -f "$REPO_ROOT/vendor/bin/phpstan" ]; then
     fail "AC-003: vendor/bin/phpstan não encontrado"
 elif [ ! -f "$REPO_ROOT/phpstan.neon" ]; then
     fail "AC-003: phpstan.neon não encontrado"
-elif ! grep -qE 'larastan|nunomaduro' "$REPO_ROOT/phpstan.neon"; then
-    fail "AC-003: phpstan.neon não inclui extensão Larastan (nunomaduro/larastan) exigida pelo spec"
+elif ! grep -qE 'larastan' "$REPO_ROOT/phpstan.neon"; then
+    fail "AC-003: phpstan.neon não inclui extensão Larastan exigida pelo spec"
 else
     "$REPO_ROOT/vendor/bin/phpstan" analyse --level=8 --no-progress 2>&1
     PHPSTAN_EXIT=$?
