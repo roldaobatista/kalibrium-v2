@@ -17,6 +17,9 @@
         <testsuite name="Slice004">
             <directory>tests/slice-004</directory>
         </testsuite>
+        <testsuite name="Slice005">
+            <directory>tests/slice-005</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
