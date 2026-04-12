@@ -186,6 +186,14 @@ if ! bash "$SCRIPT_DIR/sanitize-input.sh" --check "$SLICE_DIR/spec.md"; then
 fi
 say "spec.md limpo"
 
+# Gates mecanicos ANTES de qualquer agente LLM.
+# Se falhar, o verifier nem e spawnado. Gate binario, nao opiniao.
+say "rodando gates mecanicos (testes, PHPStan, Pint, composer audit)..."
+if ! bash "$SCRIPT_DIR/mechanical-gates.sh" "$NNN"; then
+  fail "gates mecanicos falharam — corrija antes de spawnar o verifier"
+fi
+say "gates mecanicos OK"
+
 # Limpa e recria verification-input
 rm -rf "$INPUT_DIR"
 mkdir -p "$INPUT_DIR"
@@ -237,16 +245,20 @@ else
   echo "(sem git log ainda)" > "$INPUT_DIR/files-changed.txt"
 fi
 
-# 4. test-results.txt (placeholder — implementer preenche rodando AC-tests)
-cat > "$INPUT_DIR/test-results.txt" <<EOF
-# test-results — preencher rodando AC-tests filtrados pelo ID
-# Exemplo:
-#   npx vitest run tests/ -t "AC-"
-#   vendor/bin/pest --filter="AC-"
-# Cole aqui o output completo (incluindo exit code).
-
-(implementer: substitua este placeholder pelo output real)
-EOF
+# 4. test-results.txt — roda testes REAIS (nao aceita placeholder)
+say "rodando testes e capturando output real..."
+if [ -f "vendor/bin/pest" ]; then
+  vendor/bin/pest tests/ 2>&1 > "$INPUT_DIR/test-results.txt"
+  TEST_EXIT=$?
+  echo "" >> "$INPUT_DIR/test-results.txt"
+  echo "# exit_code=$TEST_EXIT" >> "$INPUT_DIR/test-results.txt"
+  if [ $TEST_EXIT -ne 0 ]; then
+    fail "testes falharam (exit $TEST_EXIT) — output em $INPUT_DIR/test-results.txt"
+  fi
+  say "testes capturados (exit $TEST_EXIT)"
+else
+  fail "vendor/bin/pest nao encontrado — impossivel gerar test-results.txt real"
+fi
 
 say ""
 say "verification-input/ montado:"

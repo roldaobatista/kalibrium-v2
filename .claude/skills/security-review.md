@@ -23,6 +23,12 @@ Apos `/verify-slice NNN` retornar `approved`. Parte do pipeline de gates antes d
 
 ## O que faz
 
+### 0. Rodar scans mecanicos ANTES do agente
+```bash
+bash scripts/security-scan.sh NNN
+```
+Se falhar (exit != 0), o security-reviewer NAO e spawnado. Corrigir vulnerabilidades primeiro.
+
 ### 1. Montar `security-review-input/`
 - `spec.md` — copia do spec
 - `files-changed.txt` — `git diff --name-only` do slice

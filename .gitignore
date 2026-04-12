@@ -40,6 +40,7 @@ docs/audits/audit-*.md
 # ---------- Build/vendored (stack-agnóstico) ----------
 node_modules/
 vendor/
+.phpstan-cache/
 dist/
 build/
 target/
