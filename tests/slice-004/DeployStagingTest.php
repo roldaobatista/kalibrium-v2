@@ -270,11 +270,12 @@ test('AC-002: staging responde HTTP 200 (smoke test remoto)', function (): void 
 test('AC-003: horizon:status retorna running no VPS (smoke test remoto)', function (): void {
     $host = env('STAGING_HOST');
     $user = env('STAGING_USER');
-    if (! $host || ! $user) {
-        test()->markTestSkipped('STAGING_HOST/STAGING_USER não definidos — smoke test remoto desabilitado.');
+    $keyPath = env('STAGING_SSH_KEY_PATH');
+    if (! $host || ! $user || ! $keyPath) {
+        test()->markTestSkipped('STAGING_HOST/STAGING_USER/STAGING_SSH_KEY_PATH não definidos — smoke test remoto desabilitado.');
     }
-    // Este teste é executado apenas em ambiente com acesso SSH ao staging
-    test()->markTestSkipped('Smoke test remoto — executar manualmente no VPS: php artisan horizon:status');
+    $output = shell_exec("ssh -i {$keyPath} -o ConnectTimeout=5 {$user}@{$host} 'cd /var/www/kalibrium && php artisan horizon:status' 2>&1");
+    expect($output)->toContain('running', 'AC-003: horizon:status deve retornar running no VPS após deploy.');
 })->group('slice-004', 'ac-003', 'smoke-remote');
 
 // ---------------------------------------------------------------------------
