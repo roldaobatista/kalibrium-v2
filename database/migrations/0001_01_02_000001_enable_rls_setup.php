@@ -7,7 +7,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        $sql = file_get_contents(database_path('setup/enable-rls.sql'));
+        $path = database_path('setup/enable-rls.sql');
+
+        if (! file_exists($path)) {
+            throw new RuntimeException("RLS setup script not found: {$path}");
+        }
+
+        $sql = file_get_contents($path);
         DB::unprepared($sql);
     }
 
