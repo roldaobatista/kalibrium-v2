@@ -1,0 +1,93 @@
+{
+  "slice_id": "slice-003",
+  "verdict": "approved",
+  "timestamp": "2026-04-12T20:00:00Z",
+  "coverage_summary": {
+    "acs_total": 5,
+    "acs_covered": 5,
+    "acs_with_edge_cases": 5,
+    "test_count": 19,
+    "line_coverage_pct": null
+  },
+  "ac_coverage": [
+    {
+      "ac": "AC-001",
+      "tests_found": [
+        "tests/slice-003/CiTriggerTest.php",
+        "tests/slice-003/CiRuntimeTest.php"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "binario vendor/bin/pint ausente",
+        "codigo mal formatado (exit != 0)",
+        "codigo bem formatado (exit 0)"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002",
+      "tests_found": [
+        "tests/slice-003/CiTriggerTest.php",
+        "tests/slice-003/CiRuntimeTest.php"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "binario vendor/bin/phpstan ausente",
+        "erro de tipo nivel 8 (exit != 0)",
+        "codigo tipado corretamente (exit 0)"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003",
+      "tests_found": [
+        "tests/slice-003/CiTriggerTest.php",
+        "tests/slice-003/CiRuntimeTest.php"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "binario vendor/bin/pest ausente",
+        "teste red (exit != 0)",
+        "teste green (exit 0)"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004",
+      "tests_found": [
+        "tests/slice-003/CiJobsTest.php",
+        "tests/slice-003/CiRuntimeTest.php"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "job php-rector ausente falha o teste",
+        "rector sem --dry-run falha o teste",
+        "qualquer dos 7 jobs ausente falha o teste",
+        "qualquer job sem needs:harness falha o teste"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-005",
+      "tests_found": [
+        "tests/slice-003/CiSbomTest.php"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "presenca de || true no step cyclonedx falha o teste",
+        "ausencia de upload-artifact falha o teste",
+        "output file diferente de sbom-php.xml falha o teste",
+        "instalacao do cyclonedx com || true falha o teste"
+      ],
+      "status": "adequate"
+    }
+  ],
+  "findings": [],
+  "anti_patterns": [],
+  "next_action": "approved"
+}
