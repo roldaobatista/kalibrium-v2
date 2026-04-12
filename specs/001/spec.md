@@ -1,0 +1,69 @@
+# Slice 001 — Scaffold Laravel 13 com dependências core
+
+**Story:** E01-S01
+**Épico:** E01 — Setup e Infraestrutura
+**Status:** spec
+
+---
+
+## Objetivo
+
+Criar a estrutura base do projeto Kalibrium com Laravel 13 + PHP 8.4, configurada com todas as dependências definidas no ADR-0001, pronta para receber banco de dados, frontend e pipeline de CI nas stories seguintes. O resultado é um repositório funcional com pre-commit gate ativo e análise estática passando.
+
+## Contexto
+
+Primeiro slice real do projeto. O repositório existe com o harness de qualidade (hooks, schemas, CI workflow), mas sem código Laravel. Este slice inicializa o projeto Laravel e configura as ferramentas de qualidade de código.
+
+## Jornada alvo
+
+N/A — slice de infraestrutura. Nenhuma interface visível ao usuário final. O agente de IA executa o scaffold e valida que todas as ferramentas de qualidade passam no código gerado.
+
+## Escopo
+
+- `composer create-project laravel/laravel` com PHP 8.4+ e Laravel 13
+- `composer.json` com dependências core: `nunomaduro/larastan`, `pestphp/pest`, `laravel/pint`, `rector/rector`, `owen-it/laravel-auditing`, `stancl/tenancy`
+- `package.json` com dependências frontend: `vite`, `tailwindcss`, `alpinejs`, `livewire/livewire` (instalação base — configuração completa em E01-S06)
+- `.env.example` com todas as variáveis necessárias ao projeto (DB, Redis, Queue, Mail, App)
+- `phpstan.neon` configurado no nível 8 com `larastan`
+- `rector.php` configurado para PHP 8.4
+- `pint.json` com estilo PSR-12 + opinionado Laravel
+- `.gitignore` ajustado para o projeto
+- Estrutura de diretórios customizada: `app/Domain/`, `app/Infrastructure/`, `app/Http/`
+- Hook pre-commit local ativado via script `scripts/setup-hooks.sh`
+
+## Fora de escopo
+
+- Configuração de banco de dados (slice 002 / E01-S02)
+- Configuração de frontend completa com Tailwind e Livewire (E01-S06)
+- Pipeline CI no GitHub Actions (E01-S03)
+- Qualquer feature de negócio
+- Migrations de domínio
+- Autenticação
+
+## Acceptance Criteria
+
+- AC-001: `php artisan serve` inicia sem erros e responde HTTP 200 na rota `/` com o conteúdo padrão do Laravel
+- AC-002: `composer test` executa Pest e retorna exit 0 (zero testes, zero falhas — suite vazia é válida)
+- AC-003: `./vendor/bin/phpstan analyse --level=8` retorna exit 0 sem erros no scaffold inicial
+- AC-004: `./vendor/bin/pint --test` retorna exit 0 (scaffold já formatado corretamente)
+- AC-005: `.env.example` contém todas as variáveis: `APP_*`, `DB_*`, `REDIS_*`, `QUEUE_CONNECTION`, `MAIL_*`, `HORIZON_*`
+
+## Riscos
+
+- Laravel 13 pode ter mudanças de estrutura ou breaking changes em relação ao Laravel 12 — mitigação: usar `laravel new` oficial e adaptar a estrutura de domínio ao novo padrão de bootstrapping; consultar upgrade guide
+- `stancl/tenancy` pode não ter suporte completo ao Laravel 13 na versão estável — mitigação: verificar compatibilidade na criação; usar branch `main` do pacote se necessário e registrar em ADR
+
+## Dependências técnicas
+
+- ADR-0001 aceito (Laravel 13 + Livewire 4 + PostgreSQL — status: accepted)
+- PHP 8.4+ instalado no ambiente de desenvolvimento
+- Composer 2.x instalado
+- Node 20+ e npm instalados
+
+## Evidência necessária para aprovação
+
+- Output de `php artisan serve` mostrando servidor iniciado na porta 8000
+- Output de `composer test` com exit 0
+- Output de `./vendor/bin/phpstan analyse --level=8` com "No errors" ou equivalente
+- Output de `./vendor/bin/pint --test` com exit 0
+- Conteúdo de `.env.example` mostrando todas as variáveis obrigatórias

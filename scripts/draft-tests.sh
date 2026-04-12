@@ -142,7 +142,7 @@ elif [ "$MODE" = "--validate" ]; then
 
   # Verificar que nenhum teste tem TODO/TBD/FIXME/skip
   if [ -n "$TEST_FILES" ]; then
-    SKIP_HITS=$(echo "$TEST_FILES" | xargs grep -lE '(TODO|TBD|FIXME|\.skip|xtest|xit)\b' 2>/dev/null || true)
+    SKIP_HITS=$(echo "$TEST_FILES" | xargs grep -lE '\b(TODO|TBD|FIXME)\b|\.skip\b|\bxtest\b|\bxit\b' 2>/dev/null || true)
     if [ -n "$SKIP_HITS" ]; then
       fail "testes com TODO/skip/FIXME:"
       echo "$SKIP_HITS" | sed 's/^/      /' >&2

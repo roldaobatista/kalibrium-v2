@@ -38,14 +38,14 @@ O Kalibrium é a plataforma de trabalho do técnico de instrumentação, do labo
 
 - **ADR-0005 (armazenamento e backup de documentos):** o snapshot semanal que vem incluído no VPS Hostinger **não cobre** o objetivo do PRD §40.3 de perder no máximo 15 minutos de dado em caso de falha. Será necessário configurar arquivamento contínuo do banco para um armazenamento externo (~R$ 20-40/mês adicionais). Previsto pra ser resolvido no ADR-0005, não nesta página.
 - **ADR-0007 (CI/CD e ambientes):** recomenda-se contratar um **segundo servidor menor** (KVM 1, ~R$ 25-30/mês) como ambiente de homologação, separado da produção, para o PM validar slices antes de promover pro cliente real. Sem isso, o primeiro cliente vira cobaia. Previsto pra ser resolvido no ADR-0007, não nesta página.
-- **ADR-0002 (persistência):** assumirá PostgreSQL 16 + proteção extra de isolamento entre clientes (Row-Level Security nativo do banco).
-- **ADR-0003 (filas de tarefas em segundo plano):** assumirá Redis 7 instalado no mesmo servidor até a separação do banco no ano 2.
+- **ADR-0002 (persistência):** assumirá PostgreSQL 18 + proteção extra de isolamento entre clientes (Row-Level Security nativo do banco).
+- **ADR-0003 (filas de tarefas em segundo plano):** assumirá Redis 8 instalado no mesmo servidor até a separação do banco no ano 2.
 
 **Confirmado pelo PM em 2026-04-11, antes da marcação de opção.**
 
 ---
 
-## Minha recomendação: Opção A — Laravel + Livewire 3 + PostgreSQL
+## Minha recomendação: Opção A — Laravel + Livewire 4 + PostgreSQL
 
 **Nome amigável:** "a base do Laravel" — a forma mais comum de construir sistemas SaaS no Brasil.
 
@@ -133,7 +133,7 @@ Esta recomendação **não amarra** nenhum desses comportamentos na tecnologia �
 
 ## Sua decisão (marque uma com [x])
 
-- [x] Aceito a recomendação (Opção A — Laravel + Livewire 3 + PostgreSQL)
+- [x] Aceito a recomendação (Opção A — Laravel + Livewire 4 + PostgreSQL)
 - [ ] Quero a Opção B (Next.js + PostgreSQL)
 - [ ] Quero a Opção C (Laravel + Inertia.js + Vue 3)
 - [ ] Quero conversar mais antes de decidir
@@ -180,24 +180,24 @@ Após marcar, rodar: `bash scripts/decide-stack.sh --confirm`
 
 ### Stack recomendada (Opção A)
 
-- **Linguagem / runtime:** PHP 8.3+ (com JIT habilitado).
-- **Framework web:** Laravel 11 LTS.
-- **Camada de UI reativa:** Livewire 3 + Alpine.js + Tailwind CSS 3 + Vite.
+- **Linguagem / runtime:** PHP 8.4+ (com JIT habilitado).
+- **Framework web:** Laravel 13 (release março 2026, suporte ativo).
+- **Camada de UI reativa:** Livewire 4 + Alpine.js + Tailwind CSS 4 + Vite 8.
 - **ORM / camada de dados:** Eloquent (nativo), com audit log via `owen-it/laravel-auditing`.
-- **Banco de dados:** PostgreSQL 16+ (escolhido sobre MySQL por: JSONB para os 5 campos de primeira classe do Tenant em §Perfis Operacionais × Tipos de Cliente-Alvo, Row-Level Security nativo como defesa-em-profundidade de multi-tenancy, Full-Text Search nativo em PT-BR, suporte a CTEs recursivas para hierarquias de instrumentos/padrões, e extensões como pgcrypto/pg_trgm para LGPD e busca fuzzy).
+- **Banco de dados:** PostgreSQL 18 (escolhido sobre MySQL por: JSONB para os 5 campos de primeira classe do Tenant em §Perfis Operacionais × Tipos de Cliente-Alvo, Row-Level Security nativo como defesa-em-profundidade de multi-tenancy, Full-Text Search nativo em PT-BR, suporte a CTEs recursivas para hierarquias de instrumentos/padrões, e extensões como pgcrypto/pg_trgm para LGPD e busca fuzzy).
 - **Estratégia de multi-tenancy:** single database, tenant_id como coluna + Row-Level Security + global scope em Eloquent. Pacote canônico: `stancl/tenancy` em modo single-database. Isolamento reforçado por RLS garante que um bug de código não vaze dados entre tenants (defesa em profundidade, atendendo R10 da constituição + requisito estrutural do PRD §Princípios de Produto).
-- **Filas / jobs:** Laravel Queues com driver Redis + Horizon para supervisão. Jobs dedicados por domínio (fiscal, notificação, sincronização offline, geração de PDF).
+- **Filas / jobs:** Laravel Queues com driver Redis 8 + Horizon para supervisão. Jobs dedicados por domínio (fiscal, notificação, sincronização offline, geração de PDF).
 - **Agendamento:** Laravel Scheduler (substitui cron manual).
 - **Assinatura digital PDF/A + ICP-Brasil:** `nfephp-org/sped-nfe` (emissão fiscal) + `jeidison/carbon-pdf-signer` ou `spatie/pdf-to-image` combinado com `setasign/fpdi` para PDF/A + biblioteca `tcpdf` com suporte a assinatura A1/A3. Carimbo de tempo via integração com AC autorizada (ACT do ICP-Brasil). Decisão fina via ADR-0008 (emissão fiscal).
 - **NFS-e multi-município:** `nfephp-org/sped-nfse` + integrador via serviço (NFE.io, Focus NFe) como plano B. Decisão via ADR-0008.
 - **WhatsApp / e-mail / SMS:** provedores via adapter interno — provedores candidatos: Z-API ou Twilio (WhatsApp), Mailgun ou Amazon SES (e-mail), Zenvia ou Twilio (SMS). Decisão via ADR-0003 (mensageria) ou ADR específico de notificações.
-- **Testes:** Pest 3 (sobre PHPUnit 11) + Laravel Dusk para testes end-to-end de navegador + Playwright como alternativa em caso de necessidade. Factories via Laravel Factory. Coverage alvo mínimo conforme constituição §DoD + hooks `post-edit-gate.sh` / `pre-commit-gate.sh` / `pre-push-gate.sh`.
+- **Testes:** Pest 4 (sobre PHPUnit 12) + Pest Browser Testing nativo para testes end-to-end de navegador + Playwright como alternativa em caso de necessidade. Factories via Laravel Factory. Coverage alvo mínimo conforme constituição §DoD + hooks `post-edit-gate.sh` / `pre-commit-gate.sh` / `pre-push-gate.sh`.
 - **Análise estática / lint:** PHPStan com `nunomaduro/larastan` no nível 8 (máximo rigor), Laravel Pint (formatação), Rector para refactors automáticos, ESLint + Prettier para JS/Vue.
 - **CI/CD:** GitHub Actions com runners Linux, cache de vendor + composer.lock + npm lockfile + SBOM via CycloneDX. Detalhes em ADR-0007.
 - **Observabilidade:** logs estruturados via `monolog-json` → stack OpenTelemetry Collector → Grafana Cloud ou self-hosted. Métricas via `laravel-prometheus-exporter`. Tracing distribuído via OTel. Detalhes em ADR-0006.
 - **Storage de documentos:** Laravel Filesystem com driver S3-compatível (MinIO self-hosted ou AWS S3 region `sa-east-1` para atender LGPD residência BR). Detalhes em ADR-0005.
 - **IdP:** Laravel Fortify + Sanctum (built-in, suficiente para Starter/Basic) com evolução para Keycloak / WorkOS quando Enterprise exigir SAML/OIDC/SCIM. Decisão fina em ADR-0004.
-- **Hospedagem inicial:** VPS Hostinger/KingHost Linux + Nginx + PHP-FPM + PostgreSQL 16 + Redis 7 + Laravel Octane (Swoole ou RoadRunner) para throughput. Capacidade inicial: 1 servidor 8GB RAM / 4 vCPU suporta ~10-20 tenants Starter. Escalabilidade horizontal via réplicas de leitura do Postgres + load balancer. Docker não obrigatório no dia 1; adicionado quando for necessário CI reprodutível em contêiner.
+- **Hospedagem inicial:** VPS Hostinger/KingHost Linux + Nginx + PHP-FPM + PostgreSQL 18 + Redis 8 + Laravel Octane (Swoole ou RoadRunner) para throughput. Capacidade inicial: 1 servidor 8GB RAM / 4 vCPU suporta ~10-20 tenants Starter. Escalabilidade horizontal via réplicas de leitura do Postgres + load balancer. Docker não obrigatório no dia 1; adicionado quando for necessário CI reprodutível em contêiner.
 - **Preparação multi-região:** `sa-east-1` como região primária; réplica em `us-east-1` ou outro Postgres gerenciado para DR (RPO ≤15min, RTO ≤2h conforme PRD §40.3).
 
 ### Conformidade com constraints do PRD
@@ -224,7 +224,7 @@ Laravel + PHP tem um dos **três maiores volumes de training data** do mundo (ju
 - Gera código Laravel idiomático e passa no PHPStan nível 8 na primeira tentativa com mais frequência do que em frameworks menos representados.
 - Conhece as bibliotecas brasileiras (nfephp-org, sped-*, laravel-nfe) no nome e sabe resolver problemas fiscais comuns.
 - Acerta padrões de multi-tenancy (stancl/tenancy) sem supervisão.
-- Tem familiaridade alta com Livewire 3 (lançado em 2023, bem representado em 2024-2025 training data).
+- Tem familiaridade alta com Livewire 3/4 (bem representado em training data 2023-2026).
 
 Isso reduz R6 (2 reprovações consecutivas do verifier = escalar humano), porque o agente erra menos.
 

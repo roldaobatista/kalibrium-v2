@@ -1,7 +1,7 @@
 name: CI
 
 # Gate final da pirâmide de escalação de testes (P8).
-# Stack: ADR-0001 — Laravel 11 + Livewire 3 + PostgreSQL 16 + Pest 3.
+# Stack: ADR-0001 — Laravel 13 + Livewire 4 + PostgreSQL 18 + Pest 4.
 #
 # Design decisions:
 # - Jobs de PHP usam `if: hashFiles('composer.json') != ''` para permitir que
@@ -74,7 +74,7 @@ jobs:
         if: steps.check.outputs.run == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           tools: composer:v2
           coverage: none
 
@@ -119,7 +119,7 @@ jobs:
         if: steps.check.outputs.run == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           tools: composer:v2
           coverage: none
 
@@ -140,16 +140,16 @@ jobs:
         run: vendor/bin/phpstan analyse --memory-limit=2G --no-progress
 
   # =========================================================================
-  # Job 4 — PHP test suite (Pest 3 + PostgreSQL 16 service)
+  # Job 4 — PHP test suite (Pest 4 + PostgreSQL 18 service)
   # =========================================================================
   php-test:
-    name: PHP tests (Pest + PostgreSQL 16)
+    name: PHP tests (Pest + PostgreSQL 18)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: harness
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: kalibrium
           POSTGRES_PASSWORD: kalibrium_ci
@@ -178,7 +178,7 @@ jobs:
         if: steps.check.outputs.run == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_pgsql, pgsql, mbstring, intl, bcmath
           tools: composer:v2
           coverage: xdebug
@@ -293,7 +293,7 @@ jobs:
         if: hashFiles('composer.json') != ''
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           tools: composer:v2
 
       - name: Composer audit
