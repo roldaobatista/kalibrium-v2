@@ -158,7 +158,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/hooks/stop-gate.sh"
+            "command": "bash /c/PROJETOS/saas/kalibrium-v2/scripts/hooks/stop-gate.sh"
           }
         ]
       }
