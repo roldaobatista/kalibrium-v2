@@ -8,15 +8,13 @@ test('sanity check table exists after migration', function () {
     expect(Schema::hasTable('_sanity_check'))->toBeTrue();
 });
 
-// AC-003: RLS config accessible without exception
-test('rls.enabled session parameter is accessible without exception', function () {
-    // AC-003 requires current_setting('rls.enabled', true) returns without exception.
-    // The second param `true` means return null instead of throwing if GUC is unknown.
-    // The migration registered the GUC via set_config in its session; here we verify
-    // the parameter can be queried safely and set it for this session.
-    DB::statement("SELECT set_config('rls.enabled', 'true', false)");
+// AC-003: current_setting('rls.enabled', true) returns without exception
+test('rls.enabled session parameter is queryable without exception', function () {
+    // AC-003: the query must not throw. The second param `true` makes PostgreSQL
+    // return null instead of throwing if the GUC doesn't exist as a persisted setting.
+    // This validates the infrastructure is ready for RLS (E02 will create policies).
     $result = DB::select("SELECT current_setting('rls.enabled', true) as rls");
-    expect($result[0]->rls)->toBe('true');
+    expect($result)->toHaveCount(1);
 });
 
 // AC-005: migrate:status lista sanity check como Ran
