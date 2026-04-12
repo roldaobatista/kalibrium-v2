@@ -1,5 +1,8 @@
+includes:
+    - vendor/nunomaduro/larastan/extension.neon
+
 parameters:
-    level: 8
     paths:
-        - src
+        - app/
+    level: 8
     tmpDir: .phpstan-cache

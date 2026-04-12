@@ -1,8 +1,12 @@
 <?php
 
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
 |--------------------------------------------------------------------------
-| Pest bootstrap file. Configures the default test case for Unit tests.
+| Pest bootstrap file. Binds the Laravel TestCase for Feature tests.
 */
+
+uses(TestCase::class)->in('Feature');
