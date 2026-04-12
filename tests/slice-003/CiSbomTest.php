@@ -51,11 +51,11 @@ test('AC-005: upload-artifact está configurado para expor sbom na aba Artifacts
 
     $content = file_get_contents($ciYmlPath);
 
-    expect($content)->toContain('upload-artifact',
+    expect(str_contains($content, 'upload-artifact'))->toBeTrue(
         'AC-005 requer actions/upload-artifact para disponibilizar sbom-php.xml na aba Artifacts.'
     );
 
-    expect($content)->toContain('sbom',
+    expect(str_contains($content, 'sbom'))->toBeTrue(
         'AC-005 requer que o upload-artifact referencie o artefato sbom (sbom-php.xml ou sbom-*.xml).'
     );
 })->group('slice-003', 'ac-005');

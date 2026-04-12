@@ -22,7 +22,7 @@ test('AC-004: job php-rector existe no ci.yml (Rector --dry-run)', function (): 
     $content = file_get_contents($ciYmlPath);
 
     // Procura pela chave do job php-rector na seção jobs:
-    expect($content)->toContain('php-rector:',
+    expect(str_contains($content, 'php-rector:'))->toBeTrue(
         'AC-004 requer o job php-rector no ci.yml. '
         . 'Sem ele, o check do GitHub não inclui validação de Rector e o pipeline está incompleto.'
     );

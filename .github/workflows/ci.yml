@@ -14,7 +14,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
 
@@ -229,7 +229,52 @@ jobs:
         run: vendor/bin/pest --ci
 
   # =========================================================================
-  # Job 5 — JS lint (ESLint + Prettier)
+  # Job 5 — PHP Rector (dry-run — detecta sem alterar)
+  # =========================================================================
+  php-rector:
+    name: PHP Rector (dry-run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: harness
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip se Laravel não inicializado
+        id: check
+        run: |
+          if [ -f composer.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::composer.json não existe — pulando Rector."
+          fi
+
+      - name: Setup PHP
+        if: steps.check.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer
+        if: steps.check.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Composer install
+        if: steps.check.outputs.run == 'true'
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Rector (dry-run — CI read-only)
+        if: steps.check.outputs.run == 'true'
+        run: vendor/bin/rector process --dry-run --no-progress
+
+  # =========================================================================
+  # Job 6 — JS lint (ESLint + Prettier)
   # =========================================================================
   js-lint:
     name: JS lint (ESLint + Prettier)
@@ -310,16 +355,26 @@ jobs:
         if: hashFiles('package-lock.json') != ''
         run: npm audit --audit-level=high || echo "::warning::npm audit encontrou vulnerabilidades — revisar antes do merge"
 
+      - name: Cache Composer global
+        if: hashFiles('composer.lock') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/vendor
+          key: composer-global-cyclonedx-v5
+          restore-keys: composer-global-
+
+      - name: Install CycloneDX PHP
+        if: hashFiles('composer.lock') != ''
+        run: composer global require cyclonedx/cyclonedx-php-composer:^5 --no-interaction
+
       - name: Generate CycloneDX SBOM (PHP)
         if: hashFiles('composer.lock') != ''
-        run: |
-          composer global require cyclonedx/cyclonedx-php-composer:^5 || true
-          ~/.composer/vendor/bin/cyclonedx-php-composer --output-file=sbom-php.xml || echo "::warning::CycloneDX PHP falhou — registrar em ADR-0007"
+        run: ~/.composer/vendor/bin/cyclonedx-php-composer --output-format XML --output-file sbom-php.xml
 
       - name: Upload SBOM artifacts
-        if: hashFiles('sbom-php.xml') != ''
+        if: always() && hashFiles('sbom-php.xml') != ''
         uses: actions/upload-artifact@v4
         with:
           name: sbom
-          path: sbom-*.xml
+          path: sbom-php.xml
           retention-days: 30
