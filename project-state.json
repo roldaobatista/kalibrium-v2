@@ -38,8 +38,8 @@
     "current_epic": "E01",
     "current_story": "E01-S05",
     "current_slice": "005",
-    "slice_status": "spec",
-    "last_green_commit": "f407da4",
+    "slice_status": "merged",
+    "last_green_commit": "e41cd21",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
