@@ -2,16 +2,19 @@
 # PreToolUse hook — enforce R3 (verifier isolation) + R11 (dual-verifier).
 #
 # Cobertura:
-#   - Read|Grep|Glob: path-based sandbox para verifier/reviewer
+#   - Read|Grep|Glob: path-based sandbox para verifier/reviewer/security-reviewer/
+#                      test-auditor/functional-reviewer
 #   - Bash:           comandos de inspeção (cat/less/head/tail/...) bloqueados
-#                     fora dos diretórios sandbox quando AGENT=verifier|reviewer
+#                     fora dos diretórios sandbox quando AGENT é gate isolado
 #                     (item 1.6 meta-audit)
 #
-# Dois contextos isolados:
-#   - verifier: só pode ler verification-input/   (R3)
-#   - reviewer: só pode ler review-input/         (R11)
-#              + BLOQUEADO de ler verification-input/ e specs/*/verification.json
-#              (R11 — reviewer não vê output do verifier)
+# Cinco contextos isolados:
+#   - verifier:            só pode ler verification-input/       (R3)
+#   - reviewer:            só pode ler review-input/             (R11)
+#   - security-reviewer:   só pode ler security-review-input/    (F2 audit 2026-04-12)
+#   - test-auditor:        só pode ler test-audit-input/         (F2 audit 2026-04-12)
+#   - functional-reviewer: só pode ler functional-review-input/  (F2 audit 2026-04-12)
+#              + Cada gate é BLOQUEADO de ler output de outros gates
 #
 # Defesa contra CLAUDE_AGENT_NAME vazio (item 1.4 meta-audit):
 #   detecção multi-sinal de contexto sub-agent quando o env var não foi setado
@@ -65,13 +68,13 @@ if [ -z "$AGENT" ]; then
 fi
 
 # ----------------------------------------------------------------------
-# Sub-agents NÃO-verifier/reviewer (implementer, architect, ac-to-test, etc)
+# Sub-agents NÃO isolados (implementer, architect, ac-to-test, etc)
 # ----------------------------------------------------------------------
 case "$AGENT" in
-  verifier|reviewer) : ;;  # continua para checks específicos abaixo
+  verifier|reviewer|security-reviewer|test-auditor|functional-reviewer) : ;;  # continua para checks específicos abaixo
   *)
     if detect_subagent_context; then
-      echo "[verifier-sandbox BLOCK] sub-agent '$AGENT' rodando em worktree (apenas verifier/reviewer permitidos isolados)" >&2
+      echo "[verifier-sandbox BLOCK] sub-agent '$AGENT' rodando em worktree (apenas gates isolados permitidos)" >&2
       exit 1
     fi
     exit 0  # implementer/architect rodando no main repo: passa
@@ -79,15 +82,17 @@ case "$AGENT" in
 esac
 
 # ======================================================================
-# Daqui em diante: AGENT é verifier OU reviewer
+# Daqui em diante: AGENT é um dos 5 gates isolados
 # ======================================================================
 
 # Define o sandbox dir esperado para este agente
-if [ "$AGENT" = "verifier" ]; then
-  SANDBOX_DIR="verification-input"
-else
-  SANDBOX_DIR="review-input"
-fi
+case "$AGENT" in
+  verifier)            SANDBOX_DIR="verification-input" ;;
+  reviewer)            SANDBOX_DIR="review-input" ;;
+  security-reviewer)   SANDBOX_DIR="security-review-input" ;;
+  test-auditor)        SANDBOX_DIR="test-audit-input" ;;
+  functional-reviewer) SANDBOX_DIR="functional-review-input" ;;
+esac
 
 # ----------------------------------------------------------------------
 # Item 1.6: cobertura de Bash para sub-agents
@@ -134,14 +139,11 @@ if [ -n "$SANDBOX_ABS" ]; then
   if [ -n "$TARGET_ABS" ]; then
     case "$TARGET_ABS" in
       "$SANDBOX_ABS"|"$SANDBOX_ABS"/*)
-        # Dentro do sandbox canônico → segue para checks R11 abaixo
+        # Dentro do sandbox canônico → segue para checks de cross-block abaixo
         :
         ;;
       *)
         # Fora do sandbox canônico — BLOCK incondicional.
-        # Não há "exception cross-block": tentar ler verification-input/ via
-        # path traversal é exatamente o vetor §D.2. R11 cross-block legítimo
-        # nunca usa traversal — usa o path direto, capturado abaixo.
         echo "[verifier-sandbox BLOCK] $AGENT path traversal/symlink escape detectado" >&2
         echo "  TARGET:    $TARGET" >&2
         echo "  Canônico:  $TARGET_ABS" >&2
@@ -190,6 +192,63 @@ if [ "$AGENT" = "reviewer" ]; then
       ;;
     *)
       echo "[verifier-sandbox BLOCK] R11: reviewer so pode acessar review-input/ (tentou: $TARGET)" >&2
+      exit 1
+      ;;
+  esac
+fi
+
+# ----------------------------------------------------------------------
+# SECURITY-REVIEWER (F2 master-audit 2026-04-12)
+# ----------------------------------------------------------------------
+if [ "$AGENT" = "security-reviewer" ]; then
+  case "$TARGET_NORM" in
+    security-review-input/*|*/security-review-input/*|./security-review-input/*|security-review-input)
+      exit 0
+      ;;
+    *verification-input/*|*verification.json|*review-input/*|*review.json|*test-audit-input/*|*test-audit.json|*functional-review-input/*|*functional-review.json)
+      echo "[verifier-sandbox BLOCK] security-reviewer nao pode ver output de outros gates ('$TARGET')" >&2
+      exit 1
+      ;;
+    *)
+      echo "[verifier-sandbox BLOCK] security-reviewer so pode acessar security-review-input/ (tentou: $TARGET)" >&2
+      exit 1
+      ;;
+  esac
+fi
+
+# ----------------------------------------------------------------------
+# TEST-AUDITOR (F2 master-audit 2026-04-12)
+# ----------------------------------------------------------------------
+if [ "$AGENT" = "test-auditor" ]; then
+  case "$TARGET_NORM" in
+    test-audit-input/*|*/test-audit-input/*|./test-audit-input/*|test-audit-input)
+      exit 0
+      ;;
+    *verification-input/*|*verification.json|*review-input/*|*review.json|*security-review-input/*|*security-review.json|*functional-review-input/*|*functional-review.json)
+      echo "[verifier-sandbox BLOCK] test-auditor nao pode ver output de outros gates ('$TARGET')" >&2
+      exit 1
+      ;;
+    *)
+      echo "[verifier-sandbox BLOCK] test-auditor so pode acessar test-audit-input/ (tentou: $TARGET)" >&2
+      exit 1
+      ;;
+  esac
+fi
+
+# ----------------------------------------------------------------------
+# FUNCTIONAL-REVIEWER (F2 master-audit 2026-04-12)
+# ----------------------------------------------------------------------
+if [ "$AGENT" = "functional-reviewer" ]; then
+  case "$TARGET_NORM" in
+    functional-review-input/*|*/functional-review-input/*|./functional-review-input/*|functional-review-input)
+      exit 0
+      ;;
+    *verification-input/*|*verification.json|*review-input/*|*review.json|*security-review-input/*|*security-review.json|*test-audit-input/*|*test-audit.json)
+      echo "[verifier-sandbox BLOCK] functional-reviewer nao pode ver output de outros gates ('$TARGET')" >&2
+      exit 1
+      ;;
+    *)
+      echo "[verifier-sandbox BLOCK] functional-reviewer so pode acessar functional-review-input/ (tentou: $TARGET)" >&2
       exit 1
       ;;
   esac
