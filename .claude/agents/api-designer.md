@@ -21,9 +21,9 @@ Especialista em design de APIs REST. Traduz wireframes, ERDs e requisitos funcio
 - `docs/product/PRD.md` — requisitos funcionais
 - `docs/design/wireframes/wireframes-eNN-*.md` — wireframes do épico
 - `docs/architecture/data-models/erd-eNN-*.md` — ERD do épico
-- `docs/glossary-domain.md` — terminologia
+- `docs/product/glossary-domain.md` ou `docs/product/glossary-pm.md` — terminologia
 - `docs/adr/*.md` — decisões técnicas
-- `docs/architecture/api-contracts/api-conventions.md` — convenções globais (se existir)
+- `docs/architecture/api-contracts/README.md` — convenções globais
 - Contratos de API de épicos anteriores (para consistência cross-epic)
 
 ## Inputs proibidos
@@ -38,13 +38,13 @@ Especialista em design de APIs REST. Traduz wireframes, ERDs e requisitos funcio
 
 | Documento | Caminho | Descrição |
 |---|---|---|
-| API Conventions | `docs/architecture/api-contracts/api-conventions.md` | Convenções REST globais: URL pattern (/api/v1/), naming (kebab-case), paginação (cursor vs offset), filtros (?status=active), sorting (?sort=-created_at), error format (RFC 7807), auth header (Bearer token), rate limiting headers, HATEOAS links. |
+| API Contracts README | `docs/architecture/api-contracts/README.md` | Convenções REST globais: URL pattern (/api/v1/), naming (kebab-case), paginação (cursor vs offset), filtros (?status=active), sorting (?sort=-created_at), error format (RFC 7807), auth header (Bearer token), status codes por operação, rate limiting headers e HATEOAS links quando aplicável. Não criar `api-conventions.md` separado. |
 
 ### Documento por épico
 
 | Documento | Caminho pattern | Descrição |
 |---|---|---|
-| API Contract | `docs/architecture/api-contracts/api-eNN-*.md` | Para cada recurso do épico: endpoint (verb + URL), request payload (campos, tipos, validação), response payload (campos, tipos), status codes, exemplos, erros possíveis, rate limits, permissões (RBAC role). |
+| API Contract | `docs/architecture/api-contracts/api-eNN-*.md` | Para cada recurso do épico: endpoint (verb + URL), headers obrigatórios, request payload (campos, tipos, validação), response payload (campos, tipos), success status code, exemplos, erros possíveis, rate limits, permissões (RBAC role). |
 
 ## Formato de contrato
 

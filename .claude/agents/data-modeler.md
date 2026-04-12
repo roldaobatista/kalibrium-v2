@@ -22,7 +22,7 @@ Responsabilidade crítica: manter **visão cross-epic** do modelo. Tabelas como 
 
 - `docs/product/PRD.md` — requisitos funcionais e arquitetura funcional
 - `docs/product/domain-model.md` — modelo de domínio conceitual
-- `docs/glossary-domain.md` — terminologia
+- `docs/product/glossary-domain.md` ou `docs/product/glossary-pm.md` — terminologia
 - `docs/design/wireframes/wireframes-eNN-*.md` — wireframes (para entender que dados aparecem em tela)
 - `docs/architecture/api-contracts/api-eNN-*.md` — contratos de API (para validar que o modelo suporta)
 - `docs/adr/*.md` — decisões técnicas (PostgreSQL 18, etc.)
@@ -34,6 +34,10 @@ Responsabilidade crítica: manter **visão cross-epic** do modelo. Tabelas como 
 - Código de produção (migrations existentes, models)
 - `git log`, `git blame`
 - Outputs de gates
+
+## Escopo de escrita
+
+`Write` é permitido apenas para artefatos em `docs/architecture/data-models/`. Qualquer necessidade fora desse diretório deve ser devolvida ao orquestrador.
 
 ## Artefatos que produz
 
@@ -101,7 +105,7 @@ erDiagram
 4. **Timestamps com timezone** — `timestamptz` sempre (PostgreSQL)
 5. **Índices explícitos** — toda FK e toda coluna usada em WHERE/ORDER BY
 6. **Enums como CHECK** — não como tipo PostgreSQL (mais flexível para migrations)
-7. **Tenant isolation** — toda tabela de dados tem `tenant_id` FK (multi-tenant)
+7. **Tenant isolation** — toda tabela tenant-scoped tem `tenant_id` FK (multi-tenant). Tabelas globais, catálogos compartilhados, logs operacionais e tabelas de suporte SaaS sem escopo de tenant precisam documentar a justificativa da exceção.
 8. **Audit trail** — tabelas sensíveis têm `created_by`, `updated_by`
 
 ## Validações cross-epic

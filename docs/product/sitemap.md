@@ -1,7 +1,7 @@
 # Sitemap — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** G.17
 > **Dependencias:** `epics/ROADMAP.md`, `docs/product/mvp-scope.md`, `docs/product/personas.md`, `docs/product/journeys.md`, `docs/design/layout-master.md`
@@ -53,23 +53,40 @@ Escopo:
 │   ├── reset-password/{token}
 │   └── two-factor-challenge
 ├── app/
-│   ├── dashboard
-│   ├── ordens-servico
-│   ├── agenda
-│   ├── fila-tecnica
-│   ├── bancada
-│   ├── calibracoes
-│   ├── certificados
-│   ├── fiscal/notas
-│   ├── financeiro/titulos
-│   ├── documentos
-│   ├── relatorios
-│   ├── notificacoes
-│   └── settings
+│   └── dashboard
 ├── clientes
 ├── instrumentos
 ├── padroes
 ├── procedimentos
+├── ordens-servico
+├── agenda
+├── fila-tecnica
+├── bancada
+├── calibracoes
+├── certificados
+├── fiscal/
+│   └── notas
+├── financeiro/
+│   ├── titulos
+│   ├── conciliacao
+│   └── exportacoes
+├── documentos
+├── relatorios
+├── notificacoes
+├── fornecedores
+├── compras/
+│   ├── requisicoes
+│   ├── cotacoes
+│   └── pedidos
+├── habilitacoes
+├── treinamentos
+├── settings/
+│   ├── tenant
+│   ├── users
+│   ├── plans
+│   ├── privacy
+│   ├── notificacoes
+│   └── comunicacao
 ├── portal/
 │   ├── login
 │   ├── certificados
@@ -92,7 +109,7 @@ Escopo:
 | Login | `/auth/login` | E02 | Marcelo, Juliana | anonimo |
 | Recuperar senha | `/auth/forgot-password` | E02 | Marcelo, Juliana | anonimo |
 | Redefinir senha | `/auth/reset-password/{token}` | E02 | Marcelo, Juliana | anonimo |
-| Desafio 2FA | `/auth/two-factor-challenge` | E02 | Marcelo | usuario autenticando |
+| Desafio 2FA | `/auth/two-factor-challenge` | E02 | Marcelo | anonimo com sessao 2FA pendente |
 
 ### 4.2. Tenant, usuarios e planos
 

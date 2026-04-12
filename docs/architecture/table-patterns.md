@@ -1,7 +1,7 @@
 # Table and List Patterns — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.6 / G.13
 > **Dependencias:** `docs/design/component-patterns.md`, `docs/design/data-display-patterns.md`
@@ -10,7 +10,7 @@
 
 ## 1. Decisao
 
-Listagens usam paginacao, filtros e ordenacao no servidor via Livewire. Infinite scroll e excecao e exige justificativa. Tabelas densas sao otimizadas para escritorio; em mobile, virar cards apenas quando a leitura tabular deixar de funcionar.
+Listagens usam paginacao, filtros e ordenacao no servidor via Livewire. Infinite scroll automatico nao e padrao; em mobile, o fallback preferido e botao "Carregar mais" consumindo paginas do servidor. Tabelas densas sao otimizadas para escritorio; em mobile, virar cards/listas e o padrao, com scroll horizontal apenas para excecoes regulatorias densas documentadas.
 
 ---
 
@@ -86,12 +86,12 @@ Fluxo:
 
 | Tela | Mobile |
 |---|---|
-| Back-office denso | scroll horizontal controlado |
+| Back-office denso | card/list com campos essenciais |
 | Portal cliente | card list |
 | Bancada tecnica | card list com acoes grandes |
 | Auditoria | lista/timeline |
 
-Nunca esconder coluna critica sem alternativa. Em mobile, dados secundarios podem ir para area expandida.
+Nunca esconder coluna critica sem alternativa. Em mobile, dados secundarios podem ir para area expandida. Scroll horizontal so e permitido quando a tabela regulatoria precisa preservar matriz/colunas em formato tabular, e o wireframe deve registrar a excecao.
 
 ---
 

@@ -1,7 +1,7 @@
 # Screen Inventory — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** B.5 / G.5
 > **Dependencias:** `docs/product/sitemap.md`, `docs/design/component-patterns.md`, `docs/design/layout-master.md`, `docs/product/domain-model.md`
@@ -84,11 +84,15 @@ Status de wireframe:
 | SCR-E10-001 | E10 | Documentos GED | `/documentos` | Marcelo | list | pending | Table, File Upload, Search | Documento GED |
 | SCR-E10-002 | E10 | Detalhe do documento | `/documentos/{documento}` | Marcelo | detail | pending | Metadata Card, Timeline, Download Button | Documento GED, Audit Log |
 | SCR-E10-003 | E10 | Upload de documento | `/documentos/novo` | Marcelo | form | pending | File Upload, Form, Select | Documento GED |
+| SCR-E11-000 | E11 | Dashboard inicial | `/app` | Marcelo | dashboard redirect | pending | Stat, Alert Banner, Shortcut Cards | OS, Calibracao, Titulo financeiro |
 | SCR-E11-001 | E11 | Dashboard operacional | `/app/dashboard` | Marcelo | dashboard | pending | Stat, Table, Chart, Alert Banner | OS, Calibracao, Titulo financeiro |
 | SCR-E11-002 | E11 | Relatorios | `/relatorios` | Marcelo | report | pending | Date Range, Table, Export Button | OS, Calibracao, Financeiro |
+| SCR-E12-004 | E12 | Notificacoes | `/notificacoes` | Marcelo, Juliana | inbox | pending | List, Badge, Filter Chips, Empty State | Notificacao |
 | SCR-E13-001 | E13 | Fornecedores | `/fornecedores` | Marcelo | list | pending | Table, Badge, Search | Fornecedor |
 | SCR-E13-002 | E13 | Requisicoes de compra | `/compras/requisicoes` | Marcelo | list | pending | Table, Badge, Approval Modal | Requisicao de compra |
 | SCR-E13-003 | E13 | Pedidos de compra | `/compras/pedidos` | Marcelo | list | pending | Table, Badge, Detail Drawer | Pedido de compra |
+| SCR-E13-004 | E13 | Detalhe do fornecedor | `/fornecedores/{fornecedor}` | Marcelo | detail | pending | Tabs, Timeline, Badge | Fornecedor |
+| SCR-E13-005 | E13 | Cotacoes | `/compras/cotacoes` | Marcelo | list | pending | Table, Badge, Approval Modal | Cotacao |
 | SCR-E14-001 | E14 | Habilitacoes tecnicas | `/habilitacoes` | Marcelo | list | pending | Table, Badge, Alert Banner | Habilitacao tecnica |
 | SCR-E14-002 | E14 | Matriz de competencias | `/habilitacoes/matriz` | Marcelo | matrix | pending | Table, Badge, Export Button | Colaborador, Habilitacao |
 | SCR-E14-003 | E14 | Treinamentos | `/treinamentos` | Marcelo | list | pending | Table, File Upload, Badge | Treinamento |

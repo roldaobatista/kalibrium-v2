@@ -1,7 +1,7 @@
 # State Management Strategy — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.4 / G.11
 
@@ -20,7 +20,7 @@ O estado principal da aplicacao fica no servidor via Livewire e banco de dados. 
 | Banco | Fonte de verdade | OS, instrumento, certificado | Permanente |
 | Livewire property | Estado de tela | filtro, form, ordenacao | Durante interacao |
 | Query string | Link compartilhavel | `?status=issued&page=2` | URL |
-| Session | Preferencia temporaria | tenant ativo | Sessao |
+| Session | Preferencia temporaria | tenant corrente/selecionado | Sessao |
 | Cache | Resultado derivado | KPI do dashboard | TTL explicito |
 | Alpine local | UI efemera | dropdown aberto | Local, descartavel |
 | IndexedDB/PWA | fila offline | medicoes pendentes | Ate sincronizar |
@@ -66,7 +66,7 @@ Unsaved changes:
 ## 5. Multi-tab
 
 - Estado de formulario e tab-specific.
-- Tenant ativo deve ser compartilhado por sessao.
+- Tenant corrente/selecionado deve ser compartilhado por sessao.
 - Logout em uma aba deve invalidar as demais no proximo request.
 - Conflito de edicao deve usar regra de `interaction-patterns.md` para conflito offline/concurrente.
 

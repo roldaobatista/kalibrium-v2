@@ -1,7 +1,7 @@
 # Component Patterns — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Stack:** Laravel 13, Livewire 4, Tailwind CSS 4, Alpine.js
 > **Dependencia:** `docs/design/style-guide.md` v1.0.0
@@ -189,8 +189,9 @@ Botao com aparencia de link. Semanticamente um `<a>` ou `<button>` com estilo te
 
 ### Acessibilidade
 
-- Se `<button>`: `role="button"` implicito.
-- Se `<a>` sem `href`: adicionar `role="button"` e `tabindex="0"`.
+- Se navega: usar `<a href="...">`.
+- Se executa acao: usar `<button>`; `role="button"` e implicito.
+- Nunca usar `<a>` sem `href`.
 - Texto descritivo — evitar "clique aqui". Usar "Ver todos os certificados".
 
 ### Exemplo
@@ -577,7 +578,7 @@ Selecao de opcoes booleanas ou multiplas escolhas.
 
 - `role="checkbox"` (implicito em `<input type="checkbox">`).
 - `aria-checked="true/false/mixed"` (mixed para indeterminate).
-- Grupo: `role="group"`, `aria-labelledby` apontando para titulo do grupo.
+- Grupo: preferir `<fieldset>` + `<legend>`; se custom, usar `role="group"` e `aria-labelledby` apontando para titulo do grupo.
 - Keyboard: `Space` toggle. `Tab` navega entre checkboxes.
 
 ---
@@ -637,7 +638,7 @@ Selecao exclusiva (uma opcao entre varias).
 
 ### Acessibilidade
 
-- `role="radiogroup"` no container.
+- Preferir `<fieldset>` + `<legend>` no grupo; se custom, usar `role="radiogroup"` no container.
 - Cada opcao: `role="radio"` (implicito em `<input type="radio">`).
 - `aria-checked="true/false"`.
 - `aria-required="true"` no radiogroup se obrigatorio.
@@ -1117,7 +1118,7 @@ Container visual para agrupar informacoes relacionadas.
 
 ### Acessibilidade
 
-- Action card: `role="link"` ou `<a>` semantico. `tabindex="0"`. `Enter` ativa.
+- Action card que navega: `<a href="...">` semantico. Action card que executa acao: `<button>`. `Enter` ativa em ambos.
 - Stat card: valores importantes com `aria-label` descritivo (ex: "147 calibracoes este mes, 12 por cento acima do mes anterior").
 
 ---

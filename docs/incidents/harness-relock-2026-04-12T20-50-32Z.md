@@ -12,6 +12,8 @@ protegem `.claude/settings.json` e `scripts/hooks/*` contra auto-modificação).
 Toda execução cria um incidente para auditoria — exigido pelo PM em
 2026-04-10 como parte do item 1.2 (adição) do meta-audit action plan.
 
+Motivo específico deste relock: o PM autorizou a atualização do harness para registrar o Codex CLI como orquestrador alternativo exclusivo, preservando os comandos existentes e re-selando `.claude/settings.json` e o manifesto dos hooks após a alteração controlada.
+
 ## Selos antes → depois
 
 | Arquivo | Hash anterior | Hash novo |

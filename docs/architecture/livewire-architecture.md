@@ -1,7 +1,7 @@
 # Livewire Component Architecture — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.1 / G.9
 > **Stack:** Laravel 13, Livewire 4, Blade, Alpine.js, Tailwind CSS 4
@@ -101,7 +101,7 @@ Nao persistir na URL:
 |---|---|
 | Filho avisa pai sobre mudanca | Livewire event nomeado por dominio |
 | Pai atualiza filho | Propriedade passada ou key reativa |
-| Toast global | evento `toast.show` |
+| Toast global | evento `toast-show` |
 | Notificacao em tempo real | canal de notificacao definido em `notification-patterns.md` |
 | Acao de tabela em massa | page component orquestra, filhos apenas disparam intencao |
 

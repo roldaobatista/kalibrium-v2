@@ -1,7 +1,7 @@
 # Style Guide — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Stack:** Laravel 13, Livewire 4, Tailwind CSS 4, Alpine.js
 
@@ -76,9 +76,9 @@ O design do Kalibrium transmite tres valores fundamentais:
 | `accent-100` | `#ffedd5` | `bg-accent-100` | Badges de destaque |
 | `accent-200` | `#fed7aa` | `bg-accent-200` | Bordas de destaque |
 | `accent-400` | `#fb923c` | `text-accent-400` | Icones de atencao |
-| `accent-500` | `#f97316` | `bg-accent-500` | **Botoes de acao secundaria**, CTAs de urgencia |
-| `accent-600` | `#ea580c` | `bg-accent-600` | Hover de botoes de acento |
-| `accent-700` | `#c2410c` | `bg-accent-700` | Active/pressed de botoes de acento |
+| `accent-500` | `#f97316` | `bg-accent-500` | Badges e destaques de urgencia |
+| `accent-600` | `#ea580c` | `bg-accent-600` | Destaque sem texto branco normal; usar com icone/texto grande ou fundo claro |
+| `accent-700` | `#c2410c` | `bg-accent-700` | **Botoes de acao secundaria** com texto branco normal |
 
 > Baseado na escala `orange` do Tailwind CSS 4. Laranja quente contrasta com o azul frio da primaria, chamando atencao para acoes importantes sem competir com a paleta principal.
 
@@ -89,8 +89,8 @@ O design do Kalibrium transmite tres valores fundamentais:
 | `success-50` | `#f0fdf4` | `bg-success-50` | Background de alertas de sucesso |
 | `success-100` | `#dcfce7` | `bg-success-100` | Badge "Aprovado", "Calibrado" |
 | `success-500` | `#22c55e` | `text-success-500` | Icone de sucesso, check |
-| `success-600` | `#16a34a` | `bg-success-600` | Botao de confirmacao |
-| `success-700` | `#15803d` | `bg-success-700` | Hover confirmacao |
+| `success-600` | `#16a34a` | `bg-success-600` | Indicador de confirmacao; texto branco apenas em texto grande/bold |
+| `success-700` | `#15803d` | `bg-success-700` | Botao de confirmacao com texto branco normal |
 | `warning-50` | `#fffbeb` | `bg-warning-50` | Background de alertas de aviso |
 | `warning-100` | `#fef3c7` | `bg-warning-100` | Badge "Vencendo", "Pendente" |
 | `warning-500` | `#eab308` | `text-warning-500` | Icone de aviso |
@@ -113,7 +113,7 @@ O design do Kalibrium transmite tres valores fundamentais:
 | Pagina (body) | `bg-page` | `bg-neutral-50` |
 | Card / painel | `bg-card` | `bg-white` |
 | Sidebar | `bg-sidebar` | `bg-primary-900` |
-| Sidebar hover item | `bg-sidebar-hover` | `bg-primary-800` |
+| Sidebar hover item | `bg-sidebar-item-hover` | `bg-primary-800` |
 | Header/topbar | `bg-header` | `bg-white` |
 | Tabela row alternada | `bg-table-stripe` | `bg-neutral-50` |
 | Modal overlay | `bg-overlay` | `bg-black/50` |
@@ -124,7 +124,7 @@ O design do Kalibrium transmite tres valores fundamentais:
 
 | Elemento | Token | Classe Tailwind |
 |---|---|---|
-| Texto primario (corpo) | `text-primary` | `text-neutral-900` |
+| Texto primario (corpo) | `text-body` | `text-neutral-900` |
 | Texto secundario | `text-secondary` | `text-neutral-600` |
 | Texto muted (placeholders, hints) | `text-muted` | `text-neutral-400` |
 | Texto inverso (sobre bg escuro) | `text-inverse` | `text-white` |
@@ -394,8 +394,8 @@ Mapeamento de tokens semanticos para classes Tailwind CSS 4. Usar SEMPRE o token
 | `bg-btn-secondary` | `bg-white` | `#ffffff` |
 | `bg-btn-danger` | `bg-danger-600` | `#dc2626` |
 | `bg-btn-danger-hover` | `bg-danger-700` | `#b91c1c` |
-| `bg-btn-accent` | `bg-accent-500` | `#f97316` |
-| `bg-btn-accent-hover` | `bg-accent-600` | `#ea580c` |
+| `bg-btn-accent` | `bg-accent-700` | `#c2410c` |
+| `bg-btn-accent-hover` | `bg-accent-700` | `#c2410c` |
 | `bg-success-subtle` | `bg-success-50` | `#f0fdf4` |
 | `bg-warning-subtle` | `bg-warning-50` | `#fffbeb` |
 | `bg-danger-subtle` | `bg-danger-50` | `#fef2f2` |
@@ -567,9 +567,9 @@ Padroes de formatacao para dados recorrentes no contexto de metrologia/calibraca
 
 | Tipo de dado | Formato | Classe tipografica | Exemplo |
 |---|---|---|---|
-| Medicao com incerteza | `valor +/- incerteza unidade` | `font-mono text-sm` | `12.345 +/- 0.002 mm` |
-| Temperatura ambiente | `valor unidade` | `font-mono text-sm` | `23.1 C` |
-| Umidade relativa | `valor%` | `font-mono text-sm` | `52.3%` |
+| Medicao com incerteza | `valor unidade ± incerteza unidade` | `font-mono text-sm` | `12,345 mm ± 0,002 mm` |
+| Temperatura ambiente | `valor unidade` | `font-mono text-sm` | `23,1 °C` |
+| Umidade relativa | `valor %UR` | `font-mono text-sm` | `52,3 %UR` |
 | ID de instrumento | codigo alfanumerico | `font-mono text-xs` | `INS-2026-00142` |
 | ID de certificado | codigo alfanumerico | `font-mono text-xs` | `CERT-2026-003891` |
 | Numero de serie | alfanumerico | `font-mono text-sm` | `SN-BPK2019-0034` |
@@ -577,7 +577,7 @@ Padroes de formatacao para dados recorrentes no contexto de metrologia/calibraca
 | Data de validade | `DD/MM/AAAA` + badge status | `font-mono text-sm` | `12/04/2027` |
 | Valor monetario (BRL) | `R$ #.###,##` | `font-mono text-sm` | `R$ 1.250,00` |
 | Faixa de medicao | `min a max unidade` | `font-mono text-sm` | `0 a 150 mm` |
-| Resolucao | `valor unidade` | `font-mono text-sm` | `0.001 mm` |
+| Resolucao | `valor unidade` | `font-mono text-sm` | `0,001 mm` |
 | Status de calibracao | badge colorido | `text-sm font-medium` | Badge "Aprovado" verde |
 
 > **Regra:** todos os dados numericos de metrologia usam `font-mono` para alinhamento vertical perfeito em tabelas. Separador decimal e VIRGULA (padrao brasileiro). Separador de milhar e PONTO.

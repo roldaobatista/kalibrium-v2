@@ -1,9 +1,9 @@
 # Kalibrium V2 — Instruções operacionais para o agente
 
-**Este é o único arquivo de instruções válido deste repositório.** Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida por **R1** e bloqueada por hook no SessionStart.
+**Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
-Versão: 2.2.0 — 2026-04-12 (Codex CLI autorizado como orquestrador alternativo exclusivo; pipeline de 5 gates preservado).
-<!-- Contagem: 15 agents em .claude/agents/ (14 sub-agents + 1 orchestrator), 33 skills em .claude/skills/ -->
+Versão: 2.2.1 — 2026-04-12 (gate documental incorporado; contagem de agentes/skills atualizada).
+<!-- Contagem: 21 agents em .claude/agents/ (20 sub-agents + 1 orchestrator), 35 skills em .claude/skills/ -->
 
 ---
 
@@ -12,11 +12,12 @@ Versão: 2.2.0 — 2026-04-12 (Codex CLI autorizado como orquestrador alternativ
 Antes de qualquer ferramenta ser invocada, ler nesta ordem:
 
 1. `CLAUDE.md` (este arquivo)
-2. `docs/constitution.md` (P1-P9 + R1-R10 + DoD mecânica)
+2. `docs/constitution.md` (P1-P9 + R1-R12 + DoD mecânica)
 3. `docs/TECHNICAL-DECISIONS.md` (índice vivo de ADRs)
-4. Se existir slice ativo: `specs/<slice-atual>/spec.md`
+4. `docs/documentation-requirements.md` (gate de documentação antes de UI/código)
+5. Se existir slice ativo: `specs/<slice-atual>/spec.md`
 
-O `SessionStart` hook (`scripts/hooks/session-start.sh`) valida que 1-3 existem e falha duro se qualquer arquivo proibido (R1) for encontrado.
+O `SessionStart` hook (`scripts/hooks/session-start.sh`) valida que os documentos raiz existem e falha duro se qualquer arquivo proibido (R1) for encontrado.
 
 ---
 
@@ -32,7 +33,7 @@ Detalhes completos em `docs/constitution.md §2`. Lista curta para consulta ráp
 
 - **P1** — Gate objetivo precede opinião de agente.
 - **P2** — AC é teste executável, escrito **antes** do código.
-- **P3** — Verificação em contexto isolado (worktree descartável).
+- **P3** — Verificação em contexto isolado por pacote de input e sandbox.
 - **P4** — Hooks executam, não só formatam.
 - **P5** — Uma fonte de verdade para instruções.
 - **P6** — Commits atômicos com autor identificável.
@@ -48,7 +49,7 @@ Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 
 - **R1** — Fonte única de instrução. Sem `.cursorrules`/`AGENTS.md`/etc.
 - **R2** — Um orquestrador ativo por branch. Claude Code ou Codex CLI podem operar, mas nunca os dois editando em paralelo na mesma branch.
-- **R3** — Verifier em worktree descartável.
+- **R3** — Verifier em contexto isolado por sandbox.
 - **R4** — Verifier emite JSON validado, não prosa.
 - **R5** — Autor humano-identificável em commits.
 - **R6** — 2 reprovações consecutivas do verifier = escalar humano.
@@ -138,31 +139,32 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 9. PM aprova sequência e prioridades.
 10. `/decompose-stories ENN` — decompõe épico em stories com Story Contract.
 11. PM aprova cada Story Contract.
+12. Antes de iniciar qualquer story com UI ou tela, validar `docs/documentation-requirements.md`: documentos globais obrigatórios e documentos do épico precisam existir ou a story não começa.
 
 ### Fase D — Execução (por story)
-12. `/start-story ENN-SNN` — cria slice(s) a partir do Story Contract.
-13. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
-14. PM aprova plan.
-15. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
-16. Commit: `test(slice-NNN): AC tests red`.
-17. Sub-agent `implementer` faz testes virarem verdes, task por task.
+13. `/start-story ENN-SNN` — cria slice(s) a partir do Story Contract.
+14. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
+15. PM aprova plan.
+16. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
+17. Commit: `test(slice-NNN): AC tests red`.
+18. Sub-agent `implementer` faz testes virarem verdes, task por task.
 
 ### Fase E — Pipeline de Gates (por slice)
 
 > **Ordem definida no orchestrator.md:** verifier (1º) → reviewer (2º, só se verifier aprovou) → [security + test-audit + functional] (3º, em paralelo). **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. Gate só aprova com `findings: []`. Loop: gate rejeita → fixer corrige TODOS → re-run do mesmo gate → repete até zero findings.
 
-18. `/verify-slice NNN` → verifier em worktree isolada → `verification.json`.
-19. `/review-pr NNN` → reviewer em worktree isolada → `review.json`.
-20. `/security-review NNN` → security-reviewer em worktree isolada → `security-review.json`.
-21. `/test-audit NNN` → test-auditor em worktree isolada → `test-audit.json`.
-22. `/functional-review NNN` → functional-reviewer em worktree isolada → `functional-review.json`.
-23. Se qualquer gate emitir findings (mesmo minor/low/info) → `/fix NNN [gate]` → fixer corrige TODOS → **re-run do mesmo gate** (não pula). Repete até `findings: []`.
-24. Se segundo `rejected` consecutivo (R6) → parar, escalar humano via `/explain-slice NNN`.
-25. Todos os gates `approved` com zero findings → `/merge-slice NNN`.
+19. `/verify-slice NNN` → verifier em contexto isolado → `verification.json`.
+20. `/review-pr NNN` → reviewer em contexto isolado → `review.json`.
+21. `/security-review NNN` → security-reviewer em contexto isolado → `security-review.json`.
+22. `/test-audit NNN` → test-auditor em contexto isolado → `test-audit.json`.
+23. `/functional-review NNN` → functional-reviewer em contexto isolado → `functional-review.json`.
+24. Se qualquer gate emitir findings (mesmo minor/low/info) → `/fix NNN [gate]` → fixer corrige TODOS → **re-run do mesmo gate** (não pula). Repete até `findings: []`.
+25. Se segundo `rejected` consecutivo (R6) → parar, escalar humano via `/explain-slice NNN`.
+26. Todos os gates `approved` com zero findings → `/merge-slice NNN`.
 
 ### Fase F — Encerramento
-26. `/slice-report NNN` e `/retrospective NNN` obrigatórios pós-merge.
-27. Quando todos os épicos MVP completos → `/release-readiness`.
+27. `/slice-report NNN` e `/retrospective NNN` obrigatórios pós-merge.
+28. Quando todos os épicos MVP completos → `/release-readiness`.
 
 ### Gestão de estado (transversal)
 - `/checkpoint` — salva estado em `project-state.json` + handoff a qualquer momento.
@@ -245,8 +247,18 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 |---|---|---|
 | `architect` | Gera plan.md a partir de spec.md | 30k |
 | `epic-decomposer` | Decompõe PRD em épicos com dependências | 30k |
+| `planning-auditor` | Audita roadmap/épicos antes de apresentar ao PM | 40k |
 | `story-decomposer` | Decompõe épico em stories com Story Contract | 30k |
+| `story-auditor` | Audita stories antes de iniciar slices | 40k |
 | `ac-to-test` | Gera testes red a partir de ACs | 40k |
+| `plan-reviewer` | Revisa plan.md antes de execução | 25k |
+
+### Núcleo de Design e Contratos
+| Nome | Papel | Budget |
+|---|---|---|
+| `ux-designer` | Gera UX/design docs, wireframes, inventário de telas e fluxos | 50k |
+| `api-designer` | Gera contratos REST por épico e valida consistência de API | 30k |
+| `data-modeler` | Gera ERDs e specs de migrations por épico | 25k |
 
 ### Núcleo de Execução
 | Nome | Papel | Budget |
@@ -254,7 +266,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 | `implementer` | Faz testes red virarem verdes | 80k |
 | `fixer` | Corrige findings de qualquer gate de review | 60k |
 
-### Núcleo de Qualidade (gates independentes em worktree isolada)
+### Núcleo de Qualidade (gates independentes em contexto isolado)
 | Nome | Papel | Budget |
 |---|---|---|
 | `verifier` | Valida slice mecanicamente, emite `verification.json` | 25k |
@@ -275,7 +287,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 > O orquestrador não é um sub-agent — é o papel principal do orquestrador ativo (Claude Code ou Codex CLI em modo exclusivo). Definido em `.claude/agents/orchestrator.md` com regras de sequenciamento, paralelismo e checkpoint.
 
-Detalhes em `.claude/agents/*.md`. Total: 15 agents (14 sub-agents + 1 orchestrator) organizados em 6 núcleos.
+Detalhes em `.claude/agents/*.md`. Total: 21 agents (20 sub-agents + 1 orchestrator) organizados em 7 núcleos.
 
 ---
 

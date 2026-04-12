@@ -1,7 +1,7 @@
 # Naming Conventions — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.2 / G.10
 
@@ -23,7 +23,7 @@
 |---|---|---|
 | Model | singular PascalCase | `Instrument`, `ServiceOrder` |
 | Controller | PascalCase + `Controller` | `InstrumentController` |
-| Livewire page | PascalCase + `Page` | `InstrumentIndexPage` |
+| Livewire page | namespace por modulo + PascalCase `Page` | `App\Livewire\Instrumentos\IndexPage` |
 | Form object | PascalCase + `Form` | `InstrumentForm` |
 | Policy | Model + `Policy` | `InstrumentPolicy` |
 | Event | passado ou fato de dominio | `InstrumentCreated` |
@@ -35,9 +35,10 @@
 Namespaces:
 
 ```text
-App\Domain\<Contexto>
-App\Infrastructure\<Adapter>
-App\Livewire\<Modulo>
+App\Domain\Instrumentos
+App\Domain\Certificados
+App\Infrastructure\Fiscal
+App\Livewire\Instrumentos\IndexPage
 App\Http\Controllers
 ```
 
@@ -66,8 +67,8 @@ Regras:
 | Tipo | Padrao | Exemplo |
 |---|---|---|
 | Recurso | kebab-case plural | `/instrumentos` |
-| Detalhe | id/codigo na rota | `/instrumentos/{instrument}` |
-| Acao especial | verbo curto | `/certificados/{certificate}/revogar` |
+| Detalhe | id/codigo na rota, placeholder em portugues do dominio | `/instrumentos/{instrumento}` |
+| Acao especial | verbo curto | `/certificados/{certificado}/revogar` |
 | Portal publico | prefixo `portal` | `/portal/certificados` |
 | Admin global | prefixo `admin` | `/admin/tenants` |
 

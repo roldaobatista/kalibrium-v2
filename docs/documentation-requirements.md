@@ -1,7 +1,7 @@
 # Requisitos de Documentacao — Gate de Documentacao Pre-Implementacao
 
 > **Status:** ativo.
-> **Versao:** 1.0.0 — 2026-04-12.
+> **Versao:** 1.1.0 — 2026-04-12.
 > **Proposito:** definir TODA a documentacao necessaria antes de iniciar implementacao de funcionalidades com UI. Este documento e a "gate de documentacao" que bloqueia codigo ate docs completas.
 > **Fundamentacao:** pesquisa sobre BMAD Method (26 agentes, 68 workflows), GitHub spec-kit (87k stars), e melhores praticas de SaaS maduro.
 
@@ -11,12 +11,12 @@
 
 | Secao | Conteudo |
 |---|---|
-| A | Documentacao de Produto (temos parcial) |
-| B | Documentacao de Design/UX (nao temos) |
-| C | Documentacao Tecnica de Frontend (nao temos) |
-| D | Documentacao por Epico/Feature (parcial) |
+| A | Documentacao de Produto (global criado; docs por epico ainda sob demanda) |
+| B | Documentacao de Design/UX (global criado; wireframes por epico ainda sob demanda) |
+| C | Documentacao Tecnica de Frontend (global criado; contratos por epico ainda sob demanda) |
+| D | Documentacao por Epico/Feature (sob demanda por epico) |
 | E | Gate de Documentacao — regra formal |
-| F | Agentes novos sugeridos |
+| F | Agentes ativos para o gate |
 
 ---
 
@@ -29,7 +29,7 @@
 | PRD completo (122 FRs, 55 NFRs, 11 dominios) | `docs/product/PRD.md` | frozen |
 | Personas detalhadas (3 primarias + 4 nao-alvo) | `docs/product/personas.md` | ativo |
 | Jornadas fim a fim (5, Jornada 1 detalhada) | `docs/product/journeys.md` | ativo |
-| Glossario de dominio | `docs/glossary-domain.md` | ativo |
+| Glossario de dominio | `docs/product/glossary-domain.md` | ativo |
 | Glossario PM | `docs/product/glossary-pm.md` | ativo |
 | Escopo MVP | `docs/product/mvp-scope.md` | ativo |
 | Laboratorio tipo | `docs/product/laboratorio-tipo.md` | ativo |
@@ -44,7 +44,7 @@
 | 14 epicos com stories (E01 decomposto) | `epics/E01-E14/` | ativo |
 | Roadmap | `epics/ROADMAP.md` | ativo |
 
-### A.2. Documentos de Produto que FALTAM
+### A.2. Documentos de Produto do gate global
 
 #### A.2.1. Mapa de Navegacao / Sitemap
 
@@ -54,7 +54,7 @@
 | **Caminho** | `docs/product/sitemap.md` |
 | **Descricao** | Arvore hierarquica de todas as paginas/telas do sistema, agrupadas por modulo. Inclui: URL pattern, titulo da pagina, persona primaria, nivel de acesso (RBAC role). Serve como indice mestre para wireframes e rotas. |
 | **Fase** | Planning (apos freeze-architecture, antes de implementacao UI) |
-| **Agente responsavel** | `ux-designer` (novo) com input do `architect` |
+| **Agente responsavel** | `ux-designer` com input do `architect` |
 | **Bloqueante para** | Implementacao de qualquer epico com UI (E02-E14) |
 
 #### A.2.2. Fluxos de Tela (UI Flows)
@@ -65,7 +65,7 @@
 | **Caminho** | `docs/product/ui-flows.md` |
 | **Descricao** | Diagramas (em Mermaid ou texto estruturado) mostrando a navegacao do usuario entre telas para cada jornada. Inclui: tela de origem, acao do usuario, tela de destino, dados transmitidos, estados de erro. Complementa `journeys.md` com nivel de tela. |
 | **Fase** | Planning |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Implementacao de qualquer epico com UI |
 
 #### A.2.3. Cenarios de Persona Expandidos
@@ -76,7 +76,7 @@
 | **Caminho** | `docs/product/persona-scenarios.md` |
 | **Descricao** | Para cada persona (Marcelo, Juliana, Rafael): 5-8 cenarios concretos com pre-condicao, passos, resultado esperado. Mais granular que jornadas, mais proximo de test cases de aceitacao de UX. Inclui cenarios de erro e edge cases (ex: Juliana tenta usar padrao vencido). |
 | **Fase** | Planning |
-| **Agente responsavel** | `ux-designer` (novo) com input de `domain-analyst` |
+| **Agente responsavel** | `ux-designer` com input de `domain-analyst` |
 | **Bloqueante para** | Wireframes e testes funcionais |
 
 #### A.2.4. Mapa de Permissoes por Tela
@@ -94,7 +94,7 @@
 
 ## B. Documentacao de Design/UX
 
-Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje.
+Os documentos globais desta categoria foram criados em 2026-04-12. Os wireframes por epico continuam sendo produzidos sob demanda antes da implementacao do respectivo epico.
 
 #### B.1. Design System / Style Guide
 
@@ -104,7 +104,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/style-guide.md` |
 | **Descricao** | Documento fundacional de identidade visual do produto. Inclui: paleta de cores (primaria, secundaria, semantica — success/warning/error/info), tipografia (font family, tamanhos, pesos, line-height), espacamento (grid system, gaps, padding), sombras, border-radius, iconografia (biblioteca escolhida, regras de uso), logotipo e variantes. Define tokens de design reutilizaveis. |
 | **Fase** | Strategy (apos freeze-architecture, antes de qualquer tela) |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Todos os wireframes, todos os componentes, toda implementacao UI |
 
 #### B.2. Padroes de Componentes
@@ -115,7 +115,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/component-patterns.md` |
 | **Descricao** | Catalogo de componentes padrao do sistema com especificacao por componente: Tabelas (sortable, filterable, paginacao, bulk actions, empty state, loading state), Formularios (layout, labels, placeholders, validacao inline, agrupamento, steps), Modais (confirmacao, formulario, alerta, tamanhos), Toasts/Notifications (posicao, duracao, tipos, stacking), Cards (informacao, acao, status), Badges/Tags (cores, tamanhos, semantica), Buttons (hierarquia: primary/secondary/ghost/danger, tamanhos, estados), Breadcrumbs, Tabs, Dropdowns, Search (global, contextual, autocomplete), Date pickers, File upload (drag-drop, progress, validacao). Cada componente com: anatomia, variantes, estados (default, hover, active, disabled, error, loading), regras de quando usar/nao usar. |
 | **Fase** | Strategy (apos style-guide) |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Implementacao de qualquer componente UI |
 
 #### B.3. Padroes de Interacao
@@ -126,7 +126,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/interaction-patterns.md` |
 | **Descricao** | Regras de comportamento transversais a todo o sistema. Inclui: Loading states (skeleton screens vs spinners, quando usar cada), Empty states (ilustracao, mensagem, call-to-action por contexto), Error states (inline validation, page-level errors, toast errors, 404/403/500 customizados), Success states (toast, redirect, inline confirmation), Confirmacao destrutiva (modal com input de confirmacao para deletes), Bulk operations (selecao, feedback de progresso, resultado parcial), Infinite scroll vs paginacao (regra por contexto), Optimistic UI (onde aplicar, fallback em falha), Debounce/throttle (regras para search, autosave), Autosave vs save explicito (regra por tipo de formulario), Drag and drop (onde aplicar, feedback visual), Keyboard shortcuts (atalhos globais, atalhos por contexto). |
 | **Fase** | Strategy (apos component-patterns) |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Implementacao de qualquer interacao UI |
 
 #### B.4. Layout Master
@@ -137,7 +137,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/layout-master.md` |
 | **Descricao** | Especificacao do layout principal da aplicacao (app shell). Inclui: Sidebar (largura, collapsed/expanded, itens de menu por role, indicadores de notificacao, footer com tenant info), Header (logo, breadcrumb, search global, notifications bell, user menu, tenant switcher se aplicavel), Content area (max-width, padding, scroll behavior), Footer (se houver). Variantes: layout autenticado, layout publico (login, portal do cliente), layout de impressao. Com medidas em px/rem e comportamento responsivo. |
 | **Fase** | Strategy (apos style-guide) |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Implementacao de qualquer pagina (define o "esqueleto" onde todo conteudo vive) |
 
 #### B.5. Wireframes por Modulo
@@ -148,7 +148,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/wireframes/` (um arquivo por modulo: `wireframes-e02-auth.md`, `wireframes-e03-cadastro.md`, etc.) |
 | **Descricao** | Wireframes em formato texto (ASCII art ou markdown tables simulando layout) para cada tela do sistema. Low-fidelity — nao e mockup visual, e a disposicao de elementos na tela. Cada wireframe inclui: nome da tela, URL pattern, descricao funcional, layout dos elementos (header, filters, table, form fields, actions), anotacoes de comportamento, dados mockados de exemplo. Um arquivo por epico, todas as telas do epico no mesmo arquivo. |
 | **Fase** | Planning (apos layout-master e component-patterns) |
-| **Agente responsavel** | `ux-designer` (novo) por epico, validado pelo PM |
+| **Agente responsavel** | `ux-designer` por epico, validado pelo PM |
 | **Bloqueante para** | Implementacao do respectivo epico |
 
 #### B.6. Mapa de Telas (Screen Inventory)
@@ -159,7 +159,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/screen-inventory.md` |
 | **Descricao** | Tabela mestre com TODAS as telas do sistema. Colunas: ID da tela, nome, URL pattern, epico de origem, persona primaria, tipo (list, detail, form, dashboard, modal, wizard), status do wireframe (pending/done), componentes usados (referencia ao component-patterns), dados consumidos (entidades/endpoints). Serve como checklist de progresso e indice para os wireframes. |
 | **Fase** | Planning (apos sitemap, antes dos wireframes) |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Rastreabilidade tela-a-tela de todo o projeto |
 
 #### B.7. Responsividade e Breakpoints
@@ -170,7 +170,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/responsive-strategy.md` |
 | **Descricao** | Define os breakpoints do sistema (mobile, tablet, desktop, wide), como cada componente se adapta, quais telas sao mobile-first vs desktop-first, e quais telas nao precisam de versao mobile (ex: dashboards complexos podem ser "desktop recomendado"). Decisao especifica: a interface de bancada de Juliana (tablet) e prioridade mobile-first. Portal do cliente (Rafael) e responsive. Back-office (Marcelo) e desktop-first. |
 | **Fase** | Strategy (apos layout-master) |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Implementacao de CSS/layout de qualquer tela |
 
 #### B.8. Acessibilidade (WCAG)
@@ -181,7 +181,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/accessibility.md` |
 | **Descricao** | Define o nivel de conformidade WCAG alvo (recomendado: AA para todo o sistema, AAA para formularios criticos). Inclui: contraste minimo de cores, navegacao por teclado (tab order, focus indicators), leitores de tela (aria-labels, roles, live regions), textos alternativos para icones, tamanho minimo de area clicavel (44x44px), reducao de motion (prefers-reduced-motion). Checklist por componente. |
 | **Fase** | Strategy (junto com style-guide) |
-| **Agente responsavel** | `ux-designer` (novo) |
+| **Agente responsavel** | `ux-designer` |
 | **Bloqueante para** | Implementacao de qualquer componente (acessibilidade nao e retrofit) |
 
 #### B.9. Padroes de Dados em Tela
@@ -192,7 +192,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/data-display-patterns.md` |
 | **Descricao** | Regras de como dados sao exibidos na UI. Inclui: formatacao de datas (ISO vs local, com/sem hora, relative time), formatacao de numeros (decimais, milhar, moeda BRL), formatacao de CPF/CNPJ (mascara), status badges (cores e labels por status de OS, pedido, certificado), truncamento de texto (max chars, tooltip), null/empty values (como mostrar campo sem dado), unidades de medida (posicao, formatacao), temperaturas (graus, casas decimais), incertezas de medicao (notacao cientifica vs decimal). Especifico para metrologia. |
 | **Fase** | Planning (apos component-patterns) |
-| **Agente responsavel** | `ux-designer` (novo) com input de `domain-analyst` |
+| **Agente responsavel** | `ux-designer` com input de `domain-analyst` |
 | **Bloqueante para** | Implementacao de qualquer tela que exibe dados tecnicos |
 
 #### B.10. Padroes de Impressao e PDF
@@ -203,7 +203,7 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | **Caminho** | `docs/design/print-patterns.md` |
 | **Descricao** | Especificacao de como o sistema gera documentos imprimiveis. Inclui: layout de certificado de calibracao (formato RBC/INMETRO), template de relatorio gerencial, template de OS para impressao, cabecalho/rodape por tenant (logo, dados do laboratorio), paginacao, numeracao, marca d'agua para rascunho. Define: CSS @print rules, engine de PDF (DomPDF/wkhtmltopdf), resolucao, fontes embeddadas. Critico para E06 (Certificados). |
 | **Fase** | Planning (antes de E06) |
-| **Agente responsavel** | `ux-designer` (novo) com input de `domain-analyst` (formato RBC) |
+| **Agente responsavel** | `ux-designer` com input de `domain-analyst` (formato RBC) |
 | **Bloqueante para** | E06 (Certificado de Calibracao) e qualquer modulo que gera PDF |
 
 ---
@@ -237,10 +237,10 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 | Campo | Valor |
 |---|---|
 | **Nome** | API Contracts |
-| **Caminho** | `docs/architecture/api-contracts/` (um arquivo por dominio: `api-auth.md`, `api-cadastro.md`, etc.) |
-| **Descricao** | Especificacao formal de cada endpoint da API. Inclui: metodo HTTP, URL pattern, request headers, request body (JSON Schema), response codes (200, 201, 400, 401, 403, 404, 422, 500), response body (JSON Schema), paginacao, filtros, sorting, exemplos de request/response. Para APIs internas (Livewire actions), documentar os metodos publicos dos components com tipos de parametros e retorno. Formato: OpenAPI 3.1 simplificado em YAML ou Markdown tables. |
+| **Caminho** | `docs/architecture/api-contracts/README.md` para convencoes globais; `docs/architecture/api-contracts/api-eNN-*.md` para contratos por epico |
+| **Descricao** | Especificacao formal de cada endpoint da API. Inclui: metodo HTTP, URL pattern, request headers, request body (JSON Schema ou tabela Markdown), success status code, response codes (200, 201, 204, 400, 401, 403, 404, 422, 500), response body, paginacao, filtros, sorting, exemplos de request/response. Para APIs internas (Livewire actions), documentar os metodos publicos dos components com tipos de parametros e retorno. |
 | **Fase** | Planning (por epico, antes de implementacao) |
-| **Agente responsavel** | `api-designer` (novo) com input de `architect` |
+| **Agente responsavel** | `api-designer` com input de `architect` |
 | **Bloqueante para** | Implementacao do respectivo epico |
 
 #### C.4. State Management Patterns
@@ -302,18 +302,17 @@ Esta categoria e a maior lacuna do projeto. Nenhum destes documentos existe hoje
 
 ## D. Documentacao por Epico/Feature
 
-Para cada epico com UI (E02 a E14), antes de iniciar implementacao, os seguintes documentos devem existir **especificos para aquele epico**:
+Para cada epico com UI (E02 a E14), antes de iniciar implementacao, os seguintes documentos fisicos devem existir **especificos para aquele epico**. O inventario de telas do epico fica como secao obrigatoria dentro do arquivo de wireframes.
 
 ### D.1. Checklist por Epico
 
 | # | Documento | Caminho | Descricao | Agente |
 |---|---|---|---|---|
-| D.1 | Screen Inventory do Epico | `docs/design/wireframes/wireframes-eNN-*.md` (secao de inventario) | Lista de todas as telas do epico com URL, tipo, persona, status | `ux-designer` |
-| D.2 | Wireframes de Todas as Telas | `docs/design/wireframes/wireframes-eNN-*.md` | Low-fidelity wireframes em texto para cada tela | `ux-designer` |
-| D.3 | Data Model Visual (ERD) | `docs/architecture/data-models/erd-eNN-*.md` | Diagrama entidade-relacionamento em Mermaid para as entidades do epico. Inclui: tabelas, colunas com tipos, PKs, FKs, indices, constraints, relacoes (1:1, 1:N, N:N) | `data-modeler` (novo) |
-| D.4 | API Contracts do Epico | `docs/architecture/api-contracts/api-eNN-*.md` | Endpoints, payloads, responses, erros — especificos para o epico | `api-designer` (novo) |
-| D.5 | User Flows Detalhados | `docs/product/flows/flows-eNN-*.md` | Fluxos passo-a-passo de cada jornada do usuario dentro do epico, com decisoes e branches | `ux-designer` |
-| D.6 | Migrations Spec | `docs/architecture/data-models/migrations-eNN-*.md` | Ordem das migrations, dependencias entre tabelas, seeds iniciais, dados de tenant-setup | `data-modeler` (novo) |
+| D.1 | Wireframes + Screen Inventory do Epico | `docs/design/wireframes/wireframes-eNN-*.md` | Low-fidelity wireframes em texto para cada tela, com secao inicial listando todas as telas do epico, URL, tipo, persona e status | `ux-designer` |
+| D.2 | Data Model Visual (ERD) | `docs/architecture/data-models/erd-eNN-*.md` | Diagrama entidade-relacionamento em Mermaid para as entidades do epico. Inclui: tabelas, colunas com tipos, PKs, FKs, indices, constraints, relacoes (1:1, 1:N, N:N) | `data-modeler` |
+| D.3 | API Contracts do Epico | `docs/architecture/api-contracts/api-eNN-*.md` | Endpoints, headers, payloads, responses, success status codes, erros e permissao — especificos para o epico | `api-designer` |
+| D.4 | User Flows Detalhados | `docs/product/flows/flows-eNN-*.md` | Fluxos passo-a-passo de cada jornada do usuario dentro do epico, com decisoes e branches | `ux-designer` |
+| D.5 | Migrations Spec | `docs/architecture/data-models/migrations-eNN-*.md` | Ordem das migrations, dependencias entre tabelas, seeds iniciais, dados de tenant-setup | `data-modeler` |
 
 ### D.2. Mapa de Epicos com UI
 
@@ -340,32 +339,32 @@ Para cada epico com UI (E02 a E14), antes de iniciar implementacao, os seguintes
 
 ### E.1. Gate Global (uma vez, antes de qualquer epico com UI)
 
-**Regra:** nenhum epico com UI (E02-E14) pode iniciar implementacao sem que TODOS os documentos abaixo estejam aprovados:
+**Regra:** nenhum epico com UI (E02-E14) pode iniciar implementacao sem que TODOS os documentos abaixo existam e estejam aprovados pelo fluxo do projeto. O status abaixo indica existencia do arquivo; aprovacao de conteudo continua sendo decisao do gate/PM.
 
 | # | Documento | Caminho | Status atual |
 |---|---|---|---|
-| G.1 | Design System / Style Guide | `docs/design/style-guide.md` | pendente |
-| G.2 | Component Patterns Library | `docs/design/component-patterns.md` | pendente |
-| G.3 | Interaction Patterns | `docs/design/interaction-patterns.md` | pendente |
-| G.4 | Layout Master | `docs/design/layout-master.md` | pendente |
-| G.5 | Screen Inventory (completo) | `docs/design/screen-inventory.md` | pendente |
-| G.6 | Responsive Strategy | `docs/design/responsive-strategy.md` | pendente |
-| G.7 | Accessibility Policy | `docs/design/accessibility.md` | pendente |
-| G.8 | Data Display Patterns | `docs/design/data-display-patterns.md` | pendente |
-| G.9 | Livewire Component Architecture | `docs/architecture/livewire-architecture.md` | pendente |
-| G.10 | Naming Conventions | `docs/architecture/naming-conventions.md` | pendente |
-| G.11 | State Management Strategy | `docs/architecture/state-management.md` | pendente |
-| G.12 | Form Patterns | `docs/architecture/form-patterns.md` | pendente |
-| G.13 | Table and List Patterns | `docs/architecture/table-patterns.md` | pendente |
-| G.14 | UI Testing Strategy | `docs/architecture/ui-testing-strategy.md` | pendente |
-| G.15 | Print and PDF Patterns | `docs/design/print-patterns.md` | pendente |
-| G.16 | Notification Architecture | `docs/architecture/notification-patterns.md` | pendente |
-| G.17 | Sitemap | `docs/product/sitemap.md` | pendente |
-| G.18 | UI Flows | `docs/product/ui-flows.md` | pendente |
-| G.19 | Persona Scenarios | `docs/product/persona-scenarios.md` | pendente |
-| G.20 | RBAC Screen Matrix | `docs/product/rbac-screen-matrix.md` | pendente |
+| G.1 | Design System / Style Guide | `docs/design/style-guide.md` | criado |
+| G.2 | Component Patterns Library | `docs/design/component-patterns.md` | criado |
+| G.3 | Interaction Patterns | `docs/design/interaction-patterns.md` | criado |
+| G.4 | Layout Master | `docs/design/layout-master.md` | criado |
+| G.5 | Screen Inventory (completo) | `docs/design/screen-inventory.md` | criado |
+| G.6 | Responsive Strategy | `docs/design/responsive-strategy.md` | criado |
+| G.7 | Accessibility Policy | `docs/design/accessibility.md` | criado |
+| G.8 | Data Display Patterns | `docs/design/data-display-patterns.md` | criado |
+| G.9 | Livewire Component Architecture | `docs/architecture/livewire-architecture.md` | criado |
+| G.10 | Naming Conventions | `docs/architecture/naming-conventions.md` | criado |
+| G.11 | State Management Strategy | `docs/architecture/state-management.md` | criado |
+| G.12 | Form Patterns | `docs/architecture/form-patterns.md` | criado |
+| G.13 | Table and List Patterns | `docs/architecture/table-patterns.md` | criado |
+| G.14 | UI Testing Strategy | `docs/architecture/ui-testing-strategy.md` | criado |
+| G.15 | Print and PDF Patterns | `docs/design/print-patterns.md` | criado |
+| G.16 | Notification Architecture | `docs/architecture/notification-patterns.md` | criado |
+| G.17 | Sitemap | `docs/product/sitemap.md` | criado |
+| G.18 | UI Flows | `docs/product/ui-flows.md` | criado |
+| G.19 | Persona Scenarios | `docs/product/persona-scenarios.md` | criado |
+| G.20 | RBAC Screen Matrix | `docs/product/rbac-screen-matrix.md` | criado |
 
-**Validacao:** o skill `/verify-slice` deve checar existencia destes arquivos antes de aprovar qualquer slice de epico com UI. Se faltar algum, o gate rejeita com finding `DOC-GATE-GLOBAL-MISSING`.
+**Validacao operacional:** antes de `/start-story` de qualquer story com UI, o orquestrador deve checar a existencia destes arquivos. `/verify-slice` revalida o gate antes de aprovar o slice, como defesa redundante. Se faltar algum documento, o gate rejeita com finding `DOC-GATE-GLOBAL-MISSING`.
 
 ### E.2. Gate por Epico (antes de cada epico com UI)
 
@@ -373,7 +372,7 @@ Para cada epico com UI (E02 a E14), antes de iniciar implementacao, os seguintes
 
 | # | Documento | Caminho pattern |
 |---|---|---|
-| E.1 | Wireframes do epico | `docs/design/wireframes/wireframes-eNN-*.md` |
+| E.1 | Wireframes + screen inventory do epico | `docs/design/wireframes/wireframes-eNN-*.md` |
 | E.2 | ERD do epico | `docs/architecture/data-models/erd-eNN-*.md` |
 | E.3 | API Contracts do epico | `docs/architecture/api-contracts/api-eNN-*.md` |
 | E.4 | User Flows do epico | `docs/product/flows/flows-eNN-*.md` |
@@ -401,12 +400,12 @@ Fase Planning (por epico, na ordem do roadmap):
   2. Screen Inventory (B.6)
   3. UI Flows (A.2.2) + RBAC Matrix (A.2.4) [paralelo]
   4. Persona Scenarios (A.2.3)
-  5. [Por epico]: Wireframes → ERD → API Contracts → Migrations Spec → User Flows
+  5. [Por epico]: Wireframes com inventario → ERD → API Contracts → Migrations Spec → User Flows
 ```
 
 ---
 
-## F. Agentes Novos Sugeridos
+## F. Agentes Ativos para o Gate
 
 ### F.1. `ux-designer`
 
@@ -418,7 +417,7 @@ Fase Planning (por epico, na ordem do roadmap):
 | **Input** | PRD, personas, journeys, sitemap, domain model |
 | **Output** | Documentos em `docs/design/` e `docs/product/` |
 | **Arquivo** | `.claude/agents/ux-designer.md` |
-| **Skills associadas** | `/design-system`, `/wireframes ENN`, `/screen-inventory`, `/ui-flows` |
+| **Skills associadas** | Sem skill dedicada ainda; acionado pelo orquestrador conforme `.claude/agents/ux-designer.md` |
 | **Justificativa** | Nenhum agente existente cobre UX/design. O architect foca em arquitetura tecnica, nao em experiencia do usuario. O domain-analyst entende o dominio mas nao traduz em telas. Este agente preenche o gap mais critico do projeto. |
 
 ### F.2. `api-designer`
@@ -431,7 +430,7 @@ Fase Planning (por epico, na ordem do roadmap):
 | **Input** | ERD do epico, wireframes, domain model, PRD (secao FRs) |
 | **Output** | Documentos em `docs/architecture/api-contracts/` |
 | **Arquivo** | `.claude/agents/api-designer.md` |
-| **Skills associadas** | `/api-contract ENN` |
+| **Skills associadas** | Sem skill dedicada ainda; acionado pelo orquestrador conforme `.claude/agents/api-designer.md` |
 | **Justificativa** | Contratos de API devem ser definidos antes de implementacao para evitar retrabalho. O architect pode cobrir parcialmente, mas a especializacao em contratos (validacao de payloads, error codes, paginacao) justifica agente dedicado. Alternativa: skill do architect ao inves de agente separado. |
 
 ### F.3. `data-modeler`
@@ -444,7 +443,7 @@ Fase Planning (por epico, na ordem do roadmap):
 | **Input** | PRD (secao FRs e Arquitetura Funcional), domain model, glossario, ERDs anteriores |
 | **Output** | Documentos em `docs/architecture/data-models/` |
 | **Arquivo** | `.claude/agents/data-modeler.md` |
-| **Skills associadas** | `/data-model ENN`, `/migration-spec ENN` |
+| **Skills associadas** | Sem skill dedicada ainda; acionado pelo orquestrador conforme `.claude/agents/data-modeler.md` |
 | **Justificativa** | O modelo de dados e fundacao de tudo. Inconsistencias entre epicos (ex: tabela de instrumento referenciada por E03, E04, E05 e E06 com expectativas diferentes) sao o bug mais caro de corrigir. Agente dedicado garante visao cross-epic do modelo. Alternativa: sub-skill do architect. |
 
 ### F.4. Analise: agentes existentes que podem absorver parte do trabalho
@@ -465,22 +464,19 @@ Fase Planning (por epico, na ordem do roadmap):
 
 | Agente | Tipo | Documentos sob responsabilidade | Prioridade |
 |---|---|---|---|
-| `ux-designer` | **Novo** | B.1-B.10, A.2.1-A.2.3, D.1-D.2, D.5 | Critica — bloqueia toda UI |
-| `api-designer` | **Novo** | C.3, D.4 | Alta — bloqueia implementacao |
-| `data-modeler` | **Novo** | D.3, D.6 | Alta — bloqueia migrations |
+| `ux-designer` | Ativo | B.1-B.10, A.2.1-A.2.4, D.1, D.4 | Critica — bloqueia toda UI |
+| `api-designer` | Ativo | C.3, D.3 | Alta — bloqueia implementacao |
+| `data-modeler` | Ativo | D.2, D.5 | Alta — bloqueia migrations |
 | `architect` | Existente (expandido) | C.1, C.2, C.4-C.8, A.2.4 | Ja existe, so adiciona skills |
 
 ---
 
 ## G. Proximos Passos Recomendados
 
-1. **Aprovar este documento** como gate formal do projeto.
-2. **Criar os 3 agentes novos** (`ux-designer`, `api-designer`, `data-modeler`) com seus `.claude/agents/*.md`.
-3. **Criar as skills associadas** (`/design-system`, `/wireframes`, `/screen-inventory`, `/ui-flows`, `/api-contract`, `/data-model`, `/migration-spec`).
-4. **Iniciar producao dos documentos de Strategy** (style-guide primeiro — tudo depende dele).
-5. **Atualizar `/verify-slice`** para checar o doc gate antes de aprovar slices com UI.
-6. **Atualizar `/start-story`** para checar o doc gate por epico.
-7. **Adicionar ADR** para a decisao de exigir documentacao pre-implementacao (ADR-0003).
+1. **Produzir os documentos por epico** antes de iniciar qualquer story com UI.
+2. **Garantir que `/start-story` seja executado apenas depois do gate documental do epico**.
+3. **Usar `/verify-slice` como defesa redundante**: se o slice tiver UI e algum documento global/por-epico estiver ausente, rejeitar com finding documental.
+4. **Atualizar este documento** quando novos artefatos entrarem no gate.
 
 ---
 

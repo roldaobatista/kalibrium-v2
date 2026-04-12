@@ -55,7 +55,7 @@ Também existe uma diferença técnica importante: hooks como `SessionStart`, `P
 
 **Opção escolhida:** C — Autorizar Codex CLI como orquestrador alternativo exclusivo.
 
-**Razão:** a regra deve impedir dois agentes automáticos concorrentes, não impedir que o PM escolha uma ferramenta diferente quando ela for o único orquestrador ativo. O projeto continua com uma fonte de verdade (`CLAUDE.md`, `docs/constitution.md`, ADRs, `.claude/agents`, `.claude/skills`) e com um único dono operacional por branch.
+**Razão:** a regra deve impedir dois agentes automáticos concorrentes, não impedir que o PM escolha uma ferramenta diferente quando ela for o único orquestrador ativo. O projeto continua com fontes operacionais permitidas (`CLAUDE.md`, `docs/constitution.md`, `.claude/agents`, `.claude/skills`) e com um único dono operacional por branch. ADRs permanecem como registros de decisão consultivos, usados quando essas fontes operacionais os referenciam.
 
 **Reversibilidade:** média. Para reverter, restaurar R2 para Claude Code exclusivo, remover esta ADR do índice e ajustar `CLAUDE.md`/`orchestrator.md`.
 
@@ -88,7 +88,7 @@ Também existe uma diferença técnica importante: hooks como `SessionStart`, `P
 
 ## Nova redação de R2
 
-> Claude Code ou Codex CLI podem tocar o código na branch ativa, mas apenas um orquestrador por vez. Sessões concorrentes com outro LLM-tool editando código (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf, ou o outro orquestrador não-ativo) continuam proibidas. O orquestrador ativo deve seguir `CLAUDE.md`, esta constituição, ADRs, skills e gates locais; quando a plataforma não disparar hooks do Claude Code, deve executar manualmente os checks equivalentes antes de afirmar status.
+> Claude Code ou Codex CLI podem tocar o código na branch ativa, mas apenas um orquestrador por vez. Sessões concorrentes com outro LLM-tool editando código (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf, ou o outro orquestrador não-ativo) continuam proibidas. O orquestrador ativo deve seguir `CLAUDE.md`, esta constituição, `.claude/agents/*.md`, `.claude/skills/*.md` e gates locais; ADRs são registros de decisão consultivos quando esses documentos os referenciam. Quando a plataforma não disparar hooks do Claude Code, deve executar manualmente os checks equivalentes antes de afirmar status.
 
 ---
 
@@ -98,7 +98,7 @@ Também existe uma diferença técnica importante: hooks como `SessionStart`, `P
 2. Restaurar `CLAUDE.md` para declarar Claude Code como único orquestrador.
 3. Restaurar `.claude/agents/orchestrator.md` para a redação anterior.
 4. Remover a linha ADR-0008 de `docs/TECHNICAL-DECISIONS.md`.
-5. Marcar esta ADR como `superseded by <nova ADR>` ou `deprecated`.
+5. Marcar esta ADR como `deprecated` ou como `superseded` apontando para o ADR de rollback real quando ele existir.
 
 ---
 

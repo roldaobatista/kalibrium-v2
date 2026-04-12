@@ -1,7 +1,7 @@
 # UI Testing Strategy — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.8 / G.14
 
@@ -9,7 +9,7 @@
 
 ## 1. Decisao
 
-Testes de UI seguem a piramide: Pest unit/feature primeiro, Livewire component tests para comportamento de tela, Playwright apenas para fluxos de usuario que precisam de browser real. Acessibilidade entra como gate de UI quando houver tela implementada.
+Testes de UI seguem a piramide: Pest unit/feature primeiro, Livewire component tests para comportamento de tela, Pest Browser como browser test padrao do stack Laravel, e Playwright apenas como fallback/complemento quando houver necessidade especifica. Acessibilidade entra como gate de UI quando houver tela implementada.
 
 ---
 
@@ -20,14 +20,14 @@ Testes de UI seguem a piramide: Pest unit/feature primeiro, Livewire component t
 | Unit | Pest | formatadores, policies, services |
 | Feature | Pest/Laravel | rotas, autorizacao, persistencia |
 | Component | Livewire test helpers | filtros, forms, actions |
-| Browser | Playwright | fluxo completo e regressao visual leve |
-| Accessibility | axe-core/Playwright | regras WCAG em telas criticas |
+| Browser | Pest Browser | fluxo completo e regressao visual leve |
+| Accessibility | axe-core via Pest Browser ou Playwright complementar | regras WCAG em telas criticas |
 
 ---
 
-## 3. Quando usar Playwright
+## 3. Quando usar browser real
 
-Usar Playwright para:
+Usar Pest Browser para:
 - login e navegacao principal;
 - criacao/edicao de entidade com formulario complexo;
 - fluxo offline/PWA;
@@ -35,7 +35,9 @@ Usar Playwright para:
 - emissao/preview de PDF;
 - regressao de layout em tela critica.
 
-Nao usar Playwright para:
+Usar Playwright apenas como fallback/complemento quando Pest Browser nao cobrir o caso, ou para auditoria visual/acessibilidade que exigir ferramenta externa.
+
+Nao usar browser real para:
 - regra simples de service;
 - validacao que Livewire cobre;
 - caminho de erro puramente server-side;
@@ -55,9 +57,10 @@ tests/Livewire/
 Nomes:
 
 ```text
-InstrumentIndexPageTest.php
+InstrumentosIndexPageTest.php
 CreateServiceOrderFlowTest.php
-certificate-preview.spec.ts
+CertificatePreviewBrowserTest.php
+certificate-preview.spec.ts  # apenas quando Playwright for usado como complemento
 ```
 
 ---
@@ -90,7 +93,7 @@ Telas criticas devem validar:
 |---|---|
 | AC de tela tem teste automatizado? | Sim |
 | Comportamento Livewire foi testado sem browser quando possivel? | Sim |
-| Fluxo critico tem Playwright? | Sim |
+| Fluxo critico tem Pest Browser, ou Playwright quando houver justificativa? | Sim |
 | Tela critica tem check de acessibilidade? | Sim |
 | Dados de teste sao isolados? | Sim |
 | PDF/teste visual evita comparacao fragil? | Sim |

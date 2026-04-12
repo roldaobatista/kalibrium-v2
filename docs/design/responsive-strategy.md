@@ -1,7 +1,7 @@
 # Responsive Strategy — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** B.6 (ver ux-designer.md)
 > **Depende de:** style-guide.md (B.1), layout-master.md (B.4), personas.md
@@ -192,7 +192,7 @@ Ja definido no layout-master.md §2.7:
 |---|---|
 | Desktop | Paginacao numerica com prev/next (`< 1 2 3 ... 10 >`) + "Mostrando X de Y" |
 | Tablet | Prev/next + pagina atual |
-| Mobile | Botao "Carregar mais" ou infinite scroll (preferido em listagens longas) |
+| Mobile | Botao "Carregar mais" consumindo paginas do servidor; infinite scroll automatico somente em timeline/feed com justificativa |
 
 ---
 
@@ -270,7 +270,7 @@ Aparece apenas dentro de modulos com sub-paginas. Exemplo no Laboratorio:
 
 ```
 ┌──────────────────────────────────┐
-│ Calibracoes │ Procedim. │ Padroes│  ← tab bar dentro de /laboratorio
+│ Calibracoes │ Procedim. │ Padroes│  ← tab bar no modulo de bancada/laboratorio
 └──────────────────────────────────┘
 ```
 
@@ -309,7 +309,7 @@ Em telas de formulario (ex: lancamento de calibracao), uma barra fixa no rodape 
 
 | Viewport | Colunas visiveis | Acao para mais dados |
 |---|---|---|
-| Desktop (`>= lg`) | Todas (6-8 colunas tipicamente) | N/A — tudo visivel |
+| Desktop (`>= lg`) | Colunas definidas no wireframe da tela | Todas as colunas obrigatorias visiveis ou exportaveis conforme regra da tela |
 | Tablet (`md`-`lg`) | Prioritarias (3-4 colunas) | Colunas ocultas acessiveis via `...` ou row expand |
 | Mobile (`< md`) | Card com 2-3 dados chave | Toque no card abre detalhe completo |
 
@@ -389,7 +389,7 @@ O Kalibrium sera entregue como PWA, nao como app nativo. Justificativas:
   "name": "Kalibrium - Gestao de Laboratorio",
   "short_name": "Kalibrium",
   "description": "Sistema de gestao para laboratorios de calibracao acreditados",
-  "start_url": "/dashboard",
+  "start_url": "/app",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#1e3a8a",

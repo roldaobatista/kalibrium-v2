@@ -1,7 +1,7 @@
 # Notification Architecture — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.7 / G.16
 
@@ -9,7 +9,7 @@
 
 ## 1. Decisao
 
-Notificacoes sao eventos de produto entregues por canais diferentes. No MVP, os canais principais sao in-app e e-mail. WhatsApp/SMS entram apenas quando houver ADR e provedor definidos.
+Notificacoes sao eventos de produto entregues por canais diferentes. No MVP, os canais principais sao in-app, portal e e-mail. WhatsApp/SMS entram apenas quando houver ADR, provedor definido e consentimento explicito/rastreavel por contato.
 
 ---
 
@@ -19,7 +19,7 @@ Notificacoes sao eventos de produto entregues por canais diferentes. No MVP, os 
 |---|---|---|
 | Feedback imediato | toast | "Certificado salvo" |
 | Tarefa pendente | in-app bell/inbox | "Revisar OS" |
-| Comunicacao ao cliente | e-mail | certificado emitido |
+| Comunicacao ao cliente | portal + e-mail | certificado emitido |
 | Alerta operacional | in-app + e-mail | falha de envio |
 | Digest | e-mail agrupado | resumo semanal |
 
@@ -31,7 +31,7 @@ Notificacoes sao eventos de produto entregues por canais diferentes. No MVP, os 
 |---|---|---|
 | OS criada | tecnico/gestor | in-app |
 | OS aguardando revisao | gestor | in-app + e-mail opcional |
-| Certificado emitido | cliente | e-mail |
+| Certificado emitido | cliente | portal + e-mail |
 | Certificado revogado | cliente + gestor | e-mail + in-app |
 | Pagamento vencido | financeiro | in-app |
 | Falha de integracao | suporte interno | in-app |
@@ -50,8 +50,9 @@ Todo trigger precisa declarar:
 
 - Usuario pode silenciar notificacoes informativas quando nao forem obrigatorias.
 - Notificacao legal/regulatoria nao deve ser silenciada sem regra de produto.
-- Cliente controla preferencias de comunicacao no portal quando essa tela existir.
+- Cliente controla preferencias de comunicacao em `/portal/perfil`.
 - E-mail transacional deve ser separado de marketing.
+- WhatsApp/SMS exigem consentimento explicito, canal, data e forma de aceite antes do primeiro envio automatico.
 
 ---
 

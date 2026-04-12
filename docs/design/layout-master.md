@@ -1,7 +1,7 @@
 # Layout Master — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** B.4 (ver ux-designer.md)
 > **Depende de:** style-guide.md (B.1)
@@ -88,7 +88,6 @@ O template principal da aplicacao segue o padrao **sidebar + header + content ar
 │  ◻ Financeiro        │
 │  ◻ Fiscal            │
 │  ◻ Documentos        │
-│  ◻ Portal do Cliente │
 │  ◻ Relatorios        │
 │                      │
 ├──────────────────────┤
@@ -103,22 +102,21 @@ Os modulos derivam dos epicos do PRD. Cada item mapeia para um grupo funcional:
 
 | Item sidebar | Icone (Heroicons) | Epico(s) | Rota base |
 |---|---|---|---|
-| Dashboard | `chart-bar-square` | E11 | `/dashboard` |
-| Ordens de Servico | `clipboard-document-list` | E04 | `/os` |
-| Laboratorio | `beaker` | E05, E06, E14 | `/laboratorio` |
-| — Calibracoes | `adjustments-horizontal` | E05 | `/laboratorio/calibracoes` |
-| — Procedimentos | `document-text` | E05 | `/laboratorio/procedimentos` |
-| — Padroes | `scale` | E05 | `/laboratorio/padroes` |
+| Dashboard | `chart-bar-square` | E11 | `/app/dashboard` |
+| Ordens de Servico | `clipboard-document-list` | E04 | `/ordens-servico` |
+| Laboratorio | `beaker` | E05, E06, E14 | `/bancada` |
+| — Calibracoes | `adjustments-horizontal` | E05 | `/calibracoes` |
+| — Procedimentos | `document-text` | E05 | `/procedimentos` |
+| — Padroes | `scale` | E03/E05 | `/padroes` |
 | Clientes | `building-office-2` | E03 | `/clientes` |
 | Certificados | `document-check` | E06 | `/certificados` |
 | Financeiro | `banknotes` | E08 | `/financeiro` |
 | Fiscal | `receipt-percent` | E07 | `/fiscal` |
 | Documentos | `folder-open` | E10 | `/documentos` |
-| Portal do Cliente | `globe-alt` | E09 | `/portal` |
 | Relatorios | `chart-pie` | E11 | `/relatorios` |
-| Configuracoes | `cog-6-tooth` | E02 | `/config` |
+| Configuracoes | `cog-6-tooth` | E02 | `/settings/tenant` |
 
-> **Visibilidade por RBAC:** itens da sidebar sao filtrados pelo papel do usuario. Exemplo: Juliana (tecnica) nao ve Financeiro nem Fiscal. Rafael (cliente externo) so ve Portal do Cliente. Marcelo (gerente) ve tudo.
+> **Visibilidade por RBAC:** itens da sidebar sao filtrados pelo papel do usuario. Exemplo: Juliana (tecnica) nao ve Financeiro nem Fiscal. Rafael (cliente externo) usa o shell separado do portal e nao ve a sidebar do back-office. Marcelo (gerente) ve os modulos do tenant liberados para o plano.
 
 ### 2.3. Estados do item
 
@@ -149,8 +147,8 @@ Os modulos derivam dos epicos do PRD. Cada item mapeia para um grupo funcional:
 ```
 
 - Icones centralizados, `w-6 h-6`, sem texto.
-- Tooltip ao hover de cada icone (`title` + tooltip component).
-- Submenu de "Laboratorio" abre como popover a direita ao hover.
+- Tooltip aparece em hover e focus de teclado; `title` sozinho nao basta.
+- Submenu de "Laboratorio" abre como popover a direita por hover, focus ou clique; `Esc` fecha o popover.
 - Botao de expand no rodape da sidebar: icone `chevron-double-right`.
 
 ### 2.5. Estado expanded (256px)
@@ -175,7 +173,8 @@ Os modulos derivam dos epicos do PRD. Cada item mapeia para um grupo funcional:
 - Sidebar **oculta** por padrao.
 - Hamburguer menu no header (esquerda) abre a sidebar como **drawer overlay**.
 - Drawer: largura 256px (expanded), `z-50`, com backdrop `bg-black/50`.
-- Fechar: clique no backdrop, botao X no topo do drawer, ou swipe left.
+- Fechar: clique no backdrop, botao X no topo do drawer, `Esc`, ou swipe left.
+- Drawer prende o foco enquanto aberto e devolve o foco ao botao hamburger ao fechar.
 - Ao selecionar um item, o drawer fecha automaticamente.
 
 ---
@@ -230,6 +229,7 @@ O search global e um **combobox** com busca por tipo:
 - Max 3 resultados por grupo na busca rapida.
 - Cada resultado mostra identificador principal + dado secundario.
 - Navegacao por teclado: `Arrow Up/Down` entre resultados, `Enter` para abrir, `Esc` para fechar.
+- O combobox usa `aria-expanded`, `aria-controls` e `aria-activedescendant`; em mobile fullscreen, foco fica preso no search ate fechar.
 - Debounce de 300ms antes de buscar.
 - Em mobile: icone de busca que expande para fullscreen search.
 
@@ -481,7 +481,7 @@ Kalibrium v1.0.0   •   Termos de Uso   •   Privacidade   •   Suporte
 │ │                     [⋮]    │ │
 │ └─────────────────────────────┘ │
 │                                  │
-│ [Carregar mais]                  │  ← infinite scroll ou botao
+│ [Carregar mais]                  │  ← paginacao incremental
 │                                  │
 └──────────────────────────────────┘
 
@@ -531,7 +531,7 @@ Kalibrium v1.0.0   •   Termos de Uso   •   Privacidade   •   Suporte
 | Tabelas | Todas as colunas | Colunas prioritarias (ocultar secundarias) | Cards empilhados (sem tabela) |
 | Page actions | Botoes inline ao lado do titulo | Botoes inline | Botao primario + dropdown "Mais" |
 | Filtros | Sempre visiveis acima da tabela | Sempre visiveis | Accordion collapsed por padrao |
-| Pagination | Numeros de pagina + prev/next | Prev/next + pagina atual | Infinite scroll ou "Carregar mais" |
+| Pagination | Numeros de pagina + prev/next | Prev/next + pagina atual | "Carregar mais" com paginas do servidor |
 | Breadcrumb | Caminho completo | Caminho completo | Compacto (ultimo 2 niveis) |
 | Footer | Visivel | Visivel | Oculto |
 

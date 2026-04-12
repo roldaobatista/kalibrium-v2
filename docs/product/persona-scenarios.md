@@ -1,7 +1,7 @@
 # Persona Scenarios — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** G.19
 > **Dependencias:** `docs/product/personas.md`, `docs/product/journeys.md`, `docs/product/sitemap.md`, `docs/design/screen-inventory.md`
@@ -31,7 +31,7 @@ Formato:
 2. Buscar CNPJ/CPF recebido por e-mail ou telefone.
 3. Se o cliente existir, abrir `/clientes/{cliente}`.
 4. Se o cliente nao existir, abrir `/clientes/novo`, preencher cliente e contato, salvar.
-5. Clicar em criar OS e abrir `/ordens-servico/nova`.
+5. Clicar em criar OS e abrir `/ordens-servico/nova?cliente={id}` com o cliente pre-preenchido.
 6. Selecionar instrumento, procedimento e prazo acordado.
 7. Salvar OS e confirmar entrada na fila.
 
@@ -62,10 +62,11 @@ Formato:
 1. Abrir notificacao de aprovacao em `/notificacoes`.
 2. Abrir `/certificados/{certificado}/revisao`.
 3. Conferir instrumento, procedimento, padroes, validade dos padroes, ambiente e calculo de incerteza.
-4. Abrir preview do PDF.
-5. Aprovar emissao ou devolver para retrabalho com comentario.
+4. Registrar o primeiro sign-off de revisao tecnica quando a politica do tenant exigir.
+5. Abrir preview do PDF.
+6. Confirmar emissao com segundo sign-off por usuario autorizado diferente, ou devolver para retrabalho com comentario.
 
-**Resultado esperado:** certificado aprovado gera numero definitivo, PDF, hash e evento de entrega.
+**Resultado esperado:** certificado aprovado com os sign-offs exigidos gera numero definitivo, PDF, hash e evento de entrega.
 
 **Risco coberto:** certificado emitido sem revisao tecnica suficiente.
 
@@ -107,8 +108,9 @@ Formato:
 1. Buscar certificado em `/certificados`.
 2. Abrir detalhe do certificado.
 3. Navegar para OS, calibracao, padroes usados e documentos vinculados.
-4. Baixar evidencias e relatorio consolidado em `/relatorios`.
-5. Conferir log de acesso aos documentos sensiveis.
+4. Abrir `/documentos/{documento}` para cada evidencia sensivel.
+5. Conferir log de acesso do documento antes de exportar.
+6. Baixar evidencias e relatorio consolidado em `/relatorios`.
 
 **Resultado esperado:** trilha instrumento -> procedimento -> padrao -> calibracao -> certificado fica acessivel em poucos cliques.
 
@@ -135,7 +137,7 @@ Formato:
 
 ### J02 — Bloquear uso de padrao vencido
 
-**Pre-condicao:** existe um padrao de referencia vencido ou vencendo, vinculado ao dominio metrologico.
+**Pre-condicao:** existe um padrao de referencia vencido, vinculado ao dominio metrologico. Padrao apenas vencendo gera alerta preventivo, nao bloqueio duro.
 
 **Passos:**
 1. Abrir `/calibracoes/{calibracao}`.

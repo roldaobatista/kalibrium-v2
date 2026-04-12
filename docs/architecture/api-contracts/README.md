@@ -1,7 +1,7 @@
 # API Contracts — Convenções
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.3
 > **Escopo:** convencoes para contratos de API por epico em `docs/architecture/api-contracts/`.
@@ -38,8 +38,10 @@ Cada arquivo de contrato deve conter:
 
 - contexto do epico;
 - lista de endpoints ou actions;
+- headers obrigatorios;
 - payload de request;
 - payload de response;
+- success status code esperado;
 - codigos de erro;
 - regras de paginacao, filtro e ordenacao;
 - regras de autorizacao;
@@ -55,6 +57,8 @@ Cada arquivo de contrato deve conter:
 
 Uso: lista instrumentos do tenant atual.
 Autorizacao: usuario com permissao `instrument.read`.
+Headers: `Accept: application/json`, `Authorization: Bearer <token>` quando API HTTP externa exigir token.
+Success: 200 OK.
 
 Request:
 | Campo | Tipo | Obrigatorio | Regra |

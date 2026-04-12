@@ -1,7 +1,7 @@
 # Interaction Patterns — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Stack:** Laravel 13, Livewire 4, Tailwind CSS 4, Alpine.js
 > **Dependencias:** `docs/design/style-guide.md` v1.0.0, `docs/design/component-patterns.md` v1.0.0
@@ -28,7 +28,7 @@
 6. [Auto-save](#6-auto-save)
 7. [Optimistic UI](#7-optimistic-ui)
 8. [Drag & Drop](#8-drag--drop)
-9. [Infinite Scroll vs Pagination](#9-infinite-scroll-vs-pagination)
+9. [Paginacao Incremental vs Scroll Automatico](#9-paginacao-incremental-vs-scroll-automatico)
 10. [Keyboard Shortcuts](#10-keyboard-shortcuts)
 11. [Offline Behavior](#11-offline-behavior)
 
@@ -952,7 +952,7 @@ Interacao de arrastar e soltar para reordenacao e upload.
 
 ---
 
-## 9. Infinite Scroll vs Pagination
+## 9. Paginacao Incremental vs Scroll Automatico
 
 **Decisao:** pagination e o padrao. Infinite scroll apenas em timeline/chat.
 
@@ -992,7 +992,7 @@ Usa o componente Pagination (#24) de `component-patterns.md`.
 - Tabelas de dados.
 - Resultados de busca.
 
-**Wireframe — Timeline com infinite scroll:**
+**Wireframe — Timeline com paginacao incremental:**
 
 ```
 ┌──────────────────────────────────────────┐
@@ -1004,12 +1004,12 @@ Usa o componente Pagination (#24) de `component-patterns.md`.
 │  13:50  Instrumento #789 recebido       │
 │  ...                                     │
 │                                          │
-│              ◌ Carregando mais...        │  <- spinner ao chegar no final
+│              [Carregar mais]             │  <- botao acessivel
 │                                          │
 └──────────────────────────────────────────┘
 ```
 
-- Trigger: scroll atinge 200px do final do container.
+- Trigger padrao: usuario aciona "Carregar mais".
 - Carrega proximo lote (20 itens) via Livewire.
 - Spinner `sm` centralizado enquanto carrega.
 - Se nao ha mais itens: "Voce chegou ao inicio do historico" (text-neutral-400).
@@ -1017,8 +1017,8 @@ Usa o componente Pagination (#24) de `component-patterns.md`.
 
 **Acessibilidade:**
 - Pagination: semantica completa (`<nav>`, `aria-label`, `aria-current`).
-- Infinite scroll: `aria-live="polite"` no container de novos itens.
-- Botao "Carregar mais" como alternativa acessivel ao scroll automatico.
+- Lista incremental: `aria-live="polite"` no container de novos itens.
+- Scroll automatico so e permitido como aprimoramento progressivo quando o botao "Carregar mais" continuar disponivel.
 - "Voltar ao topo": `aria-label="Voltar ao topo da lista"`.
 
 ---

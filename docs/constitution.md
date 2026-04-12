@@ -7,7 +7,7 @@
 ## Histórico de versões
 - **1.2.0** (2026-04-12) — altera R2 para permitir Claude Code ou Codex CLI como orquestrador ativo, desde que apenas um deles toque a branch ativa por vez. Ver `docs/adr/0008-codex-cli-orchestrator.md`.
 - **1.1.0** (2026-04-10) — adiciona R11 (dual-verifier) e R12 (linguagem de produto) após incident do PR #1. Modelo operacional agora reconhece que o humano do projeto é **Product Manager, não desenvolvedor**. Ver `docs/incidents/pr-1-admin-merge.md`.
-- **1.0.0** (2026-04-10) — inicial (P1-P9, R1-R10, DoD, §5 amendment)
+- **1.0.0** (2026-04-10) — inicial (P1-P9, regras operacionais iniciais, DoD, §5 amendment)
 
 ---
 
@@ -34,7 +34,7 @@ Todo Acceptance Criterion vira **pelo menos um** teste automatizado, escrito e r
 **Enforcement:** `ac-to-test` sub-agent + hook que rejeita teste que passa na primeira execução.
 
 ### P3. Verificação acontece em contexto isolado
-O agente que implementou **não é** o agente que verifica. Verifier roda em worktree descartável, com pacote de input pré-montado (`verification-input/`), sem acesso à narrativa do implementer, ao `plan.md`, ou a git history.
+O agente que implementou **não é** o agente que verifica. Verifier/reviewer rodam com pacote de input pré-montado (`verification-input/` ou `review-input/`) e sandbox de leitura, sem acesso à narrativa do implementer, ao `plan.md` completo fora do pacote autorizado, ou a git history.
 **Enforcement:** `verifier-sandbox.sh` bloqueia Read/Grep/Glob fora do input package.
 
 ### P4. Hooks executam, não só formatam
@@ -90,7 +90,7 @@ Qualquer item falho = não done. Sem exceção. Sem "aprovação humana bypassan
 **Enforcement:** `session-start.sh` (boot) + `forbidden-files-scan.sh` (on demand) + `guide-auditor` (periódico).
 
 ### R2. Um orquestrador ativo por branch
-Claude Code ou Codex CLI podem tocar o código na branch ativa, mas **apenas um orquestrador por vez**. Sessões concorrentes com outro LLM-tool editando código (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf, ou o outro orquestrador não-ativo) continuam proibidas. O orquestrador ativo deve seguir `CLAUDE.md`, esta constituição, ADRs, skills e gates locais; quando a plataforma não disparar hooks do Claude Code, deve executar manualmente os checks equivalentes antes de afirmar status.
+Claude Code ou Codex CLI podem tocar o código na branch ativa, mas **apenas um orquestrador por vez**. Sessões concorrentes com outro LLM-tool editando código (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf, ou o outro orquestrador não-ativo) continuam proibidas. O orquestrador ativo deve seguir `CLAUDE.md`, esta constituição, `.claude/agents/*.md`, `.claude/skills/*.md` e gates locais; ADRs são registros de decisão consultivos quando esses documentos os referenciam. Quando a plataforma não disparar hooks do Claude Code, deve executar manualmente os checks equivalentes antes de afirmar status.
 **Enforcement:** verificação manual no início de sessão + `guide-auditor` inspeciona `git log --format=%an` por múltiplos autores não-humanos + ADR-0008 define o modo de operação exclusivo.
 
 ### R3. Verifier em contexto isolado
@@ -146,7 +146,7 @@ Cada `.claude/agents/*.md` declara `max_tokens_per_invocation` no frontmatter. T
 **Enforcement:** `collect-telemetry.sh` lê Claude Code usage output e grava em `.claude/telemetry/`.
 
 ### R9. Zero bypass de gate
-Detecção de `git commit --no-verify`, `git push --no-verify`, `SKIP=...`, `HUSKY=0`, hook renomeado ou movido = **incidente** registrado em `docs/incidents/` + retrospectiva obrigatória.
+Detecção de `git commit --no-verify`, `git push --no-verify`, `SKIP=...`, `HUSKY=0`, hook renomeado ou movido = **incidente** registrado em `docs/incidents/` + retrospectiva obrigatória. O admin merge do owner documentado em `docs/incidents/pr-1-admin-merge.md` não é bypass de rejeição: só pode ser usado quando verifier e reviewer já aprovaram e o ruleset do GitHub exige a permissão administrativa auditável para concluir o merge.
 **Enforcement:** `pre-commit-gate.sh` detecta flag; `guide-auditor` compara `.claude/settings.json` com snapshot anterior.
 
 ### R10. Stack só via ADR
@@ -231,4 +231,4 @@ Mudanças em skills, sub-agents ou hooks que **não** alteram P/R: commit normal
 - **Hook** — script shell disparado por evento do Claude Code (SessionStart, PreToolUse, PostToolUse, Stop, UserPromptSubmit). Quando Codex CLI é o orquestrador ativo, checks equivalentes devem ser executados por comando, pois esses eventos são específicos do Claude Code.
 - **Slice** — unidade vertical de entrega (spec + plan + tasks + implementação + verificação).
 - **Sub-agent** — instância Claude Code com papel e contexto isolados, ou papel equivalente executado pelo orquestrador ativo quando a plataforma não oferece sub-agents nativos do projeto.
-- **Verifier** — sub-agent que valida slice em worktree descartável.
+- **Verifier** — sub-agent que valida slice em contexto isolado por pacote de input e sandbox.

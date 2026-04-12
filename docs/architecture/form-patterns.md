@@ -1,7 +1,7 @@
 # Form Patterns — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** C.5 / G.12
 > **Dependencias:** `docs/design/component-patterns.md`, `docs/design/interaction-patterns.md`, `docs/architecture/state-management.md`
@@ -10,7 +10,7 @@
 
 ## 1. Decisao
 
-Formularios usam Livewire para estado, validacao e persistencia. Alpine.js pode auxiliar mascaras e comportamento visual local. Toda validacao de seguranca e dominio acontece no servidor.
+Formularios usam Livewire para estado e validacao. Persistencia so acontece em submit explicito ou autosave documentado para o tipo de formulario. Alpine.js pode auxiliar mascaras e comportamento visual local. Toda validacao de seguranca e dominio acontece no servidor.
 
 ---
 
@@ -92,6 +92,8 @@ Autosave proibido:
 - qualquer acao irreversivel.
 
 Usar os estados visuais de `interaction-patterns.md`.
+
+Autosave nunca substitui confirmacao final: progresso salvo como rascunho continua visualmente distinto de entidade aprovada, emitida ou paga.
 
 ---
 

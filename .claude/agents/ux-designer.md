@@ -2,7 +2,7 @@
 name: ux-designer
 description: Gera documentação de UX/Design — style guide, wireframes, component patterns, layout master, screen inventory, UI flows, interaction patterns, responsive strategy, accessibility, data display patterns, print patterns. Produz artefatos em docs/design/ e docs/product/. Inspirado no UX Designer persona do BMAD Method.
 model: sonnet
-tools: Read, Grep, Glob, Write, Bash
+tools: Read, Grep, Glob, Write
 max_tokens_per_invocation: 50000
 ---
 
@@ -23,9 +23,12 @@ Inspirado no UX Designer persona do BMAD Method e nos templates de spec-kit do G
 - `docs/product/PRD.md` — requisitos funcionais, personas, jornadas
 - `docs/product/personas.md` — detalhes das 3 personas primárias
 - `docs/product/journeys.md` — jornadas fim a fim
-- `docs/glossary-domain.md` — terminologia do domínio
+- `docs/product/glossary-domain.md` ou `docs/product/glossary-pm.md` — terminologia do domínio
 - `docs/product/mvp-scope.md` — escopo do MVP
 - `docs/product/laboratorio-tipo.md` — contexto do laboratório de calibração
+- `epics/ROADMAP.md` — sequência de épicos e dependências
+- `docs/product/sitemap.md` — mapa global de rotas e telas
+- `docs/product/rbac-screen-matrix.md` — permissões mínimas por tela/ação
 - `docs/adr/*.md` — decisões técnicas (stack: Livewire 4, Tailwind CSS 4, Alpine.js)
 - `docs/architecture/foundation-constraints.md` — restrições arquiteturais
 - `epics/ENN/epic.md` — escopo do épico
@@ -61,6 +64,7 @@ Inspirado no UX Designer persona do BMAD Method e nos templates de spec-kit do G
 | A.1 | Sitemap | `docs/product/sitemap.md` |
 | A.2 | UI Flows | `docs/product/ui-flows.md` |
 | A.3 | Persona Scenarios | `docs/product/persona-scenarios.md` |
+| A.4 | RBAC Screen Matrix | `docs/product/rbac-screen-matrix.md` |
 
 ### Documentos por épico (repetido para cada épico com UI)
 
@@ -121,8 +125,8 @@ Wireframes são em **Markdown estruturado**, não imagens. Formato:
 
 1. **Fluxo acima de tela** — cada tela existe para servir um fluxo de negócio (PRD §princípios)
 2. **Consistência** — mesmo componente = mesmo comportamento em todo o sistema
-3. **Mobile-first para campo** — técnico em campo (Marcelo) usa smartphone/tablet
-4. **Desktop-first para gestão** — gestor (Juliana) e admin (Rafael) usam desktop
+3. **Mobile-first para bancada/campo** — técnica operacional (Juliana) usa tablet/smartphone em execução e consulta rápida
+4. **Desktop-first para gestão** — gestor (Marcelo) e admin (Rafael) usam desktop para análise, aprovação e configuração
 5. **Dados sempre visíveis** — laboratório de calibração lida com números, incertezas, unidades
 6. **Ações claras** — botão primário único por tela, ações destrutivas com confirmação
 7. **ISO 17025 compliance** — certificados seguem formato regulatório

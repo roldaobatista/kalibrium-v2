@@ -1,7 +1,7 @@
 # Data Display Patterns — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** B.8 / G.8
 > **Dependencias:** `docs/design/style-guide.md` v1.0.0, `docs/design/component-patterns.md` v1.0.0, `docs/design/interaction-patterns.md` v1.0.0
@@ -195,8 +195,11 @@ Usar Badge/Tag (#10) de `component-patterns.md`.
 | `draft` | Rascunho | `neutral` | Criada mas incompleta |
 | `scheduled` | Agendada | `info` | Data definida |
 | `in_progress` | Em execucao | `primary` | Tecnico trabalhando |
+| `on_hold` | Pausada | `warning` | Aguardando insumo, cliente ou decisao |
 | `waiting_review` | Aguardando revisao | `warning` | Depende do gerente |
+| `returned` | Devolvida para retrabalho | `danger` | Revisao pediu correcao tecnica |
 | `approved` | Aprovada | `success` | Pode gerar certificado |
+| `completed` | Concluida | `success` | Entrega operacional encerrada |
 | `cancelled` | Cancelada | `danger` | Encerrada sem entrega |
 
 ### 7.2. Certificado
@@ -219,6 +222,16 @@ Usar Badge/Tag (#10) de `component-patterns.md`.
 | `overdue` | Vencido | `danger` |
 | `cancelled` | Cancelado | `neutral` |
 | `refunded` | Estornado | `info` |
+
+### 7.4. Documentos fiscais
+
+| Status | Label | Cor | Regra |
+|---|---|---|---|
+| `draft` | Rascunho | `neutral` | Ainda nao transmitida |
+| `transmitting` | Transmitindo | `info` | Aguardando prefeitura |
+| `authorized` | Autorizada | `success` | Documento fiscal valido |
+| `rejected` | Rejeitada | `danger` | Exige correcao/reprocesso |
+| `cancelled` | Cancelada | `neutral` | Exibir protocolo quando houver |
 
 ---
 

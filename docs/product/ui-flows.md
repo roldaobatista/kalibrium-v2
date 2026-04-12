@@ -1,7 +1,7 @@
 # UI Flows — Kalibrium V2
 
 > **Status:** ativo
-> **Versao:** 1.0.0
+> **Versao:** 1.0.1
 > **Data:** 2026-04-12
 > **Documento:** G.18
 > **Dependencias:** `docs/product/journeys.md`, `docs/product/sitemap.md`, `docs/design/screen-inventory.md`, `docs/design/interaction-patterns.md`
@@ -41,12 +41,15 @@ flowchart TD
 |---|---|---|---|---|---|
 | 1 | `/clientes` | Buscar CNPJ/CPF | `/clientes/{cliente}` ou `/clientes/novo` | documento fiscal | Documento invalido, cliente duplicado |
 | 2 | `/clientes/novo` | Salvar cliente e contato | `/clientes/{cliente}` | Cliente, Contato, Consentimento | CNPJ invalido, e-mail invalido |
-| 3 | `/clientes/{cliente}` | Criar OS para cliente | `/ordens-servico/nova?cliente={id}` | cliente_id | Cliente sem contato operacional |
+| 3 | `/clientes/{cliente}` | Criar OS para cliente | `/ordens-servico/nova?cliente={id}` | `cliente_id` como prefill de query string | Cliente sem contato operacional |
 | 4 | `/ordens-servico/nova` | Selecionar instrumento | mesma tela | instrumento_id | Serie ja existe em outro cliente, alerta nao bloqueante |
 | 5 | `/ordens-servico/nova` | Selecionar procedimento e prazo | mesma tela | procedimento_id, due_date | Procedimento vencido, dominio incompativel |
 | 6 | `/ordens-servico/nova` | Salvar OS | `/ordens-servico/{os}` | OS criada | Falha de validacao, feature gate do plano |
-| 7 | `/ordens-servico/{os}` | Agendar tecnico | `/agenda` | os_id, tecnico_id | Tecnico sem habilitacao, agenda indisponivel |
+| 7 | `/ordens-servico/{os}` | Agendar tecnico | `/agenda?os={id}` | `os_id` como prefill de query string, tecnico_id | Tecnico sem habilitacao, agenda indisponivel |
 | 8 | `/agenda` | Confirmar alocacao | `/fila-tecnica` | os_id atribuido | Habilitacao vencida, conflito de horario |
+
+Regras:
+- query strings como `?cliente={id}` e `?os={id}` servem apenas para pre-preencher formulario; a autorizacao e a consistencia do tenant sempre sao validadas no servidor.
 
 ---
 
@@ -68,7 +71,7 @@ flowchart TD
 
 | Passo | Origem | Acao | Destino | Dados transmitidos | Erros principais |
 |---|---|---|---|---|---|
-| 1 | `/fila-tecnica` | Abrir OS atribuida | `/bancada?os={id}` | os_id | OS nao atribuida ao tecnico |
+| 1 | `/fila-tecnica` | Abrir OS atribuida | `/bancada?os={id}` | `os_id` como prefill de contexto | OS nao atribuida ao tecnico |
 | 2 | `/bancada` | Conferir instrumento | `/ordens-servico/{os}/calibracao` | instrumento_id, procedimento_id | Instrumento divergente |
 | 3 | `/ordens-servico/{os}/calibracao` | Criar execucao | `/calibracoes/{calibracao}` | calibracao_id | Procedimento vencido |
 | 4 | `/calibracoes/{calibracao}` | Selecionar padroes | mesma tela | padroes_usados | Padrao vencido bloqueia submissao |
@@ -80,7 +83,7 @@ flowchart TD
 Estados especiais:
 - autosave permitido para leituras e observacoes longas;
 - padrao vencido e bloqueio duro, com log de tentativa;
-- perda de conexao entra em estado visual `offline pending`, mas sincronizacao real offline fica fora do MVP conforme E05.
+- perda de conexao entra em estado visual `offline pending` apenas para avisar que o envio ainda nao foi confirmado; fila local, edicao offline completa e sincronizacao automatica ficam fora do MVP conforme E05.
 
 ---
 
@@ -89,7 +92,7 @@ Estados especiais:
 **Jornada base:** Jornada 1, passos 1.7 e 1.8
 
 **Persona primaria:** Marcelo
-**Objetivo:** revisar a trilha tecnica, aprovar ou devolver para retrabalho, emitir certificado numerado.
+**Objetivo:** revisar a trilha tecnica, registrar dual sign-off quando exigido, aprovar ou devolver para retrabalho, emitir certificado numerado.
 
 ```mermaid
 flowchart TD
@@ -105,14 +108,16 @@ flowchart TD
 | 1 | `/notificacoes` | Abrir aprovacao pendente | `/certificados/{certificado}/revisao` | certificado_id | Certificado ja revisado |
 | 2 | `/certificados/{certificado}/revisao` | Conferir rastreabilidade | mesma tela | padroes, procedimento, ambiente | Padrao vencido no dia da execucao |
 | 3 | `/certificados/{certificado}/revisao` | Solicitar retrabalho | `/ordens-servico/{os}` | comentario de retrabalho | Comentario obrigatorio ausente |
-| 4 | `/certificados/{certificado}/revisao` | Aprovar | `/certificados/{certificado}/preview` | aprovacao, usuario, timestamp | Permissao insuficiente |
-| 5 | `/certificados/{certificado}/preview` | Emitir numero definitivo | `/certificados/{certificado}` | numero, hash, PDF | Falha de geracao PDF, colisao de numeracao |
-| 6 | `/certificados/{certificado}` | Enviar ao cliente | mesma tela | evento `Certificado.emitido` | Fila de e-mail indisponivel, retry assincrono |
+| 4 | `/certificados/{certificado}/revisao` | Registrar revisao tecnica | mesma tela | primeiro sign-off, usuario, timestamp | Permissao insuficiente, usuario executor tentando aprovar sozinho |
+| 5 | `/certificados/{certificado}/revisao` | Confirmar emissao com segundo sign-off quando a politica exigir | `/certificados/{certificado}/preview` | segundo sign-off, usuario, timestamp | Mesmo usuario do primeiro sign-off, 2FA ausente |
+| 6 | `/certificados/{certificado}/preview` | Emitir numero definitivo | `/certificados/{certificado}` | numero, hash, PDF | Falha de geracao PDF, colisao de numeracao |
+| 7 | `/certificados/{certificado}` | Enviar ao cliente | mesma tela | evento `Certificado.emitido` | Fila de e-mail indisponivel, retry assincrono |
 
 Regras:
 - certificado emitido fica imutavel;
 - revogacao usa `/certificados/{certificado}/revogar`;
-- preview nao substitui aprovacao.
+- preview nao substitui aprovacao;
+- dual sign-off exige duas decisoes rastreaveis quando a politica normativa/documental do tenant exigir, e o mesmo usuario nao pode preencher os dois papeis.
 
 ---
 
@@ -220,8 +225,9 @@ Regras:
 | 1 | `/certificados` | Buscar certificado sorteado | `/certificados/{certificado}` | numero, cliente, periodo | Certificado nao encontrado |
 | 2 | `/certificados/{certificado}` | Abrir trilha tecnica | `/ordens-servico/{os}` | os_id | Acesso negado por role |
 | 3 | `/ordens-servico/{os}` | Abrir documento vinculado | `/documentos/{documento}` | documento_id | Documento confidencial |
-| 4 | `/documentos/{documento}` | Baixar evidencia | mesma tela | arquivo | Arquivo ausente no storage |
-| 5 | `/relatorios` | Exportar pacote de auditoria | mesma tela | certificado, OS, padroes | Exportacao parcial com aviso |
+| 4 | `/documentos/{documento}` | Baixar evidencia | mesma tela | arquivo e log de acesso | Arquivo ausente no storage |
+| 5 | `/documentos/{documento}` | Conferir log do download sensivel | mesma tela | evento de auditoria | Log indisponivel ou permissao insuficiente |
+| 6 | `/relatorios` | Exportar pacote de auditoria | mesma tela | certificado, OS, padroes | Exportacao parcial com aviso |
 
 Regras:
 - todo download de documento sensivel registra log de acesso;
@@ -242,7 +248,7 @@ Regras:
 | OS criada | `/ordens-servico/nova` | `/notificacoes` | in-app, e-mail | fila indisponivel com retry |
 | OS atribuida ao tecnico | `/agenda` | `/fila-tecnica` | in-app | tecnico sem role ativa |
 | Calibracao aguardando aprovacao | `/calibracoes/{calibracao}` | `/certificados/{certificado}/revisao` | in-app | gerente sem 2FA ativo |
-| Certificado emitido | `/certificados/{certificado}` | `/portal/certificados/{certificado}` | e-mail, portal | link expirado |
+| Certificado emitido | `/certificados/{certificado}` | `/portal/certificados/{certificado}` | portal + e-mail transacional; WhatsApp somente com consentimento | link expirado |
 | NFS-e rejeitada | `/fiscal/notas/{nota}` | `/fiscal/notas/{nota}/reprocessar` | in-app | erro fiscal sem mapeamento |
 | Titulo vencido | job agendado | `/financeiro/titulos/{titulo}` | in-app | cliente sem contato financeiro |
 | Padrao vencendo | job agendado | `/padroes/{padrao}` | in-app | padrao ja inativo |

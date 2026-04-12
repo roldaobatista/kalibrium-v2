@@ -7,7 +7,7 @@ description: >
 type: orchestration
 model: opus
 max_tokens_per_invocation: 100000
-tools: Agent, Read, Write, Edit, Grep, Glob, Bash, TaskCreate, TaskUpdate, Skill
+tools: Agent, Read, Grep, Glob, Skill
 ---
 
 # Orquestrador Mestre
@@ -142,7 +142,7 @@ O orquestrador **DEVE** rodar auditoria independente em contexto limpo após cad
   → epic-decomposer gera épicos + ROADMAP.md
   → /audit-planning roadmap (OBRIGATÓRIO — contexto limpo)
     → planning-auditor valida cobertura FRs/REQs, dependências, completude
-    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: R6
+    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: escala humano por política de planejamento
     → se approved: apresenta ao PM
   → PM aprova/ajusta épicos
 ```
@@ -154,9 +154,12 @@ O orquestrador **DEVE** rodar auditoria independente em contexto limpo após cad
   → story-decomposer gera stories + INDEX.md
   → /audit-stories ENN (OBRIGATÓRIO — contexto limpo)
     → story-auditor valida contratos, ACs, cobertura, dependências
-    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: R6
+    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: escala humano por política de planejamento
     → se approved: apresenta ao PM
   → PM aprova/ajusta stories
+  → gate documental obrigatório:
+      - validar docs globais obrigatórios de `docs/documentation-requirements.md`
+      - para stories com UI, validar docs por épico: wireframes, flows, ERD, API contract e data model
   → /start-story ENN-SNN
 ```
 
@@ -175,7 +178,7 @@ Mesmo protocolo da cadeia fixer → re-gate:
 3. Re-invoca **o mesmo auditor** em contexto limpo novo
 4. Se aprovar → apresenta ao PM
 5. Se rejeitar 2ª vez → tenta mais 1x (total 3 tentativas)
-6. Se 3ª rejeição → escala humano (R6) via `/explain-slice`
+6. Se 3ª rejeição → escala humano via `/explain-slice` com incidente de planejamento, sem consumir o contador R6 de verifier do slice
 
 ### Outputs de auditoria
 
