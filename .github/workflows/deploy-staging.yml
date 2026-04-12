@@ -67,4 +67,4 @@ jobs:
         run: |
           ssh -i ~/.ssh/staging_key \
             "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
-            "cd ${{ secrets.STAGING_PATH }} && bash scripts/deploy.sh"
+            "cd '${{ secrets.STAGING_PATH }}' && bash scripts/deploy.sh"

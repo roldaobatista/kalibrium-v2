@@ -131,6 +131,7 @@ return [
         'daily_json' => [
             'driver' => 'daily',
             // Driver 'daily' appends date: actual file is laravel-YYYY-MM-DD.json
+            // Staging: defina LOG_LEVEL=warning no .env para reduzir volume de logs.
             'path' => storage_path('logs/laravel.json'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,

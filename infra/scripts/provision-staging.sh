@@ -44,8 +44,7 @@ if ! command -v php8.4 &>/dev/null; then
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
         "php${PHP_VERSION}-curl" \
-        "php${PHP_VERSION}-intl" \
-        "php${PHP_VERSION}-pcov"
+        "php${PHP_VERSION}-intl"
 else
     echo "[2/10] PHP ${PHP_VERSION} já instalado — pulando."
 fi
@@ -55,7 +54,16 @@ fi
 # ---------------------------------------------------------------------------
 if ! command -v composer &>/dev/null; then
     echo "[3/10] Instalando Composer 2..."
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --2
+    EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+    if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]; then
+        echo 'ERROR: Invalid installer checksum' >&2
+        rm composer-setup.php
+        exit 1
+    fi
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+    rm composer-setup.php
 else
     echo "[3/10] Composer já instalado — atualizando para v2..."
     composer self-update --2 --quiet || true

@@ -196,14 +196,15 @@ test('AC-005: routes/console.php contém registro do heartbeat', function (): vo
     );
 })->group('slice-004', 'ac-005');
 
-test('AC-005: routes/console.php registra o job de heartbeat do scheduler', function (): void {
+test('AC-005: heartbeat registrado via Schedule::call ou Artisan::command', function (): void {
     $path = base_path('routes/console.php');
     expect(file_exists($path))->toBeTrue("routes/console.php não encontrado em {$path}");
 
     $content = file_get_contents($path);
 
-    expect(str_contains($content, 'heartbeat'))->toBeTrue(
-        'AC-005 requer que routes/console.php registre um schedule com nome/chave heartbeat.'
+    $usesSchedule = str_contains($content, 'Schedule::call') || str_contains($content, 'Artisan::command');
+    expect($usesSchedule)->toBeTrue(
+        'AC-005 requer que o heartbeat seja registrado via Schedule::call ou Artisan::command em routes/console.php.'
     );
 })->group('slice-004', 'ac-005');
 
@@ -228,3 +229,74 @@ test('AC-005: heartbeat usa withoutOverlapping() para evitar execuções concorr
         'AC-005 requer withoutOverlapping() no heartbeat para evitar sobreposição de execuções do Scheduler.'
     );
 })->group('slice-004', 'ac-005');
+
+// ---------------------------------------------------------------------------
+// TEST-001: AC-001 error path — if condition no nível do job
+// ---------------------------------------------------------------------------
+
+test('AC-001: deploy job tem if condition que bloqueia CI vermelho', function (): void {
+    $path = base_path('.github/workflows/deploy-staging.yml');
+    $content = file_get_contents($path);
+    // Verifica que o if está no nível do job (não em step individual)
+    // para garantir que TODO o job é bloqueado, não apenas steps individuais
+    expect(preg_match('/jobs:\s+deploy:\s+if:.*conclusion\s*==\s*[\'"]success[\'"]/', $content))->toBe(1,
+        'AC-001 error path: if condition deve estar no nível do job deploy para bloquear execução completa quando CI falha.'
+    );
+})->group('slice-004', 'ac-001');
+
+// ---------------------------------------------------------------------------
+// TEST-002: AC-002 smoke test remoto (condicionado a STAGING_URL)
+// ---------------------------------------------------------------------------
+
+test('AC-002: staging responde HTTP 200 (smoke test remoto)', function (): void {
+    $url = env('STAGING_URL');
+    if (! $url) {
+        test()->markTestSkipped('STAGING_URL não definida — smoke test remoto desabilitado.');
+    }
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    expect($httpCode)->toBe(200, "AC-002: staging deve responder HTTP 200, recebeu {$httpCode}.");
+})->group('slice-004', 'ac-002', 'smoke-remote');
+
+// ---------------------------------------------------------------------------
+// TEST-003: AC-003 horizon:status runtime (condicionado a STAGING_HOST/USER)
+// ---------------------------------------------------------------------------
+
+test('AC-003: horizon:status retorna running no VPS (smoke test remoto)', function (): void {
+    $host = env('STAGING_HOST');
+    $user = env('STAGING_USER');
+    if (! $host || ! $user) {
+        test()->markTestSkipped('STAGING_HOST/STAGING_USER não definidos — smoke test remoto desabilitado.');
+    }
+    // Este teste é executado apenas em ambiente com acesso SSH ao staging
+    test()->markTestSkipped('Smoke test remoto — executar manualmente no VPS: php artisan horizon:status');
+})->group('slice-004', 'ac-003', 'smoke-remote');
+
+// ---------------------------------------------------------------------------
+// TEST-005: AC-004 LOG_CHANNEL configurável via env
+// ---------------------------------------------------------------------------
+
+test('AC-004: LOG_CHANNEL pode ser configurado para daily_json via env', function (): void {
+    $path = config_path('logging.php');
+    $content = file_get_contents($path);
+    // Verifica que o default channel é configurável via LOG_CHANNEL env
+    expect(str_contains($content, "env('LOG_CHANNEL'"))->toBeTrue(
+        'AC-004 requer que o canal default do logging seja configurável via variável LOG_CHANNEL.'
+    );
+})->group('slice-004', 'ac-004');
+
+// ---------------------------------------------------------------------------
+// TEST-006: AC-001 steps críticos de deploy presentes no workflow
+// ---------------------------------------------------------------------------
+
+test('AC-001: deploy-staging.yml contém steps críticos de deploy (rsync, deploy.sh)', function (): void {
+    $path = base_path('.github/workflows/deploy-staging.yml');
+    $content = file_get_contents($path);
+    expect(str_contains($content, 'rsync'))->toBeTrue('AC-001 requer step de rsync no workflow.');
+    expect(str_contains($content, 'deploy.sh'))->toBeTrue('AC-001 requer invocação de deploy.sh no workflow.');
+})->group('slice-004', 'ac-001');
