@@ -109,12 +109,22 @@ R6 da constitution: 2 reprovações consecutivas do verifier forçam escalação
 ## Decisão
 _(preencher)_
 EOF
+
+    # Copia verification.json para specs/NNN/ antes de traduzir (translate-pm lê de lá)
+    cp "$VJSON" "$SLICE_DIR/verification.json"
+
+    # G-11: dispara tradução PM-ready automaticamente antes de escalar
+    say "gerando relatório PM-ready (R6 escalation)..."
+    bash "$SCRIPT_DIR/explain-slice.sh" "$NNN" >/dev/null || \
+      say "aviso: translate-pm falhou — relatório não gerado, PM verá JSON cru"
+
     echo ""
     echo "================================================================"
     echo "  R6 ESCALAÇÃO HUMANA OBRIGATÓRIA — slice-${NNN}"
     echo "================================================================"
     echo "  Rejeições consecutivas: $CURRENT_REJECTS"
     echo "  Incidente criado: $INCIDENT"
+    echo "  Relatório PM (em PT-BR): docs/explanations/slice-${NNN}.md"
     echo "  Implementer BLOQUEADO até decisão humana."
     echo "================================================================"
     exit 2
@@ -123,13 +133,22 @@ EOF
   # Copia verification.json para specs/NNN/ (persistência)
   cp "$VJSON" "$SLICE_DIR/verification.json"
 
+  # G-11: em qualquer verdict, dispara explain-slice automaticamente.
+  # PM nunca mais precisa lembrar de invocar /explain-slice manualmente.
+  say "gerando relatório PM-ready..."
+  bash "$SCRIPT_DIR/explain-slice.sh" "$NNN" >/dev/null || \
+    say "aviso: translate-pm falhou — relatório não gerado, PM verá JSON cru"
+  PM_REPORT="docs/explanations/slice-${NNN}.md"
+
   case "$VERDICT" in
     approved)
       say "✓ approved — abrir PR (next_action=$NEXT)"
+      say "  relatório PM: $PM_REPORT"
       exit 0
       ;;
     rejected)
       say "✗ rejected ($CURRENT_REJECTS/2) — implementer deve corrigir violations e re-verificar"
+      say "  relatório PM (leia este, não o JSON): $PM_REPORT"
       exit 1
       ;;
     *)

@@ -1,5 +1,5 @@
 ---
-description: Monta verification-input/, spawn verifier em worktree isolada, valida JSON resultante contra schema, atualiza contador de reprovações (R6). Use após todos os AC-tests estarem verdes. Uso: /verify-slice NNN.
+description: Monta verification-input/, spawn verifier em worktree isolada, valida JSON resultante contra schema, atualiza contador de reprovações (R6), dispara relatório PM-ready automaticamente (G-11). Use após todos os AC-tests estarem verdes. Uso: /verify-slice NNN.
 ---
 
 # /verify-slice
@@ -47,6 +47,15 @@ description: Monta verification-input/, spawn verifier em worktree isolada, vali
 
 7. **Descarta a worktree.** Copia apenas `verification.json` para `specs/NNN/verification.json`.
 
+8. **G-11 — dispara relatório PM-ready automaticamente.** Em **qualquer verdict** (approved, rejected 1x, ou R6 escalation), o script invoca `scripts/explain-slice.sh` que delega para `scripts/translate-pm.sh` (B-010). O resultado é `docs/explanations/slice-NNN.md` em linguagem de produto pura (R12), com:
+   - ACs que passaram/falharam traduzidos pelo título do AC (não pelo nome de teste)
+   - Violations P/R traduzidas por mapa fixo (ex.: P2 → "parte da funcionalidade ficou sem teste")
+   - Findings estruturais categorizados por severidade + frase-base em PT-BR
+   - Bloco "Sua decisão é necessária" aparece automaticamente em rejected
+   - Detalhes técnicos em `<details>` collapsado — PM não precisa abrir
+
+   **O PM não precisa mais invocar `/explain-slice` manualmente.** O relatório nasce junto com o verdict.
+
 ## Implementação
 
 Executar:
@@ -58,12 +67,33 @@ bash scripts/verify-slice.sh "$1"
 
 ## Output esperado no chat
 
+**Caso approved:**
 ```
-[verify-slice] Montando verification-input/ para slice-NNN...
-[verify-slice] AC-list: 5 ACs encontrados (AC-001..AC-005)
-[verify-slice] Rodando testes filtrados...
-[verify-slice] Spawn do verifier em worktree /tmp/verify-NNN.xxx...
-[verify-slice] verification.json recebido, validando schema...
-[verify-slice] verdict: approved | next_action: open_pr
-[verify-slice] Telemetria atualizada.
+[verify-slice] validando verification-input/verification.json contra schema R4...
+[verify-slice] schema OK
+[verify-slice] verdict=approved next_action=open_pr
+[verify-slice] gerando relatório PM-ready...
+[verify-slice] ✓ approved — abrir PR (next_action=open_pr)
+[verify-slice]   relatório PM: docs/explanations/slice-NNN.md
+```
+
+**Caso rejected 1x:**
+```
+[verify-slice] verdict=rejected next_action=return_to_implementer
+[verify-slice] gerando relatório PM-ready...
+[verify-slice] ✗ rejected (1/2) — implementer deve corrigir violations e re-verificar
+[verify-slice]   relatório PM (leia este, não o JSON): docs/explanations/slice-NNN.md
+```
+
+**Caso R6 (rejected 2x):**
+```
+[verify-slice] gerando relatório PM-ready (R6 escalation)...
+================================================================
+  R6 ESCALAÇÃO HUMANA OBRIGATÓRIA — slice-NNN
+================================================================
+  Rejeições consecutivas: 2
+  Incidente criado: docs/incidents/slice-NNN-escalation-YYYY-MM-DD.md
+  Relatório PM (em PT-BR): docs/explanations/slice-NNN.md
+  Implementer BLOQUEADO até decisão humana.
+================================================================
 ```
