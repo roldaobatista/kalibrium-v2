@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "project": "kalibrium-v2",
+  "phase": "planning",
+  "updated_at": "2026-04-12T23:00:00Z",
+  "discovery": {
+    "intake_complete": true,
+    "prd_status": "frozen",
+    "nfr_status": "frozen",
+    "domain_model_exists": true,
+    "glossary_exists": true,
+    "risks_documented": true
+  },
+  "strategy": {
+    "architecture_status": "frozen",
+    "adrs_count": 2,
+    "threat_model_exists": true,
+    "deploy_profile_exists": false
+  },
+  "planning": {
+    "epics_total": 0,
+    "epics_decomposed": 0,
+    "stories_total": 0,
+    "stories_with_contract": 0
+  },
+  "execution": {
+    "current_epic": null,
+    "current_story": null,
+    "current_slice": "900",
+    "slice_status": "approved",
+    "last_green_commit": "3d9be54",
+    "consecutive_rejections": 0,
+    "blocked": false,
+    "blocked_reason": null
+  },
+  "gates_status": {
+    "verifier": "approved",
+    "reviewer": "approved",
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved"
+  },
+  "pending_decisions": [
+    {
+      "id": "PD-001",
+      "question": "Decomposicao de epicos a partir do PRD congelado",
+      "options": ["Rodar /decompose-epics agora", "Revisar PRD antes"],
+      "created_at": "2026-04-12T23:00:00Z",
+      "resolved_at": null,
+      "decision": null
+    },
+    {
+      "id": "PD-002",
+      "question": "ADRs 0003-0007 pendentes (auth, migrations, CI/CD, observability, testes)",
+      "options": ["Criar antes dos epicos", "Criar sob demanda por epico"],
+      "created_at": "2026-04-12T23:00:00Z",
+      "resolved_at": null,
+      "decision": null
+    }
+  ],
+  "handoff": {
+    "last_session_summary": "Auditoria completa do projeto: harness 100% operacional (15 agents, 33 skills, 17 hooks, 8 schemas), slice-900 smoke test aprovado em 5 gates, Fases A+B concluidas, specs/.current corrigido para 900. Proximo: Fase C (decomposicao de epicos).",
+    "next_action": "Rodar /decompose-epics para iniciar Fase C",
+    "context_files_to_load": [
+      "CLAUDE.md",
+      "docs/constitution.md",
+      "docs/TECHNICAL-DECISIONS.md",
+      "docs/product/PRD.md",
+      "project-state.json"
+    ]
+  }
+}
