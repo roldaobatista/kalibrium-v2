@@ -134,7 +134,7 @@ esac
 
 # Valida next_action enum
 case "$NEXT_ACTION" in
-  open_pr|return_to_implementer|escalate_human|n/a) ;;
+  open_pr|approve_pr|return_to_implementer|escalate_human|n/a) ;;
   *) die "next_action inválido: '$NEXT_ACTION'" ;;
 esac
 
