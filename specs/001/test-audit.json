@@ -1,0 +1,57 @@
+{
+  "slice_id": "slice-001",
+  "verdict": "approved",
+  "timestamp": "2026-04-12T00:00:00Z",
+  "coverage_summary": {
+    "acs_total": 5,
+    "acs_covered": 5,
+    "acs_with_edge_cases": 5,
+    "test_count": 6,
+    "line_coverage_pct": null
+  },
+  "ac_coverage": [
+    {
+      "ac_id": "AC-001",
+      "covered": true,
+      "test_file": "tests/slice-001/ac-tests.sh (AC-001) + tests/Feature/ExampleTest.php",
+      "happy_path": true,
+      "error_path": true,
+      "notes": "ac-tests.sh verifica existência do artisan, sobe servidor na porta 18001, confirma HTTP 200 via curl com retry loop (8s). Caminho de erro coberto: ausência do artisan resulta em FAIL explícito. ExampleTest.php duplica a validação HTTP 200 via Pest/Laravel TestCase — cobertura redundante positiva."
+    },
+    {
+      "ac_id": "AC-002",
+      "covered": true,
+      "test_file": "tests/slice-001/ac-tests.sh (AC-002)",
+      "happy_path": true,
+      "error_path": true,
+      "notes": "Verifica três pré-condições antes de executar: bootstrap/app.php, vendor/bin/pest, script 'test' no composer.json. Cada pré-condição ausente gera FAIL descritivo (3 caminhos de erro distintos). Happy path: exit 0 do composer test."
+    },
+    {
+      "ac_id": "AC-003",
+      "covered": true,
+      "test_file": "tests/slice-001/ac-tests.sh (AC-003)",
+      "happy_path": true,
+      "error_path": true,
+      "notes": "Verifica bootstrap/app.php, vendor/bin/phpstan, phpstan.neon e presença da extensão Larastan no phpstan.neon — sem ela o spec não estaria atendido. Quatro caminhos de erro explícitos. Happy path: phpstan --level=8 exit 0."
+    },
+    {
+      "ac_id": "AC-004",
+      "covered": true,
+      "test_file": "tests/slice-001/ac-tests.sh (AC-004)",
+      "happy_path": true,
+      "error_path": true,
+      "notes": "Verifica bootstrap/app.php, vendor/bin/pint, pint.json e preset 'laravel' no pint.json — alinhado com exigência do spec (PSR-12 + opinionado Laravel). Quatro caminhos de erro explícitos. Happy path: pint --test exit 0."
+    },
+    {
+      "ac_id": "AC-005",
+      "covered": true,
+      "test_file": "tests/slice-001/ac-tests.sh (AC-005)",
+      "happy_path": true,
+      "error_path": true,
+      "notes": "Verifica ausência do arquivo (erro), depois itera por 20 variáveis específicas agrupadas em APP_*, DB_*, REDIS_*, QUEUE_CONNECTION, MAIL_*, HORIZON_*. Cada variável ausente é reportada individualmente. Cobertura de edge case: cada grupo é validado independentemente."
+    }
+  ],
+  "findings": [],
+  "anti_patterns": [],
+  "next_action": "open_pr"
+}

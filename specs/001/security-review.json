@@ -1,0 +1,112 @@
+{
+  "slice_id": "slice-001",
+  "verdict": "approved",
+  "timestamp": "2026-04-12T00:00:00Z",
+  "severity_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 2,
+    "low": 1,
+    "info": 2
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "severity": "medium",
+      "category": "security_misconfiguration",
+      "file": "config/session.php",
+      "line": 172,
+      "description": "SESSION_SECURE_COOKIE nao tem default explicitamente true. Se a variavel de ambiente nao for definida, o cookie de sessao pode ser enviado em conexoes HTTP nao-criptografadas.",
+      "recommendation": "Definir default true para SESSION_SECURE_COOKIE no config/session.php, forcar HTTPS em producao ou garantir que .env.example defina SESSION_SECURE_COOKIE=true.",
+      "owasp": "A5"
+    },
+    {
+      "id": "SEC-002",
+      "severity": "medium",
+      "category": "security_misconfiguration",
+      "file": "config/database.php",
+      "line": 99,
+      "description": "DB_SSLMODE default 'prefer' para conexao PostgreSQL. Em modo 'prefer' o driver aceita conexao sem SSL se o servidor nao oferecer, permitindo transmissao de credenciais e dados em texto plano em ambientes mal configurados.",
+      "recommendation": "Alterar default de DB_SSLMODE para 'require' e garantir que .env.example documente essa expectativa para ambientes de producao.",
+      "owasp": "A3"
+    },
+    {
+      "id": "SEC-003",
+      "severity": "low",
+      "category": "security_misconfiguration",
+      "file": "config/database.php",
+      "line": 20,
+      "description": "DB_CONNECTION default 'sqlite' contradiz ADR-0001 que define PostgreSQL como banco principal. Em caso de ausencia de .env, a aplicacao inicializa com SQLite silenciosamente, podendo mascarar problemas de configuracao.",
+      "recommendation": "Alterar default para 'pgsql' ou remover o fallback, forcar falha explicita se DB_CONNECTION nao estiver definido.",
+      "owasp": "A6"
+    },
+    {
+      "id": "SEC-004",
+      "severity": "info",
+      "category": "security_misconfiguration",
+      "file": "bootstrap/app.php",
+      "line": 13,
+      "description": "Nenhum middleware de seguranca de headers HTTP configurado explicitamente (X-Frame-Options, Content-Security-Policy, HSTS, X-Content-Type-Options). Laravel 13 inclui alguns defaults via TrustProxies mas nao CSP.",
+      "recommendation": "Adicionar middleware de security headers (ex: spatie/laravel-csp ou headers manuais) antes das stories com rotas autenticadas.",
+      "owasp": "A6"
+    },
+    {
+      "id": "SEC-005",
+      "severity": "info",
+      "category": "broken_authentication",
+      "file": "config/database.php",
+      "line": 54,
+      "description": "DB_USERNAME default 'root' nos blocos mysql e mariadb. Nao afeta o stack principal (PostgreSQL), mas e um default inseguro caso o driver seja alterado inadvertidamente.",
+      "recommendation": "Sem acao imediata necessaria para este slice (PostgreSQL e o driver de producao). Registrar para remover defaults inseguros em story de hardening.",
+      "owasp": "A2"
+    }
+  ],
+  "lgpd_checks": [
+    {
+      "check": "pii_in_logs",
+      "status": "pass",
+      "evidence": "Slice de scaffold sem codigo de negocio. Nenhum log de PII identificado nos arquivos de configuracao e rotas analisados."
+    },
+    {
+      "check": "pii_in_config",
+      "status": "pass",
+      "evidence": "Todos os valores sensiveis (APP_KEY, DB_PASSWORD, REDIS_PASSWORD) sao lidos exclusivamente via env(). Nenhum valor hardcoded encontrado."
+    },
+    {
+      "check": "secrets_hardcoded",
+      "status": "pass",
+      "evidence": "composer audit retornou 'No security vulnerability advisories found'. Nenhum token, senha ou chave API encontrado hardcoded nos arquivos analisados."
+    },
+    {
+      "check": "env_gitignored",
+      "status": "pass",
+      "evidence": ".gitignore linha 2-3: '.env' e '.env.*' excluidos. '!.env.example' explicitamente incluido. Configuracao correta."
+    },
+    {
+      "check": "session_serialization",
+      "status": "pass",
+      "evidence": "config/session.php linha 231: serialization = 'json'. Previne gadget chain attacks via desserializacao PHP."
+    },
+    {
+      "check": "debug_mode",
+      "status": "pass",
+      "evidence": "config/app.php linha 42: APP_DEBUG default false. Stack traces nao expostos em producao sem configuracao explicita."
+    },
+    {
+      "check": "csrf_protection",
+      "status": "pass",
+      "evidence": "Laravel 13 habilita VerifyCsrfToken middleware por default no grupo 'web'. routes/web.php usa grupo web. Sem exclusoes de CSRF identificadas."
+    },
+    {
+      "check": "app_key_management",
+      "status": "pass",
+      "evidence": "config/app.php linha 100: APP_KEY lido exclusivamente via env() sem fallback. Cipher AES-256-CBC. Aplicacao falha se APP_KEY nao estiver definido."
+    }
+  ],
+  "composer_audit": {
+    "ran": true,
+    "result": "No security vulnerability advisories found",
+    "exit_code": 0
+  },
+  "next_action": "approved"
+}
