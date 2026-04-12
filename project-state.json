@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution",
-  "updated_at": "2026-04-12T22:10:00Z",
+  "phase": "maintenance",
+  "updated_at": "2026-04-12T19:32:02-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -14,7 +14,7 @@
   },
   "strategy": {
     "architecture_status": "frozen",
-    "adrs_count": 2,
+    "adrs_count": 4,
     "threat_model_exists": true,
     "deploy_profile_exists": false
   },
@@ -32,38 +32,31 @@
     "total_modules": 45,
     "planning_audit_roadmap": "approved",
     "planning_audit_E01": "approved",
-    "story_audit_E01": "approved"
+    "story_audit_E01": "approved",
+    "documentation_gate": "created-global-docs-require-per-epic-docs-before-ui-story"
   },
   "execution": {
-    "current_epic": "E01",
-    "current_story": "E01-S05",
-    "current_slice": "005",
-    "slice_status": "merged",
-    "last_green_commit": "e41cd21",
+    "current_epic": null,
+    "current_story": null,
+    "current_slice": null,
+    "slice_status": "not_started",
+    "last_green_commit": "bf26899",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
-    "verifier": "approved",
-    "reviewer": "approved",
-    "security_reviewer": "approved",
-    "test_auditor": "approved",
-    "functional_reviewer": "approved"
+    "verifier": "pending",
+    "reviewer": "pending",
+    "security_reviewer": "pending",
+    "test_auditor": "pending",
+    "functional_reviewer": "pending"
   },
   "pending_decisions": [
     {
-      "id": "PD-001",
-      "question": "Decomposicao de epicos a partir do PRD congelado",
-      "options": ["Rodar /decompose-epics agora", "Revisar PRD antes"],
-      "created_at": "2026-04-12T23:00:00Z",
-      "resolved_at": "2026-04-13T00:30:00Z",
-      "decision": "Rodar /decompose-epics — 14 epicos gerados e aprovados"
-    },
-    {
       "id": "PD-002",
-      "question": "ADRs 0003-0007 pendentes (auth, migrations, CI/CD, observability, testes)",
-      "options": ["Criar antes dos epicos", "Criar sob demanda por epico"],
+      "question": "ADRs 0003-0007 pendentes devem ser criadas sob demanda conforme o epico exigir?",
+      "options": ["Criar sob demanda por epico", "Criar todas antes de retomar produto"],
       "created_at": "2026-04-12T23:00:00Z",
       "resolved_at": null,
       "decision": null
@@ -78,21 +71,22 @@
     }
   ],
   "harness": {
-    "agents": 17,
-    "skills": 37,
+    "agents": 21,
+    "skills": 35,
     "hooks": 17,
-    "schemas": 8
+    "schemas": 9,
+    "last_relock_commit": "a84371f",
+    "codex_orchestrator_commit": "6f7d629"
   },
   "handoff": {
-    "last_session_summary": "Slice 003 (E01-S03 Pipeline CI) concluido. 7 jobs no CI (harness, lint, static, test, rector, js-lint, security). 19 testes, 5 ACs, 5 gates approved zero findings. Bug harness next_action corrigido. Raiz limpa (.bat obsoletos removidos). 3 stories do E01 completas (S01 scaffold, S02 DB, S03 CI).",
-    "next_action": "Iniciar story E01-S04 (Deploy staging) ou proxima story do roadmap.",
+    "last_session_summary": "Claude Code parou por limite de uso durante a geracao da documentacao de design. A sessao Codex assumiu como orquestrador, continuou a auditoria documental, aplicou todas as correcoes levantadas e gerou o commit bf26899. O usuario decidiu encerrar esta sessao e refazer a auditoria em outro terminal.",
+    "next_action": "Abrir outro terminal no repo e pedir ao Codex para refazer do zero a auditoria documental do commit bf26899 contra HEAD~1, sem editar arquivos e sem rodar suite full.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
       "docs/TECHNICAL-DECISIONS.md",
-      "epics/ROADMAP.md",
-      "epics/E01/epic.md",
-      "epics/E01/stories/INDEX.md",
+      "docs/documentation-requirements.md",
+      "docs/handoffs/latest.md",
       "project-state.json"
     ]
   }
