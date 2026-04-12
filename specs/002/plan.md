@@ -81,7 +81,7 @@
 - `config/session.php` — `SESSION_DRIVER` default para `redis` (AC-004)
 - `.env` — confirmar/ajustar: `DB_CONNECTION=pgsql`, `DB_HOST=127.0.0.1`, `DB_PORT=5432`, `DB_DATABASE=kalibrium`, `DB_USERNAME=postgres`, `DB_PASSWORD=` (vazio), `REDIS_CLIENT=predis`, `REDIS_HOST=127.0.0.1`, `REDIS_PORT=6379`, `REDIS_PASSWORD=null`, `REDIS_DB=0`
 - `.env.example` — adicionar: `REDIS_HOST=127.0.0.1`, `REDIS_PORT=6379`, `REDIS_PASSWORD=null`, `REDIS_DB=0`, `REDIS_CLIENT=predis` com comentários de documentação (spec §Escopo)
-- `composer.json` — adicionar `"predis/predis": "^2.0"` em `require` (D1)
+- `composer.json` — adicionar `"predis/predis": "^3.4"` em `require` (D1)
 
 ## Schema / migrations
 
