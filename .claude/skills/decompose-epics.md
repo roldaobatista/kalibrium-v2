@@ -16,7 +16,7 @@ Antes de implementar, o projeto precisa ser quebrado em blocos gerenciaveis. Epi
 Apos `/freeze-architecture`. Antes de detalhar stories.
 
 ## Pre-condicoes (validadas)
-1. `docs/product/prd.md` tem status `FROZEN`
+1. `docs/product/PRD.md` tem status `FROZEN`
 2. Arquitetura congelada (ADRs com status `ACCEPTED-FROZEN`)
 3. `docs/product/nfr.md` existe
 4. `docs/product/domain-model.md` existe

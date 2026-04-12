@@ -134,6 +134,15 @@ echo "[6/12] block-project-init.sh"
 run_test "block-project-init comando inocente permite" 0 \
   env CLAUDE_TOOL_ARG_COMMAND="ls -la" bash scripts/hooks/block-project-init.sh
 
+# Para testar bloqueio sem ADR, esconde temporariamente o ADR real se existir
+ADR_REAL="docs/adr/0001-stack-choice.md"
+ADR_BAK="docs/adr/.0001-stack-choice.md.smoke-bak"
+ADR_EXISTED=false
+if [ -f "$ADR_REAL" ]; then
+  ADR_EXISTED=true
+  mv "$ADR_REAL" "$ADR_BAK"
+fi
+
 run_test "block-project-init bloqueia npm init" 1 \
   env CLAUDE_TOOL_ARG_COMMAND="npm init -y" bash scripts/hooks/block-project-init.sh
 
@@ -141,11 +150,19 @@ run_test "block-project-init bloqueia --no-verify" 1 \
   env CLAUDE_TOOL_ARG_COMMAND="git commit --no-verify -m test" bash scripts/hooks/block-project-init.sh
 
 # Com ADR-0001 presente, init passa
-mkdir -p docs/adr
-touch docs/adr/0001-stack-choice.md
+# Restaura ou cria ADR para este teste (F3 master-audit 2026-04-12: nunca rm -f ADR real)
+if [ "$ADR_EXISTED" = true ]; then
+  mv "$ADR_BAK" "$ADR_REAL"
+else
+  mkdir -p docs/adr
+  touch "$ADR_REAL"
+fi
+
 run_test "block-project-init permite npm init com ADR-0001" 0 \
   env CLAUDE_TOOL_ARG_COMMAND="npm init -y" bash scripts/hooks/block-project-init.sh
-rm -f docs/adr/0001-stack-choice.md
+
+# Limpa apenas se o teste criou o arquivo (não existia antes)
+[ "$ADR_EXISTED" = false ] && rm -f "$ADR_REAL"
 
 # ---------- 7. post-edit-gate.sh ----------
 echo "[7/12] post-edit-gate.sh"

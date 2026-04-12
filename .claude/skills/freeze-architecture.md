@@ -16,7 +16,7 @@ Decisoes de arquitetura afetam todo o codigo. Mudar stack, modelo de dados ou de
 Apos `/decide-stack` e revisao de ADRs pelo PM. Antes de criar epicos/stories.
 
 ## Pre-condicoes (validadas)
-1. `docs/product/prd.md` tem status `FROZEN`
+1. `docs/product/PRD.md` tem status `FROZEN`
 2. `docs/adr/0001-*.md` existe (stack decision)
 3. Pelo menos 1 ADR adicional existe (dados, auth, ou deploy)
 4. `docs/security/threat-model.md` existe e nao esta vazio

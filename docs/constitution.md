@@ -92,9 +92,9 @@ Qualquer item falho = não done. Sem exceção. Sem "aprovação humana bypassan
 Só Claude Code toca o código na branch ativa. Nenhum outro LLM-tool (Cursor, Copilot inline suggestions, Gemini CLI, Aider, Continue, Windsurf) rodando simultaneamente.
 **Enforcement:** verificação manual no início de sessão + `guide-auditor` inspeciona `git log --format=%an` por múltiplos autores não-humanos.
 
-### R3. Verifier em worktree descartável
-`verifier` é spawn-ado com `isolation: worktree` + pacote de input pré-montado em `verification-input/`. Tem acesso read **apenas** a esse diretório. Worktree descartada depois da execução.
-**Enforcement:** `verifier-sandbox.sh` bloqueia `Read|Grep|Glob` fora de `verification-input/` quando `CLAUDE_AGENT_NAME == "verifier"`.
+### R3. Verifier em contexto isolado
+`verifier` é spawn-ado **sem** `isolation: worktree` (porque `verification-input/` é untracked e não existiria na worktree). O isolamento é garantido por `verifier-sandbox.sh`, que restringe acesso de leitura ao diretório de input pré-montado (`verification-input/` para verifier, `review-input/` para reviewer). O pacote de input é montado pelo skill `/verify-slice` antes do spawn.
+**Enforcement:** `verifier-sandbox.sh` bloqueia `Read|Grep|Glob` fora do sandbox dir quando `CLAUDE_AGENT_NAME` é `verifier`, `reviewer`, `security-reviewer`, `test-auditor` ou `functional-reviewer`.
 
 ### R4. Verifier emite JSON validado, não prosa
 Output em `specs/NNN/verification.json` seguindo schema fixo:

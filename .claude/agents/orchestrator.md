@@ -7,17 +7,7 @@ description: >
 type: orchestration
 model: opus
 max_tokens_per_invocation: 100000
-tools:
-  - Agent
-  - Read
-  - Write
-  - Edit
-  - Grep
-  - Glob
-  - Bash
-  - TaskCreate
-  - TaskUpdate
-  - Skill
+tools: Agent, Read, Write, Edit, Grep, Glob, Bash, TaskCreate, TaskUpdate, Skill
 ---
 
 # Orquestrador Mestre

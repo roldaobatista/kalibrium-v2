@@ -1,29 +1,41 @@
 {
-  "slice": "900",
+  "slice_id": "slice-900",
   "verdict": "approved",
+  "timestamp": "2026-04-11T00:00:00Z",
+  "coverage_summary": {
+    "acs_total": 3,
+    "acs_covered": 3,
+    "acs_with_edge_cases": 1,
+    "test_count": 3,
+    "line_coverage_pct": 100
+  },
   "ac_coverage": [
     {
-      "ac_id": "AC-001",
-      "test_count": 2,
-      "adequate": true,
-      "notes": "Two tests cover AC-001: 'greet returns Hello name' (Alice) and 'greet returns Hello with any name' (Bob). Both assert the exact expected string format 'Hello, {name}!'. Specific assertions via toBe()."
+      "ac": "AC-001",
+      "tests_found": ["tests/Unit/GreetingTest.php::greet returns Hello name", "tests/Unit/GreetingTest.php::greet returns Hello with any name"],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [],
+      "status": "adequate"
     },
     {
-      "ac_id": "AC-002",
-      "test_count": 1,
-      "adequate": true,
-      "notes": "One test covers AC-002: 'greet with empty string returns Hello World'. Asserts exact return value 'Hello, World!' via toBe(). Happy path and the edge-case (empty string) are both the same scenario here — fully covered."
+      "ac": "AC-002",
+      "tests_found": ["tests/Unit/GreetingTest.php::greet with empty string returns Hello World"],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": ["empty string fallback"],
+      "status": "adequate"
     },
     {
-      "ac_id": "AC-003",
-      "test_count": 3,
-      "adequate": true,
-      "notes": "AC-003 is meta: at least one test per AC must exist in tests/Unit/GreetingTest.php using Pest, all passing with exit 0. Verified: 3 tests, 3 assertions, all passed, duration 0.18s, exit 0."
+      "ac": "AC-003",
+      "tests_found": ["tests/Unit/GreetingTest.php::greet returns Hello name", "tests/Unit/GreetingTest.php::greet returns Hello with any name", "tests/Unit/GreetingTest.php::greet with empty string returns Hello World"],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [],
+      "status": "adequate"
     }
   ],
-  "edge_cases_covered": true,
-  "fragile_tests": [],
   "findings": [],
-  "summary": "All 3 ACs have adequate test coverage, assertions are specific, no fragile patterns detected, all 3 tests pass with exit 0.",
-  "next_action": "proceed"
+  "anti_patterns": [],
+  "next_action": "approved"
 }

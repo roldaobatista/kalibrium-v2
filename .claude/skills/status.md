@@ -22,7 +22,7 @@ A qualquer momento. Especialmente ao iniciar uma sessao.
 
 ### 1. Ler estado persistido
 Tentar ler `project-state.json` na raiz do projeto. Se nao existir, construir estado a partir de:
-- `docs/product/prd.md` (status)
+- `docs/product/PRD.md` (status)
 - `docs/adr/*.md` (contagem)
 - `epics/ROADMAP.md` (se existir)
 - `specs/*/spec.md` (slices existentes)

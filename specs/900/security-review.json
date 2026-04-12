@@ -10,86 +10,12 @@
     "info": 0
   },
   "findings": [],
-  "owasp_checks": [
-    {
-      "category": "A1 - Injection",
-      "status": "pass",
-      "notes": "Nenhuma query SQL, command injection ou XSS. Funcao recebe string e retorna string interpolada sem saida para HTML ou shell."
-    },
-    {
-      "category": "A2 - Broken Authentication",
-      "status": "na",
-      "notes": "Slice nao implementa autenticacao, sessoes ou credenciais."
-    },
-    {
-      "category": "A3 - Sensitive Data Exposure",
-      "status": "pass",
-      "notes": "Nenhum dado sensivel processado ou armazenado. Sem logs, sem persistencia."
-    },
-    {
-      "category": "A4 - XML External Entities (XXE)",
-      "status": "na",
-      "notes": "Nenhum parsing de XML ou SSRF envolvido."
-    },
-    {
-      "category": "A5 - Broken Access Control",
-      "status": "na",
-      "notes": "Sem controle de acesso — funcao utilitaria pura sem contexto de usuario."
-    },
-    {
-      "category": "A6 - Security Misconfiguration",
-      "status": "pass",
-      "notes": "composer.json com minimum-stability stable, sem plugins desnecessarios. Sem debug habilitado, sem defaults inseguros."
-    },
-    {
-      "category": "A7 - Cross-Site Scripting (XSS)",
-      "status": "na",
-      "notes": "Sem saida HTML. Funcao retorna string PHP pura sem renderizacao web."
-    },
-    {
-      "category": "A8 - Insecure Deserialization",
-      "status": "na",
-      "notes": "Nenhuma desserializacao de input externo."
-    },
-    {
-      "category": "A9 - Using Components with Known Vulnerabilities",
-      "status": "pass",
-      "notes": "Unica dependencia de producao: php ^8.2 (suportado). Dev: pestphp/pest ^3.0 (estavel, sem CVEs conhecidos no momento da revisao)."
-    },
-    {
-      "category": "A10 - Insufficient Logging & Monitoring",
-      "status": "na",
-      "notes": "Slice smoke-test sem requisito de audit trail. Sem PII nos logs pois nao ha logs."
-    }
-  ],
   "lgpd_checks": [
-    {
-      "check": "pii_in_logs",
-      "status": "pass",
-      "evidence": "Nenhum log presente no codigo do slice."
-    },
-    {
-      "check": "pii_processing",
-      "status": "pass",
-      "evidence": "Funcao greet() nao processa dados pessoais reais — parametro 'name' e de teste ficticio (Alice, Bob)."
-    },
-    {
-      "check": "data_at_rest_encryption",
-      "status": "na",
-      "evidence": "Sem persistencia de dados."
-    },
-    {
-      "check": "data_in_transit_encryption",
-      "status": "na",
-      "evidence": "Sem comunicacao de rede."
-    },
-    {
-      "check": "consent_required",
-      "status": "na",
-      "evidence": "Nenhum dado de titular tratado."
-    }
+    { "check": "pii_in_logs", "status": "pass", "evidence": "Nenhum log presente no codigo do slice." },
+    { "check": "pii_processing", "status": "pass", "evidence": "Funcao greet() nao processa dados pessoais reais — parametro 'name' e de teste ficticio (Alice, Bob)." },
+    { "check": "data_at_rest_encryption", "status": "not_applicable", "evidence": "Sem persistencia de dados." },
+    { "check": "data_in_transit_encryption", "status": "not_applicable", "evidence": "Sem comunicacao de rede." },
+    { "check": "consent_required", "status": "not_applicable", "evidence": "Nenhum dado de titular tratado." }
   ],
-  "secrets_scan": "clean",
-  "summary": "Slice smoke-test com funcao utilitaria pura; superficie de ataque zero, sem secrets, sem PII, sem dependencias vulneraveis.",
-  "next_action": "proceed"
+  "next_action": "approved"
 }

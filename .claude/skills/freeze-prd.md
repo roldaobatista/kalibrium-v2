@@ -17,7 +17,7 @@ Apos `/intake` e revisao do PRD pelo PM. Antes de qualquer decisao de stack/arqu
 
 ## Pre-condicoes (validadas)
 1. `docs/product/intake-responses.md` existe e nao tem perguntas pendentes criticas
-2. `docs/product/prd.md` existe (pode ser o PRD compactado existente ou um novo)
+2. `docs/product/PRD.md` existe (pode ser o PRD compactado existente ou um novo)
 3. `docs/product/nfr.md` existe com pelo menos 3 NFRs
 4. `docs/product/domain-model.md` existe
 5. `docs/product/glossary-domain.md` existe

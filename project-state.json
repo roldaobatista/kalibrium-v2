@@ -7,7 +7,7 @@
     "intake_complete": true,
     "prd_status": "frozen",
     "nfr_status": "frozen",
-    "domain_model_exists": true,
+    "domain_model_exists": false,
     "glossary_exists": true,
     "risks_documented": true
   },

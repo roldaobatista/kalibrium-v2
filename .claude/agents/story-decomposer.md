@@ -13,7 +13,7 @@ Dado um epico aprovado, decompor em stories implementaveis. Cada story nasce com
 
 ## Inputs permitidos
 - `epics/ENN/epic.md` — epico aprovado
-- `docs/product/prd.md` — PRD
+- `docs/product/PRD.md` — PRD
 - `docs/product/nfr.md` — NFRs
 - `docs/product/domain-model.md` — modelo de dominio
 - `docs/product/personas.md` — personas

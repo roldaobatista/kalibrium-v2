@@ -12,7 +12,7 @@ max_tokens_per_invocation: 30000
 A partir do PRD aprovado (`/freeze-prd`), NFRs e arquitetura, decompor o projeto em epicos sequenciais. Cada epico e um bloco funcional coeso que entrega valor incremental.
 
 ## Inputs permitidos
-- `docs/product/prd.md` — PRD aprovado (status `frozen`)
+- `docs/product/PRD.md` — PRD aprovado (status `frozen`)
 - `docs/product/nfr.md` — NFRs aprovados
 - `docs/product/mvp-scope.md` — escopo MVP
 - `docs/product/personas.md` — personas
