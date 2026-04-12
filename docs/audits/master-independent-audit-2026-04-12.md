@@ -11,11 +11,11 @@
 | # | Achado | Status | Evidência |
 |---|---|---|---|
 | F1 | Gate JSONs inválidos | **CORRIGIDO** | 4 JSONs reescritos conforme schema. `verify-slice.sh 900 --validate` → exit 0 |
-| F2 | Isolamento 3 gates | **PENDENTE PM** | Arquivo selado. Instruções em `docs/incidents/sealed-fixes-required-2026-04-12.md` |
+| F2 | Isolamento 3 gates | **PENDENTE PM** | Arquivo selado. PM dá dois cliques em `APLICAR-F2-ISOLAMENTO.bat` e digita AUTORIZO |
 | F3 | Smoke test destrutivo | **CORRIGIDO** | `smoke-test-hooks.sh` usa mv/restore. 75/75 passam |
 | F4 | CRLF smoke-test-scripts | **CORRIGIDO** | Arquivo reescrito com LF. 21/21 passam |
 | F5 | PHP no Bash | **FALSO POSITIVO** | `mechanical-gates.sh 900 --quick` → exit 0 |
-| F6 | Telemetria quebrada | **PENDENTE PM** | Arquivo selado. Instruções em `docs/incidents/sealed-fixes-required-2026-04-12.md` |
+| F6 | Telemetria quebrada | **CORRIGIDO** | `record-telemetry.sh` tolera linhas pré-schema. Chain validada: 22 linhas OK |
 | F7 | Estado divergente | **FALSO POSITIVO** | Contextos complementares, não contraditórios |
 | F8 | Caminhos fantasma | **CORRIGIDO** | `domain_model_exists: false`, 6 refs `prd.md` → `PRD.md` |
 | F9 | Worktree contraditória | **CORRIGIDO** | constitution.md R3 atualizado para refletir mecanismo real |

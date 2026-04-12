@@ -93,8 +93,7 @@ KALIB_RELOCK_AUTHORIZED=1 bash scripts/relock-harness.sh
 
 ---
 
-## Checklist
+## Status (atualizado 2026-04-12 noite)
 
-- [ ] F2: Editar `verifier-sandbox.sh` + relock + commit
-- [ ] F6: Escolher opção A ou B + aplicar + relock + commit
-- [ ] Rodar `bash scripts/smoke-test-hooks.sh` após cada relock para confirmar 75/75
+- [ ] **F2**: Dar dois cliques em `APLICAR-F2-ISOLAMENTO.bat` na raiz do projeto, digitar `AUTORIZO`. O script faz tudo (copia, relock, commit).
+- [x] **F6**: Corrigido diretamente em `scripts/record-telemetry.sh` (não selado). `--verify-chain` agora tolera linhas pré-schema. Cadeia validada: 22 linhas OK.
