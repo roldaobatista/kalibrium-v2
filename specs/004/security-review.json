@@ -1,0 +1,62 @@
+{
+  "slice_id": "slice-004",
+  "verdict": "approved",
+  "timestamp": "2026-04-12T21:00:00Z",
+  "severity_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 2
+  },
+  "findings": [
+    {
+      "id": "SEC-007",
+      "severity": "info",
+      "category": "security_misconfiguration",
+      "file": "infra/nginx/kalibrium-staging.conf",
+      "line": 26,
+      "description": "CSP contém 'unsafe-inline' e 'unsafe-eval' em script-src. Permissivo para staging mas deve ser endurecido antes de produção com nonces ou hashes.",
+      "recommendation": "Substituir 'unsafe-inline'/'unsafe-eval' por nonces gerados por requisição quando o frontend estiver estabilizado.",
+      "owasp": "A6"
+    },
+    {
+      "id": "SEC-008",
+      "severity": "info",
+      "category": "security_misconfiguration",
+      "file": ".github/workflows/deploy-staging.yml",
+      "line": 52,
+      "description": "ssh-keyscan utiliza TOFU (Trust On First Use) sem fingerprint fixo. Um atacante com acesso à rede do runner poderia apresentar chave falsa. Risco baixo em CI gerenciado pelo GitHub.",
+      "recommendation": "Considerar adicionar fingerprint do host como secret e validar antes do deploy para eliminar risco TOFU.",
+      "owasp": "A6"
+    }
+  ],
+  "lgpd_checks": [
+    {
+      "check": "pii_in_logs",
+      "status": "pass",
+      "evidence": "config/logging.php não registra dados pessoais. routes/console.php grava apenas heartbeat de timestamp. Nenhum PII identificado nos logs configurados."
+    },
+    {
+      "check": "pii_in_transit_encrypted",
+      "status": "pass",
+      "evidence": "nginx força HTTPS via redirect 301 em porta 80 e HSTS max-age=63072000. Todo tráfego é TLS obrigatório conforme T-009 do threat model."
+    },
+    {
+      "check": "secrets_not_hardcoded",
+      "status": "pass",
+      "evidence": "Nenhum secret, credencial, token ou chave API encontrado hardcoded nos arquivos do slice. Todos os valores sensíveis referenciados via secrets.STAGING_* do GitHub Actions."
+    },
+    {
+      "check": "data_minimization_logs",
+      "status": "pass",
+      "evidence": "LOG_LEVEL default é 'debug' com comentário explícito em logging.php orientando uso de LOG_LEVEL=warning em staging. Configuração de produção controlada por variável de ambiente."
+    },
+    {
+      "check": "base_legal_documented",
+      "status": "not_applicable",
+      "evidence": "Slice 004 é infraestrutura de deploy/staging. Nenhum tratamento de dado pessoal ocorre neste slice. Base legal documentada em lgpd-base-legal.md aplica-se às camadas de negócio."
+    }
+  ],
+  "next_action": "approved"
+}

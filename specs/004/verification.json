@@ -1,0 +1,34 @@
+{
+  "slice_id": "slice-004",
+  "verdict": "approved",
+  "timestamp": "2026-04-12T23:00:00Z",
+  "ac_checks": [
+    {
+      "ac": "AC-001",
+      "status": "pass",
+      "evidence": "tests/slice-004/DeployStagingTest.php — 4 assertions: deploy-staging.yml existe, usa workflow_run, referencia CI, condiciona a conclusion==success. exit_code=0"
+    },
+    {
+      "ac": "AC-002",
+      "status": "pass",
+      "evidence": "tests/slice-004/DeployStagingTest.php — 3 assertions: infra/nginx/kalibrium-staging.conf existe, define server_name staging.kalibrium.com.br, root aponta para public/. exit_code=0"
+    },
+    {
+      "ac": "AC-003",
+      "status": "pass",
+      "evidence": "tests/slice-004/DeployStagingTest.php — 4 assertions: horizon em composer.json require, infra/supervisor/horizon-staging.conf existe, autorestart=true, autostart=true. exit_code=0"
+    },
+    {
+      "ac": "AC-004",
+      "status": "pass",
+      "evidence": "tests/slice-004/DeployStagingTest.php — 3 assertions: config/logging.php define canal daily_json, usa JsonFormatter, usa driver daily. exit_code=0"
+    },
+    {
+      "ac": "AC-005",
+      "status": "pass",
+      "evidence": "tests/slice-004/DeployStagingTest.php — 4 assertions: routes/console.php contém heartbeat, registra job de scheduler, everyMinute(), withoutOverlapping(). exit_code=0"
+    }
+  ],
+  "violations": [],
+  "next_action": "open_pr"
+}
