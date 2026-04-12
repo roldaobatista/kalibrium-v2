@@ -80,8 +80,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "A sessao Codex corrigiu o gap de boot: configurou o Codex para carregar CLAUDE.md via project_doc_fallback_filenames, criou /codex-bootstrap em .claude/skills e .claude/commands, atualizou CLAUDE.md, orchestrator, constitution e ADR-0008, e commitou em 1527c69.",
-    "next_action": "Abrir nova sessao Codex no repo. Ela deve carregar CLAUDE.md automaticamente e executar o bootstrap. Se o objetivo continuar sendo a auditoria documental anterior, auditar explicitamente bf26899^..bf26899, nao HEAD.",
+    "last_session_summary": "A sessao Codex corrigiu o gap de boot: configurou o Codex para carregar CLAUDE.md via project_doc_fallback_filenames, criou /codex-bootstrap em .claude/skills e .claude/commands, atualizou CLAUDE.md, orchestrator, constitution e ADR-0008, e commitou em 1527c69. O handoff foi ajustado para nao confundir retomada por Claude Code.",
+    "next_action": "Se a proxima sessao for Claude Code, usar o fluxo normal do harness: SessionStart + /resume; nao rodar /codex-bootstrap. Se a proxima sessao for Codex CLI, executar /codex-bootstrap. Para reauditar correcoes documentais, auditar explicitamente bf26899^..bf26899, nao HEAD.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -89,7 +89,6 @@
       "docs/documentation-requirements.md",
       "docs/handoffs/latest.md",
       "project-state.json",
-      ".claude/skills/codex-bootstrap.md",
       ".claude/agents/orchestrator.md"
     ]
   }

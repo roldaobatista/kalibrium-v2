@@ -24,8 +24,8 @@ nenhum
 `1527c69 docs(harness): adiciona bootstrap obrigatorio do codex`
 
 ## Pendencias
-- [ ] Em nova sessao Codex, confirmar que `CLAUDE.md` aparece no prompt inicial.
-- [ ] Executar `/codex-bootstrap` antes de qualquer trabalho.
+- [ ] Se a proxima sessao for Claude Code: seguir fluxo normal do harness (`SessionStart` + `/resume`) e nao rodar `/codex-bootstrap`.
+- [ ] Se a proxima sessao for Codex CLI: confirmar que `CLAUDE.md` aparece no prompt inicial e executar `/codex-bootstrap` antes de qualquer trabalho.
 - [ ] Se o objetivo ainda for reauditar as correcoes documentais, auditar explicitamente `bf26899^..bf26899` e nao `HEAD`, porque `HEAD` agora inclui commits de handoff/bootstrap.
 
 ## Decisoes tomadas nesta sessao
@@ -39,7 +39,7 @@ nenhum
 
 ## Proxima acao recomendada
 
-Abrir uma nova sessao Codex em `C:\PROJETOS\saas\kalibrium-v2`. A primeira resposta deve reconhecer o bootstrap do harness e rodar os checks definidos em `/codex-bootstrap`.
+Abrir uma nova sessao no orquestrador escolhido. Se for Claude Code, deixar o `SessionStart` rodar e usar `/resume`. Se for Codex CLI, a primeira resposta deve reconhecer o bootstrap do harness e rodar os checks definidos em `/codex-bootstrap`.
 
 ## Arquivos criados/modificados
 - `CLAUDE.md`
