@@ -1,0 +1,38 @@
+# Riscos de Negócio — Kalibrium
+
+> **Status:** ativo. Produzido pelo sub-agent `domain-analyst` em 2026-04-12, a partir do PRD, mvp-scope.md e compliance/*.md.
+> Riscos são baseados em evidência dos documentos de entrada. Sem riscos inventados.
+
+---
+
+## Tabela de riscos
+
+| ID | Risco | Fonte de evidência | Probabilidade | Impacto | Mitigação |
+|---|---|---|---|---|---|
+| RISK-001 | **Regulamentação metrológica pode mudar** (nova edição da ISO 17025, Portaria INMETRO, critérios RBC) e exigir ajuste no formato do certificado, no cálculo de incerteza ou na cadeia de rastreabilidade | metrology-policy.md §5; PRD §Compliance | Média | Alto | Revalidação semestral (RBC) e anual (ISO/GUM) prevista em revalidation-calendar.md; módulo Lab desenhado com templates versionados por procedimento; consultor de metrologia obrigatório em decisões técnicas |
+| RISK-002 | **Reforma tributária (EC 132/2023 / IBS-CBS)** entrará em vigor entre 2026 e 2033 e alterará o código de serviço e o cálculo de alíquota da NFS-e | fiscal-policy.md §1 e §4; PRD §Fiscal | Alta | Alto | Monitoramento bimestral previsto em fiscal-policy.md; consultor fiscal obrigatório para qualquer decisão de alíquota; módulo Fiscal parametrizável por regime/município |
+| RISK-003 | **Legislação municipal de NFS-e diverge por cidade** — cada prefeitura tem layout de XML próprio; erros geram rejeição fiscal | fiscal-policy.md §4; PRD §Fluxo fiscal | Média | Alto | MVP limita-se a 5 municípios (SP, Campinas, BH, Curitiba, POA); testes golden por município em tests/golden/fiscal/; provedor de NFS-e terceirizado (ia-no-go.md §1) reduz exposição |
+| RISK-004 | **LGPD: ANPD pode publicar novas resoluções** que alterem bases legais, obrigações de DPIA ou requisitos de ROT exigindo mudanças no produto | lgpd-policy.md §5; PRD §Segurança | Média | Médio | Monitoramento trimestral previsto em lgpd-policy.md; DPO fracionário obrigatório para aprovação de qualquer nova base legal; revalidação vinculada a mudanças arquiteturais materiais |
+| RISK-005 | **Vazamento de dados entre tenants** (cross-tenant data leak) é o incidente crítico mais severo do modelo multi-tenant | mvp-scope.md REQ-TEN-005; PRD §Princípios; lgpd-policy.md | Baixa | Crítico | RLS (Row-Level Security) como requisito estrutural; worktrees isoladas nos gates de qualidade; zero vazamento = critério de DoD do slice; security-reviewer independente em cada gate |
+| RISK-006 | **Resistência à adoção pelo técnico calibrador** (persona Juliana) que tem planilha de incerteza customizada e pode rejeitar o sistema | personas.md Persona 2; mvp-scope.md §7 | Alta | Alto | MVP aceita versão de procedimento específico por instrumento; planilha pode ser consumida literalmente até migração voluntária; interface de bancada projetada para tablet/celular com mínima fricção |
+| RISK-007 | **Cicatriz de implantação anterior** (persona Marcelo): laboratórios já tiveram experiências ruins com software de calibração; podem rejeitar novo sistema antes de testar | personas.md Persona 1; mvp-scope.md §7 | Alta | Alto | Exportação CSV disponível a qualquer momento; dados sempre do cliente; entrada pelo módulo de metrologia (onde o legado falhou menos) e não pelo fiscal; critério de sucesso mensurável (dias para fechar ciclo) |
+| RISK-008 | **Escopo grande vs. capacidade de entrega** — o produto completo tem 122 FRs em 11 domínios; risco de dispersão e entrega superficial | PRD §Estratégia de Mitigação de Riscos; PRD §Escopo | Alta | Alto | Evolução por macrodomínio; MVP intencionalmente estreito (29 requisitos, 5 módulos); validação assistida por tenant piloto antes de abertura comercial; fatiamento por fluxo de valor |
+| RISK-009 | **Qualidade de dados na migração** de sistemas legados — laboratórios têm dados históricos em planilhas e sistemas sem exportação padrão | PRD §Migração; personas.md (Marcelo) | Alta | Médio | Assistente de importação com mapeamento visual de colunas, validação, preview e reversão operacional; entrada pelo novo data (não migrar histórico completo no MVP) |
+| RISK-010 | **Dependência de terceiros para fiscal e eSocial** — a integração com SEFAZ, prefeituras e ambiente eSocial é obrigatória e tem indisponibilidade regular | fiscal-policy.md §6; PRD §Integrações; ia-no-go.md §1 | Média | Alto | Integração fiscal via provedor terceirizado (não implementar diretamente); fallback operacional obrigatório para emissão em contingência; retry automático de fila fiscal |
+| RISK-011 | **Assinatura digital ICP-Brasil fora do MVP** — cliente acreditado pode exigir assinatura digital no certificado antes do gatilho de reentrada | mvp-scope.md §4; out-of-scope.md; icp-brasil-policy.md | Média | Médio | Documentado em out-of-scope.md como fora do MVP; gatilho de reentrada: exigência documentada de cliente pagante ou Cgcre; comunicar ao cliente-âncora desde onboarding |
+| RISK-012 | **Consultor de metrologia ainda não contratado** — decisões técnicas de incerteza, regra de decisão e layout de certificado acreditado exigem expertise que o PM não tem | metrology-policy.md §3; ia-no-go.md §5 | Média | Alto | PM é responsável provisório apenas por registro e consulta; nenhuma decisão metrológica operacional antes da contratação; item M2 do procurement-tracker.md |
+| RISK-013 | **DPO (LGPD) ainda não contratado** — aprovação formal de DPIA e ROT exigidas para o primeiro tenant real estão bloqueadas | lgpd-policy.md §3; ia-no-go.md §6 | Média | Alto | Itens em status draft-awaiting-dpo; product-team não pode aprovar DPIA nem base legal nova; item no procurement-tracker.md |
+| RISK-014 | **Consultor fiscal ainda não contratado** — cálculo de alíquota Simples Nacional e IBS/CBS para tenant real exigem consultor | fiscal-policy.md §3; ia-no-go.md §1 | Média | Alto | PM é responsável provisório apenas por registro; nenhuma decisão fiscal antes da contratação; item F2 do procurement-tracker.md |
+| RISK-015 | **App mobile nativo fora do MVP** — técnicos de campo podem precisar de app nativo antes da versão web responsiva ser suficiente para uso de bancada | mvp-scope.md §4; personas.md Persona 2 (Juliana) | Média | Médio | MVP é web responsivo; gatilho de reentrada: feedback real de técnico calibrador de que PWA é insuficiente para uso de bancada; monitorar no primeiro trimestre de uso |
+| RISK-016 | **Churn precoce por adoção baixa** — tenant pode contratar e abandonar se o onboarding for lento ou se o primeiro fluxo ponta a ponta não for concluído | PRD §Health Score; PRD §Retenção; mvp-scope.md §7 | Média | Alto | Health score com causa acionável; checklist de ativação; critério de sucesso: primeiro laboratório conclui ciclo completo (pedido → certificado → NFS-e → baixa) sem planilha |
+| RISK-017 | **Conflito de canal com parceiros** — deal registration sem governança pode gerar disputas e perda de confiança do parceiro | PRD §Programa de Parceiros | Baixa | Médio | Regras de conflito de canal explícitas no programa; janela de proteção por registro de oportunidade; PartnerOps com trilha auditável |
+| RISK-018 | **Isolamento incompleto de dados em multi-empresa** — usuário com acesso a empresa A vê dados de empresa B por configuração incorreta | PRD §Multi-Empresa; PRD §Princípios | Baixa | Crítico | RBAC por empresa, não por tenant; testes de isolamento obrigatórios por gate; security-reviewer independente valida em todo PR |
+
+---
+
+## Critério de revisão
+
+Riscos devem ser reavaliados:
+- A cada release de nova regulamentação (metrologia: semestral; fiscal: bimestral; LGPD: trimestral)
+- Ao contratar o consultor de metrologia, DPO ou consultor fiscal (atualizar status de RISK-012, RISK-013, RISK-014)
+- Ao concluir o MVP com o primeiro tenant real (atualizar probabilidade de RISK-006, RISK-007, RISK-016)

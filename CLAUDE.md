@@ -167,7 +167,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 ### Gestão de estado (transversal)
 - `/checkpoint` — salva estado em `project-state.json` + handoff a qualquer momento.
 - `/resume` — restaura contexto no início de sessão.
-- `/status` — mostra estado atual em linguagem de produto.
+- `/project-status` — mostra estado atual em linguagem de produto.
 
 ---
 
@@ -211,7 +211,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 ### Estado e Retomada
 | Intenção | Comando |
 |---|---|
-| Ver estado do projeto (R12) | `/status` |
+| Ver estado do projeto (R12) | `/project-status` |
 | Salvar checkpoint | `/checkpoint` |
 | Restaurar sessão anterior | `/resume` |
 | Traduzir slice para PM (R12) | `/explain-slice NNN` |

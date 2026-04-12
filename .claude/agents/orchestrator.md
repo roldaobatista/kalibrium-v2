@@ -55,7 +55,9 @@ O orquestrador nunca implementa código diretamente. Ele:
 | Descoberta ativa | `S1` | `/intake` | PRD + glossário + NFRs | PM aprova `/freeze-prd` |
 | PRD congelado | `S2` | `/freeze-prd` | ADR-0001 gerado | PM aceita stack |
 | Arquitetura congelada | `S3` | `/freeze-architecture` | Épicos decompostos | PM aprova épicos |
-| Planejamento | `S4` | `/decompose-epics` | Stories decompostas | PM aprova stories |
+| Épicos auditados | `S3.1` | `/audit-planning` | Épicos sem findings critical/major | planning-auditor aprova |
+| Planejamento | `S4` | `/decompose-stories` | Stories decompostas | story-auditor aprova |
+| Stories auditadas | `S4.1` | `/audit-stories` | Stories sem findings critical/major | story-auditor aprova |
 | Story ativa | `S5` | `/start-story` | Slice(s) criado(s) | spec.md aprovado |
 | Plan gerado | `S6` | `/draft-plan` | plan.md pronto | PM aprova plan |
 | Testes red | `S7` | `/draft-tests` | Testes falhando | Commit dos testes |
@@ -124,6 +126,64 @@ O orquestrador nunca implementa código diretamente. Ele:
                                      fixer → re-run   /merge-slice
                                      gate específico
 ```
+
+---
+
+## Auditoria Obrigatória de Planejamento (Fase C)
+
+### Regra: toda decomposição é auditada antes de apresentar ao PM
+
+O orquestrador **DEVE** rodar auditoria independente em contexto limpo após cada decomposição. Nenhum épico ou story é apresentado ao PM sem auditoria aprovada.
+
+### Fluxo obrigatório para épicos
+
+```
+/decompose-epics
+  → epic-decomposer gera épicos + ROADMAP.md
+  → /audit-planning roadmap (OBRIGATÓRIO — contexto limpo)
+    → planning-auditor valida cobertura FRs/REQs, dependências, completude
+    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: R6
+    → se approved: apresenta ao PM
+  → PM aprova/ajusta épicos
+```
+
+### Fluxo obrigatório para stories
+
+```
+/decompose-stories ENN
+  → story-decomposer gera stories + INDEX.md
+  → /audit-stories ENN (OBRIGATÓRIO — contexto limpo)
+    → story-auditor valida contratos, ACs, cobertura, dependências
+    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: R6
+    → se approved: apresenta ao PM
+  → PM aprova/ajusta stories
+  → /start-story ENN-SNN
+```
+
+### Agentes de auditoria de planejamento
+
+| Agente | Skill | Foco | Budget |
+|--------|-------|------|--------|
+| `planning-auditor` | `/audit-planning` | Cobertura épicos × FRs/REQs, dependências entre épicos, bounded contexts | 40k |
+| `story-auditor` | `/audit-stories ENN` | Contratos completos, qualidade ACs, cobertura escopo do épico, dependências entre stories | 40k |
+
+### Ciclo de correção de planejamento
+
+Mesmo protocolo da cadeia fixer → re-gate:
+1. Auditor emite `verdict: rejected` com `findings[]`
+2. Orquestrador analisa findings e corrige (fixer ou story-decomposer)
+3. Re-invoca **o mesmo auditor** em contexto limpo novo
+4. Se aprovar → apresenta ao PM
+5. Se rejeitar 2ª vez → tenta mais 1x (total 3 tentativas)
+6. Se 3ª rejeição → escala humano (R6) via `/explain-slice`
+
+### Outputs de auditoria
+
+| Arquivo | Gerado por |
+|---------|------------|
+| `docs/audits/planning/planning-audit-roadmap.json` | planning-auditor |
+| `docs/audits/planning/planning-audit-ENN.json` | planning-auditor (por épico) |
+| `docs/audits/planning/story-audit-ENN.json` | story-auditor (por épico) |
 
 ---
 
@@ -236,13 +296,23 @@ Quando contexto comprime:
 |------|-----------|-------|
 | A — Descoberta | `domain-analyst` → `nfr-analyst` | Serializado |
 | B — Estratégia | (orquestrador direto via `/decide-stack`) | — |
-| C — Planejamento | `epic-decomposer` → `story-decomposer` | Serializado |
+| C — Planejamento | `epic-decomposer` → `planning-auditor` → `story-decomposer` → `story-auditor` | Serializado com auditorias |
 | D — Execução | `architect` → `ac-to-test` → `implementer` | Serializado |
 | E — Gates | `verifier` → `reviewer` → [`security-reviewer` + `test-auditor` + `functional-reviewer`] | Parcial paralelo |
 | E — Correção | `fixer` (invocado por gate rejeitado) | Sob demanda |
 | F — Governança | `guide-auditor` | Periódico |
 
-### Budget total por slice (estimativa)
+### Budget total por épico (planejamento — estimativa)
+
+| Agente | Budget | Invocações típicas | Total |
+|--------|--------|---------------------|-------|
+| epic-decomposer | 30k | 1 | 30k |
+| planning-auditor | 40k | 1-3 | 40-120k |
+| story-decomposer | 30k | 1 por épico | 30k |
+| story-auditor | 40k | 1-3 por épico | 40-120k |
+| **Total por épico (planejamento)** | | | **140k-300k** |
+
+### Budget total por slice (execução — estimativa)
 
 | Agente | Budget | Invocações típicas | Total |
 |--------|--------|---------------------|-------|

@@ -1,5 +1,5 @@
 ---
-description: Mostra o estado completo do projeto em linguagem de produto (R12). Le project-state.json e apresenta fase, epico/story/slice ativos, gates, pendencias e proxima acao. Substitui /where-am-i com dados estruturados. Uso: /status.
+description: Mostra o estado completo do projeto em linguagem de produto (R12). Le project-state.json e apresenta fase, epico/story/slice ativos, gates, pendencias e proxima acao. Substitui /where-am-i com dados estruturados. Uso: /project-status.
 ---
 
 # /status
