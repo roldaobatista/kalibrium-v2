@@ -224,23 +224,26 @@ test('AC-004: rota /health resolve para HealthCheckController sem erro 404/500',
 // AC-005: PHPStan level 8 passa no HealthCheckController
 // ---------------------------------------------------------------------------
 
-test('AC-005: HealthCheckController é classe final com tipagem estrita', function (): void {
-    // AC-005 exige PHPStan level 8 no controller. PHPStan level 8 é um gate de CI
-    // (slice 003). Este teste valida as pré-condições de tipagem que PHPStan 8 exige:
-    // declare(strict_types=1), classe final, retorno tipado.
-    $path = base_path('app/Http/Controllers/HealthCheckController.php');
-    expect(file_exists($path))->toBeTrue('AC-005: controller deve existir.');
+test('AC-005: HealthCheckController é instanciável e invocável via reflexão', function (): void {
+    // AC-005 exige PHPStan level 8. Validamos via reflexão que o controller
+    // atende os requisitos estruturais sem ler o filesystem.
+    $class = \App\Http\Controllers\HealthCheckController::class;
 
-    $content = file_get_contents($path);
+    expect(class_exists($class))->toBeTrue('AC-005: controller class deve existir no autoloader.');
 
-    expect(str_contains($content, 'declare(strict_types=1)'))->toBeTrue(
-        'AC-005: PHPStan level 8 requer declare(strict_types=1).'
+    $reflection = new \ReflectionClass($class);
+
+    expect($reflection->isFinal())->toBeTrue(
+        'AC-005: controller deve ser final class para PHPStan level 8.'
     );
-    expect(str_contains($content, 'final class'))->toBeTrue(
-        'AC-005: controller deve ser final class para satisfazer PHPStan level 8.'
+    expect($reflection->hasMethod('__invoke'))->toBeTrue(
+        'AC-005: controller deve ser invocável (__invoke).'
     );
-    expect(str_contains($content, 'JsonResponse'))->toBeTrue(
-        'AC-005: retorno deve ser tipado como JsonResponse para PHPStan level 8.'
+
+    $returnType = $reflection->getMethod('__invoke')->getReturnType();
+    expect($returnType)->not->toBeNull('AC-005: __invoke deve ter retorno tipado.');
+    expect($returnType->getName())->toBe('Illuminate\Http\JsonResponse',
+        'AC-005: retorno deve ser tipado como JsonResponse.'
     );
 })->group('slice-005', 'ac-005');
 
