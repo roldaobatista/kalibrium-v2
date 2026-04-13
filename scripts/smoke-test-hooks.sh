@@ -73,6 +73,7 @@ trap restore_smoke_state EXIT INT TERM
 mkdir -p "$TMPDIR/verification-input"
 touch "$TMPDIR/verification-input/spec.md"
 echo "dummy" > "$TMPDIR/dummy.txt"
+echo "# Smoke markdown" > "$TMPDIR/dummy.md"
 
 # ---------- 1. session-start.sh ----------
 echo "[1/12] session-start.sh"
@@ -194,7 +195,7 @@ run_test "block-project-init permite npm init com ADR-0001" 0 \
 # ---------- 7. post-edit-gate.sh ----------
 echo "[7/12] post-edit-gate.sh"
 run_test "post-edit-gate arquivo markdown permite" 0 \
-  env CLAUDE_TOOL_ARG_FILE="docs/guide-backlog.md" bash scripts/hooks/post-edit-gate.sh
+  env CLAUDE_TOOL_ARG_FILE="$TMPDIR/dummy.md" bash scripts/hooks/post-edit-gate.sh
 
 run_test "post-edit-gate arquivo inexistente permite" 0 \
   env CLAUDE_TOOL_ARG_FILE="$TMPDIR/nao-existe.md" bash scripts/hooks/post-edit-gate.sh

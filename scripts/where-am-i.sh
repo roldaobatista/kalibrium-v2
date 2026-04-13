@@ -118,8 +118,10 @@ print_slice() {
 
   # Determina estado: ativo (sem merge) ou fechado
   local state="em andamento"
+  local has_merge=0
   if [ -f "$tfile" ] && grep -q '"event"[[:space:]]*:[[:space:]]*"merge"' "$tfile" 2>/dev/null; then
     state="✓ concluído"
+    has_merge=1
   fi
 
   # Arquivos presentes
@@ -141,8 +143,14 @@ print_slice() {
     fi
   fi
 
+  local next_event="$last_event" next_verdict="$last_verdict"
+  if [ "$has_merge" -eq 1 ]; then
+    next_event="merge"
+    next_verdict="approved"
+  fi
+
   local next
-  next="$(next_step_for_slice "$nnn" "$last_event" "$last_verdict" "$spec_dir")"
+  next="$(next_step_for_slice "$nnn" "$next_event" "$next_verdict" "$spec_dir")"
 
   # Print bloco
   echo "─── slice-${nnn} ───"
