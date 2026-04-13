@@ -1,7 +1,7 @@
 # Slice 005 — Healthcheck endpoint `/health`
 
-**Status:** em andamento  
-**Data:** 2026-04-12  
+**Status:** em andamento
+**Data:** 2026-04-12
 **Slice:** 005
 
 ---

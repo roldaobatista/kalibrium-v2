@@ -72,7 +72,7 @@ Story E01-S01 iniciada!
 📋 "Scaffold do projeto Laravel conforme ADR-0001"
    Slice criado: slice-013
    ACs: 4 criterios de aceite
-   
+
 O spec.md ja esta preenchido com os ACs do contrato.
 
 Proximo passo: gerar o plano tecnico.

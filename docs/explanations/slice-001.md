@@ -1,7 +1,7 @@
 # Slice 001 — Scaffold Laravel 13 com dependências core
 
-**Status:** em andamento  
-**Data:** 2026-04-12  
+**Status:** em andamento
+**Data:** 2026-04-12
 **Slice:** 001
 
 ---

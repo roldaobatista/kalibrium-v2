@@ -1,7 +1,7 @@
 # Slice 003 — Pipeline CI (PHPStan + Pest + Pint + Rector + SBOM)
 
-**Status:** ✓ pronto para usar  
-**Data:** 2026-04-12  
+**Status:** ✓ pronto para usar
+**Data:** 2026-04-12
 **Slice:** 003
 
 ---

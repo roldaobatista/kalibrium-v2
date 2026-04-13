@@ -46,4 +46,3 @@ a1bf1a8deec6a088a888d2c7d91ece0617ceb7c14a48f5f4c0ce512367fc3cbb  telemetry-lock
 - [ ] Validar que o relock é esperado (ex: você acabou de editar um hook intencionalmente)
 - [ ] Se NÃO esperado: investigar como ocorreu (possível bypass dos hooks de segurança)
 - [ ] Commitar este incidente junto com as mudanças do harness para rastreabilidade
-

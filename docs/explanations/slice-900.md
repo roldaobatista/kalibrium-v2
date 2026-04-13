@@ -1,7 +1,7 @@
 # Slice 900 — smoke-test: validar pipeline end-to-end
 
-**Status:** ✓ pronto para usar  
-**Data:** 2026-04-12  
+**Status:** ✓ pronto para usar
+**Data:** 2026-04-12
 **Slice:** 900
 
 ---

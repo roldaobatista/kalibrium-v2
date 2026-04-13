@@ -1,7 +1,7 @@
 # Slice 004 — Deploy staging automatizado (GitHub Actions → VPS)
 
-**Status:** ✓ pronto para usar  
-**Data:** 2026-04-12  
+**Status:** ✓ pronto para usar
+**Data:** 2026-04-12
 **Slice:** 004
 
 ---

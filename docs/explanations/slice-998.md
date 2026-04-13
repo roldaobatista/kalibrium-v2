@@ -1,7 +1,7 @@
 # Slice 998 — teste smoke
 
-**Status:** em andamento  
-**Data:** 2026-04-12  
+**Status:** em andamento
+**Data:** 2026-04-12
 **Slice:** 998
 
 ---

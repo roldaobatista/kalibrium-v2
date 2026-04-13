@@ -1,7 +1,7 @@
 # Slice 998 — teste smoke
 
-**Status:** ⚠ precisa da sua decisão  
-**Data:** 2026-04-12  
+**Status:** ⚠ precisa da sua decisão
+**Data:** 2026-04-12
 **Slice:** 997
 
 ---

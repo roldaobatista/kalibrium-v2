@@ -1,9 +1,9 @@
 # Roadmap de Épicos — Kalibrium V2
 
-> **Gerado por:** epic-decomposer  
-> **Data:** 2026-04-12  
-> **Base:** PRD congelado + mvp-scope.md (29 REQs) + prd-gaps-resolution.md (12 FRs P0 adicionais) + domain-model.md (34 entidades, 6 bounded contexts) + ADR-0001 (Laravel 13 + Livewire 4 + PostgreSQL 18)  
-> **Primeiro cliente-âncora:** laboratório não-acreditado em Rondonópolis/MT  
+> **Gerado por:** epic-decomposer
+> **Data:** 2026-04-12
+> **Base:** PRD congelado + mvp-scope.md (29 REQs) + prd-gaps-resolution.md (12 FRs P0 adicionais) + domain-model.md (34 entidades, 6 bounded contexts) + ADR-0001 (Laravel 13 + Livewire 4 + PostgreSQL 18)
+> **Primeiro cliente-âncora:** laboratório não-acreditado em Rondonópolis/MT
 > **Status:** aguardando aprovação PM
 
 ---
