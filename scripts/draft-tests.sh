@@ -27,6 +27,7 @@ fi
 
 SPEC="specs/$NNN/spec.md"
 PLAN="specs/$NNN/plan.md"
+SLICE_TEST_DIR="tests/slice-$NNN"
 
 ERR=0
 fail() { echo "  ✗ $*" >&2; ERR=1; }
@@ -80,7 +81,11 @@ if [ "$MODE" = "--check" ]; then
   fi
 
   # Testes AC do slice não devem existir ainda (ou o agente vai sobrescrever)
-  EXISTING_TESTS=$(find tests/ -name "ac-${NNN}-*" -type f 2>/dev/null | wc -l | tr -d ' ')
+  if [ -d "$SLICE_TEST_DIR" ]; then
+    EXISTING_TESTS=$(find "$SLICE_TEST_DIR" -type f -name "*Test.php" 2>/dev/null | wc -l | tr -d ' ')
+  else
+    EXISTING_TESTS=$(find tests/ -name "ac-${NNN}-*" -type f 2>/dev/null | wc -l | tr -d ' ')
+  fi
   if [ "$EXISTING_TESTS" -gt 0 ]; then
     echo "  ⚠ $EXISTING_TESTS teste(s) AC já existem — serão sobrescritos pelo ac-to-test" >&2
   else
@@ -111,8 +116,12 @@ elif [ "$MODE" = "--validate" ]; then
     echo ""; echo "[draft-tests FAIL]" >&2; exit 1
   fi
 
-  # Procurar arquivos de teste com padrão ac-NNN-*
-  TEST_FILES=$(find tests/ -name "ac-${NNN}-*" -type f 2>/dev/null || true)
+  # Procurar primeiro pela pasta padrão do slice; cair para o padrão legado ac-NNN-*.
+  if [ -d "$SLICE_TEST_DIR" ]; then
+    TEST_FILES=$(find "$SLICE_TEST_DIR" -type f -name "*Test.php" 2>/dev/null || true)
+  else
+    TEST_FILES=$(find tests/ -name "ac-${NNN}-*" -type f 2>/dev/null || true)
+  fi
   TEST_COUNT=$(echo "$TEST_FILES" | grep -c . 2>/dev/null || echo 0)
   [ -z "$TEST_FILES" ] && TEST_COUNT=0
 
