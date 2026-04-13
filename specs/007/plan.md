@@ -1,7 +1,7 @@
 # Plano técnico do slice 007 — SEG-001 Login seguro do laboratório
 
 **Gerado por:** architect sub-agent
-**Status:** draft
+**Status:** approved
 **Spec de origem:** `specs/007/spec.md`
 
 ---

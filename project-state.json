@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T19:09:15-04:00",
+  "updated_at": "2026-04-13T19:28:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,7 +39,7 @@
     "current_epic": "E02",
     "current_story": "SEG-001",
     "current_slice": "007",
-    "slice_status": "plan_draft_validated",
+    "slice_status": "plan_approved",
     "last_green_commit": "5ec5ef0",
     "consecutive_rejections": 0,
     "blocked": false,
@@ -47,7 +47,7 @@
   },
   "gates_status": {
     "spec_auditor": "approved",
-    "plan": "draft_validated_pending_pm_approval",
+    "plan": "approved",
     "verifier": "pending",
     "reviewer": "pending",
     "security_reviewer": "pending",
@@ -98,8 +98,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "O architect gerou specs/007/plan.md para o login seguro do laboratorio. O plano passou em draft-plan --validate cobrindo 21/21 ACs e ficou pendente apenas da aprovacao do PM antes de /draft-tests 007.",
-    "next_action": "Apresentar a recomendacao do plano do slice 007 ao PM; se aprovado, marcar plan.md como approved e seguir para /draft-tests 007.",
+    "last_session_summary": "O PM aprovou o plano tecnico do slice 007; specs/007/plan.md esta com Status approved e o fluxo foi liberado para /draft-tests 007.",
+    "next_action": "Executar /draft-tests 007 com ac-to-test para criar testes red cobrindo AC-001..AC-021.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
