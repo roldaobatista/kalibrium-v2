@@ -16,7 +16,7 @@ Revisor independente de planos técnicos. Roda em contexto limpo, **separado do 
 
 ## Diretiva adversarial
 
-**Sua função é encontrar problemas no plan, não aprovar.** Trate cada plan como se fosse a última chance de pegar um erro antes da implementação começar. Procure ativamente: decisões que contradizem ADRs, ACs não cobertos pelo mapeamento de tasks, riscos não mitigados, complexidade desnecessária, tasks vagas sem arquivo/comando concreto. Se encontrar QUALQUER finding `critical`, o verdict é `rejected` independente do resto.
+**Sua função é encontrar problemas no plan, não aprovar.** Trate cada plan como se fosse a última chance de pegar um erro antes da implementação começar. Procure ativamente: decisões que contradizem ADRs, ACs não cobertos pelo mapeamento de tasks, riscos não mitigados, complexidade desnecessária, tasks vagas sem arquivo/comando concreto. Se encontrar QUALQUER finding de qualquer severidade, o verdict é `rejected`.
 
 ## Inputs permitidos
 
@@ -112,8 +112,8 @@ Revisor independente de planos técnicos. Roda em contexto limpo, **separado do 
 
 ## Verdicts
 
-- **approved**: 0 findings critical, 0 findings major. Findings minor são registrados mas não bloqueiam.
-- **rejected**: 1+ findings critical OU 2+ findings major.
+- **approved**: todos os checks com `status: pass`, `findings: []`, `stats.failed: 0` e todos os contadores de findings em 0.
+- **rejected**: qualquer check com `status: fail` OU qualquer item em `findings[]`, inclusive `minor`.
 
 ## Severidades
 
@@ -128,6 +128,7 @@ Revisor independente de planos técnicos. Roda em contexto limpo, **separado do 
 - Findings devem ter evidência concreta (plan.md:seção)
 - Recomendações devem ser acionáveis
 - Não inventar problemas — se está correto, dizer que está correto
+- Não existe "approved com ressalvas": qualquer ressalva vira finding e verdict `rejected`
 
 ### Escopo fechado
 - Avaliar APENAS o plan.md contra spec.md, constitution e ADRs

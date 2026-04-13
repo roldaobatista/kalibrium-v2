@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T19:28:00-04:00",
+  "updated_at": "2026-04-13T19:34:18-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,8 +39,8 @@
     "current_epic": "E02",
     "current_story": "SEG-001",
     "current_slice": "007",
-    "slice_status": "plan_approved",
-    "last_green_commit": "5ec5ef0",
+    "slice_status": "plan_review_approved",
+    "last_green_commit": "0c61e73",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -48,6 +48,7 @@
   "gates_status": {
     "spec_auditor": "approved",
     "plan": "approved",
+    "plan_review": "approved",
     "verifier": "pending",
     "reviewer": "pending",
     "security_reviewer": "pending",
@@ -90,7 +91,7 @@
   ],
   "harness": {
     "agents": 22,
-    "skills": 37,
+    "skills": 38,
     "hooks": 17,
     "schemas": 10,
     "last_relock_commit": "a84371f",
@@ -98,7 +99,7 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "O PM aprovou o plano tecnico do slice 007; specs/007/plan.md esta com Status approved e o fluxo foi liberado para /draft-tests 007.",
+    "last_session_summary": "O harness passou a exigir /review-plan NNN antes de /draft-tests NNN. O plano do slice 007 foi corrigido, reauditorado pelo plan-reviewer e aprovado com findings vazio.",
     "next_action": "Executar /draft-tests 007 com ac-to-test para criar testes red cobrindo AC-001..AC-021.",
     "context_files_to_load": [
       "CLAUDE.md",

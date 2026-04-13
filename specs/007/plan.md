@@ -218,7 +218,7 @@ Cobrir token inválido ou expirado, senha fraca e confirmação divergente com `
 
 - [ ] **Step 1: registrar as tentativas de acesso**
 
-Gravar auditoria em sucesso, falha, lockout e uso de recovery code, sempre com `user_id`, `tenant_id` quando disponível, IP e hash de user agent.
+Gravar auditoria em sucesso, falha, lockout, uso de recovery code, acesso restrito por tenant `suspended`, bloqueio por tenant `cancelled` e bloqueio por vínculo `suspended`/`invited`/`removed`, sempre com `user_id`, `tenant_id` quando disponível, IP e hash de user agent.
 
 - [ ] **Step 2: sanitizar qualquer payload sensível**
 
@@ -230,7 +230,7 @@ Configurar limitador por e-mail+IP para login e um limitador separado para 2FA, 
 
 - [ ] **Step 4: validar o corte de segurança**
 
-Executar os testes que verificam que não há enumeração de conta, que o lockout existe e que nenhum segredo aparece em audit log ou resposta.
+Executar os testes que verificam que não há enumeração de conta, que o lockout existe, que AC-011/AC-012/AC-013 geram eventos de auditoria esperados e que nenhum segredo aparece em audit log ou resposta.
 
 ### Task 6: Preparar o harness de testes do slice
 
@@ -270,9 +270,9 @@ Rodar primeiro os testes de login, depois recuperação/reset, depois 2FA e por 
 | AC-008 | `config/fortify.php`, `app/Providers/FortifyServiceProvider.php`, `app/Livewire/Pages/Auth/LoginPage.php`, `app/Support/Auth/TenantAccessResolver.php` | `tests/slice-007/AuthLoginTest.php` |
 | AC-009 | `config/fortify.php`, `app/Providers/FortifyServiceProvider.php`, `app/Support/Auth/TenantAccessResolver.php` | `tests/slice-007/AuthLoginTest.php` |
 | AC-010 | `app/Livewire/Pages/Auth/ForgotPasswordPage.php`, `app/Providers/FortifyServiceProvider.php`, `resources/views/livewire/pages/auth/forgot-password-page.blade.php` | `tests/slice-007/AuthPasswordResetTest.php` |
-| AC-011 | `database/migrations/2026_04_13_000100_create_tenants_table.php`, `database/migrations/2026_04_13_000120_create_tenant_users_table.php`, `app/Support/Auth/TenantAccessResolver.php`, `app/Http/Middleware/EnsureReadOnlyTenantMode.php`, `app/Livewire/Pages/App/HomePage.php` | `tests/slice-007/AuthLoginTest.php` |
-| AC-012 | `database/migrations/2026_04_13_000100_create_tenants_table.php`, `app/Support/Auth/TenantAccessResolver.php`, `app/Http/Responses/Auth/LoginResponse.php` | `tests/slice-007/AuthLoginTest.php` |
-| AC-013 | `database/migrations/2026_04_13_000120_create_tenant_users_table.php`, `app/Support/Auth/TenantAccessResolver.php`, `app/Http/Responses/Auth/LoginResponse.php` | `tests/slice-007/AuthLoginTest.php` |
+| AC-011 | `database/migrations/2026_04_13_000100_create_tenants_table.php`, `database/migrations/2026_04_13_000120_create_tenant_users_table.php`, `app/Support/Auth/TenantAccessResolver.php`, `app/Http/Middleware/EnsureReadOnlyTenantMode.php`, `app/Livewire/Pages/App/HomePage.php`, `app/Support/Auth/LoginAuditRecorder.php`, `app/Listeners/RecordLoginAudit.php`, `app/Models/LoginAuditLog.php` | `tests/slice-007/AuthLoginTest.php` + `tests/slice-007/AuthAuditTest.php` |
+| AC-012 | `database/migrations/2026_04_13_000100_create_tenants_table.php`, `app/Support/Auth/TenantAccessResolver.php`, `app/Http/Responses/Auth/LoginResponse.php`, `app/Support/Auth/LoginAuditRecorder.php`, `app/Listeners/RecordLoginAudit.php`, `app/Models/LoginAuditLog.php` | `tests/slice-007/AuthLoginTest.php` + `tests/slice-007/AuthAuditTest.php` |
+| AC-013 | `database/migrations/2026_04_13_000120_create_tenant_users_table.php`, `app/Support/Auth/TenantAccessResolver.php`, `app/Http/Responses/Auth/LoginResponse.php`, `app/Support/Auth/LoginAuditRecorder.php`, `app/Listeners/RecordLoginAudit.php`, `app/Models/LoginAuditLog.php` | `tests/slice-007/AuthLoginTest.php` + `tests/slice-007/AuthAuditTest.php` |
 | AC-014 | `app/Livewire/Pages/Auth/TwoFactorChallengePage.php`, `app/Support/Auth/LoginAuditRecorder.php`, `app/Providers/FortifyServiceProvider.php` | `tests/slice-007/AuthTwoFactorTest.php` |
 | AC-015 | `app/Livewire/Pages/Auth/TwoFactorChallengePage.php`, `app/Support/Auth/LoginAuditRecorder.php`, `app/Providers/FortifyServiceProvider.php` | `tests/slice-007/AuthTwoFactorTest.php` |
 | AC-016 | `app/Livewire/Pages/Auth/ResetPasswordPage.php`, `resources/views/livewire/pages/auth/reset-password-page.blade.php`, `app/Http/Responses/Auth/PasswordResetResponse.php` | `tests/slice-007/AuthPasswordResetTest.php` |

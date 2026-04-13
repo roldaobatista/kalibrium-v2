@@ -98,6 +98,6 @@ Posso prosseguir com /audit-spec?
 Nenhum — executada pelo orquestrador.
 
 ## Handoff
-- PM confirma → `/audit-spec NNN` → `/draft-plan NNN` → `/draft-tests NNN` → implementacao
+- PM confirma → `/audit-spec NNN` → `/draft-plan NNN` → `/review-plan NNN` → `/draft-tests NNN` → implementacao
 - PM quer ajustar spec → editar `specs/NNN/spec.md` e reapresentar
 - Pre-condicao falha → listar o que falta

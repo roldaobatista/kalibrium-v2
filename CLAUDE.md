@@ -2,8 +2,8 @@
 
 **Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
-Versão: 2.3.0 — 2026-04-12 (bootstrap obrigatório do Codex CLI incorporado ao harness).
-<!-- Contagem: 22 agents em .claude/agents/ (21 sub-agents + 1 orchestrator), 37 skills em .claude/skills/ -->
+Versão: 2.4.0 — 2026-04-13 (plan-reviewer obrigatório antes de testes).
+<!-- Contagem: 22 agents em .claude/agents/ (21 sub-agents + 1 orchestrator), 38 skills em .claude/skills/ -->
 
 ---
 
@@ -177,10 +177,11 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 13. `/start-story ENN-SNN` — cria slice(s) a partir do Story Contract.
 14. `/audit-spec NNN` → sub-agent `spec-auditor` valida spec.md; se houver findings, fixer corrige e re-audita até zero findings.
 15. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
-16. PM aprova plan.
-17. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
-18. Commit: `test(slice-NNN): AC tests red`.
-19. Sub-agent `implementer` faz testes virarem verdes, task por task.
+16. `/review-plan NNN` → sub-agent `plan-reviewer` valida plan.md em contexto limpo; se houver findings, corrige plan e re-audita até zero findings.
+17. PM aprova plan.
+18. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
+19. Commit: `test(slice-NNN): AC tests red`.
+20. Sub-agent `implementer` faz testes virarem verdes, task por task.
 
 ### Fase E — Pipeline de Gates (por slice)
 
@@ -231,6 +232,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 | Gerar spec a partir de descrição PM | `/draft-spec NNN` |
 | Auditar spec antes do plano | `/audit-spec NNN` |
 | Gerar plan técnico | `/draft-plan NNN` |
+| Auditar plan antes do PM/testes | `/review-plan NNN` |
 | Gerar testes red | `/draft-tests NNN` |
 
 ### Pipeline de Gates

@@ -1,5 +1,5 @@
 ---
-description: Dispara o sub-agent architect para gerar plan.md a partir de spec.md auditado e aprovado. Valida pré-condições, spawna architect, valida output, e apresenta resultado ao PM em linguagem de produto (R12). Uso: /draft-plan NNN.
+description: Dispara o sub-agent architect para gerar plan.md a partir de spec.md auditado e aprovado. Depois exige /review-plan antes de qualquer aprovação do PM ou testes. Uso: /draft-plan NNN.
 ---
 
 # /draft-plan
@@ -48,7 +48,25 @@ bash scripts/draft-plan.sh NNN --validate
 
 Se falhar, reporta ao agente principal que re-instrui o architect.
 
-### Fase 4 — Apresentar ao PM (R12)
+### Fase 4 — Revisar plan em contexto limpo
+
+Antes de apresentar o plano ao PM, rodar:
+
+```bash
+bash scripts/plan-review.sh NNN --check
+```
+
+Spawna o sub-agent `plan-reviewer` em contexto limpo para gerar `specs/NNN/plan-review.json`.
+
+Depois validar:
+
+```bash
+bash scripts/plan-review.sh NNN --approved
+```
+
+Se houver qualquer finding, corrigir TODOS no `plan.md` e re-rodar `/review-plan NNN`. Não existe "aprovado com ressalva".
+
+### Fase 5 — Apresentar ao PM (R12)
 
 Traduz o plan.md em linguagem de produto. Exemplo:
 
@@ -71,12 +89,13 @@ Próximo passo:
 **NUNCA** mostrar o plan.md cru, nomes de arquivo, código, ou jargão técnico ao PM.
 
 ## Handoff
-- **PM aceita** → marcar status do plan.md como `approved` e sugerir `/draft-tests NNN`
+- **plan-review aprovado com `findings: []` + PM aceita** → marcar status do plan.md como `approved` e sugerir `/draft-tests NNN`
 - **PM pede ajuste** → re-disparar architect com instruções adicionais
 - **PM quer pausar** → registrar estado e encerrar sem bloquear
 
 ## Agentes
 - `architect` — gera `specs/NNN/plan.md` a partir de spec.md, constitution e ADRs
+- `plan-reviewer` — revisa `specs/NNN/plan.md` em contexto limpo antes do PM
 
 ## Erros e Recuperação
 
@@ -85,10 +104,12 @@ Próximo passo:
 | `specs/NNN/spec.md` não passa validação (`draft-spec.sh --check`) | Abortar e sugerir `/draft-spec NNN` para corrigir o spec antes de gerar o plan. |
 | `specs/NNN/spec-audit.json` ausente ou reprovado | Abortar e rodar `/audit-spec NNN`; se houver findings, corrigir spec e reauditar. |
 | `architect` gera plan.md que falha na validação (`draft-plan.sh --validate`) | Re-instruir o architect com o motivo da falha. Máximo 2 tentativas; na 3ª, escalar humano (R6). |
+| `plan-reviewer` rejeita ou emite qualquer finding | Corrigir TODOS os findings no plan e re-rodar `/review-plan NNN`; não apresentar ao PM como aprovado. |
 | `architect` inventa requisitos que não estão no spec | Rejeitar o plan, re-spawnar architect com instrução explícita de manter escopo do spec. |
 | PM não entende o resumo R12 do plan | Reformular com analogias mais simples. Oferecer "quer que eu explique de outro jeito?" antes de prosseguir. |
 
 ## Regras
 - Não inventar requisitos além do spec
+- Não apresentar plan ao PM nem seguir para testes sem `plan-review.json` aprovado com `findings: []`
 - Se o architect gerar ADR, mencionar ao PM: "surgiu uma decisão que afeta o projeto todo — rode /decide-stack ou peça mais detalhes"
 - Máximo 2 tentativas de re-geração do plan. Na 3ª falha, escalar humano (R6)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke test dos scripts auxiliares: validate-verification, record-tokens, verify-slice --validate.
+# Smoke test dos scripts auxiliares: validate-verification, record-tokens, verify-slice --validate e plan-review.
 # Separado do smoke-test-hooks.sh para manter categorias distintas.
 #
 # Uso: bash scripts/smoke-test-scripts.sh
@@ -63,7 +63,7 @@ trap 'rm -rf "$FIX"; rm -f /tmp/smoke-scripts-out.txt; restore_git_config' EXIT
 # ======================================================================
 # validate-verification.sh
 # ======================================================================
-echo "[1/4] validate-verification.sh"
+echo "[1/5] validate-verification.sh"
 
 # Fixture: approved válido
 cat > "$FIX/approved.json" <<'EOF'
@@ -169,7 +169,7 @@ run_test "validate rejeita campos obrigatórios ausentes" 1 \
 # ======================================================================
 # record-tokens.sh
 # ======================================================================
-echo "[2/4] record-tokens.sh"
+echo "[2/5] record-tokens.sh"
 
 # Limpa telemetria de teste
 rm -f .claude/telemetry/slice-999.jsonl
@@ -204,7 +204,7 @@ fi
 # ======================================================================
 # slice-report.sh
 # ======================================================================
-echo "[3/4] slice-report.sh"
+echo "[3/5] slice-report.sh"
 
 run_test "slice-report rejeita NNN inválido" 1 \
   bash scripts/slice-report.sh XX
@@ -230,7 +230,7 @@ fi
 # ======================================================================
 # verify-slice.sh --validate
 # ======================================================================
-echo "[4/4] verify-slice.sh --validate"
+echo "[4/5] verify-slice.sh --validate"
 
 # Prepara estrutura mínima de slice
 mkdir -p specs/998
@@ -303,9 +303,85 @@ else
 fi
 
 # ======================================================================
+# plan-review.sh --approved
+# ======================================================================
+echo "[5/5] plan-review.sh --approved"
+
+mkdir -p specs/996
+cat > specs/996/plan-review.json <<'EOF'
+{
+  "schema_version": "1.0.0",
+  "slice_id": "slice-996",
+  "review_date": "2026-04-13",
+  "verdict": "approved",
+  "summary": "Plan review aprovado para smoke test.",
+  "checks": {
+    "ac_coverage": {"status": "pass", "details": "ok"},
+    "architectural_decisions": {"status": "pass", "details": "ok"},
+    "technical_feasibility": {"status": "pass", "details": "ok"},
+    "risks_mitigations": {"status": "pass", "details": "ok"},
+    "security": {"status": "pass", "details": "ok"},
+    "simplicity": {"status": "pass", "details": "ok"}
+  },
+  "findings": [],
+  "stats": {
+    "total_checks": 6,
+    "passed": 6,
+    "failed": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0
+  }
+}
+EOF
+
+run_test "plan-review aprova findings vazio" 0 \
+  bash scripts/plan-review.sh 996 --approved
+
+cat > specs/996/plan-review.json <<'EOF'
+{
+  "schema_version": "1.0.0",
+  "slice_id": "slice-996",
+  "review_date": "2026-04-13",
+  "verdict": "approved",
+  "summary": "Plan review com finding deve bloquear o smoke.",
+  "checks": {
+    "ac_coverage": {"status": "fail", "details": "finding intencional"},
+    "architectural_decisions": {"status": "pass", "details": "ok"},
+    "technical_feasibility": {"status": "pass", "details": "ok"},
+    "risks_mitigations": {"status": "pass", "details": "ok"},
+    "security": {"status": "pass", "details": "ok"},
+    "simplicity": {"status": "pass", "details": "ok"}
+  },
+  "findings": [
+    {
+      "id": "PR-001",
+      "severity": "minor",
+      "category": "ac_coverage",
+      "location": "plan.md",
+      "description": "finding intencional",
+      "recommendation": "corrigir"
+    }
+  ],
+  "stats": {
+    "total_checks": 6,
+    "passed": 5,
+    "failed": 1,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 1
+  }
+}
+EOF
+
+run_test "plan-review rejeita approved com finding minor" 1 \
+  bash scripts/plan-review.sh 996 --approved
+
+# ======================================================================
 # Cleanup
 # ======================================================================
 rm -rf specs/998 specs/997 verification-input
+rm -rf specs/996
 rm -f .claude/telemetry/slice-999.jsonl
 rm -f .claude/telemetry/slice-998.jsonl
 rm -f .claude/telemetry/slice-997.jsonl

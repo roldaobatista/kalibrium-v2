@@ -31,7 +31,7 @@ Para cada slice com `specs/NNN/spec.md`:
    - `review approved` → "pronto para merge (/merge-slice NNN)"
    - `review rejected` → "aguardando correção pelo implementer"
    - `merge` → "✓ slice concluído e documentado" quando relatório e retrospectiva existem; senão "✓ slice concluído — documentação de encerramento pendente"
-   - **sem telemetria** → infere por artefatos: plan.md aprovado → "plano pronto, próximo passo: testes"; spec-audit aprovado → "spec auditado, próximo passo: plano"; spec-audit ausente/reprovado → "spec preenchido, próximo passo: auditoria da spec"
+   - **sem telemetria** → infere por artefatos: plan.md aprovado + plan-review approved com findings [] → "plano pronto, próximo passo: testes"; plan sem review → "plano precisa de revisão"; spec-audit aprovado → "spec auditado, próximo passo: plano"; spec-audit ausente/reprovado → "spec preenchido, próximo passo: auditoria da spec"
 
 Ao final, imprime resumo: "N em andamento | M concluído(s)".
 

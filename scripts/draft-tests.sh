@@ -62,6 +62,15 @@ if [ "$MODE" = "--check" ]; then
     fail "plan.md não está aprovado"
   fi
 
+  # plan-reviewer deve ter aprovado o plan em contexto isolado, sem findings.
+  if bash "$SCRIPT_DIR/plan-review.sh" "$NNN" --approved >/dev/null; then
+    ok "plan-review.json aprovado com findings []"
+  else
+    echo "  ⚠ plan-review.json ausente, reprovado ou com findings" >&2
+    echo "  ⚠ rode /review-plan $NNN antes de gerar testes" >&2
+    fail "plan-review obrigatório não aprovado"
+  fi
+
   # spec.md deve ter ACs
   AC_COUNT=$(grep -cE '^\s*-\s*\*?\*?AC-[0-9]+' "$SPEC" || echo 0)
   if [ "$AC_COUNT" -ge 1 ]; then
