@@ -1,6 +1,6 @@
 # Tasks do slice 006
 
-**Status:** draft
+**Status:** implemented
 **Spec:** `specs/006/spec.md`
 **Plan:** `specs/006/plan.md`
 
@@ -12,6 +12,7 @@ Tasks atômicas. Cada uma deve caber em um commit. Executar em ordem.
 
 ### T01 — Testes red da base frontend
 
+- **Status:** done
 - **AC relacionado:** AC-001 a AC-010, AC-SEC-001
 - **Arquivos:** `tests/slice-006/FrontendBaseTest.php`
 - **Definition of done da task:**
@@ -21,6 +22,7 @@ Tasks atômicas. Cada uma deve caber em um commit. Executar em ordem.
 
 ### T02 — Dependência Livewire e layout base
 
+- **Status:** done
 - **AC relacionado:** AC-002, AC-004, AC-005, AC-009, AC-010
 - **Arquivos:** `composer.json`, `composer.lock`, `resources/views/layouts/app.blade.php`
 - **Depende de:** T01
@@ -32,6 +34,7 @@ Tasks atômicas. Cada uma deve caber em um commit. Executar em ordem.
 
 ### T03 — Componente Ping e rota protegida por ambiente
 
+- **Status:** done
 - **AC relacionado:** AC-002, AC-007, AC-SEC-001
 - **Arquivos:** `app/Livewire/Ping.php`, `resources/views/livewire/ping.blade.php`, `routes/web.php`
 - **Depende de:** T02
@@ -43,6 +46,7 @@ Tasks atômicas. Cada uma deve caber em um commit. Executar em ordem.
 
 ### T04 — Build Vite/Tailwind e validação de manifest
 
+- **Status:** done — sem diff próprio; a base Vite/Tailwind existente foi validada no fechamento T05
 - **AC relacionado:** AC-001, AC-003, AC-006, AC-008
 - **Arquivos:** `vite.config.js`, `resources/css/app.css`, `resources/js/app.js`, `package.json`, `package-lock.json`
 - **Depende de:** T03
@@ -54,6 +58,7 @@ Tasks atômicas. Cada uma deve caber em um commit. Executar em ordem.
 
 ### T05 — Fechamento do slice e gates locais
 
+- **Status:** done
 - **AC relacionado:** todos
 - **Arquivos:** `specs/006/tasks.md`, arquivos tocados nas tasks anteriores
 - **Depende de:** T04
@@ -67,9 +72,9 @@ Tasks atômicas. Cada uma deve caber em um commit. Executar em ordem.
 
 ## Checklist final (antes de `/verify-slice`)
 
-- [ ] Todas as tasks T01..T05 marcadas done
-- [ ] Todos os AC-tests verdes rodando isolados
-- [ ] Lint/types verdes no grupo do módulo
-- [ ] Nenhum hook foi desabilitado
-- [ ] Commits com autor válido (R5)
-- [ ] `specs/006/verification.json` ainda não existe (será criado pelo verifier)
+- [x] Todas as tasks T01..T05 marcadas done
+- [x] Todos os AC-tests verdes rodando isolados
+- [x] Lint/types verdes no grupo do módulo
+- [x] Nenhum hook foi desabilitado
+- [x] Commits com autor válido (R5)
+- [x] `specs/006/verification.json` ainda não existe (será criado pelo verifier)
