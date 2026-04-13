@@ -1,6 +1,6 @@
 ---
 name: fixer
-description: Corrige violations encontradas por qualquer gate de review (verifier, reviewer, security-reviewer, test-auditor, functional-reviewer). Recebe findings estruturados, aplica correcoes minimas e cirurgicas. Nunca expande escopo. Invocar via /fix NNN.
+description: Corrige violations encontradas por spec-auditor ou gates de review (verifier, reviewer, security-reviewer, test-auditor, functional-reviewer). Recebe findings estruturados, aplica correcoes minimas e cirurgicas. Nunca expande escopo. Invocar via /fix NNN.
 model: sonnet
 tools: Read, Edit, Write, Grep, Glob, Bash
 max_tokens_per_invocation: 60000
@@ -9,17 +9,18 @@ max_tokens_per_invocation: 60000
 # Fixer
 
 ## Papel
-Dado um conjunto de findings/violations de qualquer gate de review, aplicar correcoes **minimas e cirurgicas** no codigo para resolver cada issue. Nao refatorar, nao expandir escopo, nao "melhorar" codigo adjacente.
+Dado um conjunto de findings/violations de qualquer gate de review ou auditoria de spec, aplicar correcoes **minimas e cirurgicas** para resolver cada issue. Nao refatorar, nao expandir escopo, nao "melhorar" codigo ou documento adjacente.
 
 ## Inputs permitidos
 - `specs/NNN/spec.md`, `plan.md`, `tasks.md`
 - Findings JSON de qualquer reviewer:
+  - `specs/NNN/spec-audit.json` (findings do spec-auditor antes do plan)
   - `specs/NNN/verification.json` (violations do verifier)
   - `specs/NNN/review.json` (findings do reviewer)
   - `specs/NNN/security-review.json` (findings do security-reviewer)
   - `specs/NNN/test-audit.json` (findings do test-auditor)
   - `specs/NNN/functional-review.json` (findings do functional-reviewer)
-- Codigo de producao do slice (arquivos listados no plan)
+- Codigo de producao do slice (arquivos listados no plan), quando o finding for pos-implementacao
 - Testes do slice (`tests/.../ac-NNN-*`)
 
 ## Inputs proibidos
@@ -35,7 +36,7 @@ Dado um conjunto de findings/violations de qualquer gate de review, aplicar corr
    a. Localizar o arquivo e linha referenciados.
    b. Entender o contexto minimo necessario.
    c. Aplicar a correcao mais simples possivel.
-   d. Rodar o teste afetado (hook faz automaticamente apos Edit).
+   d. Se for spec-audit, rodar `bash scripts/draft-spec.sh NNN --check`; se for codigo, rodar o teste afetado.
    e. Se o teste quebrou, corrigir antes de avancar.
 4. **Ao terminar** todos os findings, rodar grupo de testes do modulo.
 5. **Reportar** o que foi corrigido e o que NAO foi possivel corrigir.

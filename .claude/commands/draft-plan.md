@@ -1,5 +1,5 @@
 ---
-description: Dispara o sub-agent architect para gerar plan.md a partir de spec.md aprovado. Valida pré-condições, spawna architect, valida output, e apresenta resultado ao PM em linguagem de produto (R12). Uso: /draft-plan NNN.
+description: Dispara o sub-agent architect para gerar plan.md a partir de spec.md auditado e aprovado. Valida pré-condições, spawna architect, valida output, e apresenta resultado ao PM em linguagem de produto (R12). Uso: /draft-plan NNN.
 ---
 
 # /draft-plan
@@ -15,10 +15,11 @@ Sem esta skill, o PM precisa saber que "agora é hora de chamar o architect" e o
 **Resolve G-05 da auditoria de operabilidade PM 2026-04-12.**
 
 ## Quando invocar
-Depois que o PM aprovou `specs/NNN/spec.md` (via `/draft-spec NNN` ou edição manual) e **antes** de gerar testes.
+Depois que `specs/NNN/spec.md` foi preenchido, auditado por `/audit-spec NNN`, aprovado pelo PM e **antes** de gerar testes.
 
 ## Pré-condições
 - `specs/NNN/spec.md` existe e passa validação (`draft-spec.sh --check`)
+- `specs/NNN/spec-audit.json` existe e está `approved` com `findings: []`
 - `specs/NNN/plan.md` ainda não existe ou está em `draft`
 - `docs/constitution.md` e `docs/TECHNICAL-DECISIONS.md` acessíveis
 
@@ -82,6 +83,7 @@ Próximo passo:
 | Erro | Recuperação |
 |---|---|
 | `specs/NNN/spec.md` não passa validação (`draft-spec.sh --check`) | Abortar e sugerir `/draft-spec NNN` para corrigir o spec antes de gerar o plan. |
+| `specs/NNN/spec-audit.json` ausente ou reprovado | Abortar e rodar `/audit-spec NNN`; se houver findings, corrigir spec e reauditar. |
 | `architect` gera plan.md que falha na validação (`draft-plan.sh --validate`) | Re-instruir o architect com o motivo da falha. Máximo 2 tentativas; na 3ª, escalar humano (R6). |
 | `architect` inventa requisitos que não estão no spec | Rejeitar o plan, re-spawnar architect com instrução explícita de manter escopo do spec. |
 | PM não entende o resumo R12 do plan | Reformular com analogias mais simples. Oferecer "quer que eu explique de outro jeito?" antes de prosseguir. |

@@ -60,7 +60,8 @@ O orquestrador nunca implementa código diretamente. Ele:
 | Épicos auditados | `S3.1` | `/audit-planning` | Épicos sem NENHUM finding (zero tolerance) | planning-auditor aprova |
 | Planejamento | `S4` | `/decompose-stories` | Stories decompostas | story-auditor aprova |
 | Stories auditadas | `S4.1` | `/audit-stories` | Stories sem NENHUM finding (zero tolerance) | story-auditor aprova |
-| Story ativa | `S5` | `/start-story` | Slice(s) criado(s) | spec.md aprovado |
+| Story ativa | `S5` | `/start-story` | Slice(s) criado(s) | spec.md preenchido |
+| Spec auditada | `S5.1` | `/audit-spec` | spec.md sem findings | PM aprova spec |
 | Plan gerado | `S6` | `/draft-plan` | plan.md pronto | PM aprova plan |
 | Testes red | `S7` | `/draft-tests` | Testes falhando | Commit dos testes |
 | Implementação | `S8` | implementer | Testes verdes | Todos AC-tests passam |
@@ -171,6 +172,7 @@ O orquestrador **DEVE** rodar auditoria independente em contexto limpo após cad
 |--------|-------|------|--------|
 | `planning-auditor` | `/audit-planning` | Cobertura épicos × FRs/REQs, dependências entre épicos, bounded contexts | 40k |
 | `story-auditor` | `/audit-stories ENN` | Contratos completos, qualidade ACs, cobertura escopo do épico, dependências entre stories | 40k |
+| `spec-auditor` | `/audit-spec NNN` | Escopo, ACs, testabilidade, segurança, dependências e alinhamento do spec de slice | 25k |
 
 ### Ciclo de correção de planejamento
 
@@ -189,6 +191,26 @@ Mesmo protocolo da cadeia fixer → re-gate:
 | `docs/audits/planning/planning-audit-roadmap.json` | planning-auditor |
 | `docs/audits/planning/planning-audit-ENN.json` | planning-auditor (por épico) |
 | `docs/audits/planning/story-audit-ENN.json` | story-auditor (por épico) |
+| `specs/NNN/spec-audit.json` | spec-auditor (por slice, antes do plan) |
+
+---
+
+## Auditoria Obrigatória de Spec de Slice
+
+Após `/draft-spec NNN` ou preenchimento manual de `specs/NNN/spec.md`, o orquestrador **DEVE** rodar `/audit-spec NNN` antes de `/draft-plan NNN`.
+
+Fluxo:
+
+```
+/draft-spec NNN
+  → /audit-spec NNN
+    → spec-auditor valida escopo, ACs, testabilidade, segurança, dependências e gate documental
+    → se rejected: fixer corrige specs/NNN/spec.md → re-audita (max 3x)
+    → se approved com findings []: PM aprova spec
+  → /draft-plan NNN
+```
+
+`/draft-plan NNN` deve falhar se `specs/NNN/spec-audit.json` não existir ou não estiver `approved` com `findings: []`.
 
 ---
 
@@ -308,7 +330,7 @@ Quando contexto comprime:
 |------|-----------|-------|
 | A — Descoberta | `domain-analyst` → `nfr-analyst` | Serializado |
 | B — Estratégia | (orquestrador direto via `/decide-stack`) | — |
-| C — Planejamento | `epic-decomposer` → `planning-auditor` → `story-decomposer` → `story-auditor` | Serializado com auditorias |
+| C — Planejamento | `epic-decomposer` → `planning-auditor` → `story-decomposer` → `story-auditor` → `spec-auditor` | Serializado com auditorias |
 | D — Execução | `architect` → `ac-to-test` → `implementer` | Serializado |
 | E — Gates | `verifier` → `reviewer` → [`security-reviewer` + `test-auditor` + `functional-reviewer`] | Parcial paralelo |
 | E — Correção | `fixer` (invocado por gate rejeitado) | Sob demanda |
@@ -322,6 +344,7 @@ Quando contexto comprime:
 | planning-auditor | 40k | 1-3 | 40-120k |
 | story-decomposer | 30k | 1 por épico | 30k |
 | story-auditor | 40k | 1-3 por épico | 40-120k |
+| spec-auditor | 25k | 1-3 por slice | 25-75k |
 | **Total por épico (planejamento)** | | | **140k-300k** |
 
 ### Budget total por slice (execução — estimativa)

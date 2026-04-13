@@ -75,13 +75,13 @@ Story E01-S01 iniciada!
 
 O spec.md ja esta preenchido com os ACs do contrato.
 
-Proximo passo: gerar o plano tecnico.
-→ /draft-plan 013
+Proximo passo: auditar a spec antes do plano tecnico.
+→ /audit-spec 013
 
 Ou, se quiser revisar o spec primeiro:
 → Abra specs/013/spec.md
 
-Posso prosseguir com /draft-plan?
+Posso prosseguir com /audit-spec?
 ```
 
 ## Erros e Recuperação
@@ -98,6 +98,6 @@ Posso prosseguir com /draft-plan?
 Nenhum — executada pelo orquestrador.
 
 ## Handoff
-- PM confirma → `/draft-plan NNN` → `/draft-tests NNN` → implementacao
+- PM confirma → `/audit-spec NNN` → `/draft-plan NNN` → `/draft-tests NNN` → implementacao
 - PM quer ajustar spec → editar `specs/NNN/spec.md` e reapresentar
 - Pre-condicao falha → listar o que falta

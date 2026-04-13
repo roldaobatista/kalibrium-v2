@@ -70,10 +70,12 @@ next_step_for_slice() {
         echo "revisão concluída — rodar /merge-slice ${nnn}"
       elif [ -f "${spec_dir}verification.json" ]; then
         echo "verificação concluída — rodar /review-pr ${nnn}"
-      elif [ -f "${spec_dir}plan.md" ] && [ -s "${spec_dir}plan.md" ]; then
+      elif [ -f "${spec_dir}plan.md" ] && grep -qE '^.*Status:.*approved' "${spec_dir}plan.md"; then
         echo "plano pronto — próximo passo: testes (/draft-tests ${nnn})"
+      elif bash "$REPO_ROOT/scripts/audit-spec.sh" "$nnn" --approved > /dev/null 2>&1; then
+        echo "spec auditado — próximo passo: plano (/draft-plan ${nnn})"
       else
-        echo "spec preenchido — próximo passo: plano (/draft-plan ${nnn})"
+        echo "spec preenchido — próximo passo: auditoria da spec (/audit-spec ${nnn})"
       fi
       ;;
   esac

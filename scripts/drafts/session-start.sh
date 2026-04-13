@@ -192,7 +192,7 @@ if [ -d specs ]; then
         elif [ -f "${s}plan.md" ] && [ -s "${s}plan.md" ]; then
           next="plano pronto — próximo passo: testes (/draft-tests ${nnn})"
         else
-          next="spec preenchido — próximo passo: plano (/draft-plan ${nnn})"
+          next="spec preenchido — próximo passo: auditoria da spec (/audit-spec ${nnn})"
         fi
         ;;
     esac

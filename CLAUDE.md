@@ -3,7 +3,7 @@
 **Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
 Versão: 2.3.0 — 2026-04-12 (bootstrap obrigatório do Codex CLI incorporado ao harness).
-<!-- Contagem: 21 agents em .claude/agents/ (20 sub-agents + 1 orchestrator), 36 skills em .claude/skills/ -->
+<!-- Contagem: 22 agents em .claude/agents/ (21 sub-agents + 1 orchestrator), 37 skills em .claude/skills/ -->
 
 ---
 
@@ -175,11 +175,12 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ### Fase D — Execução (por story)
 13. `/start-story ENN-SNN` — cria slice(s) a partir do Story Contract.
-14. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
-15. PM aprova plan.
-16. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
-17. Commit: `test(slice-NNN): AC tests red`.
-18. Sub-agent `implementer` faz testes virarem verdes, task por task.
+14. `/audit-spec NNN` → sub-agent `spec-auditor` valida spec.md; se houver findings, fixer corrige e re-audita até zero findings.
+15. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
+16. PM aprova plan.
+17. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
+18. Commit: `test(slice-NNN): AC tests red`.
+19. Sub-agent `implementer` faz testes virarem verdes, task por task.
 
 ### Fase E — Pipeline de Gates (por slice)
 
@@ -228,6 +229,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 |---|---|
 | Criar slice manual | `/new-slice NNN "título"` |
 | Gerar spec a partir de descrição PM | `/draft-spec NNN` |
+| Auditar spec antes do plano | `/audit-spec NNN` |
 | Gerar plan técnico | `/draft-plan NNN` |
 | Gerar testes red | `/draft-tests NNN` |
 
@@ -283,6 +285,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 | `planning-auditor` | Audita roadmap/épicos antes de apresentar ao PM | 40k |
 | `story-decomposer` | Decompõe épico em stories com Story Contract | 30k |
 | `story-auditor` | Audita stories antes de iniciar slices | 40k |
+| `spec-auditor` | Audita spec.md de slice antes do plano técnico | 25k |
 | `ac-to-test` | Gera testes red a partir de ACs | 40k |
 | `plan-reviewer` | Revisa plan.md antes de execução | 25k |
 
@@ -297,7 +300,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 | Nome | Papel | Budget |
 |---|---|---|
 | `implementer` | Faz testes red virarem verdes | 80k |
-| `fixer` | Corrige findings de qualquer gate de review | 60k |
+| `fixer` | Corrige findings de spec-audit ou qualquer gate de review | 60k |
 
 ### Núcleo de Qualidade (gates independentes em contexto isolado)
 | Nome | Papel | Budget |
@@ -320,7 +323,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 > O orquestrador não é um sub-agent — é o papel principal do orquestrador ativo (Claude Code ou Codex CLI em modo exclusivo). Definido em `.claude/agents/orchestrator.md` com regras de sequenciamento, paralelismo e checkpoint.
 
-Detalhes em `.claude/agents/*.md`. Total: 21 agents (20 sub-agents + 1 orchestrator) organizados em 7 núcleos.
+Detalhes em `.claude/agents/*.md`. Total: 22 agents (21 sub-agents + 1 orchestrator) organizados em 7 núcleos.
 
 ---
 
