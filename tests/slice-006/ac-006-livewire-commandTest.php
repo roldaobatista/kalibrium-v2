@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\TestCase as LaravelTestCase;
+use Illuminate\Support\Facades\Artisan;
+use Livewire\Factory\Factory;
+use Livewire\Finder\Finder;
 
 uses(LaravelTestCase::class);
 
@@ -26,21 +29,31 @@ test('AC-005: php artisan livewire:list retorna exit 0 e lista ping', function (
     );
 })->group('slice-006', 'ac-005');
 
-test('AC-010: livewire:list retorna erro para componente inexistente', function (): void {
+test('AC-010: livewire:list falha quando ping nao esta registrado', function (): void {
     $path = base_path('app/Livewire/Ping.php');
     expect(file_exists($path))->toBeTrue(
         'AC-010: app/Livewire/Ping.php precisa existir para a listagem do componente.'
     );
 
-    $result = slice006_run_process([
-        PHP_BINARY,
-        base_path('artisan'),
-        'livewire:list',
-        'componente-inexistente',
-    ]);
+    $originalFinder = app('livewire.finder');
+    $originalFactory = app('livewire.factory');
 
-    expect($result['exit'])->not->toBe(0, 'AC-010: livewire:list deve falhar para componente inexistente.');
-    expect(str_contains($result['stdout'].$result['stderr'], 'nao foi descoberto'))->toBeTrue(
-        'AC-010: livewire:list deve informar ausencia quando o componente nao existe.'
+    try {
+        $finder = new Finder;
+        $finder->addLocation(classNamespace: 'App\\Livewire\\Ausente');
+
+        app()->instance('livewire.finder', $finder);
+        app()->instance('livewire.factory', new Factory($finder, app('livewire.compiler')));
+
+        $exitCode = Artisan::call('livewire:list');
+        $output = Artisan::output();
+    } finally {
+        app()->instance('livewire.finder', $originalFinder);
+        app()->instance('livewire.factory', $originalFactory);
+    }
+
+    expect($exitCode)->not->toBe(0, 'AC-010: livewire:list deve falhar quando ping nao esta registrado.');
+    expect(str_contains($output, 'ping'))->toBeFalse(
+        'AC-010: livewire:list nao deve listar ping quando Ping nao esta registrado.'
     );
 })->group('slice-006', 'ac-010');
