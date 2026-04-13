@@ -329,7 +329,7 @@ test('AC-006: validacao do manifest aponta a entrada Vite ausente', function ():
     expect(function () use ($manifest): void {
         slice006_validate_layout_integration($manifest);
     })
-        ->toThrow(RuntimeException::class, 'AC-006: manifest sem entradas obrigatorias: resources/js/app.js');
+        ->toThrow(RuntimeException::class, 'AC-006: manifest sem entrada obrigatoria resources/js/app.js');
 })->group('slice-006', 'ac-006');
 
 // ---------------------------------------------------------------------------
