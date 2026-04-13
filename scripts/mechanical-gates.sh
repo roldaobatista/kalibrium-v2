@@ -7,6 +7,9 @@
 #   bash scripts/mechanical-gates.sh NNN              # gates completos (pre-verify)
 #   bash scripts/mechanical-gates.sh NNN --quick       # gates rapidos (pre-commit)
 #
+# Variaveis opcionais:
+#   KALIB_TEST_RESULTS_FILE=path  # grava output do teste executado uma unica vez
+#
 # Exit codes:
 #   0 = todos os gates passaram
 #   1 = pelo menos um gate falhou (detalhes no stderr)
@@ -24,22 +27,29 @@ say()  { echo "[mechanical-gates] $*"; }
 fail() { echo "[mechanical-gates FAIL] $*" >&2; }
 pass() { echo "[mechanical-gates PASS] $*"; }
 
+# shellcheck source=scripts/bootstrap-bash-php.sh
+source "$SCRIPT_DIR/bootstrap-bash-php.sh" || true
+
 FAILURES=0
+PHP_BIN="${PHP_BIN:-}"
 
 # ============================================================
 # Gate 1: Testes passam DE VERDADE (nao lido de arquivo)
 # ============================================================
 say "Gate 1/5: rodando testes..."
 
-if [ -f "vendor/bin/pest" ]; then
-  TEST_FILTER=""
-  if [ -n "$NNN" ] && [ -d "tests" ]; then
-    # Tenta rodar testes do slice se possivel, senao roda tudo
-    TEST_FILTER="tests/"
+if [ -f "scripts/test-scope.php" ] && [ -n "$PHP_BIN" ]; then
+  TEST_SCOPE=("$PHP_BIN" scripts/test-scope.php fast)
+  if echo "$NNN" | grep -qE '^[0-9]{3}$'; then
+    TEST_SCOPE=("$PHP_BIN" scripts/test-scope.php slice "$NNN")
   fi
 
-  TEST_OUTPUT=$(vendor/bin/pest $TEST_FILTER 2>&1)
+  TEST_OUTPUT=$("${TEST_SCOPE[@]}" 2>&1)
   TEST_EXIT=$?
+  if [ -n "${KALIB_TEST_RESULTS_FILE:-}" ]; then
+    mkdir -p "$(dirname "$KALIB_TEST_RESULTS_FILE")"
+    printf '%s\n\n# exit_code=%s\n' "$TEST_OUTPUT" "$TEST_EXIT" > "$KALIB_TEST_RESULTS_FILE"
+  fi
 
   if [ $TEST_EXIT -ne 0 ]; then
     fail "Gate 1 FALHOU — testes nao passam (exit $TEST_EXIT)"
@@ -50,7 +60,7 @@ if [ -f "vendor/bin/pest" ]; then
     pass "Gate 1 — testes OK ($PASS_COUNT)"
   fi
 else
-  fail "Gate 1 FALHOU — vendor/bin/pest nao encontrado (rode composer install)"
+  fail "Gate 1 FALHOU — scripts/test-scope.php ou binario PHP nao encontrado"
   FAILURES=$((FAILURES + 1))
 fi
 
@@ -59,8 +69,8 @@ fi
 # ============================================================
 say "Gate 2/5: PHPStan analyse..."
 
-if [ -f "vendor/bin/phpstan" ]; then
-  PHPSTAN_OUTPUT=$(vendor/bin/phpstan analyse --no-progress --error-format=raw 2>&1)
+if [ -n "$PHP_BIN" ] && [ -f "vendor/bin/phpstan" ]; then
+  PHPSTAN_OUTPUT=$("$PHP_BIN" vendor/bin/phpstan analyse --no-progress --error-format=raw 2>&1)
   PHPSTAN_EXIT=$?
 
   if [ $PHPSTAN_EXIT -ne 0 ]; then
@@ -70,6 +80,9 @@ if [ -f "vendor/bin/phpstan" ]; then
   else
     pass "Gate 2 — PHPStan level 8 OK (0 errors)"
   fi
+elif [ -z "$PHP_BIN" ]; then
+  fail "Gate 2 FALHOU — binario PHP nao encontrado"
+  FAILURES=$((FAILURES + 1))
 else
   fail "Gate 2 FALHOU — vendor/bin/phpstan nao encontrado"
   FAILURES=$((FAILURES + 1))
@@ -80,8 +93,8 @@ fi
 # ============================================================
 say "Gate 3/5: Pint format check..."
 
-if [ -f "vendor/bin/pint" ]; then
-  PINT_OUTPUT=$(vendor/bin/pint --test 2>&1)
+if [ -n "$PHP_BIN" ] && [ -f "vendor/bin/pint" ]; then
+  PINT_OUTPUT=$("$PHP_BIN" vendor/bin/pint --test 2>&1)
   PINT_EXIT=$?
 
   if [ $PINT_EXIT -ne 0 ]; then
@@ -91,6 +104,9 @@ if [ -f "vendor/bin/pint" ]; then
   else
     pass "Gate 3 — Pint PSR-12 OK"
   fi
+elif [ -z "$PHP_BIN" ]; then
+  fail "Gate 3 FALHOU — binario PHP nao encontrado"
+  FAILURES=$((FAILURES + 1))
 else
   fail "Gate 3 FALHOU — vendor/bin/pint nao encontrado"
   FAILURES=$((FAILURES + 1))
@@ -128,8 +144,8 @@ fi
 # ============================================================
 say "Gate 5/5: coverage check..."
 
-if command -v php >/dev/null 2>&1 && php -m 2>/dev/null | grep -qi xdebug; then
-  COV_OUTPUT=$(vendor/bin/pest --coverage --min=80 2>&1)
+if [ -n "$PHP_BIN" ] && "$PHP_BIN" -m 2>/dev/null | grep -qi xdebug; then
+  COV_OUTPUT=$("$PHP_BIN" vendor/bin/pest --coverage --min=80 2>&1)
   COV_EXIT=$?
 
   if [ $COV_EXIT -ne 0 ]; then

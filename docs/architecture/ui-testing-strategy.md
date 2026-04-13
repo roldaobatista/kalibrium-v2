@@ -63,6 +63,26 @@ CertificatePreviewBrowserTest.php
 certificate-preview.spec.ts  # apenas quando Playwright for usado como complemento
 ```
 
+## 4.1. Escopos de execucao
+
+Os testes sao separados por intencao para evitar que a rotina rapida execute build, cache global ou smoke remoto por acidente:
+
+```text
+composer test:fast           # rotina local padrao, sem build/tooling/remote/integration
+composer test:integration    # banco/Redis e comandos que dependem de servicos
+composer test:build          # build de assets e manifest
+composer test:tooling        # Pint/PHPStan/Pest executados como artefatos testados
+composer test:mutates-config # testes que mexem em cache/config global
+composer test:remote         # smoke remoto, opt-in
+composer test:legacy         # ACs shell legados, opt-in
+composer test:slice -- 006   # testes de um slice especifico
+composer test:all            # sequencial, para CI ou fechamento amplo
+```
+
+`composer test` aponta para `test:fast`. Smoke remoto so entra no escopo completo quando `RUN_REMOTE_SMOKE=1` estiver definido. ACs shell legados so entram no escopo completo quando `RUN_LEGACY_AC_TESTS=1` estiver definido.
+
+Os escopos `test:integration` e `test:all` exigem PostgreSQL e Redis disponiveis. O CI sobe esses servicos no job `php-test`; em execucao local, rode esses escopos apenas quando os servicos estiverem ativos.
+
 ---
 
 ## 5. Dados de teste

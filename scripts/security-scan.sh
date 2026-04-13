@@ -21,6 +21,9 @@ say()  { echo "[security-scan] $*"; }
 fail() { echo "[security-scan FAIL] $*" >&2; }
 pass() { echo "[security-scan PASS] $*"; }
 
+# shellcheck source=scripts/bootstrap-bash-php.sh
+source "$SCRIPT_DIR/bootstrap-bash-php.sh" || true
+
 FAILURES=0
 
 # ============================================================
@@ -91,9 +94,9 @@ fi
 # ============================================================
 say "Scan 4/4: PHPStan security analysis..."
 
-if [ -f "vendor/bin/phpstan" ]; then
+if [ -n "${PHP_BIN:-}" ] && [ -f "vendor/bin/phpstan" ]; then
   # PHPStan level 8 ja pega type errors que podem ser vulnerabilidades
-  PHPSTAN_OUTPUT=$(vendor/bin/phpstan analyse --no-progress --error-format=raw 2>&1)
+  PHPSTAN_OUTPUT=$("$PHP_BIN" vendor/bin/phpstan analyse --no-progress --error-format=raw 2>&1)
   PHPSTAN_EXIT=$?
 
   if [ $PHPSTAN_EXIT -ne 0 ]; then
@@ -103,6 +106,9 @@ if [ -f "vendor/bin/phpstan" ]; then
   else
     pass "Scan 4 — PHPStan level 8 OK"
   fi
+elif [ -z "${PHP_BIN:-}" ]; then
+  fail "Scan 4 — binario PHP nao encontrado"
+  FAILURES=$((FAILURES + 1))
 else
   say "Scan 4 — SKIP (phpstan nao instalado)"
 fi

@@ -11,6 +11,17 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
+# shellcheck source=scripts/bootstrap-bash-php.sh
+source "$REPO_ROOT/scripts/bootstrap-bash-php.sh" || true
+
+REPO_ROOT_FOR_PHP="$(kalib_path_for_php "$REPO_ROOT")"
+CURL_BIN="curl"
+CURL_OUTPUT="/dev/null"
+if [[ "${PHP_BIN:-}" = *.exe ]] && command -v curl.exe >/dev/null 2>&1; then
+    CURL_BIN="curl.exe"
+    CURL_OUTPUT="NUL"
+fi
+
 PASS=0
 FAIL=0
 TOTAL=5
@@ -31,14 +42,14 @@ echo "--- AC-001: php artisan serve responde HTTP 200 na rota / ---"
 if [ ! -f "$REPO_ROOT/artisan" ]; then
     fail "AC-001: arquivo artisan não encontrado (Laravel não scaffoldado)"
 else
-    php "$REPO_ROOT/artisan" serve --port=18001 &>/tmp/kalibrium-serve.log &
+    php "$REPO_ROOT_FOR_PHP/artisan" serve --host=127.0.0.1 --port=18001 &>/tmp/kalibrium-serve.log &
     SERVE_PID=$!
 
     # Aguarda servidor subir (máx 8s, sem travar)
     HTTP_CODE=""
     for i in $(seq 1 8); do
         sleep 1
-        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:18001/ 2>/dev/null || true)
+        HTTP_CODE=$("$CURL_BIN" -s -o "$CURL_OUTPUT" -w "%{http_code}" http://127.0.0.1:18001/ 2>/dev/null || true)
         [ "$HTTP_CODE" = "200" ] && break
     done
 
@@ -70,7 +81,7 @@ elif [ ! -f "$REPO_ROOT/vendor/bin/pest" ]; then
 elif ! grep -q '"test"' "$REPO_ROOT/composer.json"; then
     fail "AC-002: script 'test' não declarado no composer.json"
 else
-    composer --working-dir="$REPO_ROOT" test --no-interaction 2>&1
+    composer --working-dir="$REPO_ROOT_FOR_PHP" test --no-interaction 2>&1
     TEST_EXIT=$?
     if [ "$TEST_EXIT" -eq 0 ]; then
         pass "AC-002: composer test retornou exit 0"

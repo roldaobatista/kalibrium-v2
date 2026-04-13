@@ -40,19 +40,19 @@ test('pré-requisito: vendor/bin/pint existe', function (): void {
     expect(file_exists(base_path('vendor/bin/pint')))->toBeTrue(
         'vendor/bin/pint não encontrado — rode composer install antes dos testes.'
     );
-})->group('slice-003');
+})->group('slice-003', 'tooling');
 
 test('pré-requisito: vendor/bin/phpstan existe', function (): void {
     expect(file_exists(base_path('vendor/bin/phpstan')))->toBeTrue(
         'vendor/bin/phpstan não encontrado — rode composer install antes dos testes.'
     );
-})->group('slice-003');
+})->group('slice-003', 'tooling');
 
 test('pré-requisito: vendor/bin/pest existe', function (): void {
     expect(file_exists(base_path('vendor/bin/pest')))->toBeTrue(
         'vendor/bin/pest não encontrado — rode composer install antes dos testes.'
     );
-})->group('slice-003');
+})->group('slice-003', 'tooling');
 
 // --- AC-001: Pint ---
 
@@ -72,7 +72,7 @@ PHP);
     expect($exitCode)->not->toBe(0,
         'AC-001: Pint deve retornar exit != 0 para código mal formatado.'
     );
-})->group('slice-003', 'ac-001');
+})->group('slice-003', 'ac-001', 'tooling');
 
 test('AC-001 happy path: pint --test aceita código bem formatado', function (): void {
     $command = sprintf('php %s --test --config %s {DIR}',
@@ -85,7 +85,7 @@ test('AC-001 happy path: pint --test aceita código bem formatado', function ():
     expect($exitCode)->toBe(0,
         'AC-001: Pint deve retornar exit 0 para código bem formatado.'
     );
-})->group('slice-003', 'ac-001');
+})->group('slice-003', 'ac-001', 'tooling');
 
 // --- AC-002: PHPStan ---
 
@@ -108,7 +108,7 @@ PHP);
     expect($exitCode)->not->toBe(0,
         'AC-002: PHPStan nível 8 deve retornar exit != 0 para erro de tipo.'
     );
-})->group('slice-003', 'ac-002');
+})->group('slice-003', 'ac-002', 'tooling');
 
 test('AC-002 happy path: phpstan aceita código tipado corretamente', function (): void {
     $command = sprintf('php %s analyse --level=8 --no-progress --error-format=raw {FILE}',
@@ -129,7 +129,7 @@ PHP);
     expect($exitCode)->toBe(0,
         'AC-002: PHPStan nível 8 deve retornar exit 0 para código sem erros de tipo.'
     );
-})->group('slice-003', 'ac-002');
+})->group('slice-003', 'ac-002', 'tooling');
 
 // --- AC-003: Pest ---
 
@@ -149,7 +149,7 @@ PHP);
     expect($exitCode)->not->toBe(0,
         'AC-003: Pest deve retornar exit != 0 quando um teste falha.'
     );
-})->group('slice-003', 'ac-003');
+})->group('slice-003', 'ac-003', 'tooling');
 
 test('AC-003 happy path: pest aceita quando todos os testes passam', function (): void {
     $command = sprintf('php %s {FILE} --no-coverage',
@@ -167,7 +167,7 @@ PHP);
     expect($exitCode)->toBe(0,
         'AC-003: Pest deve retornar exit 0 quando todos os testes passam.'
     );
-})->group('slice-003', 'ac-003');
+})->group('slice-003', 'ac-003', 'tooling');
 
 // --- AC-004: Dependência de harness para todos os jobs ---
 
@@ -186,4 +186,4 @@ test('AC-004: todos os jobs dependem de harness (pipeline encadeado)', function 
             "AC-004: job {$job} deve conter 'needs: harness' para garantir integridade do pipeline."
         );
     }
-})->group('slice-003', 'ac-004');
+})->group('slice-003', 'ac-004', 'tooling');
