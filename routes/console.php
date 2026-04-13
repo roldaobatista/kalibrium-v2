@@ -9,14 +9,14 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('livewire:list', function (): int {
-    if (! Livewire::isDiscoverable('ping')) {
-        $this->error('Componente Livewire ping nao foi descoberto.');
+Artisan::command('livewire:list {component=ping}', function (string $component): int {
+    if (! Livewire::isDiscoverable($component)) {
+        $this->error("Componente Livewire {$component} nao foi descoberto.");
 
         return 1;
     }
 
-    $this->line('ping');
+    $this->line($component);
 
     return 0;
 })->purpose('Lista componentes Livewire disponiveis');

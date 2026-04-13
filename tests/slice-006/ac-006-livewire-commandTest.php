@@ -26,7 +26,7 @@ test('AC-005: php artisan livewire:list retorna exit 0 e lista ping', function (
     );
 })->group('slice-006', 'ac-005');
 
-test('AC-010: livewire:list lista ping e denuncia ausencia quando o item some', function (): void {
+test('AC-010: livewire:list retorna erro para componente inexistente', function (): void {
     $path = base_path('app/Livewire/Ping.php');
     expect(file_exists($path))->toBeTrue(
         'AC-010: app/Livewire/Ping.php precisa existir para a listagem do componente.'
@@ -36,13 +36,11 @@ test('AC-010: livewire:list lista ping e denuncia ausencia quando o item some', 
         PHP_BINARY,
         base_path('artisan'),
         'livewire:list',
+        'componente-inexistente',
     ]);
 
-    expect($result['exit'])->toBe(0, 'AC-010: livewire:list deve executar sem erro. STDERR: '.$result['stderr']);
-    expect(str_contains($result['stdout'], 'ping'))->toBeTrue(
-        'AC-010: livewire:list deve incluir ping quando o componente estiver registrado.'
+    expect($result['exit'])->not->toBe(0, 'AC-010: livewire:list deve falhar para componente inexistente.');
+    expect(str_contains($result['stdout'].$result['stderr'], 'nao foi descoberto'))->toBeTrue(
+        'AC-010: livewire:list deve informar ausencia quando o componente nao existe.'
     );
-
-    $prunedOutput = preg_replace('/^.*ping.*\R?/mi', '', $result['stdout']);
-    expect($prunedOutput)->not->toContain('ping', 'AC-010: a lista sem ping deve apontar ausencia do componente.');
 })->group('slice-006', 'ac-010');
