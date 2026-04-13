@@ -1,6 +1,6 @@
 # Slice 006 — Frontend base
 
-**Status:** precisa da sua decisão
+**Status:** nova tentativa aprovada
 **Data:** 2026-04-13
 **Slice:** 006
 
@@ -21,12 +21,12 @@ O ponto pendente era apenas um teste do AC-010. O teste anterior simulava a aus�
 
 Recomendo **pedir nova tentativa focada só no AC-010**. Não recomendo reescopar a slice agora, porque a base de frontend já está funcionando e o bloqueio atual está concentrado na qualidade de um teste.
 
-## Sua decisão é necessária
+## Decisão registrada
 
-- [ ] Pedir nova tentativa focada no AC-010
+- [x] Pedir nova tentativa focada no AC-010
 - [ ] Reescopar o slice 006
 - [ ] Pausar para discutir antes
 
 ## Próximo passo
 
-Com a sua aprovação para nova tentativa focada, a correção segue somente nesse ponto do AC-010 e volta para nova validação.
+Com a sua aprovação registrada, a correção focada do AC-010 volta para nova validação.

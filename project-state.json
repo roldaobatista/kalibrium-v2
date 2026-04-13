@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-12T23:59:00-04:00",
+  "updated_at": "2026-04-13T00:00:33-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,7 +39,7 @@
     "current_epic": "E01",
     "current_story": "E01-S06",
     "current_slice": "006",
-    "slice_status": "ready_for_rerun_after_fix",
+    "slice_status": "rerun_after_fix_approved",
     "last_green_commit": "c036c19",
     "consecutive_rejections": 0,
     "blocked": false,
@@ -47,7 +47,7 @@
   },
   "gates_status": {
     "verifier": "needs_rerun_after_reviewer_fix",
-    "reviewer": "rejected_r6",
+    "reviewer": "needs_rerun_after_fix",
     "security_reviewer": "pending",
     "test_auditor": "pending",
     "functional_reviewer": "pending"
@@ -58,8 +58,8 @@
       "question": "ADRs 0003-0007 pendentes devem ser criadas sob demanda conforme o epico exigir?",
       "options": ["Criar sob demanda por epico", "Criar todas antes de retomar produto"],
       "created_at": "2026-04-12T23:00:00Z",
-      "resolved_at": "2026-04-12T23:59:00-04:00",
-      "decision": "Pedir nova tentativa focada no AC-010"
+      "resolved_at": null,
+      "decision": null
     },
     {
       "id": "PD-003",
@@ -74,8 +74,8 @@
       "question": "R6 do slice 006: reviewer reprovou duas vezes por teste AC-010 tautologico",
       "options": ["Pedir nova tentativa focada no AC-010", "Reescopar o slice 006", "Pausar para discussao"],
       "created_at": "2026-04-13T03:36:15Z",
-      "resolved_at": null,
-      "decision": null
+      "resolved_at": "2026-04-13T00:00:33-04:00",
+      "decision": "Pedir nova tentativa focada no AC-010"
     }
   ],
   "harness": {
@@ -89,7 +89,7 @@
   },
   "handoff": {
     "last_session_summary": "A sessao Codex iniciou e implementou o slice 006 (E01-S06 frontend base). Planejamento e testes red foram criados; Livewire 4.2.4 foi instalado via composer.phar por causa do composer.bat no Windows; /ping ficou disponivel fora de production; testes do slice passaram. O verifier aprovou antes do fix do reviewer, mas apos o fix a regeneracao do verifier foi bloqueada por timeout do Packagist em composer audit. O reviewer reprovou 2x e ativou R6. Finding atual: teste AC-010 tautologico em tests/slice-006/ac-006-livewire-commandTest.php.",
-    "next_action": "Aplicar fix focado do AC-010 e reexecutar verify-slice 006, review-pr 006 e demais gates pendentes.",
+    "next_action": "Reexecutar verify-slice 006, review-pr 006 e demais gates pendentes apos a correcao focada do AC-010.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
