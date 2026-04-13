@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T14:15:33-04:00",
+  "updated_at": "2026-04-13T16:25:17-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -33,14 +33,14 @@
     "planning_audit_roadmap": "approved",
     "planning_audit_E01": "approved",
     "story_audit_E01": "approved",
-    "documentation_gate": "e02-auth-docs-drafted-awaiting-review-before-specs-007"
+    "documentation_gate": "e02-auth-docs-used-to-draft-specs-007"
   },
   "execution": {
     "current_epic": "E02",
     "current_story": "SEG-001",
     "current_slice": "007",
-    "slice_status": "documentation_gate_drafted",
-    "last_green_commit": "ac28e41",
+    "slice_status": "spec_draft",
+    "last_green_commit": "8cd2f56",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -88,8 +88,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "ADR-0004 aceito com Laravel Fortify/Sanctum como estrategia de identidade e autenticacao do MVP. Documentos obrigatorios do gate E02 foram rascunhados para desbloquear specs/007 — SEG-001 Login seguro do laboratorio.",
-    "next_action": "Revisar e aprovar o gate documental do E02; depois iniciar specs/007 — SEG-001 Login seguro do laboratorio.",
+    "last_session_summary": "Slice 007 criado em branch propria para SEG-001 — Login seguro do laboratorio. O spec.md foi preenchido com 18 ACs testaveis e passou em draft-spec; draft-plan --check tambem passou apos corrigir o status do template de plan.md para draft.",
+    "next_action": "PM aprovar o spec do slice 007; depois disparar /draft-plan 007 com o architect.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
