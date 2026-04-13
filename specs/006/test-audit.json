@@ -1,0 +1,134 @@
+{
+  "slice_id": "slice-006",
+  "verdict": "approved",
+  "timestamp": "2026-04-13T00:00:00-04:00",
+  "coverage_summary": {
+    "acs_total": 10,
+    "acs_covered": 10,
+    "acs_with_edge_cases": 5,
+    "test_count": 11
+  },
+  "ac_coverage": [
+    {
+      "ac": "AC-001",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-build-manifestTest.php::AC-001: npm run build retorna exit 0 e gera manifest com app.js e app.css"
+      ],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-ping-routeTest.php::AC-002: GET /ping fora de production retorna 200 e Livewire OK"
+      ],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [
+        "AC-007 cobre o bloqueio da rota em production"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-build-manifestTest.php::AC-003: manifest gerado usa hash de conteudo e /ping referencia os assets versionados"
+      ],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [
+        "AC-008 cobre asset sem hash/versionamento"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-static-analysisTest.php::AC-004: phpstan analyse em app/Livewire/Ping.php retorna exit 0"
+      ],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [
+        "AC-009 cobre fixture com erro de tipo detectavel pelo PHPStan"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-005",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-livewire-commandTest.php::AC-005: php artisan livewire:list retorna exit 0 e lista ping"
+      ],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [
+        "AC-010 cobre ausencia de registro do componente ping"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-006",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-build-manifestTest.php::AC-006: validacao do manifest aponta a entrada Vite ausente"
+      ],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": [
+        "Manifest sem entrada obrigatoria resources/js/app.js dispara RuntimeException com mensagem da entrada ausente"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-007",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-ping-routeTest.php::AC-007: /ping em production retorna 404 e nao fica exposto"
+      ],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": [
+        "Compara ambiente testing com production para evitar falso positivo de rota inexistente em todos os ambientes"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-008",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-build-manifestTest.php::AC-008: validacao de hash aponta asset nao versionado"
+      ],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": [
+        "Asset resources/js/app.js sem hash dispara RuntimeException com nome do asset nao versionado"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-009",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-static-analysisTest.php::AC-009: phpstan retorna exit diferente de 0 para um Ping com erro de tipo"
+      ],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": [
+        "Fixture temporario derivado de Ping com assinatura incompatível confirma exit diferente de 0"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-010",
+      "tests_found": [
+        "test-audit-input/test-files/tests/slice-006/ac-006-livewire-commandTest.php::AC-010: livewire:list falha quando ping nao esta registrado"
+      ],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": [
+        "Finder/factory do Livewire apontando para namespace sem Ping confirma exit diferente de 0 e ausencia de ping na saida"
+      ],
+      "status": "adequate"
+    }
+  ],
+  "findings": [],
+  "anti_patterns": [],
+  "next_action": "approved"
+}
