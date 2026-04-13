@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-13T00:42:24-04:00",
+  "updated_at": "2026-04-13T00:55:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,8 +39,8 @@
     "current_epic": "E01",
     "current_story": "E01-S06",
     "current_slice": "006",
-    "slice_status": "approved",
-    "last_green_commit": "f2a936d",
+    "slice_status": "merged",
+    "last_green_commit": "52b4c3e",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -88,8 +88,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "A sessao Codex destravou o R6 do slice 006 com decisao PM PD-004, corrigiu a checagem negativa do comando livewire:list, removeu o default fixo de ping, validou novamente verifier e reviewer, e executou os gates finais security-reviewer, test-auditor e functional-reviewer. Todos os 5 gates ficaram approved com findings vazios.",
-    "next_action": "Executar o encerramento do slice 006: merge-slice/relatorio/retrospectiva conforme a restricao de branch atual e seguir para o fechamento da E01-S06.",
+    "last_session_summary": "A sessao Codex fechou o slice 006 por excecao operacional auditavel: a branch atual era main, o merge formal do harness exige feature branch, e todos os 5 gates ja estavam approved com findings vazios. Foram gerados slice-report e retrospectiva do slice 006.",
+    "next_action": "Escolher o proximo slice/story e iniciar o trabalho em feature branch ou git worktree antes de editar codigo.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
