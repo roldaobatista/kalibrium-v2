@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-12T19:52:09-04:00",
+  "updated_at": "2026-04-12T20:10:23-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -80,8 +80,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "A sessao Codex corrigiu o gap de boot: configurou o Codex para carregar CLAUDE.md via project_doc_fallback_filenames, criou /codex-bootstrap em .claude/skills e .claude/commands, atualizou CLAUDE.md, orchestrator, constitution e ADR-0008, e commitou em 1527c69. O handoff foi ajustado para nao confundir retomada por Claude Code.",
-    "next_action": "Se a proxima sessao for Claude Code, usar o fluxo normal do harness: SessionStart + /resume; nao rodar /codex-bootstrap. Se a proxima sessao for Codex CLI, executar /codex-bootstrap. Para reauditar correcoes documentais, auditar explicitamente bf26899^..bf26899, nao HEAD.",
+    "last_session_summary": "A sessao Codex executou o bootstrap manual do harness em main@b805f3a, com git status limpo, session-start OK e settings/hooks locks integros. Em seguida reauditou explicitamente bf26899^..bf26899, sem editar arquivos durante a auditoria e sem rodar suite full. Foram encontrados achados documentais pendentes: colisao de numeracao ADR-0008 fiscal vs harness, divergencia entre politica ativa de E2E e ui-testing-strategy, e inconsistencia residual sobre infinite scroll mobile.",
+    "next_action": "Corrigir os achados documentais da auditoria de bf26899^..bf26899 em um commit dedicado; manter fora do escopo HEAD/handoff/bootstrap e preservar arquivos selados.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
