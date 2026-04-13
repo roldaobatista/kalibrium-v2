@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T17:15:28-04:00",
+  "updated_at": "2026-04-13T19:09:15-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,19 +39,20 @@
     "current_epic": "E02",
     "current_story": "SEG-001",
     "current_slice": "007",
-    "slice_status": "spec_audited",
-    "last_green_commit": "8cd2f56",
+    "slice_status": "plan_draft_validated",
+    "last_green_commit": "5ec5ef0",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
     "spec_auditor": "approved",
-    "verifier": "approved",
-    "reviewer": "approved",
-    "security_reviewer": "approved",
-    "test_auditor": "approved",
-    "functional_reviewer": "approved"
+    "plan": "draft_validated_pending_pm_approval",
+    "verifier": "pending",
+    "reviewer": "pending",
+    "security_reviewer": "pending",
+    "test_auditor": "pending",
+    "functional_reviewer": "pending"
   },
   "pending_decisions": [
     {
@@ -97,8 +98,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Harness recebeu o novo gate /audit-spec com spec-auditor, schema e bloqueio em /draft-plan. O PM aceitou PD-005, o contrato E02 e a spec 007 foram alinhados para tenant suspended em modo somente leitura, e spec-audit aprovou com findings vazio.",
-    "next_action": "Disparar /draft-plan 007 com o architect; draft-plan --check ja libera o plano.",
+    "last_session_summary": "O architect gerou specs/007/plan.md para o login seguro do laboratorio. O plano passou em draft-plan --validate cobrindo 21/21 ACs e ficou pendente apenas da aprovacao do PM antes de /draft-tests 007.",
+    "next_action": "Apresentar a recomendacao do plano do slice 007 ao PM; se aprovado, marcar plan.md como approved e seguir para /draft-tests 007.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -106,7 +107,10 @@
       "docs/documentation-requirements.md",
       "docs/handoffs/latest.md",
       "project-state.json",
-      ".claude/agents/orchestrator.md"
+      ".claude/agents/orchestrator.md",
+      "specs/007/spec.md",
+      "specs/007/spec-audit.json",
+      "specs/007/plan.md"
     ]
   }
 }
