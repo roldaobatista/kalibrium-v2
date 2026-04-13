@@ -38,7 +38,7 @@ O Kalibrium é a plataforma de trabalho do técnico de instrumentação, do labo
 
 - **ADR-0005 (armazenamento e backup de documentos):** o snapshot semanal que vem incluído no VPS Hostinger **não cobre** o objetivo do PRD §40.3 de perder no máximo 15 minutos de dado em caso de falha. Será necessário configurar arquivamento contínuo do banco para um armazenamento externo (~R$ 20-40/mês adicionais). Previsto pra ser resolvido no ADR-0005, não nesta página.
 - **ADR-0007 (CI/CD e ambientes):** recomenda-se contratar um **segundo servidor menor** (KVM 1, ~R$ 25-30/mês) como ambiente de homologação, separado da produção, para o PM validar slices antes de promover pro cliente real. Sem isso, o primeiro cliente vira cobaia. Previsto pra ser resolvido no ADR-0007, não nesta página.
-- **ADR-0002 (persistência):** assumirá PostgreSQL 18 + proteção extra de isolamento entre clientes (Row-Level Security nativo do banco).
+- **Persistência:** esta ADR já escolhe PostgreSQL 18 + proteção extra de isolamento entre clientes (Row-Level Security nativo do banco). Migrations, índices e ERDs serão detalhados nos artefatos de data model por épico, com ADR próprio apenas se surgir nova decisão arquitetural.
 - **ADR-0003 (filas de tarefas em segundo plano):** assumirá Redis 8 instalado no mesmo servidor até a separação do banco no ano 2.
 
 **Confirmado pelo PM em 2026-04-11, antes da marcação de opção.**
@@ -147,7 +147,7 @@ Após marcar, rodar: `bash scripts/decide-stack.sh --confirm`
 1. **O bloqueio para criar a estrutura base do projeto é destravado** (regra R10 da constituição libera os comandos como `npm init`, `composer create-project` etc.).
 2. **O agente monta o esqueleto do projeto** com a tecnologia escolhida, configura os gates técnicos (lint, tipos, testes, pre-commit, formatação) e faz o primeiro **slice de fumaça**: um login simples que funciona de verdade, end-to-end, com dois revisores independentes aprovando (R11).
 3. **Você testa o login** visualmente no navegador. Se funciona, aprova e o Kalibrium está com os trilhos prontos.
-4. **Os próximos ADRs técnicos** (ADR-0002 a 0008, já listados em `docs/product/PRD.md §Decisões de Produto em Aberto — Categoria 1`) são abertos em cascata, sempre na mesma linguagem de produto: persistência dos dados, filas de tarefas em segundo plano, identidade do cliente, armazenamento de documentos, observabilidade, CI/CD e emissão fiscal. Cada um chega pra você com recomendação forte e alternativas, no mesmo formato desta página.
+4. **Os próximos ADRs técnicos** são abertos conforme o índice vivo em `docs/TECHNICAL-DECISIONS.md`: filas de tarefas em segundo plano, identidade do cliente, armazenamento de documentos, observabilidade, CI/CD e emissão fiscal. Cada um chega pra você com recomendação forte e alternativas, no mesmo formato desta página.
 5. **O primeiro slice de produto real** começa: `SEG-001 Login com 2FA`. A partir daí, toda sexta-feira você tem um slice novo em mão pra aprovar ou recusar.
 
 ---
@@ -188,8 +188,8 @@ Após marcar, rodar: `bash scripts/decide-stack.sh --confirm`
 - **Estratégia de multi-tenancy:** single database, tenant_id como coluna + Row-Level Security + global scope em Eloquent. Pacote canônico: `stancl/tenancy` em modo single-database. Isolamento reforçado por RLS garante que um bug de código não vaze dados entre tenants (defesa em profundidade, atendendo R10 da constituição + requisito estrutural do PRD §Princípios de Produto).
 - **Filas / jobs:** Laravel Queues com driver Redis 8 + Horizon para supervisão. Jobs dedicados por domínio (fiscal, notificação, sincronização offline, geração de PDF).
 - **Agendamento:** Laravel Scheduler (substitui cron manual).
-- **Assinatura digital PDF/A + ICP-Brasil:** `nfephp-org/sped-nfe` (emissão fiscal) + `jeidison/carbon-pdf-signer` ou `spatie/pdf-to-image` combinado com `setasign/fpdi` para PDF/A + biblioteca `tcpdf` com suporte a assinatura A1/A3. Carimbo de tempo via integração com AC autorizada (ACT do ICP-Brasil). Decisão fina via ADR-0008 (emissão fiscal).
-- **NFS-e multi-município:** `nfephp-org/sped-nfse` + integrador via serviço (NFE.io, Focus NFe) como plano B. Decisão via ADR-0008.
+- **Assinatura digital PDF/A + ICP-Brasil:** `nfephp-org/sped-nfe` (emissão fiscal) + `jeidison/carbon-pdf-signer` ou `spatie/pdf-to-image` combinado com `setasign/fpdi` para PDF/A + biblioteca `tcpdf` com suporte a assinatura A1/A3. Carimbo de tempo via integração com AC autorizada (ACT do ICP-Brasil). Decisão fina via ADR-0009 (emissão fiscal).
+- **NFS-e multi-município:** `nfephp-org/sped-nfse` + integrador via serviço (NFE.io, Focus NFe) como plano B. Decisão via ADR-0009.
 - **WhatsApp / e-mail / SMS:** provedores via adapter interno — provedores candidatos: Z-API ou Twilio (WhatsApp), Mailgun ou Amazon SES (e-mail), Zenvia ou Twilio (SMS). Decisão via ADR-0003 (mensageria) ou ADR específico de notificações.
 - **Testes:** Pest 4 (sobre PHPUnit 12) + Pest Browser Testing nativo para testes end-to-end de navegador + Playwright como alternativa em caso de necessidade. Factories via Laravel Factory. Coverage alvo mínimo conforme constituição §DoD + hooks `post-edit-gate.sh` / `pre-commit-gate.sh` / `pre-push-gate.sh`.
 - **Análise estática / lint:** PHPStan com `nunomaduro/larastan` no nível 8 (máximo rigor), Laravel Pint (formatação), Rector para refactors automáticos, ESLint + Prettier para JS/Vue.
@@ -230,13 +230,12 @@ Isso reduz R6 (2 reprovações consecutivas do verifier = escalar humano), porqu
 
 ### O que ainda fica em aberto (virá em ADRs seguintes)
 
-- **ADR-0002** — modelo de persistência detalhado + estratégia de migrations + política de índices / views materializadas.
 - **ADR-0003** — mensageria e filas (Redis vs RabbitMQ vs SQS).
 - **ADR-0004** — IdP final (Fortify/Sanctum vs Keycloak vs WorkOS).
 - **ADR-0005** — storage de documentos (MinIO vs S3 sa-east-1).
 - **ADR-0006** — stack de observabilidade (Grafana Cloud vs Prometheus+Grafana self-hosted).
 - **ADR-0007** — pipeline CI/CD detalhado.
-- **ADR-0008** — emissão fiscal direto SEFAZ/prefeitura vs broker terceiro.
+- **ADR-0009** — emissão fiscal direto SEFAZ/prefeitura vs broker terceiro.
 
 Cada um destes ADRs pressupõe que ADR-0001 foi aceito. Mudar ADR-0001 depois força cascata de revisões.
 

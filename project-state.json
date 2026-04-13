@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-12T20:10:23-04:00",
+  "updated_at": "2026-04-12T20:43:26-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -80,8 +80,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "A sessao Codex executou o bootstrap manual do harness em main@b805f3a, com git status limpo, session-start OK e settings/hooks locks integros. Em seguida reauditou explicitamente bf26899^..bf26899, sem editar arquivos durante a auditoria e sem rodar suite full. Foram encontrados achados documentais pendentes: colisao de numeracao ADR-0008 fiscal vs harness, divergencia entre politica ativa de E2E e ui-testing-strategy, e inconsistencia residual sobre infinite scroll mobile.",
-    "next_action": "Corrigir os achados documentais da auditoria de bf26899^..bf26899 em um commit dedicado; manter fora do escopo HEAD/handoff/bootstrap e preservar arquivos selados.",
+    "last_session_summary": "A sessao Codex resolveu os achados documentais da auditoria de bf26899^..bf26899: renumerou a decisao fiscal pendente para ADR-0009, alinhou a politica E2E e o functional-reviewer com Pest Browser por padrao e Playwright justificado, corrigiu a regra mobile para Carregar mais, separou o token hover de botoes de acento e removeu residuos operacionais de Laravel 11/Livewire 3 em comandos, skills e memoria de sessao. Arquivos selados permaneceram intactos.",
+    "next_action": "Revisar o commit documental de correcoes e, se aprovado, retomar as decisoes pendentes em docs/TECHNICAL-DECISIONS.md, com foco em ADR-0003 a ADR-0007 e ADR-0009 conforme demanda do proximo epico.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

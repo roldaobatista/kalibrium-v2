@@ -69,7 +69,7 @@ Criar esqueleto em `specs/NNN/`:
 ```
 Story E01-S01 iniciada!
 
-📋 "Scaffold do projeto Laravel 11"
+📋 "Scaffold do projeto Laravel conforme ADR-0001"
    Slice criado: slice-013
    ACs: 4 criterios de aceite
    

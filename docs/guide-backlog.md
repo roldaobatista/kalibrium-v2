@@ -186,7 +186,7 @@ Itens resolvidos movem para o histórico no final.
   1. Harness integrity (smoke-test de hooks + scripts + scan de arquivos proibidos)
   2. PHP lint (Pint `--test`)
   3. PHP static analysis (Larastan nível 8)
-  4. PHP tests (Pest 3 + PostgreSQL 16 como service)
+  4. PHP tests (Pest 4 + PostgreSQL 18 como service)
   5. JS lint (ESLint + Prettier)
   6. Security scan (composer audit + npm audit + CycloneDX SBOM)
 - **Design dormant:** jobs de PHP/JS usam `if: hashFiles('composer.json'|'package.json') != ''`. O workflow existe pré-`composer create-project` e "acorda" automaticamente quando Laravel inicializar. Jobs marcados como "skipped" até lá — válido, não falha.

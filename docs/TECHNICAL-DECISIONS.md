@@ -27,6 +27,7 @@ ADRs que precisam ser criados antes do primeiro slice de código:
 | 0005 | Storage de documentos (MinIO vs S3 sa-east-1) | GED/certificados fiscais | architect |
 | 0006 | Stack de observabilidade (Grafana Cloud vs Prometheus+Grafana self-hosted) | Operação | architect |
 | 0007 | Pipeline CI/CD detalhado | Release | PM + orquestrador |
+| 0009 | Provedor de emissão fiscal (SEFAZ/prefeitura direto vs broker terceiro) | Slices FIS | architect + consultor fiscal |
 
 > Estes números são reservas. O ADR real pode ter título diferente. Remover da tabela quando criado.
 

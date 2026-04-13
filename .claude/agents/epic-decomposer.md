@@ -52,7 +52,7 @@ banco de dados provisionado, deploy automatizado para staging.
 Time consegue deployar codigo em staging com um push.
 
 ## Escopo
-- Configuracao do projeto Laravel 11
+- Configuracao do projeto Laravel conforme ADR-0001
 - PostgreSQL provisionado
 - CI pipeline basico (lint + tests + build)
 - Deploy automatizado para staging
@@ -74,7 +74,7 @@ Time consegue deployar codigo em staging com um push.
 - Healthcheck retornando 200
 
 ## Stories previstas
-- E01-S01 — Scaffold Laravel 11
+- E01-S01 — Scaffold Laravel conforme ADR-0001
 - E01-S02 — Configurar PostgreSQL
 - E01-S03 — Pipeline CI basico
 - E01-S04 — Deploy staging automatizado

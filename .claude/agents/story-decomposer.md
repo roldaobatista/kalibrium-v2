@@ -42,17 +42,17 @@ Dado um epico aprovado, decompor em stories implementaveis. Cada story nasce com
 
 ### Por story: `epics/ENN/stories/ENN-SNN.md` (Story Contract)
 ```markdown
-# ENN-S01 — Scaffold do projeto Laravel 11
+# ENN-S01 — Scaffold do projeto Laravel conforme ADR-0001
 
 ## Objetivo
-Criar a estrutura basica do projeto com Laravel 11 configurado,
+Criar a estrutura basica do projeto com Laravel configurado conforme ADR-0001,
 pronto para receber as primeiras features.
 
 ## Escopo
 - `laravel new` com configuracao personalizada
 - `.env.example` configurado para o projeto
 - Composer dependencies iniciais (conforme ADR-0001)
-- npm dependencies iniciais (Livewire 3, Tailwind)
+- npm dependencies iniciais (Livewire e Tailwind conforme ADR-0001)
 
 ## Fora de escopo
 - Banco de dados (story seguinte)
@@ -80,7 +80,7 @@ pronto para receber as primeiras features.
 
 ## Dependencias
 - ADR-0001 aceito
-- PHP 8.2+, Composer, Node instalados
+- PHP conforme ADR-0001, Composer e Node instalados
 
 ## Rollback esperado
 - `git revert` do merge commit

@@ -94,7 +94,7 @@ bash scripts/decide-stack.sh "$@"
 
 ## Exemplo curto de tradução
 
-❌ "Laravel 11 com Eloquent ORM e Livewire para server-side rendering reativo."
+❌ "Laravel 13 com Eloquent ORM e Livewire para server-side rendering reativo."
 
 ✅ "Laravel — base do projeto em PHP, mais antiga mas super comum no Brasil, fácil de achar quem mexe, já tem pronto quase tudo que precisamos (login, envio de e-mail, fila de tarefas em segundo plano). As telas se atualizam sozinhas sem precisar do usuário apertar F5."
 

@@ -186,7 +186,7 @@ Ja definido no layout-master.md §2.7:
 | Desktop/Tablet | Filtros sempre visiveis acima da tabela, inline horizontal |
 | Mobile | Accordion colapsado por padrao, botao "Filtros" com badge do count ativo |
 
-### 4.6. Paginacao → Scroll infinito
+### 4.6. Paginacao incremental
 
 | Viewport | Comportamento |
 |---|---|
@@ -571,4 +571,4 @@ Todo componente deve ser testado nos seguintes viewports:
 | D7 | Hamburger + tab bar contextual + bottom action bar | Bottom nav permanente | Maximiza espaco de conteudo; hamburger e pattern universal |
 | D8 | PWA, nao app nativo | React Native / Flutter | Sem budget para app nativo; PWA cobre 95% dos casos com uma codebase |
 | D9 | Orientation: any (nao travar) | Travar portrait em mobile | Landscape em tablet melhora formularios longos; travar limita Juliana |
-| D10 | Infinite scroll em mobile, paginacao em desktop | Paginacao em todos | Mobile favorece scroll continuo; desktop favorece controle preciso de pagina |
+| D10 | "Carregar mais" em mobile, paginacao em desktop | Paginacao numerica em todos os viewports | Mobile favorece consumo incremental por toque; desktop favorece controle preciso de pagina |

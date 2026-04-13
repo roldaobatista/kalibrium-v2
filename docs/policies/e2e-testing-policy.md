@@ -26,8 +26,8 @@ Todo AC que descreve comportamento visual (tela, formulario, botao, navegacao, f
 
 | Ferramenta | Quando usar |
 |---|---|
-| Laravel Dusk (PHPUnit + Chrome) | Padrao para slices Laravel com Livewire |
-| Playwright (via MCP) | Alternativa ou complemento — disponivel via `mcp__plugin_playwright_playwright__*` |
+| Pest Browser | Padrao para slices Laravel com Livewire quando houver teste E2E versionado |
+| Playwright | Alternativa ou complemento quando Pest Browser nao cobrir o caso, ou quando uma auditoria visual/acessibilidade exigir ferramenta externa |
 
 ### Como o functional-reviewer valida
 
@@ -39,12 +39,11 @@ Todo AC que descreve comportamento visual (tela, formulario, botao, navegacao, f
 ### Configuracao (quando Laravel estiver inicializado)
 
 ```bash
-# Laravel Dusk (padrao)
-composer require --dev laravel/dusk
-php artisan dusk:install
+# Pest Browser (padrao)
+composer require --dev pestphp/pest-plugin-browser
 
-# Ou Playwright via MCP (ja disponivel)
-# Usar tools mcp__plugin_playwright_playwright__browser_navigate, browser_click, etc.
+# Ou Playwright como complemento quando houver justificativa
+# Adicionar configuracao do Playwright ao slice que precisar dessa cobertura
 ```
 
 ### Excecoes
@@ -72,6 +71,6 @@ Slices puramente backend (sem UI) nao precisam de E2E. O functional-reviewer val
 
 /functional-review NNN
   → functional-reviewer (agente, adversarial)
-  → Se slice tem UI: roda Playwright/Dusk e valida no browser
+  → Se slice tem UI: roda Pest Browser ou Playwright justificado e valida no browser
   → Se nao tem UI: valida via testes + leitura de codigo
 ```

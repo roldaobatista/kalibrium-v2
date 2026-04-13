@@ -79,6 +79,7 @@ O design do Kalibrium transmite tres valores fundamentais:
 | `accent-500` | `#f97316` | `bg-accent-500` | Badges e destaques de urgencia |
 | `accent-600` | `#ea580c` | `bg-accent-600` | Destaque sem texto branco normal; usar com icone/texto grande ou fundo claro |
 | `accent-700` | `#c2410c` | `bg-accent-700` | **Botoes de acao secundaria** com texto branco normal |
+| `accent-800` | `#9a3412` | `bg-accent-800` | Hover/pressed de botoes de acento |
 
 > Baseado na escala `orange` do Tailwind CSS 4. Laranja quente contrasta com o azul frio da primaria, chamando atencao para acoes importantes sem competir com a paleta principal.
 
@@ -159,6 +160,7 @@ O design do Kalibrium transmite tres valores fundamentais:
   --color-accent-500: #f97316;
   --color-accent-600: #ea580c;
   --color-accent-700: #c2410c;
+  --color-accent-800: #9a3412;
 
   /* Success — Green */
   --color-success-50: #f0fdf4;
@@ -395,7 +397,7 @@ Mapeamento de tokens semanticos para classes Tailwind CSS 4. Usar SEMPRE o token
 | `bg-btn-danger` | `bg-danger-600` | `#dc2626` |
 | `bg-btn-danger-hover` | `bg-danger-700` | `#b91c1c` |
 | `bg-btn-accent` | `bg-accent-700` | `#c2410c` |
-| `bg-btn-accent-hover` | `bg-accent-700` | `#c2410c` |
+| `bg-btn-accent-hover` | `bg-accent-800` | `#9a3412` |
 | `bg-success-subtle` | `bg-success-50` | `#f0fdf4` |
 | `bg-warning-subtle` | `bg-warning-50` | `#fffbeb` |
 | `bg-danger-subtle` | `bg-danger-50` | `#fef2f2` |

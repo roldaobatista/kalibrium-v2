@@ -5663,7 +5663,7 @@ Canal formal e rastreável para reclamações que exigem tratamento diferenciado
 
 ## Modelo de Dados Conceitual
 
-> **Nota editorial.** Este modelo é **conceitual e funcional**; a materialização em schema, tipos, índices, constraints, naming de tabelas, particionamento e arquitetura física de persistência será definida em ADRs posteriores (ver `ADR-0001 — Stack` e `ADR-0002 — Persistência` quando criados). As entidades abaixo são a **fonte canônica de vocabulário** para specs modulares, NFRs por entidade e decisões arquiteturais. Qualquer spec futura deve referenciar os nomes declarados aqui sem renomeá-los.
+> **Nota editorial.** Este modelo é **conceitual e funcional**; a materialização em schema, tipos, índices, constraints, naming de tabelas, particionamento e arquitetura física de persistência será definida em `ADR-0001 — Stack`, nos artefatos de data model por épico e em ADR próprio apenas se surgir nova decisão arquitetural. As entidades abaixo são a **fonte canônica de vocabulário** para specs modulares, NFRs por entidade e decisões arquiteturais. Qualquer spec futura deve referenciar os nomes declarados aqui sem renomeá-los.
 
 ### Grupo A — Identidade e Tenancy
 
@@ -5838,13 +5838,13 @@ O **Tipo 5** da tabela acima (empresa que não emite certificado metrológico �
 | ID | Questão | Destino | Bloqueador para | Status |
 |---|---|---|---|---|
 | OQ-ARQ-01 | Stack tecnológica (linguagem, framework, runtime de produção) | ADR-0001 | Qualquer slice de código | Aguarda PRD 100% refinado → `/decide-stack` |
-| OQ-ARQ-02 | Modelo de persistência (banco, estratégia de multi-tenancy, política de migrations) | ADR-0002 | Slices que persistem dados | Aguarda ADR-0001 |
+| OQ-ARQ-02 | Modelo de persistência (banco, estratégia de multi-tenancy, política de migrations) | ADR-0001 + data model por épico | Slices que persistem dados | Base decidida; detalhar por épico |
 | OQ-ARQ-03 | Mensageria / filas / background jobs (provedor e padrão de uso) | ADR-0003 | Slices com operação assíncrona (NF-e, eSocial, reconciliação) | Aguarda ADR-0001 |
 | OQ-ARQ-04 | Identity provider (built-in vs externo — Auth0, Keycloak, WorkOS ou outro) | ADR-0004 | Slices TEN (tenancy) e SEG (autenticação) | Aguarda ADR-0001 |
 | OQ-ARQ-05 | Storage de documentos / GED (S3-compatível, nativo de nuvem ou self-hosted) | ADR-0005 | Slices DOC, CER, QUA | Aguarda ADR-0001 |
 | OQ-ARQ-06 | Stack de observabilidade (logs estruturados + métricas + tracing distribuído) | ADR-0006 | NFR-OBS em produção | Aguarda ADR-0001 |
 | OQ-ARQ-07 | Pipeline CI/CD e gates obrigatórios (verifier, reviewer, scan de vuln, SBOM) | ADR-0007 | Operação de slices em produção | Aguarda ADR-0001 |
-| OQ-ARQ-08 | Provedor de emissão fiscal (SEFAZ direto vs broker terceiro como NFE.io, Focus NFe, etc.) | ADR-0008 | Slices FIS | Aguarda PRD + pesquisa de mercado |
+| OQ-ARQ-08 | Provedor de emissão fiscal (SEFAZ direto vs broker terceiro como NFE.io, Focus NFe, etc.) | ADR-0009 | Slices FIS | Aguarda PRD + pesquisa de mercado |
 
 ### Categoria 2 — Decisões de Produto do PM (Aguardam Resposta)
 

@@ -39,7 +39,7 @@ O agent produz:
 ```
 Decomposicao do epico ENN concluida. Stories planejadas: N
 
-📋 E01-S01 — Scaffold do projeto Laravel 11
+📋 E01-S01 — Scaffold do projeto Laravel conforme ADR-0001
    ACs: 4 | Complexidade: baixa
    Depende de: nenhuma
 

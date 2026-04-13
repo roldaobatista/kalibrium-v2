@@ -216,7 +216,7 @@ Os documentos globais desta categoria foram criados em 2026-04-12. Os wireframes
 |---|---|
 | **Nome** | Livewire Component Architecture |
 | **Caminho** | `docs/architecture/livewire-architecture.md` |
-| **Descricao** | Define a estrategia de componentizacao com Livewire 3 + Blade. Inclui: hierarquia de componentes (page-level, section-level, widget-level), regra de quando usar Livewire component vs Blade partial vs Alpine.js inline, comunicacao entre componentes (events, dispatch, $wire), lazy loading, polling (onde aplicar, frequencia), file upload pattern, forma components (form objects), paginacao. Nomenclatura de classes e views. |
+| **Descricao** | Define a estrategia de componentizacao com Livewire 4 + Blade. Inclui: hierarquia de componentes (page-level, section-level, widget-level), regra de quando usar Livewire component vs Blade partial vs Alpine.js inline, comunicacao entre componentes (events, dispatch, $wire), lazy loading, polling (onde aplicar, frequencia), file upload pattern, forma components (form objects), paginacao. Nomenclatura de classes e views. |
 | **Fase** | Strategy (apos ADR de stack) |
 | **Agente responsavel** | `architect` (existente) |
 | **Bloqueante para** | Implementacao de qualquer componente Livewire |
@@ -293,7 +293,7 @@ Os documentos globais desta categoria foram criados em 2026-04-12. Os wireframes
 |---|---|
 | **Nome** | UI Testing Strategy |
 | **Caminho** | `docs/architecture/ui-testing-strategy.md` |
-| **Descricao** | Como testes de interface sao feitos. Inclui: Livewire component tests (Pest + Livewire test helpers), Browser tests (Playwright — quando usar, setup, CI), Visual regression (se aplicavel), Accessibility tests (axe-core no CI), Test data (factories, seeders por cenario), Fixtures (HTML snapshots), Coverage target para componentes UI. Define a piramide de testes especifica para frontend: unit (Pest) > component (Livewire) > integration (Playwright) > visual. |
+| **Descricao** | Como testes de interface sao feitos. Inclui: Livewire component tests (Pest + Livewire test helpers), Browser tests (Pest Browser por padrao; Playwright complementar quando justificado), Visual regression (se aplicavel), Accessibility tests (axe-core no CI), Test data (factories, seeders por cenario), Fixtures (HTML snapshots), Coverage target para componentes UI. Define a piramide de testes especifica para frontend: unit (Pest) > component (Livewire) > browser (Pest Browser/Playwright) > visual. |
 | **Fase** | Strategy (apos livewire-architecture) |
 | **Agente responsavel** | `architect` (existente) |
 | **Bloqueante para** | Escrita de testes de qualquer componente UI |

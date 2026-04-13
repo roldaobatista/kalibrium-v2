@@ -39,7 +39,7 @@ Apresenta em linguagem R12:
 ```
 Todas as decisoes tecnicas estao tomadas. Resumo:
 
-📋 Stack: Laravel 11 + Livewire 3 + PostgreSQL (ADR-0001)
+📋 Stack: Laravel 13 + Livewire 4 + PostgreSQL 18 (ADR-0001)
 📋 Deploy: [modelo escolhido] (ADR-NNNN)
 📋 Seguranca: [resumo do threat model]
 📋 Dados: [modelo resumido]
