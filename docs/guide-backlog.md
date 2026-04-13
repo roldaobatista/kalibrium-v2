@@ -8,6 +8,13 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-022] Melhorar legibilidade de commits no slice-report com telemetria parcial
+
+- **Origem:** retrospectiva do slice-005 gerada em 2026-04-13.
+- **Evidência:** `docs/retrospectives/slice-005-report.md` registrou o evento de commit sem `hash`, `author` e `subject` normalizados; a seção de commits repetiu o JSON inteiro como hash, autor e assunto.
+- **Ação:** ajustar `scripts/slice-report.sh` para detectar evento de commit sem campos normalizados e renderizar uma linha legível, por exemplo `commit registrado sem metadados normalizados — ver Raw JSONL`.
+- **Status:** aberto. Prioridade baixa; não bloqueia execução de slices.
+
 ### [B-009] GitHub Action para auto-aprovar PR quando verifier + reviewer passam
 
 - **Origem:** Fase 2 (R11). Hoje o merge de PR requer admin bypass do owner, o que é aceitável mas não ideal.
