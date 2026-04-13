@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-12T21:46:18-04:00",
+  "updated_at": "2026-04-12T23:36:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -36,21 +36,21 @@
     "documentation_gate": "created-global-docs-require-per-epic-docs-before-ui-story"
   },
   "execution": {
-    "current_epic": null,
-    "current_story": null,
-    "current_slice": null,
-    "slice_status": "not_started",
-    "last_green_commit": "d8646ed",
-    "consecutive_rejections": 0,
-    "blocked": false,
-    "blocked_reason": null
+    "current_epic": "E01",
+    "current_story": "E01-S06",
+    "current_slice": "006",
+    "slice_status": "blocked_r6_reviewer",
+    "last_green_commit": "c036c19",
+    "consecutive_rejections": 2,
+    "blocked": true,
+    "blocked_reason": "Reviewer reprovou o slice 006 duas vezes. O unico finding atual e o AC-010 tautologico no teste tests/slice-006/ac-006-livewire-commandTest.php. Implementer bloqueado ate decisao humana R6."
   },
   "gates_status": {
-    "verifier": "approved",
-    "reviewer": "approved",
-    "security_reviewer": "approved",
-    "test_auditor": "approved",
-    "functional_reviewer": "approved"
+    "verifier": "needs_rerun_after_reviewer_fix",
+    "reviewer": "rejected_r6",
+    "security_reviewer": "pending",
+    "test_auditor": "pending",
+    "functional_reviewer": "pending"
   },
   "pending_decisions": [
     {
@@ -68,6 +68,14 @@
       "created_at": "2026-04-13T01:00:00Z",
       "resolved_at": null,
       "decision": null
+    },
+    {
+      "id": "PD-004",
+      "question": "R6 do slice 006: reviewer reprovou duas vezes por teste AC-010 tautologico",
+      "options": ["Pedir nova tentativa focada no AC-010", "Reescopar o slice 006", "Pausar para discussao"],
+      "created_at": "2026-04-13T03:36:15Z",
+      "resolved_at": null,
+      "decision": null
     }
   ],
   "harness": {
@@ -80,8 +88,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "A sessao Codex reconciliou os gates dos slices 001, 003, 004 e 005. Slice 001 e 003 tinham relatorios stale, agora alinhados com a implementacao atual. Slice 004 recebeu hardening de CSP e validacao de fingerprint SSH no deploy staging. Slice 005 passou a expor detalhes de db/redis apenas para IP local, usar cache configurado no rate limit e validar headers de seguranca. Todos os relatorios dos slices 001, 002, 003, 004, 005 e 900 ficaram approved com zero findings. Commit de correcoes: d8646ed.",
-    "next_action": "Rodar /next-slice para recomendar a proxima fatia de produto, mantendo as decisoes pendentes PD-002 e PD-003 visiveis antes de iniciar stories dependentes.",
+    "last_session_summary": "A sessao Codex iniciou e implementou o slice 006 (E01-S06 frontend base). Planejamento e testes red foram criados; Livewire 4.2.4 foi instalado via composer.phar por causa do composer.bat no Windows; /ping ficou disponivel fora de production; testes do slice passaram. O verifier aprovou antes do fix do reviewer, mas apos o fix a regeneracao do verifier foi bloqueada por timeout do Packagist em composer audit. O reviewer reprovou 2x e ativou R6. Finding atual: teste AC-010 tautologico em tests/slice-006/ac-006-livewire-commandTest.php.",
+    "next_action": "Aguardar decisao PM PD-004. Recomendacao tecnica: pedir nova tentativa focada apenas no AC-010, depois reexecutar verify-slice 006 e review-pr 006.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
