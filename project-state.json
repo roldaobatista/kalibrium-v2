@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-12T20:43:26-04:00",
+  "updated_at": "2026-04-12T21:46:18-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -40,17 +40,17 @@
     "current_story": null,
     "current_slice": null,
     "slice_status": "not_started",
-    "last_green_commit": "1527c69",
+    "last_green_commit": "d8646ed",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
-    "verifier": "pending",
-    "reviewer": "pending",
-    "security_reviewer": "pending",
-    "test_auditor": "pending",
-    "functional_reviewer": "pending"
+    "verifier": "approved",
+    "reviewer": "approved",
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved"
   },
   "pending_decisions": [
     {
@@ -80,8 +80,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "A sessao Codex resolveu os achados documentais da auditoria de bf26899^..bf26899: renumerou a decisao fiscal pendente para ADR-0009, alinhou a politica E2E e o functional-reviewer com Pest Browser por padrao e Playwright justificado, corrigiu a regra mobile para Carregar mais, separou o token hover de botoes de acento e removeu residuos operacionais de Laravel 11/Livewire 3 em comandos, skills e memoria de sessao. Arquivos selados permaneceram intactos.",
-    "next_action": "Revisar o commit documental de correcoes e, se aprovado, retomar as decisoes pendentes em docs/TECHNICAL-DECISIONS.md, com foco em ADR-0003 a ADR-0007 e ADR-0009 conforme demanda do proximo epico.",
+    "last_session_summary": "A sessao Codex reconciliou os gates dos slices 001, 003, 004 e 005. Slice 001 e 003 tinham relatorios stale, agora alinhados com a implementacao atual. Slice 004 recebeu hardening de CSP e validacao de fingerprint SSH no deploy staging. Slice 005 passou a expor detalhes de db/redis apenas para IP local, usar cache configurado no rate limit e validar headers de seguranca. Todos os relatorios dos slices 001, 002, 003, 004, 005 e 900 ficaram approved com zero findings. Commit de correcoes: d8646ed.",
+    "next_action": "Rodar /next-slice para recomendar a proxima fatia de produto, mantendo as decisoes pendentes PD-002 e PD-003 visiveis antes de iniciar stories dependentes.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
