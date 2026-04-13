@@ -44,7 +44,32 @@ echo ""
 
 # ---------- Preparar fixtures ----------
 TMPDIR="$(mktemp -d -t kalib-smoke.XXXXXX)"
-trap 'rm -rf "$TMPDIR"' EXIT
+PHPSTAN_CACHE_ORIG=".phpstan-cache"
+PHPSTAN_CACHE_TMP=""
+
+restore_smoke_state() {
+  rm -f .cursorrules AGENTS.md
+  if [ -n "$PHPSTAN_CACHE_TMP" ] && [ -d "$PHPSTAN_CACHE_TMP" ] && [ ! -e "$PHPSTAN_CACHE_ORIG" ]; then
+    mv "$PHPSTAN_CACHE_TMP" "$PHPSTAN_CACHE_ORIG" 2>/dev/null || true
+  fi
+  rm -rf "$TMPDIR"
+}
+
+hide_phpstan_cache() {
+  if [ -d "$PHPSTAN_CACHE_ORIG" ]; then
+    PHPSTAN_CACHE_TMP="$TMPDIR/phpstan-cache"
+    mv "$PHPSTAN_CACHE_ORIG" "$PHPSTAN_CACHE_TMP"
+  fi
+}
+
+restore_phpstan_cache() {
+  if [ -n "$PHPSTAN_CACHE_TMP" ] && [ -d "$PHPSTAN_CACHE_TMP" ] && [ ! -e "$PHPSTAN_CACHE_ORIG" ]; then
+    mv "$PHPSTAN_CACHE_TMP" "$PHPSTAN_CACHE_ORIG"
+    PHPSTAN_CACHE_TMP=""
+  fi
+}
+
+trap restore_smoke_state EXIT INT TERM
 mkdir -p "$TMPDIR/verification-input"
 touch "$TMPDIR/verification-input/spec.md"
 echo "dummy" > "$TMPDIR/dummy.txt"
@@ -62,6 +87,7 @@ rm -f .cursorrules
 
 # ---------- 2. forbidden-files-scan.sh ----------
 echo "[2/12] forbidden-files-scan.sh"
+hide_phpstan_cache
 run_test "forbidden-files-scan limpo" 0 \
   bash scripts/hooks/forbidden-files-scan.sh
 
@@ -69,6 +95,7 @@ touch AGENTS.md
 run_test "forbidden-files-scan detecta AGENTS.md" 1 \
   bash scripts/hooks/forbidden-files-scan.sh
 rm -f AGENTS.md
+restore_phpstan_cache
 
 # ---------- 3. verifier-sandbox.sh ----------
 echo "[3/12] verifier-sandbox.sh"
@@ -341,6 +368,14 @@ run_test "record-telemetry append segunda linha (cadeia real)" 0 \
 mv .claude/telemetry/slice-999.jsonl "$SMOKE_TELEM" 2>/dev/null || true
 
 run_test "record-telemetry --verify-chain após segundo append" 0 \
+  bash scripts/record-telemetry.sh --verify-chain "$SMOKE_TELEM"
+
+mv "$SMOKE_TELEM" .claude/telemetry/slice-999.jsonl 2>/dev/null || true
+run_test "record-telemetry aceita evento merge" 0 \
+  bash scripts/record-telemetry.sh --event=merge --slice=slice-999 --verdict=approved --next-action=human_merge --reject-count=0
+mv .claude/telemetry/slice-999.jsonl "$SMOKE_TELEM" 2>/dev/null || true
+
+run_test "record-telemetry --verify-chain após merge" 0 \
   bash scripts/record-telemetry.sh --verify-chain "$SMOKE_TELEM"
 
 # Tampering: zera o arquivo → cadeia quebra

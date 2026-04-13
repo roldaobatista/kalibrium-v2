@@ -30,7 +30,7 @@ Para cada slice com `specs/NNN/spec.md`:
    - `verify rejected` → "aguardando correção pelo implementer"
    - `review approved` → "pronto para merge (/merge-slice NNN)"
    - `review rejected` → "aguardando correção pelo implementer"
-   - `merge` → "✓ slice concluído — gerar /slice-report NNN e /retrospective NNN"
+   - `merge` → "✓ slice concluído e documentado" quando relatório e retrospectiva existem; senão "✓ slice concluído — documentação de encerramento pendente"
    - **sem telemetria** → infere por artefatos: plan.md ausente → "spec preenchido, próximo passo: plano (/draft-plan NNN)"
 
 Ao final, imprime resumo: "N em andamento | M concluído(s)".

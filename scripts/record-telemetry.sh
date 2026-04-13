@@ -122,8 +122,8 @@ done
 
 # Valida event enum
 case "$EVENT" in
-  verify|review|commit|session_start|session_stop|relock) ;;
-  *) die "event inválido: '$EVENT' (válidos: verify|review|commit|session_start|session_stop|relock)" ;;
+  verify|review|commit|merge|session_start|session_stop|relock) ;;
+  *) die "event inválido: '$EVENT' (válidos: verify|review|commit|merge|session_start|session_stop|relock)" ;;
 esac
 
 # Valida verdict enum
@@ -134,7 +134,7 @@ esac
 
 # Valida next_action enum
 case "$NEXT_ACTION" in
-  open_pr|approve_pr|return_to_implementer|escalate_human|n/a) ;;
+  open_pr|approve_pr|human_merge|return_to_implementer|escalate_human|n/a) ;;
   *) die "next_action inválido: '$NEXT_ACTION'" ;;
 esac
 

@@ -56,7 +56,13 @@ next_step_for_slice() {
       echo "aguardando correção pelo implementer (rejeição 1x — revisor estrutural)"
       ;;
     merge:*)
-      echo "✓ slice concluído — gerar /slice-report ${nnn} e /retrospective ${nnn}"
+      local report="docs/retrospectives/slice-${nnn}-report.md"
+      local retro="docs/retrospectives/slice-${nnn}.md"
+      if [ -f "$report" ] && [ -f "$retro" ]; then
+        echo "✓ slice concluído e documentado"
+      else
+        echo "✓ slice concluído — documentação de encerramento pendente"
+      fi
       ;;
     *)
       # Sem telemetria clara — infere por artefatos estruturais
