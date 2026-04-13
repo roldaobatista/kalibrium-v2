@@ -44,10 +44,36 @@ echo ""
 
 # ---------- Preparar fixtures ----------
 TMPDIR="$(mktemp -d -t kalib-smoke.XXXXXX)"
-trap 'rm -rf "$TMPDIR"' EXIT
+PHPSTAN_CACHE_ORIG=".phpstan-cache"
+PHPSTAN_CACHE_TMP=""
+
+restore_smoke_state() {
+  rm -f .cursorrules AGENTS.md
+  if [ -n "$PHPSTAN_CACHE_TMP" ] && [ -d "$PHPSTAN_CACHE_TMP" ] && [ ! -e "$PHPSTAN_CACHE_ORIG" ]; then
+    mv "$PHPSTAN_CACHE_TMP" "$PHPSTAN_CACHE_ORIG" 2>/dev/null || true
+  fi
+  rm -rf "$TMPDIR"
+}
+
+hide_phpstan_cache() {
+  if [ -d "$PHPSTAN_CACHE_ORIG" ]; then
+    PHPSTAN_CACHE_TMP="$TMPDIR/phpstan-cache"
+    mv "$PHPSTAN_CACHE_ORIG" "$PHPSTAN_CACHE_TMP"
+  fi
+}
+
+restore_phpstan_cache() {
+  if [ -n "$PHPSTAN_CACHE_TMP" ] && [ -d "$PHPSTAN_CACHE_TMP" ] && [ ! -e "$PHPSTAN_CACHE_ORIG" ]; then
+    mv "$PHPSTAN_CACHE_TMP" "$PHPSTAN_CACHE_ORIG"
+    PHPSTAN_CACHE_TMP=""
+  fi
+}
+
+trap restore_smoke_state EXIT INT TERM
 mkdir -p "$TMPDIR/verification-input"
 touch "$TMPDIR/verification-input/spec.md"
 echo "dummy" > "$TMPDIR/dummy.txt"
+echo "# Smoke markdown" > "$TMPDIR/dummy.md"
 
 # ---------- 1. session-start.sh ----------
 echo "[1/12] session-start.sh"
@@ -62,6 +88,7 @@ rm -f .cursorrules
 
 # ---------- 2. forbidden-files-scan.sh ----------
 echo "[2/12] forbidden-files-scan.sh"
+hide_phpstan_cache
 run_test "forbidden-files-scan limpo" 0 \
   bash scripts/hooks/forbidden-files-scan.sh
 
@@ -69,6 +96,7 @@ touch AGENTS.md
 run_test "forbidden-files-scan detecta AGENTS.md" 1 \
   bash scripts/hooks/forbidden-files-scan.sh
 rm -f AGENTS.md
+restore_phpstan_cache
 
 # ---------- 3. verifier-sandbox.sh ----------
 echo "[3/12] verifier-sandbox.sh"
@@ -134,6 +162,15 @@ echo "[6/12] block-project-init.sh"
 run_test "block-project-init comando inocente permite" 0 \
   env CLAUDE_TOOL_ARG_COMMAND="ls -la" bash scripts/hooks/block-project-init.sh
 
+# Para testar bloqueio sem ADR, esconde temporariamente o ADR real se existir
+ADR_REAL="docs/adr/0001-stack-choice.md"
+ADR_BAK="docs/adr/.0001-stack-choice.md.smoke-bak"
+ADR_EXISTED=false
+if [ -f "$ADR_REAL" ]; then
+  ADR_EXISTED=true
+  mv "$ADR_REAL" "$ADR_BAK"
+fi
+
 run_test "block-project-init bloqueia npm init" 1 \
   env CLAUDE_TOOL_ARG_COMMAND="npm init -y" bash scripts/hooks/block-project-init.sh
 
@@ -141,16 +178,24 @@ run_test "block-project-init bloqueia --no-verify" 1 \
   env CLAUDE_TOOL_ARG_COMMAND="git commit --no-verify -m test" bash scripts/hooks/block-project-init.sh
 
 # Com ADR-0001 presente, init passa
-mkdir -p docs/adr
-touch docs/adr/0001-stack-choice.md
+# Restaura ou cria ADR para este teste (F3 master-audit 2026-04-12: nunca rm -f ADR real)
+if [ "$ADR_EXISTED" = true ]; then
+  mv "$ADR_BAK" "$ADR_REAL"
+else
+  mkdir -p docs/adr
+  touch "$ADR_REAL"
+fi
+
 run_test "block-project-init permite npm init com ADR-0001" 0 \
   env CLAUDE_TOOL_ARG_COMMAND="npm init -y" bash scripts/hooks/block-project-init.sh
-rm -f docs/adr/0001-stack-choice.md
+
+# Limpa apenas se o teste criou o arquivo (não existia antes)
+[ "$ADR_EXISTED" = false ] && rm -f "$ADR_REAL"
 
 # ---------- 7. post-edit-gate.sh ----------
 echo "[7/12] post-edit-gate.sh"
 run_test "post-edit-gate arquivo markdown permite" 0 \
-  env CLAUDE_TOOL_ARG_FILE="docs/guide-backlog.md" bash scripts/hooks/post-edit-gate.sh
+  env CLAUDE_TOOL_ARG_FILE="$TMPDIR/dummy.md" bash scripts/hooks/post-edit-gate.sh
 
 run_test "post-edit-gate arquivo inexistente permite" 0 \
   env CLAUDE_TOOL_ARG_FILE="$TMPDIR/nao-existe.md" bash scripts/hooks/post-edit-gate.sh
@@ -324,6 +369,14 @@ run_test "record-telemetry append segunda linha (cadeia real)" 0 \
 mv .claude/telemetry/slice-999.jsonl "$SMOKE_TELEM" 2>/dev/null || true
 
 run_test "record-telemetry --verify-chain após segundo append" 0 \
+  bash scripts/record-telemetry.sh --verify-chain "$SMOKE_TELEM"
+
+mv "$SMOKE_TELEM" .claude/telemetry/slice-999.jsonl 2>/dev/null || true
+run_test "record-telemetry aceita evento merge" 0 \
+  bash scripts/record-telemetry.sh --event=merge --slice=slice-999 --verdict=approved --next-action=human_merge --reject-count=0
+mv .claude/telemetry/slice-999.jsonl "$SMOKE_TELEM" 2>/dev/null || true
+
+run_test "record-telemetry --verify-chain após merge" 0 \
   bash scripts/record-telemetry.sh --verify-chain "$SMOKE_TELEM"
 
 # Tampering: zera o arquivo → cadeia quebra

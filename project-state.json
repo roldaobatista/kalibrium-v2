@@ -1,0 +1,103 @@
+{
+  "version": "1.0.0",
+  "project": "kalibrium-v2",
+  "phase": "maintenance",
+  "updated_at": "2026-04-13T00:55:00-04:00",
+  "discovery": {
+    "intake_complete": true,
+    "prd_status": "frozen",
+    "nfr_status": "frozen",
+    "domain_model_exists": true,
+    "glossary_exists": true,
+    "risks_documented": true,
+    "assumptions_reviewed": true
+  },
+  "strategy": {
+    "architecture_status": "frozen",
+    "adrs_count": 4,
+    "threat_model_exists": true,
+    "deploy_profile_exists": false
+  },
+  "planning": {
+    "epics_total": 14,
+    "epics_decomposed": 1,
+    "epics_mvp": 12,
+    "epics_post_mvp": 2,
+    "stories_total": 6,
+    "stories_with_contract": 6,
+    "stories_audited": 6,
+    "prd_gaps_resolved": true,
+    "new_frs_added": 48,
+    "total_frs": 200,
+    "total_modules": 45,
+    "planning_audit_roadmap": "approved",
+    "planning_audit_E01": "approved",
+    "story_audit_E01": "approved",
+    "documentation_gate": "created-global-docs-require-per-epic-docs-before-ui-story"
+  },
+  "execution": {
+    "current_epic": "E01",
+    "current_story": "E01-S06",
+    "current_slice": "006",
+    "slice_status": "merged",
+    "last_green_commit": "52b4c3e",
+    "consecutive_rejections": 0,
+    "blocked": false,
+    "blocked_reason": null
+  },
+  "gates_status": {
+    "verifier": "approved",
+    "reviewer": "approved",
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved"
+  },
+  "pending_decisions": [
+    {
+      "id": "PD-002",
+      "question": "ADRs 0003-0007 pendentes devem ser criadas sob demanda conforme o epico exigir?",
+      "options": ["Criar sob demanda por epico", "Criar todas antes de retomar produto"],
+      "created_at": "2026-04-12T23:00:00Z",
+      "resolved_at": null,
+      "decision": null
+    },
+    {
+      "id": "PD-003",
+      "question": "3 suposicoes pendentes de consultor de metrologia (ASS-002, ASS-012, ASS-018)",
+      "options": ["Bloquear stories dependentes", "Prosseguir e validar depois"],
+      "created_at": "2026-04-13T01:00:00Z",
+      "resolved_at": null,
+      "decision": null
+    },
+    {
+      "id": "PD-004",
+      "question": "R6 do slice 006: reviewer reprovou duas vezes por teste AC-010 tautologico",
+      "options": ["Pedir nova tentativa focada no AC-010", "Reescopar o slice 006", "Pausar para discussao"],
+      "created_at": "2026-04-13T03:36:15Z",
+      "resolved_at": "2026-04-13T00:00:33-04:00",
+      "decision": "Pedir nova tentativa focada no AC-010"
+    }
+  ],
+  "harness": {
+    "agents": 21,
+    "skills": 36,
+    "hooks": 17,
+    "schemas": 9,
+    "last_relock_commit": "a84371f",
+    "codex_orchestrator_commit": "6f7d629",
+    "codex_bootstrap_commit": "1527c69"
+  },
+  "handoff": {
+    "last_session_summary": "A sessao Codex fechou o slice 006 por excecao operacional auditavel: a branch atual era main, o merge formal do harness exige feature branch, e todos os 5 gates ja estavam approved com findings vazios. Foram gerados slice-report e retrospectiva do slice 006.",
+    "next_action": "Escolher o proximo slice/story e iniciar o trabalho em feature branch ou git worktree antes de editar codigo.",
+    "context_files_to_load": [
+      "CLAUDE.md",
+      "docs/constitution.md",
+      "docs/TECHNICAL-DECISIONS.md",
+      "docs/documentation-requirements.md",
+      "docs/handoffs/latest.md",
+      "project-state.json",
+      ".claude/agents/orchestrator.md"
+    ]
+  }
+}

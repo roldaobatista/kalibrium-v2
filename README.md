@@ -1,3 +1,5 @@
+[![CI](https://github.com/roldaobatista/kalibrium-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/roldaobatista/kalibrium-v2/actions/workflows/ci.yml)
+
 # Kalibrium
 
 SaaS B2B multi-tenant para laboratórios brasileiros de calibração e metrologia. Atende o fluxo completo do laboratório — do pedido do cliente até a emissão do certificado e a cobrança — com rastreabilidade suficiente para auditoria da Rede Brasileira de Calibração (RBC) e conformidade fiscal multi-municipal.

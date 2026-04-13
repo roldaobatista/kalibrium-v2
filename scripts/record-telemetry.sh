@@ -54,6 +54,7 @@ if [ "${1:-}" = "--verify-chain" ]; then
 
   EXPECTED_PREV="GENESIS"
   LINE_NUM=0
+  PRE_SCHEMA_LINES=0
   while IFS= read -r line; do
     LINE_NUM=$((LINE_NUM + 1))
     [ -z "$line" ] && continue
@@ -61,8 +62,19 @@ if [ "${1:-}" = "--verify-chain" ]; then
     # Extrai prev_hash declarado na linha
     DECLARED_PREV="$(echo "$line" | grep -o '"prev_hash"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*"([^"]*)"$/\1/')"
 
+    # Tolera linhas pré-schema (antes de schema_version 1.0.0).
+    # Essas linhas foram escritas antes do meta-audit 2026-04-10 e não têm
+    # prev_hash nem schema_version. Não quebram a cadeia — são ignoradas
+    # e a cadeia começa na primeira linha com prev_hash.
+    # Ref: F6 master-independent-audit-2026-04-12.
     if [ -z "$DECLARED_PREV" ]; then
-      echo "[record-telemetry CHAIN BROKEN] linha $LINE_NUM sem prev_hash: $TELEM_FILE" >&2
+      HAS_SCHEMA="$(echo "$line" | grep -o '"schema_version"' || true)"
+      if [ -z "$HAS_SCHEMA" ]; then
+        PRE_SCHEMA_LINES=$((PRE_SCHEMA_LINES + 1))
+        EXPECTED_PREV="$(printf '%s\n' "$line" | sha256sum | awk '{print $1}')"
+        continue
+      fi
+      echo "[record-telemetry CHAIN BROKEN] linha $LINE_NUM sem prev_hash (pos-schema): $TELEM_FILE" >&2
       exit 1
     fi
 
@@ -110,8 +122,8 @@ done
 
 # Valida event enum
 case "$EVENT" in
-  verify|review|commit|session_start|session_stop|relock) ;;
-  *) die "event inválido: '$EVENT' (válidos: verify|review|commit|session_start|session_stop|relock)" ;;
+  verify|review|commit|merge|session_start|session_stop|relock) ;;
+  *) die "event inválido: '$EVENT' (válidos: verify|review|commit|merge|session_start|session_stop|relock)" ;;
 esac
 
 # Valida verdict enum
@@ -122,7 +134,7 @@ esac
 
 # Valida next_action enum
 case "$NEXT_ACTION" in
-  open_pr|return_to_implementer|escalate_human|n/a) ;;
+  open_pr|approve_pr|human_merge|return_to_implementer|escalate_human|n/a) ;;
   *) die "next_action inválido: '$NEXT_ACTION'" ;;
 esac
 

@@ -1,0 +1,41 @@
+{
+  "slice_id": "slice-004",
+  "verdict": "approved",
+  "timestamp": "2026-04-13T01:09:03Z",
+  "ac_assessment": [
+    {
+      "ac": "AC-001",
+      "met": true,
+      "confidence": "medium",
+      "notes": "Artefato local (.github/workflows/deploy-staging.yml) contém trigger workflow_run referenciando ['CI'], types: [completed], branches: [main], e condicional if: github.event.workflow_run.conclusion == 'success'. Testes locais passam nos sub-critérios e validam fingerprint SSH antes do deploy. Verificação do job 'deploy' em status 'success' na aba Actions depende de VPS externo e execução real no GitHub — fora do escopo dos testes locais conforme declarado no contexto do slice."
+    },
+    {
+      "ac": "AC-002",
+      "met": true,
+      "confidence": "low",
+      "notes": "O AC descreve curl https://staging.kalibrium.com.br/ respondendo HTTP 200. Os testes verificam apenas o artefato infra/nginx/kalibrium-staging.conf (server_name staging.kalibrium.com.br, root apontando para /public). Nenhuma evidência de que o endpoint real responde HTTP 200 — requer VPS provisionado, DNS configurado e deploy executado. Confidence low por ausência de evidência de runtime. Artefato local está correto e suficiente para o escopo declarado."
+    },
+    {
+      "ac": "AC-003",
+      "met": true,
+      "confidence": "medium",
+      "notes": "laravel/horizon presente em require (não require-dev) no composer.json. infra/supervisor/horizon-staging.conf existe com autostart=true e autorestart=true. deploy.sh executa horizon:terminate (reinício gracioso via Supervisor). Testes locais cobrem todos os artefatos verificáveis. O resultado 'running' de php artisan horizon:status no VPS depende de execução real — fora do escopo local conforme declarado."
+    },
+    {
+      "ac": "AC-004",
+      "met": true,
+      "confidence": "medium",
+      "notes": "config/logging.php define canal daily_json com driver daily e Monolog\\Formatter\\JsonFormatter. Testes locais carregam o array de config e verificam estrutura real. O AC descreve tail -1 storage/logs/laravel.json no VPS mostrando JSON válido — requer aplicação em execução no VPS. Artefato local está correto e suficiente para o escopo declarado."
+    },
+    {
+      "ac": "AC-005",
+      "met": true,
+      "confidence": "medium",
+      "notes": "routes/console.php registra Schedule::call com name('scheduler:heartbeat'), everyMinute() e withoutOverlapping(). Testes locais verificam presença dos três elementos. O AC descreve php artisan schedule:list e schedule:run no VPS — requer ambiente real. Artefato local está correto. infra/crontab/staging.txt presente conforme files-changed.txt."
+    }
+  ],
+  "ux_findings": [],
+  "consistency_findings": [],
+  "business_rule_findings": [],
+  "next_action": "approved"
+}

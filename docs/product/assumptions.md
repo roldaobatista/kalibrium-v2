@@ -1,0 +1,44 @@
+# Suposições e Dúvidas Abertas — Kalibrium
+
+> **Status:** ativo. Produzido pelo sub-agent `domain-analyst` em 2026-04-12, a partir do PRD, mvp-scope.md, personas.md e compliance/*.md.
+> Suposições marcadas como "pendente" precisam ser validadas antes de virar requisito ou decisão de design.
+
+---
+
+## Tabela de suposições
+
+| ID | Suposição | Origem (evidência) | Status | Validação necessária |
+|---|---|---|---|---|
+| ASS-001 | O laboratório-modelo do MVP tem até 2.000 calibrações/mês e 5–15 colaboradores | mvp-scope.md §2 | validado | Documento canônico; confirmar com `laboratorio-tipo.md` |
+| ASS-002 | "Instrumento" refere-se a unidade de medição (contexto de calibração); "equipamento" a ativos de campo mais genéricos (reparo/manutenção). O PRD usa os dois de forma intercambiável em alguns pontos. | PRD (uso inconsistente); glossary-domain.md observação | pendente — consultor metrologia | PM orientou verificar ISO 17025 e Portaria INMETRO 157/2022 para terminologia oficial. Consultor de metrologia deve definir antes de padronizar no PRD |
+| ASS-003 | O MVP cobre apenas NFS-e (serviço). NF-e de produto (materiais, peças) pode aparecer em assistências técnicas e está fora do escopo inicial | mvp-scope.md; fiscal-policy.md §2 | validado | Documentado como fora do MVP; gatilho de reentrada quando assistência técnica se tornar ICP prioritário |
+| ASS-004 | O certificado de calibração no MVP não terá assinatura digital ICP-Brasil. Assinatura manual digitalizada ou QR code de autenticidade são o padrão inicial | mvp-scope.md §4; out-of-scope.md; icp-brasil-policy.md | validado | Comunicar claramente aos clientes-âncora acreditados que ICP-Brasil entra por gatilho |
+| ASS-005 | O cálculo de incerteza no MVP é o GUM básico (incerteza expandida U = k · uc). Orçamento de incerteza avançado (Monte Carlo, correlações complexas) fica fora | metrology-policy.md §2; mvp-scope.md | validado | Consultor de metrologia deve confirmar que GUM básico cobre 100% dos 4 domínios do MVP |
+| ASS-006 | O usuário de bancada acessa via **desktop E tablet/PWA** — ambos precisam funcionar bem. Técnico de campo acessa via tablet ou smartphone. Não há app nativo no MVP. | personas.md Persona 2 (Juliana — bancada); mvp-scope.md §4; **PM confirmou 2026-04-12** | validado | Interface responsiva obrigatória para bancada (desktop + tablet). Testar com técnico real no primeiro tenant |
+| ASS-007 | O primeiro cliente-âncora é um **laboratório não-acreditado** que possui **padrões calibrados RBC** e emite **certificados rastreáveis RBC**. Não é acreditado Cgcre, mas opera com rastreabilidade metrológica. | mvp-scope.md §2; PRD §ICP; **PM confirmou 2026-04-12** | validado | Trilha de conformidade: sem exigências Cgcre/ILAC-MRA, mas com rastreabilidade RBC nos padrões. Dual sign-off opcional (ASS-013). |
+| ASS-008 | A conciliação bancária no MVP é **manual** — o sistema não integra com banco no MVP. O contador do laboratório usa a exportação CSV. | mvp-scope.md REQ-FIS-005; personas.md "Contador do laboratório" | validado | Documentado; gatilho de reentrada quando >50% dos clientes pedirem |
+| ASS-009 | O primeiro cliente-âncora está em **Rondonópolis, MT** — cidade **fora** da lista original de 5 municípios (SP, Campinas, BH, Curitiba, POA). Lista de NFS-e deve ser ampliada para incluir Rondonópolis. | fiscal-policy.md §2 e §4; **PM confirmou 2026-04-12** | validado — ação necessária | Atualizar fiscal-policy.md para incluir Rondonópolis/MT. Consultor fiscal deve validar layout NFS-e do município antes do go-live. |
+| ASS-010 | O regime tributário do primeiro cliente-âncora é **Simples Nacional ou Lucro Presumido**. Lucro Real está fora do MVP. | mvp-scope.md §2; fiscal-policy.md §2 | validado | Documentado; validar no onboarding do primeiro cliente |
+| ASS-011 | O eSocial e o módulo de RH completo (ponto, folha, férias) são módulos do **produto completo**, não do MVP. O MVP cobre apenas os 29 requisitos dos módulos TEN, MET, FLX, FIS e OPL. | mvp-scope.md §3 | validado | Confirmar com PM se algum cliente-âncora tem necessidade de RH no MVP |
+| ASS-012 | Certificados de calibração são **imutáveis após emissão** (append-only). Se houver erro, emite-se um certificado substituto com referência ao original cancelado. Modelo alinhado com ISO 17025 §7.8.8 (emendas a relatórios devem ser rastreáveis). | mvp-scope.md REQ-CMP-001; PRD §Compliance; ISO 17025 §7.8.8 | pendente — consultor metrologia | PM orientou verificar ISO 17025. §7.8.8 suporta o modelo append-only. Consultor deve confirmar formato exato de cancelamento/substituição aceito pela Cgcre. |
+| ASS-013 | O **dual sign-off** (aprovação em dois estágios: técnico + responsável técnico) é obrigatório para laboratórios acreditados e opcional para não-acreditados. **PM confirmou: sempre dois estágios.** | PRD §Lab; personas.md Persona 1 (Marcelo); **PM confirmou 2026-04-12** | validado | Dois estágios confirmado como padrão. Para o primeiro cliente (não-acreditado, ASS-007), dual sign-off será opcional mas disponível. |
+| ASS-014 | O **portal do cliente** no MVP é acessado via **e-mail + senha**. OAuth (Google/Microsoft) é previsto no produto completo mas fica fora do MVP. | personas.md Persona 3 (Rafael); mvp-scope.md REQ-FLX-005; **PM confirmou 2026-04-12** | validado | E-mail + senha suficiente para MVP. OAuth entra como melhoria futura. |
+| ASS-015 | A **notificação por WhatsApp** ao cliente final é opcional e condicionada ao consentimento explícito do cliente no cadastro (LGPD). | mvp-scope.md REQ-FLX-004; lgpd-policy.md §2 | validado | Gate LGPD: consentimento deve ser registrado por canal, conforme ROT |
+| ASS-016 | A **retenção de dados de calibração** no sistema é de **10 anos**, conforme o prazo RBC/Cgcre. Isso é requisito regulatório, não escolha de produto. | mvp-scope.md REQ-CMP-003; metrology-policy.md | validado | Confirmar com consultor de metrologia se 10 anos é o prazo mínimo ou o prazo recomendado |
+| ASS-017 | O MVP atende laboratórios de **calibração** (instrumentos do cliente). Inspeção, ensaio e metrologia industrial interna são contextos do produto completo, não do MVP. | mvp-scope.md §1; PRD §ICP | validado | Documentado; inspeção e ensaio têm regras diferentes (ISO 17020 vs ISO 17025) |
+| ASS-018 | O **cálculo de incerteza** no MVP usa uma **planilha de procedimento** carregada no sistema. A planilha pode ser a mesma que o técnico usa hoje (consumida literalmente) até que ele migre para o cálculo nativo. ISO 17025 §7.6 exige avaliação de incerteza mas não prescreve o método computacional. | personas.md Persona 2 (Juliana); mvp-scope.md; ISO 17025 §7.6 | pendente — consultor metrologia | PM orientou verificar ISO 17025. §7.6 não proíbe planilha, mas exige rastreabilidade do resultado. Consultor deve validar se planilha carregada atende aos requisitos de registro e rastreabilidade. |
+| ASS-019 | Multi-tenancy decidida: **banco único compartilhado** com `tenant_id` + **Row-Level Security** do PostgreSQL + global scope Eloquent. Pacote: `stancl/tenancy` modo single-database. | ADR-0001 §Decisão; mvp-scope.md §6 | resolvido — ADR-0001 | Decidido em ADR-0001. Defesa em profundidade: RLS garante que bug de código não vaze dados entre clientes. |
+| ASS-020 | **Resolvido:** 48 novos FRs criados para 8 módulos sem requisitos. GED e LMS adicionados ao inventário. 8 FRs órfãos atribuídos. Inventário final: 45 módulos, 200 FRs, 0 gaps. | PRD §FRs; PRD §Módulos; `prd-gaps-resolution.md` | **resolvido — PM aprovou 2026-04-12** | Documento suplementar `docs/product/prd-gaps-resolution.md` aprovado. Epic-decomposer deve usá-lo como input complementar ao PRD. |
+| ASS-021 | O **PSEI** controla **selos de verificação** por número de série. Além disso, **lacres** também devem ter controle (rastreamento por número de série) para interesse operacional da empresa, mesmo quando não exigido pelo PSEI. Ambos entram no escopo do produto. | mvp-scope.md; metrology-policy.md; **PM confirmou 2026-04-12** | validado | PSEI = selos de verificação (regulatório). Lacres = controle operacional (interesse da empresa). Ambos com rastreamento por número de série. Definir em qual épico entra (metrologia ou compliance). |
+| ASS-022 | O **primeiro tenant real** não ocorrerá antes de: (a) DPO aprovar DPIA, (b) consultor fiscal validar NFS-e do município, (c) consultor de metrologia validar formato do certificado RBC | lgpd-policy.md §2; fiscal-policy.md §3; metrology-policy.md §3 | validado | Os três pré-requisitos estão documentados; PM deve monitorar o procurement-tracker.md |
+
+---
+
+## Critério de resolução
+
+Suposições "pendente" devem ser resolvidas (status "validado" ou "refutado + ação") antes de:
+- Início de especificação técnica do módulo relacionado
+- Início de execução de slice que dependa da suposição
+- Go-live com o primeiro tenant real
+
+Suposições sobre decisões técnicas (ex: ASS-019) não bloqueiam artefatos de domínio mas bloqueiam início da Fase B (ADRs).

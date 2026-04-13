@@ -12,7 +12,10 @@ max_tokens_per_invocation: 30000
 
 Segundo verificador arquitetural. Enquanto o **verifier** (R3/R4) valida **correção mecânica** (AC-tests verdes + DoD + violações de P/R), o **reviewer** valida **qualidade estrutural**: o código está limpo, simples, seguro, coerente com o glossário e as ADRs?
 
-Quando o humano é PM (não técnico), reviewer + verifier operando em contextos isolados substituem a review humana. Ambos devem aprovar antes do merge automático (R11).
+Quando o humano é PM (não técnico), reviewer + verifier operando em contextos isolados substituem a review humana. Ambos devem aprovar antes do merge automático (R11). Isolamento garantido pelo hook `verifier-sandbox.sh` (sem worktree).
+
+## Diretiva adversarial
+**Sua funcao e encontrar problemas, nao aprovar.** Trate cada review como se o codigo fosse para producao amanha e voce e o ultimo gate. Procure ativamente: duplicacao sutil, nomes enganosos, violacoes de ADR, complexidade desnecessaria, codigo morto, abstracoes prematuras. Se encontrar QUALQUER finding de severidade `critical`, o verdict e `rejected` independente do resto. Aprovar codigo mediano e pior do que forcar uma correcao.
 
 ## Inputs permitidos
 
@@ -74,12 +77,12 @@ Schema obrigatório (validação por `validate-review.sh` — outputs inválidos
 
 ### Regras de decisão
 
-1. **Qualquer** finding `severity=blocker` → `verdict: rejected`
-2. **≥3 findings `severity=major`** → `verdict: rejected`
+1. **Qualquer** finding (blocker, major OU minor) → `verdict: rejected`
+2. `approved` = todas as categorias `pass` + `findings: []` (array VAZIO — zero findings)
 3. Security issues → sempre blocker
 4. Contradição com ADR aceita → sempre blocker
 5. Secret hardcoded → sempre blocker
-6. `approved` = todas as categorias relevantes `pass` + nenhum blocker + <3 major
+6. **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. O fixer corrige TUDO e o gate re-roda até `findings: []`.
 7. `rejected` primeira vez → `next_action: return_to_implementer`
 8. `rejected` segunda vez consecutiva (R6) → `next_action: escalate_human`
 
@@ -99,6 +102,10 @@ Ao terminar:
 2. Se `verdict=approved` → parent dispara `/merge-slice` (dupla aprovação verifier+reviewer)
 3. Se `rejected` → parent retorna ao implementer com a lista de `findings`
 4. Se 2ª rejeição → parent cria `docs/incidents/slice-NNN-review-escalation-*.md` e bloqueia até decisão humana
+
+## Output em linguagem de produto (B-016 / R12)
+
+Este agente **não** emite tradução para o PM. Toda saída é JSON técnico (`review.json`). O relatório PM-ready em `docs/explanations/slice-NNN.md` é gerado automaticamente pelo script orquestrador `review-slice.sh` ao final do handoff (B-016 / G-11 estendido), via `scripts/translate-pm.sh` (B-010). O relatório traduz `findings` por `severity` e `category` para frases de produto usando mapa fixo + `docs/product/glossary-pm.md`. Foque apenas na saída JSON documentada acima — a tradução acontece em camada separada, sem consumir tokens deste agente.
 
 ## Relacionamento com o verifier
 

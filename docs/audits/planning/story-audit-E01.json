@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "audit_date": "2026-04-12",
+  "epic_audited": "E01",
+  "stories_audited": ["E01-S01", "E01-S02", "E01-S03", "E01-S04", "E01-S05", "E01-S06"],
+  "total_stories": 6,
+  "total_acs": 30,
+  "verdict": "approved",
+  "summary": "Todas as 6 stories do E01 possuem Story Contracts completos com todas as 11 secoes obrigatorias preenchidas. Os 30 ACs (5 por story) sao testáveis automaticamente via comando + resultado esperado, sem subjetividade. O escopo do epico esta 100% coberto sem vazamentos. Dependencias sao validas e sem ciclos. Stack consistente com ADR-0001. Granularidade adequada (1-2 slices por story). Encontrados 3 findings menores (cross-reference e observacoes de testabilidade CI), nenhum critico ou major.",
+  "checks": {
+    "contract_completeness": {
+      "status": "pass",
+      "details": "Todas as 6 stories possuem as 11 secoes obrigatorias: Objetivo, Escopo, Fora de escopo, Criterios de aceite, Arquivos/modulos impactados, Testes obrigatorios, Riscos, Dependencias, Rollback esperado, Evidencia necessaria para aprovacao, Mapeamento para slice.",
+      "incomplete_stories": []
+    },
+    "epic_coverage": {
+      "status": "pass",
+      "details": "Todos os itens do escopo do epic.md estao cobertos: scaffold Laravel 11 (S01), PostgreSQL 16 + Redis 7 + RLS (S02), CI pipeline PHPStan+Pest+Pint+Rector+SBOM (S03), deploy staging automatizado (S04), healthcheck /health (S05), Vite+Tailwind+Alpine+Livewire (S06), Horizon+Scheduler+Monolog-JSON (S04), variaveis de ambiente (S01+S02). Nenhuma story extrapola o escopo do epico.",
+      "uncovered_scope_items": [],
+      "scope_leaks": []
+    },
+    "ac_quality": {
+      "status": "pass",
+      "details": "Todos os 30 ACs sao testáveis automaticamente com comando explicito e resultado esperado verificavel. Nenhum AC subjetivo ou vago. Cada story tem exatamente 5 ACs (dentro do range 2-5).",
+      "findings": []
+    },
+    "dependencies": {
+      "status": "pass",
+      "details": "Grafo de dependencias: S01 (raiz, sem deps) -> S02 (dep: S01) -> S05 (dep: S02); S01 -> S03 (dep: S01); S02+S03 -> S04 (deps: S02, S03); S01 -> S06 (dep: S01). Sem ciclos. Maximo de 2 dependencias por story (S04).",
+      "cycles": [],
+      "findings": []
+    },
+    "consistency": {
+      "status": "pass",
+      "details": "Todas as stories referenciam corretamente a stack do ADR-0001: Laravel 11, PHP 8.3, PostgreSQL 16, Redis 7, Livewire 3, Tailwind CSS 3, Alpine.js, Vite, Pest, PHPStan nivel 8, Pint PSR-12, Rector, CycloneDX, Horizon, Monolog-JSON. Nenhuma tecnologia fora do ADR.",
+      "findings": []
+    },
+    "granularity": {
+      "status": "pass",
+      "details": "Todas as stories sao implementaveis em 1-2 slices. S01 (scaffold): 1 slice. S02 (db+redis): 1 slice. S03 (CI): 1 slice. S04 (deploy): 1-2 slices (deploy + infra configs). S05 (healthcheck): 1 slice. S06 (frontend): 1 slice. Nenhuma grande demais ou trivial demais.",
+      "too_large": [],
+      "too_small": []
+    },
+    "cross_references": {
+      "status": "pass",
+      "details": "INDEX.md lista corretamente todas as 6 stories com IDs, titulos, prioridades, dependencias e status. Dependencias entre stories sao validas. Um finding menor: E01-S02 referencia Horizon em E01-S06 mas Horizon esta em E01-S04.",
+      "findings": ["SA-001: E01-S02 fora de escopo referencia Horizon como E01-S06, mas Horizon esta configurado em E01-S04"]
+    }
+  },
+  "per_story": {
+    "E01-S01": {
+      "contract_complete": true,
+      "acs_count": 5,
+      "acs_testable": 5,
+      "scope_covered": true,
+      "findings": []
+    },
+    "E01-S02": {
+      "contract_complete": true,
+      "acs_count": 5,
+      "acs_testable": 5,
+      "scope_covered": true,
+      "findings": ["SA-001"]
+    },
+    "E01-S03": {
+      "contract_complete": true,
+      "acs_count": 5,
+      "acs_testable": 5,
+      "scope_covered": true,
+      "findings": ["SA-002"]
+    },
+    "E01-S04": {
+      "contract_complete": true,
+      "acs_count": 5,
+      "acs_testable": 5,
+      "scope_covered": true,
+      "findings": ["SA-003"]
+    },
+    "E01-S05": {
+      "contract_complete": true,
+      "acs_count": 5,
+      "acs_testable": 5,
+      "scope_covered": true,
+      "findings": []
+    },
+    "E01-S06": {
+      "contract_complete": true,
+      "acs_count": 5,
+      "acs_testable": 5,
+      "scope_covered": true,
+      "findings": []
+    }
+  },
+  "findings": [
+    {
+      "id": "SA-001",
+      "severity": "minor",
+      "category": "cross_references",
+      "story": "E01-S02",
+      "location": "E01-S02.md:Fora de escopo, linha 19",
+      "description": "Fora de escopo diz 'Configuracao de Laravel Horizon (E01-S06 — Horizon esta no escopo do epico, revisado para E01-S06)' mas Horizon e instalado e configurado em E01-S04 (deploy staging), nao E01-S06 (frontend base). Referencia cruzada incorreta.",
+      "recommendation": "Corrigir referencia de E01-S06 para E01-S04 na secao Fora de escopo do E01-S02."
+    },
+    {
+      "id": "SA-002",
+      "severity": "minor",
+      "category": "ac_quality",
+      "story": "E01-S03",
+      "location": "E01-S03.md:Criterios de aceite, AC-001 e AC-002",
+      "description": "AC-001 e AC-002 descrevem cenarios de push para branch no GitHub Actions. Sao testes de integracao CI que dependem de infraestrutura GitHub disponivel — nao sao executaveis localmente pelo agente de forma isolada. Aceito para stories de CI, mas o agente precisara de acesso ao GitHub Actions para validar.",
+      "recommendation": "Considerar adicionar evidencia alternativa local (ex: act para rodar workflows localmente) ou manter como esta com nota de que validacao requer push real."
+    },
+    {
+      "id": "SA-003",
+      "severity": "minor",
+      "category": "ac_quality",
+      "story": "E01-S04",
+      "location": "E01-S04.md:Criterios de aceite, AC-002",
+      "description": "AC-002 usa URL staging.kalibrium.com.br que depende de DNS configurado externamente pelo PM. Dependencia externa explicita nas Dependencias da story, mas o AC nao pode ser validado pelo agente sem essa configuracao previa.",
+      "recommendation": "Manter como esta — a dependencia ja esta documentada na secao Dependencias. Apenas garantir que DNS esteja configurado antes de iniciar o slice."
+    }
+  ],
+  "stats": {
+    "total_checks": 7,
+    "passed": 7,
+    "failed": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 3
+  }
+}

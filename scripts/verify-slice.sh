@@ -109,12 +109,22 @@ R6 da constitution: 2 reprovações consecutivas do verifier forçam escalação
 ## Decisão
 _(preencher)_
 EOF
+
+    # Copia verification.json para specs/NNN/ antes de traduzir (translate-pm lê de lá)
+    cp "$VJSON" "$SLICE_DIR/verification.json"
+
+    # G-11: dispara tradução PM-ready automaticamente antes de escalar
+    say "gerando relatório PM-ready (R6 escalation)..."
+    bash "$SCRIPT_DIR/explain-slice.sh" "$NNN" >/dev/null || \
+      say "aviso: translate-pm falhou — relatório não gerado, PM verá JSON cru"
+
     echo ""
     echo "================================================================"
     echo "  R6 ESCALAÇÃO HUMANA OBRIGATÓRIA — slice-${NNN}"
     echo "================================================================"
     echo "  Rejeições consecutivas: $CURRENT_REJECTS"
     echo "  Incidente criado: $INCIDENT"
+    echo "  Relatório PM (em PT-BR): docs/explanations/slice-${NNN}.md"
     echo "  Implementer BLOQUEADO até decisão humana."
     echo "================================================================"
     exit 2
@@ -123,13 +133,22 @@ EOF
   # Copia verification.json para specs/NNN/ (persistência)
   cp "$VJSON" "$SLICE_DIR/verification.json"
 
+  # G-11: em qualquer verdict, dispara explain-slice automaticamente.
+  # PM nunca mais precisa lembrar de invocar /explain-slice manualmente.
+  say "gerando relatório PM-ready..."
+  bash "$SCRIPT_DIR/explain-slice.sh" "$NNN" >/dev/null || \
+    say "aviso: translate-pm falhou — relatório não gerado, PM verá JSON cru"
+  PM_REPORT="docs/explanations/slice-${NNN}.md"
+
   case "$VERDICT" in
     approved)
       say "✓ approved — abrir PR (next_action=$NEXT)"
+      say "  relatório PM: $PM_REPORT"
       exit 0
       ;;
     rejected)
       say "✗ rejected ($CURRENT_REJECTS/2) — implementer deve corrigir violations e re-verificar"
+      say "  relatório PM (leia este, não o JSON): $PM_REPORT"
       exit 1
       ;;
     *)
@@ -166,6 +185,14 @@ if ! bash "$SCRIPT_DIR/sanitize-input.sh" --check "$SLICE_DIR/spec.md"; then
   fail "spec.md contém padrões de prompt injection — corrija antes de re-rodar"
 fi
 say "spec.md limpo"
+
+# Gates mecanicos ANTES de qualquer agente LLM.
+# Se falhar, o verifier nem e spawnado. Gate binario, nao opiniao.
+say "rodando gates mecanicos (testes, PHPStan, Pint, composer audit)..."
+if ! bash "$SCRIPT_DIR/mechanical-gates.sh" "$NNN"; then
+  fail "gates mecanicos falharam — corrija antes de spawnar o verifier"
+fi
+say "gates mecanicos OK"
 
 # Limpa e recria verification-input
 rm -rf "$INPUT_DIR"
@@ -218,32 +245,41 @@ else
   echo "(sem git log ainda)" > "$INPUT_DIR/files-changed.txt"
 fi
 
-# 4. test-results.txt (placeholder — implementer preenche rodando AC-tests)
-cat > "$INPUT_DIR/test-results.txt" <<EOF
-# test-results — preencher rodando AC-tests filtrados pelo ID
-# Exemplo:
-#   npx vitest run tests/ -t "AC-"
-#   vendor/bin/pest --filter="AC-"
-# Cole aqui o output completo (incluindo exit code).
-
-(implementer: substitua este placeholder pelo output real)
-EOF
+# 4. test-results.txt — roda testes REAIS (nao aceita placeholder)
+say "rodando testes e capturando output real..."
+if [ -f "vendor/bin/pest" ]; then
+  vendor/bin/pest tests/ 2>&1 > "$INPUT_DIR/test-results.txt"
+  TEST_EXIT=$?
+  echo "" >> "$INPUT_DIR/test-results.txt"
+  echo "# exit_code=$TEST_EXIT" >> "$INPUT_DIR/test-results.txt"
+  if [ $TEST_EXIT -ne 0 ]; then
+    fail "testes falharam (exit $TEST_EXIT) — output em $INPUT_DIR/test-results.txt"
+  fi
+  say "testes capturados (exit $TEST_EXIT)"
+else
+  fail "vendor/bin/pest nao encontrado — impossivel gerar test-results.txt real"
+fi
 
 say ""
 say "verification-input/ montado:"
 ls -la "$INPUT_DIR"
 say ""
 say "======================================================================"
-say "  PRÓXIMO PASSO — spawn do verifier em worktree isolada"
+say "  PRÓXIMO PASSO — spawn do verifier"
 say "======================================================================"
+say ""
+say "  IMPORTANTE: NÃO usar isolation: worktree."
+say "  A worktree é uma cópia limpa do git e NÃO contém verification-input/"
+say "  (que é untracked). O isolamento é garantido pelo hook"
+say "  verifier-sandbox.sh, que bloqueia reads fora de verification-input/."
+say "  Isso mantém P3 (verificação em contexto isolado) sem worktree."
 say ""
 say "  No Claude Code principal, invoque o Agent tool com:"
 say ""
 say '    subagent_type: "verifier"'
-say '    isolation:     "worktree"'
 say '    description:   "Verify slice-'"$NNN"'"'
 say '    prompt:        "Leia APENAS verification-input/. Escreva'
-say '                    verification-input/verification.json seguindo o'
+say '                    specs/'"$NNN"'/verification.json seguindo o'
 say '                    schema de R4 (docs/schemas/verification.schema.json).'
 say '                    Sem prosa, apenas o JSON."'
 say ""

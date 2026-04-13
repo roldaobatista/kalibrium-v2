@@ -4,4 +4,5 @@
 
 | NNN | Título | Status | Criado | Mergeado |
 |---|---|---|---|---|
-| _(vazio — primeiro slice vem após Dia 1)_ | | | | |
+| 900 | smoke-test: validar pipeline end-to-end | in-progress | 2026-04-12 | — |
+| 006 | Frontend base (Vite 8 + Tailwind CSS 4 + Livewire 4 + Alpine.js) | draft | 2026-04-13 | — |

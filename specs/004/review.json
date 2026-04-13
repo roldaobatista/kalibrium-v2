@@ -1,0 +1,49 @@
+{
+  "slice_id": "slice-004",
+  "verdict": "approved",
+  "timestamp": "2026-04-13T01:09:03Z",
+  "quality_checks": [
+    {
+      "category": "duplication",
+      "status": "pass",
+      "evidence": "composer install aparece no runner (deploy-staging.yml step 41) e em deploy.sh com propositos distintos: runner compila assets para rsync; VPS instala dependencias de producao. Contextos diferentes justificam a repeticao. Nenhum bloco >10 linhas duplicado entre arquivos."
+    },
+    {
+      "category": "complexity",
+      "status": "pass",
+      "evidence": "deploy.sh com sequencia linear sem branching nem nesting. provision-staging.sh estruturado em steps numerados com guards de idempotencia (command -v, [ ! -f ]). Nenhuma funcao ultrapassa 50 linhas nem 3 niveis de nesting. DeployStagingTest.php mantem cada test() independente e com responsabilidade unica."
+    },
+    {
+      "category": "naming",
+      "status": "pass",
+      "evidence": "Blocker de re-review corrigido: path storage_path('logs/laravel.json') agora tem comentario explicito '// Driver daily appends date: actual file is laravel-YYYY-MM-DD.json' na linha 106. Canal nomeado 'daily_json' e coerente com driver e formatter. Scripts nomeados com verbo+substantivo: deploy.sh, provision-staging.sh. Variavel PHP_BIN descritiva. Nenhuma abreviacao obscura."
+    },
+    {
+      "category": "security",
+      "status": "pass",
+      "evidence": "StrictHostKeyChecking=no ausente em todo o diff. Step rsync usa -e 'ssh -i ~/.ssh/staging_key' sem flags inseguros. Step SSH remoto usa 'ssh -i ~/.ssh/staging_key' sem flags inseguros. ssh-keyscan grava chave temporaria, ssh-keygen calcula fingerprint e grep -Fx compara com STAGING_SSH_FINGERPRINT antes de gravar known_hosts. STAGING_SSH_KEY referenciada via secrets do GitHub, sem hardcode. Nenhum secret literal em nenhum arquivo do diff. provision-staging.sh usa set -euo pipefail. Nginx com X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff e CSP sem unsafe-inline/unsafe-eval. fastcgi_hide_header X-Powered-By presente. O bloco que protege arquivos ocultos continua negando acesso, exceto para .well-known."
+    },
+    {
+      "category": "simplicity",
+      "status": "pass",
+      "evidence": "Sem abstracoes prematuras. workflow_run e a escolha mais simples que garante AC-001 mecanicamente. deploy.sh e sequencia imperativa sem classes ou frameworks. provision-staging.sh usa shell idiomatico. laravel/horizon adicionado em require (nao require-dev) — correto para processo de producao. Sem dependencias desnecessarias."
+    },
+    {
+      "category": "glossary",
+      "status": "pass",
+      "evidence": "Slice e exclusivamente de infraestrutura (CI/CD, VPS, deploy). Termos canonicos do glossario (OS, Certificado, Tecnico, Instrumento, Ordem de Servico) nao aparecem no diff — escopo correto para slice de infraestrutura. Nenhum alias proibido utilizado."
+    },
+    {
+      "category": "adr_compliance",
+      "status": "pass",
+      "evidence": "ADR-0001 aceito: menciona KVM 1 como ambiente de homologacao e 'Docker nao obrigatorio no dia 1'. Slice usa rsync+SSH sem Docker, alinhado. ADR-0007 ainda nao aceito — plan.md documenta isso explicitamente e recomenda criacao do ADR-0005 (CI/CD) pos-aprovacao. Sem contradicao com ADRs aceitos."
+    },
+    {
+      "category": "dead_code",
+      "status": "pass",
+      "evidence": "Todos os arquivos adicionados sao referenciados na cadeia de execucao: deploy-staging.yml invoca deploy.sh via SSH; provision-staging.sh instala nginx/php-fpm/supervisor/crontab configs; horizon-staging.conf referenciado por provision-staging.sh step 7. use Monolog\\Formatter\\JsonFormatter em config/logging.php e utilizado no canal daily_json. use Illuminate\\Support\\Facades\\Schedule em routes/console.php e utilizado na linha seguinte. Nenhum import nao-utilizado."
+    }
+  ],
+  "findings": [],
+  "next_action": "approve_pr"
+}

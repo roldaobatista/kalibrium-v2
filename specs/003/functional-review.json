@@ -1,0 +1,41 @@
+{
+  "slice_id": "slice-003",
+  "verdict": "approved",
+  "timestamp": "2026-04-13T01:09:03Z",
+  "ac_assessment": [
+    {
+      "ac": "AC-001",
+      "met": true,
+      "confidence": "high",
+      "notes": "Job php-lint executa 'vendor/bin/pint --test' (ci.yml:95). Trigger push.branches=['**'] garante execução em feature branches (CiTriggerTest.php). Teste de runtime executa Pint real contra código mal formatado e verifica exit != 0 (CiRuntimeTest.php). Comportamento corresponde exatamente ao AC."
+    },
+    {
+      "ac": "AC-002",
+      "met": true,
+      "confidence": "high",
+      "notes": "Job php-static executa 'phpstan analyse --memory-limit=2G --no-progress' (ci.yml:140). Teste de runtime injeta erro de tipo em arquivo temporário e verifica exit != 0 com phpstan --level=8 (CiRuntimeTest.php). Trigger cobre feature branches. Comportamento corresponde ao AC."
+    },
+    {
+      "ac": "AC-003",
+      "met": true,
+      "confidence": "high",
+      "notes": "Job php-test executa 'pest --ci' com serviço PostgreSQL 18 (ci.yml:229). Teste de runtime cria teste falhando em arquivo temporário e verifica exit != 0 (CiRuntimeTest.php). Trigger cobre feature branches. Comportamento corresponde ao AC."
+    },
+    {
+      "ac": "AC-004",
+      "met": true,
+      "confidence": "high",
+      "notes": "Todos os 7 jobs exigidos pelo plan estão presentes: harness, php-lint, php-static, php-test, js-lint, security, php-rector (CiJobsTest.php). Todos os jobs PHP contêm 'needs: harness' garantindo encadeamento (CiRuntimeTest.php). Rector executa com --dry-run (ci.yml:274). Pipeline completo para check verde no GitHub."
+    },
+    {
+      "ac": "AC-005",
+      "met": true,
+      "confidence": "high",
+      "notes": "SBOM é gerado como sbom-php.xml (ci.yml:372) sem || true nos steps CycloneDX. upload-artifact está configurado com name: sbom, path: sbom-php.xml e retention-days: 30 (ci.yml:374-380). specs/003/spec.md e specs/003/plan.md agora referenciam sbom-php.xml de forma consistente."
+    }
+  ],
+  "ux_findings": [],
+  "consistency_findings": [],
+  "business_rule_findings": [],
+  "next_action": "approved"
+}

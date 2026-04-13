@@ -2,6 +2,7 @@
 
 **Status:** accepted
 **Data:** 2026-04-10
+**Versão:** 2
 **Autor:** humano + Co-Authored-By Claude Opus 4.6
 
 ---
@@ -90,12 +91,15 @@ Registrada em `.claude/allowed-mcps.txt`:
 | `plugin:context-mode:context-mode` | Compressão de contexto para outputs grandes (logs, arquivos) — reduz consumo de tokens e mantém raw data fora do contexto. Alinhado com R8. |
 | `plugin:context7:context7` | Documentação oficial de libs/frameworks em tempo real — evita que o agente invente APIs. Alinhado com "explorar antes de responder" do CLAUDE.md global. |
 | `plugin:github:github` | Operações de issue/PR/review no GitHub — único canal oficial para abrir PRs do V2. |
+| `codex` | Consultoria técnica via MCP para análise de código e apoio ao orquestrador. Uso esperado via MCP: leitura, revisão e sugestões; alterações no projeto continuam passando pelo orquestrador ativo, gates e regras R2/R9. Uso do Codex CLI como orquestrador alternativo é tratado separadamente na ADR-0008. |
+
+Nota: `codex` é o nome do MCP validado pela allowlist. O identificador de plugin instalado pode aparecer como `codex@openai-codex` nas configurações da plataforma, mas isso não altera o nome operacional permitido em `.claude/allowed-mcps.txt`.
 
 Adições futuras a este ADR devem:
 1. Adicionar linha à tabela com justificativa.
 2. Atualizar `.claude/allowed-mcps.txt`.
 3. Incrementar o contador `versão` no topo deste ADR.
-4. Commit `chore(harness): adiciona MCP <nome> (ref: ADR-0002 v<N>)`.
+4. Fazer commit seguindo o padrão `chore(harness): adiciona MCP <nome-do-mcp> (ref: ADR-0002 v<versao-atualizada>)`, substituindo os campos pelo nome real e pela versão real do ADR.
 
 ---
 
@@ -103,7 +107,7 @@ Adições futuras a este ADR devem:
 
 - MCP que reportou falha grave ou injeção de instrução → remoção imediata + incidente em `docs/incidents/`.
 - MCP não-utilizado por 60 dias → candidato a remoção via retrospectiva.
-- Em todos os casos: atualizar este ADR com `superseded by` ou entrada de histórico.
+- Em todos os casos: atualizar este ADR com uma entrada de histórico concreta; se a política inteira for substituída, marcar o status como `superseded` e apontar para o ADR substituto real.
 
 ---
 

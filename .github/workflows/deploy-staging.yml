@@ -1,0 +1,74 @@
+name: Deploy Staging
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies (production)
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies and build assets
+        run: npm ci && npm run build
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/staging_key
+          chmod 600 ~/.ssh/staging_key
+          ssh-keyscan -t ed25519 "${{ secrets.STAGING_HOST }}" > ~/.ssh/staging_known_hosts
+          ssh-keygen -lf ~/.ssh/staging_known_hosts | awk '{print $2}' | grep -Fx "${{ secrets.STAGING_SSH_FINGERPRINT }}"
+          ssh-keygen -H -f ~/.ssh/staging_known_hosts
+          cat ~/.ssh/staging_known_hosts >> ~/.ssh/known_hosts
+          rm -f ~/.ssh/staging_known_hosts.old
+
+      - name: Deploy via rsync
+        run: |
+          rsync -az --delete \
+            --exclude='.git/' \
+            --exclude='node_modules/' \
+            --exclude='storage/logs/' \
+            --exclude='storage/framework/cache/' \
+            --exclude='tests/' \
+            -e "ssh -i ~/.ssh/staging_key" \
+            ./ \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:${{ secrets.STAGING_PATH }}"
+
+      - name: Run deploy script on VPS
+        run: |
+          ssh -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
+            "cd '${{ secrets.STAGING_PATH }}' && bash scripts/deploy.sh"

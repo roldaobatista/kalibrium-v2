@@ -1,0 +1,380 @@
+name: CI
+
+# Gate final da pirâmide de escalação de testes (P8).
+# Stack: ADR-0001 — Laravel 13 + Livewire 4 + PostgreSQL 18 + Pest 4.
+#
+# Design decisions:
+# - Jobs de PHP usam `if: hashFiles('composer.json') != ''` para permitir que
+#   este workflow exista antes do `composer create-project`. Enquanto Laravel
+#   não estiver inicializado, os jobs retornam "skipped" — válido, não falha.
+# - Quando `composer.json` aparecer, os jobs ligam automaticamente.
+# - Jobs de JS seguem a mesma lógica com `package.json`.
+# - Security scan (composer audit + npm audit + SBOM) roda em job próprio para
+#   isolar failure e facilitar triagem.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # =========================================================================
+  # Job 1 — Harness integrity
+  #
+  # Roda sempre, inclusive antes de Laravel existir. Garante que selos do
+  # harness não foram quebrados (hooks MANIFEST.sha256 + settings-lock).
+  # =========================================================================
+  harness:
+    name: Harness integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Smoke-test dos hooks
+        run: bash scripts/smoke-test-hooks.sh
+
+      - name: Smoke-test dos scripts
+        run: bash scripts/smoke-test-scripts.sh
+
+      - name: Arquivos proibidos (R1)
+        run: bash scripts/hooks/forbidden-files-scan.sh
+
+  # =========================================================================
+  # Job 2 — PHP lint (Pint)
+  # =========================================================================
+  php-lint:
+    name: PHP lint (Pint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: harness
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip se Laravel não inicializado
+        id: check
+        run: |
+          if [ -f composer.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::composer.json não existe — Laravel ainda não inicializado, pulando PHP lint."
+          fi
+
+      - name: Setup PHP
+        if: steps.check.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer
+        if: steps.check.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Composer install
+        if: steps.check.outputs.run == 'true'
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Pint (check only, não altera arquivos)
+        if: steps.check.outputs.run == 'true'
+        run: vendor/bin/pint --test
+
+  # =========================================================================
+  # Job 3 — Static analysis (PHPStan/Larastan nível 8)
+  # =========================================================================
+  php-static:
+    name: PHP static analysis (Larastan 8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: harness
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip se Laravel não inicializado
+        id: check
+        run: |
+          if [ -f composer.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::composer.json não existe — pulando static analysis."
+          fi
+
+      - name: Setup PHP
+        if: steps.check.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer
+        if: steps.check.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Composer install
+        if: steps.check.outputs.run == 'true'
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: PHPStan
+        if: steps.check.outputs.run == 'true'
+        run: vendor/bin/phpstan analyse --memory-limit=2G --no-progress
+
+  # =========================================================================
+  # Job 4 — PHP test suite (Pest 4 + PostgreSQL 18 service)
+  # =========================================================================
+  php-test:
+    name: PHP tests (Pest + PostgreSQL 18)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: harness
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: kalibrium
+          POSTGRES_PASSWORD: kalibrium_ci
+          POSTGRES_DB: kalibrium_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip se Laravel não inicializado
+        id: check
+        run: |
+          if [ -f composer.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::composer.json não existe — pulando test suite."
+          fi
+
+      - name: Setup PHP
+        if: steps.check.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, pgsql, mbstring, intl, bcmath
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Cache Composer
+        if: steps.check.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Composer install
+        if: steps.check.outputs.run == 'true'
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Copy .env for CI
+        if: steps.check.outputs.run == 'true'
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          fi
+
+      - name: Generate app key
+        if: steps.check.outputs.run == 'true'
+        run: php artisan key:generate --ansi || true
+
+      - name: Run migrations
+        if: steps.check.outputs.run == 'true'
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: kalibrium_test
+          DB_USERNAME: kalibrium
+          DB_PASSWORD: kalibrium_ci
+        run: php artisan migrate --force
+
+      - name: Pest (suite full — P8 gate final de CI)
+        if: steps.check.outputs.run == 'true'
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: kalibrium_test
+          DB_USERNAME: kalibrium
+          DB_PASSWORD: kalibrium_ci
+        run: vendor/bin/pest --ci
+
+  # =========================================================================
+  # Job 5 — PHP Rector (dry-run — detecta sem alterar)
+  # =========================================================================
+  php-rector:
+    name: PHP Rector (dry-run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: harness
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip se Laravel não inicializado
+        id: check
+        run: |
+          if [ -f composer.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::composer.json não existe — pulando Rector."
+          fi
+
+      - name: Setup PHP
+        if: steps.check.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer
+        if: steps.check.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Composer install
+        if: steps.check.outputs.run == 'true'
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Rector (dry-run — CI read-only)
+        if: steps.check.outputs.run == 'true'
+        run: vendor/bin/rector process --dry-run --no-progress
+
+  # =========================================================================
+  # Job 6 — JS lint (ESLint + Prettier)
+  # =========================================================================
+  js-lint:
+    name: JS lint (ESLint + Prettier)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: harness
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip se frontend não inicializado
+        id: check
+        run: |
+          if [ -f package.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::package.json não existe — pulando JS lint."
+          fi
+
+      - name: Setup Node
+        if: steps.check.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: npm ci
+        if: steps.check.outputs.run == 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: Prettier (check only)
+        if: steps.check.outputs.run == 'true'
+        run: |
+          if npm run --silent | grep -q "format:check"; then
+            npm run format:check
+          else
+            npx prettier --check "resources/**/*.{js,ts,vue,css}" 2>/dev/null || echo "::notice::prettier config não configurado ainda"
+          fi
+
+      - name: ESLint
+        if: steps.check.outputs.run == 'true'
+        run: |
+          if npm run --silent | grep -q "^  lint"; then
+            npm run lint
+          else
+            echo "::notice::lint script não configurado ainda"
+          fi
+
+  # =========================================================================
+  # Job 6 — Security scan (composer audit + npm audit + SBOM CycloneDX)
+  # =========================================================================
+  security:
+    name: Security scan (composer + npm + SBOM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: harness
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        if: hashFiles('composer.json') != ''
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - name: Composer audit
+        if: hashFiles('composer.lock') != ''
+        run: composer audit --locked
+
+      - name: Setup Node
+        if: hashFiles('package.json') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: npm audit
+        if: hashFiles('package-lock.json') != ''
+        run: npm audit --audit-level=high || echo "::warning::npm audit encontrou vulnerabilidades — revisar antes do merge"
+
+      - name: Cache Composer global
+        if: hashFiles('composer.lock') != ''
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/vendor
+          key: composer-global-cyclonedx-v5
+          restore-keys: composer-global-
+
+      - name: Install CycloneDX PHP
+        if: hashFiles('composer.lock') != ''
+        run: composer global require cyclonedx/cyclonedx-php-composer:^5 --no-interaction
+
+      - name: Generate CycloneDX SBOM (PHP)
+        if: hashFiles('composer.lock') != ''
+        run: ~/.composer/vendor/bin/cyclonedx-php-composer --output-format XML --output-file sbom-php.xml
+
+      - name: Upload SBOM artifacts
+        if: always() && hashFiles('sbom-php.xml') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom-php.xml
+          retention-days: 30

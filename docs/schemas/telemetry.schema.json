@@ -14,7 +14,7 @@
     },
     "event": {
       "type": "string",
-      "enum": ["verify", "review", "commit", "session_start", "session_stop", "relock"],
+      "enum": ["verify", "review", "commit", "merge", "session_start", "session_stop", "relock"],
       "description": "Tipo do evento."
     },
     "timestamp": {
@@ -34,7 +34,7 @@
     },
     "next_action": {
       "type": "string",
-      "enum": ["open_pr", "return_to_implementer", "escalate_human", "n/a"],
+      "enum": ["open_pr", "approve_pr", "human_merge", "return_to_implementer", "escalate_human", "n/a"],
       "description": "Ação derivada do verdict (R6 + R11)."
     },
     "reject_count": {

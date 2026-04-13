@@ -1,0 +1,104 @@
+{
+  "slice_id": "slice-004",
+  "verdict": "approved",
+  "timestamp": "2026-04-12T23:00:00Z",
+  "coverage_summary": {
+    "acs_total": 5,
+    "acs_covered": 5,
+    "acs_with_edge_cases": 5,
+    "test_count": 23,
+    "line_coverage_pct": null
+  },
+  "ac_coverage": [
+    {
+      "ac": "AC-001",
+      "tests_found": [
+        "tests/slice-004/DeployStagingTest.php::AC-001: deploy-staging.yml existe no diretório .github/workflows",
+        "tests/slice-004/DeployStagingTest.php::AC-001: deploy-staging.yml usa trigger workflow_run (não push direto)",
+        "tests/slice-004/DeployStagingTest.php::AC-001: deploy-staging.yml referencia o workflow \"CI\" (ci.yml)",
+        "tests/slice-004/DeployStagingTest.php::AC-001: deploy-staging.yml condiciona execução a conclusion == success",
+        "tests/slice-004/DeployStagingTest.php::AC-001: deploy job tem if condition que bloqueia CI vermelho",
+        "tests/slice-004/DeployStagingTest.php::AC-001: deploy-staging.yml contém steps críticos de deploy (rsync, deploy.sh)"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "if condition no nível do job (não apenas em steps individuais)",
+        "referência exata ao nome 'CI' do workflow ci.yml",
+        "conclusion == 'success' bloqueia deploy em CI vermelho"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002",
+      "tests_found": [
+        "tests/slice-004/DeployStagingTest.php::AC-002: infra/nginx/kalibrium-staging.conf existe",
+        "tests/slice-004/DeployStagingTest.php::AC-002: Nginx config define server_name staging.kalibrium.com.br",
+        "tests/slice-004/DeployStagingTest.php::AC-002: Nginx config aponta root para public/",
+        "tests/slice-004/DeployStagingTest.php::AC-002: staging responde HTTP 200 (smoke test remoto)"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "root deve terminar com /public (regex valida trailing char)",
+        "smoke test remoto executado quando STAGING_URL definida, skip quando ausente (correto)"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003",
+      "tests_found": [
+        "tests/slice-004/DeployStagingTest.php::AC-003: laravel/horizon está em require no composer.json",
+        "tests/slice-004/DeployStagingTest.php::AC-003: infra/supervisor/horizon-staging.conf existe",
+        "tests/slice-004/DeployStagingTest.php::AC-003: supervisor config define autorestart=true para o Horizon",
+        "tests/slice-004/DeployStagingTest.php::AC-003: supervisor config define autostart=true para o Horizon",
+        "tests/slice-004/DeployStagingTest.php::AC-003: horizon:status retorna running no VPS (smoke test remoto)"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "autorestart=true garante reinício após horizon:terminate",
+        "autostart=true garante subida após boot do VPS",
+        "laravel/horizon em require (não require-dev)",
+        "smoke SSH executa assertion real via shell_exec quando STAGING_HOST/STAGING_USER/STAGING_SSH_KEY_PATH presentes — correção TEST-001 confirmada"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004",
+      "tests_found": [
+        "tests/slice-004/DeployStagingTest.php::AC-004: config/logging.php define canal daily_json",
+        "tests/slice-004/DeployStagingTest.php::AC-004: canal daily_json usa JsonFormatter do Monolog",
+        "tests/slice-004/DeployStagingTest.php::AC-004: canal daily_json usa driver daily (rotação automática)",
+        "tests/slice-004/DeployStagingTest.php::AC-004: LOG_CHANNEL pode ser configurado para daily_json via env"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "carrega array PHP real via require (não apenas grep de string)",
+        "verifica driver: 'daily' na estrutura PHP, não só presença textual",
+        "LOG_CHANNEL configurável via env (não hardcoded)"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-005",
+      "tests_found": [
+        "tests/slice-004/DeployStagingTest.php::AC-005: routes/console.php contém registro do heartbeat",
+        "tests/slice-004/DeployStagingTest.php::AC-005: heartbeat registrado via Schedule::call ou Artisan::command",
+        "tests/slice-004/DeployStagingTest.php::AC-005: heartbeat é agendado com everyMinute()",
+        "tests/slice-004/DeployStagingTest.php::AC-005: heartbeat usa withoutOverlapping() para evitar execuções concorrentes"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "everyMinute() alinhado com crontab de 1 em 1 minuto",
+        "withoutOverlapping() previne sobreposição de execuções"
+      ],
+      "status": "adequate"
+    }
+  ],
+  "findings": [],
+  "anti_patterns": [],
+  "next_action": "approved"
+}
