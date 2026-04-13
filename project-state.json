@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-13T08:24:05-04:00",
+  "updated_at": "2026-04-13T12:41:14-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -40,7 +40,7 @@
     "current_story": "E01-S06",
     "current_slice": "006",
     "slice_status": "merged",
-    "last_green_commit": "52b4c3e",
+    "last_green_commit": "6d145b1",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -88,8 +88,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Auditoria de testes aplicada em branch fix/test-suite-audit-fixes e ambiente local de integracao ativado: Postgres 18 roda no container Docker kalibrium-local-postgres em 127.0.0.1:5432, Redis responde em 127.0.0.1:6379, migrations foram aplicadas e test:all passou localmente com RUN_REMOTE_SMOKE=0.",
-    "next_action": "Revisar a branch fix/test-suite-audit-fixes; quando precisar, o agente tem autorizacao do PM para ativar ou instalar dependencias locais necessarias e deve verificar o resultado por comando.",
+    "last_session_summary": "Validacao publica sem dados sensiveis criada em roldaobatista/kalibrium-v2-public-validation e CI publico passou. PR #5 e PR #6 foram mescladas em main via admin merge auditavel porque o ruleset exige review e o PM e autor dos PRs; branches intermediarias foram limpas.",
+    "next_action": "Retomar o fluxo normal no main em 6d145b1 e escolher o proximo slice recomendado pelo harness.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
