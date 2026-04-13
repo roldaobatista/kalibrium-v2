@@ -301,3 +301,43 @@ test('AC-001: deploy-staging.yml contém steps críticos de deploy (rsync, deplo
     expect(str_contains($content, 'rsync'))->toBeTrue('AC-001 requer step de rsync no workflow.');
     expect(str_contains($content, 'deploy.sh'))->toBeTrue('AC-001 requer invocação de deploy.sh no workflow.');
 })->group('slice-004', 'ac-001');
+
+// ---------------------------------------------------------------------------
+// TEST-007: Segurança SSH e headers de staging
+// ---------------------------------------------------------------------------
+
+test('SEC-008: deploy valida fingerprint SSH antes de gravar known_hosts', function (): void {
+    $path = base_path('.github/workflows/deploy-staging.yml');
+    $content = file_get_contents($path);
+
+    expect(str_contains($content, 'STAGING_SSH_FINGERPRINT'))->toBeTrue(
+        'SEC-008 requer validar fingerprint do host de staging antes do deploy.'
+    );
+    expect(str_contains($content, 'ssh-keygen -lf'))->toBeTrue(
+        'SEC-008 requer calcular fingerprint da chave retornada por ssh-keyscan.'
+    );
+    expect(str_contains($content, 'grep -Fx "${{ secrets.STAGING_SSH_FINGERPRINT }}"'))->toBeTrue(
+        'SEC-008 requer comparacao exata com o fingerprint esperado.'
+    );
+    expect(str_contains($content, 'ssh-keyscan -H "${{ secrets.STAGING_HOST }}" >> ~/.ssh/known_hosts'))->toBeFalse(
+        'SEC-008 nao permite confiar diretamente no primeiro ssh-keyscan sem validacao.'
+    );
+})->group('slice-004', 'security');
+
+test('SEC-007: CSP de staging nao permite unsafe-inline nem unsafe-eval', function (): void {
+    $path = base_path('infra/nginx/kalibrium-staging.conf');
+    $content = file_get_contents($path);
+
+    expect(str_contains($content, 'unsafe-inline'))->toBeFalse(
+        'SEC-007 requer CSP sem unsafe-inline.'
+    );
+    expect(str_contains($content, 'unsafe-eval'))->toBeFalse(
+        'SEC-007 requer CSP sem unsafe-eval.'
+    );
+    expect(str_contains($content, "base-uri 'self'"))->toBeTrue(
+        'SEC-007 requer base-uri restrito a self.'
+    );
+    expect(str_contains($content, "form-action 'self'"))->toBeTrue(
+        'SEC-007 requer form-action restrito a self.'
+    );
+})->group('slice-004', 'security');

@@ -1,13 +1,13 @@
 {
   "slice_id": "slice-004",
   "verdict": "approved",
-  "timestamp": "2026-04-12T23:00:00Z",
+  "timestamp": "2026-04-13T01:09:03Z",
   "ac_assessment": [
     {
       "ac": "AC-001",
       "met": true,
       "confidence": "medium",
-      "notes": "Artefato local (.github/workflows/deploy-staging.yml) contém trigger workflow_run referenciando ['CI'], types: [completed], branches: [main], e condicional if: github.event.workflow_run.conclusion == 'success'. Testes locais passam nos 4 sub-critérios. Verificação do job 'deploy' em status 'success' na aba Actions depende de VPS externo e execução real no GitHub — fora do escopo dos testes locais conforme declarado no contexto do slice."
+      "notes": "Artefato local (.github/workflows/deploy-staging.yml) contém trigger workflow_run referenciando ['CI'], types: [completed], branches: [main], e condicional if: github.event.workflow_run.conclusion == 'success'. Testes locais passam nos sub-critérios e validam fingerprint SSH antes do deploy. Verificação do job 'deploy' em status 'success' na aba Actions depende de VPS externo e execução real no GitHub — fora do escopo dos testes locais conforme declarado no contexto do slice."
     },
     {
       "ac": "AC-002",
@@ -25,7 +25,7 @@
       "ac": "AC-004",
       "met": true,
       "confidence": "medium",
-      "notes": "config/logging.php define canal daily_json com driver daily e Monolog\Formatter\JsonFormatter. Testes locais carregam o array de config e verificam estrutura real. O AC descreve tail -1 storage/logs/laravel.json no VPS mostrando JSON válido — requer aplicação em execução no VPS. Artefato local está correto e suficiente para o escopo declarado."
+      "notes": "config/logging.php define canal daily_json com driver daily e Monolog\\Formatter\\JsonFormatter. Testes locais carregam o array de config e verificam estrutura real. O AC descreve tail -1 storage/logs/laravel.json no VPS mostrando JSON válido — requer aplicação em execução no VPS. Artefato local está correto e suficiente para o escopo declarado."
     },
     {
       "ac": "AC-005",

@@ -59,16 +59,17 @@ Slices 001 (scaffold Laravel 13), 002 (PostgreSQL + Redis), 003 (CI pipeline) e 
 
 ---
 
-### D4: Rate limiting — driver `array` vs driver Redis vs sem rate limit
+### D4: Rate limiting — store configurado vs driver `array` fixo vs sem rate limit
 
 **Opções consideradas:**
-- **Opção A: Middleware dedicado com `Cache::store('array')`** — in-memory por processo; prós: sem dependência de Redis, evita dependência circular (se Redis estiver down, o rate limiter de `/health` não falha antes de chegar ao controller); contras: estado não compartilhado entre workers PHP-FPM — aceitável para proteção básica.
-- **Opção B: Rate limiter global com driver Redis** — prós: estado compartilhado entre todos os workers; contras: cria dependência circular crítica — se Redis estiver down, a requisição que deveria reportar "Redis down" pode ser bloqueada pelo rate limiter antes de chegar ao controller.
-- **Opção C: Sem rate limiting** — prós: sem complexidade; contras: endpoint exposto a flood sem proteção mínima.
+- **Opção A: Middleware dedicado com `Cache::store(config('cache.default', 'redis'))` e fallback aberto se o cache falhar** — prós: em produção usa Redis e compartilha contador entre workers; se Redis estiver down, o endpoint ainda chega ao controller e reporta estado degradado; contras: durante falha do cache, o rate limit fica temporariamente permissivo.
+- **Opção B: Middleware dedicado com `Cache::store('array')`** — in-memory por processo; prós: sem dependência de Redis; contras: estado não compartilhado entre workers PHP-FPM, ineficaz como controle real contra flood/DoS em produção.
+- **Opção C: Rate limiter global com driver Redis sem fallback** — prós: estado compartilhado entre todos os workers; contras: cria dependência circular crítica — se Redis estiver down, a requisição que deveria reportar "Redis down" pode ser bloqueada pelo rate limiter antes de chegar ao controller.
+- **Opção D: Sem rate limiting** — prós: sem complexidade; contras: endpoint exposto a flood sem proteção mínima.
 
-**Escolhida:** A (middleware dedicado com driver `array`)
+**Escolhida:** A (middleware dedicado com store configurado e fallback aberto)
 
-**Razão:** O spec declara explicitamente "rate limiting com driver array (não Redis) para evitar dependência circular". A ausência de estado compartilhado entre workers é aceitável: o objetivo é proteção básica contra flood acidental, não controle preciso entre processos.
+**Razão:** O endpoint precisa continuar respondendo quando Redis estiver degradado, mas o rate limit também precisa funcionar entre workers em produção. Usar o store configurado resolve a proteção normal; o `catch (\Throwable)` deixa o healthcheck reportar o problema se o cache estiver fora.
 
 **Reversibilidade:** fácil — alterar o store do middleware ou migrar para limiter global.
 
@@ -103,8 +104,8 @@ Slices 001 (scaffold Laravel 13), 002 (PostgreSQL + Redis), 003 (CI pipeline) e 
 
 ## Novos arquivos
 
-- `app/Http/Controllers/HealthCheckController.php` — controller invocável; tenta `DB::select('SELECT 1')` e `Redis::ping()` em blocos try/catch independentes; monta array com `status`, `db`, `redis`, `timestamp`; retorna `response()->json()` com HTTP 200 ou 503.
-- `app/Http/Middleware/HealthCheckRateLimit.php` — middleware dedicado; usa `Cache::store('array')` para rate limiting (60 req/min por IP); retorna HTTP 429 com JSON `{"error": "too many requests"}` quando excedido.
+- `app/Http/Controllers/HealthCheckController.php` — controller invocável; tenta `DB::select('SELECT 1')` e `Redis::ping()` em blocos try/catch independentes; monta array com `status` e `timestamp`; adiciona `db` e `redis` apenas para IPs locais; retorna `response()->json()` com HTTP 200 ou 503.
+- `app/Http/Middleware/HealthCheckRateLimit.php` — middleware dedicado; usa o store configurado por `CACHE_STORE` para rate limiting (60 req/min por IP); retorna HTTP 429 com JSON `{"error": "too many requests"}` quando excedido; se o cache falhar, deixa a requisição seguir para o controller.
 - `tests/Feature/HealthCheckTest.php` — testes de feature cobrindo: (1) tudo up → 200 + ok, (2) campos obrigatórios presentes, (3) DB down → 503 + degraded, (4) Redis down → 503 + degraded. Usa mocks de facade do Laravel/Pest para simular falhas sem banco real.
 
 ## Arquivos modificados
@@ -166,12 +167,15 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 final class HealthCheckController
 {
-    public function __invoke(): JsonResponse
+    private const DETAIL_TRUSTED_IPS = ['127.0.0.1', '::1'];
+
+    public function __invoke(Request $request): JsonResponse
     {
         $db    = 'disconnected';
         $redis = 'disconnected';
@@ -193,12 +197,24 @@ final class HealthCheckController
         $status   = ($db === 'connected' && $redis === 'connected') ? 'ok' : 'degraded';
         $httpCode = $status === 'ok' ? 200 : 503;
 
-        return response()->json([
+        $payload = [
             'status'    => $status,
-            'db'        => $db,
-            'redis'     => $redis,
             'timestamp' => now()->toIso8601String(),
-        ], $httpCode);
+        ];
+
+        if ($this->shouldExposeDetails($request)) {
+            $payload['db'] = $db;
+            $payload['redis'] = $redis;
+        }
+
+        return response()->json($payload, $httpCode);
+    }
+
+    private function shouldExposeDetails(Request $request): bool
+    {
+        $ip = $request->ip();
+
+        return $ip !== null && in_array($ip, self::DETAIL_TRUSTED_IPS, true);
     }
 }
 ```
@@ -207,6 +223,7 @@ final class HealthCheckController
 - `declare(strict_types=1)` presente.
 - Classe `final` sem herança não declarada.
 - Retorno `JsonResponse` tipado na assinatura.
+- `Request` injetado no `__invoke` para permitir ocultar detalhes fora de chamadas locais.
 - `catch (\Exception)` sem variável — PHP 8.0+, aceito por PHPStan 1.x.
 
 ---
@@ -215,7 +232,7 @@ final class HealthCheckController
 
 **Arquivo:** `app/Http/Middleware/HealthCheckRateLimit.php`
 
-Usa `Cache::store('array')` com chave `health_rate_limit_{$request->ip()}`. Limite: 60 requisições por janela de 60 segundos por IP. Retorna `response()->json(['error' => 'too many requests'], 429)` quando excedido. Implementar com `Cache::store('array')->remember` + contador manual ou usando `RateLimiter` do Laravel apontando para o store `array`.
+Usa `Cache::store(config('cache.default', 'redis'))` com chave `health_rate_limit_{$request->ip()}`. Limite: 60 requisições por janela de 60 segundos por IP. Retorna `response()->json(['error' => 'too many requests'], 429)` quando excedido. Se o cache do rate limit estiver indisponível, captura `\Throwable` e deixa a requisição seguir para o controller para preservar a função de diagnóstico do `/health`.
 
 ---
 

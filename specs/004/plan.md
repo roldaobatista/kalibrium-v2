@@ -157,7 +157,7 @@ Steps:
 5. rsync para o VPS excluindo `.git/`, `node_modules/`, `storage/logs/`, `storage/framework/cache/`, `tests/`
 6. SSH remoto executando `scripts/deploy.sh` no VPS
 
-Secrets referenciados: `STAGING_SSH_KEY`, `STAGING_HOST`, `STAGING_USER`, `STAGING_PATH`.
+Secrets referenciados: `STAGING_SSH_KEY`, `STAGING_SSH_FINGERPRINT`, `STAGING_HOST`, `STAGING_USER`, `STAGING_PATH`.
 
 ---
 
@@ -290,7 +290,7 @@ Script idempotente (verifica existência antes de instalar cada componente):
 | VPS KVM 1 sem PHP 8.4 instalado | Alta (VPS novo) | Alto — deploy falha | TASK-007: `provision-staging.sh` idempotente; rodar antes do primeiro deploy |
 | Porta 22 bloqueada no firewall do VPS para IPs do GitHub Actions | Média | Alto — workflow nunca conecta | Verificar painel Hostinger; IPs do GitHub Actions disponíveis em `https://api.github.com/meta` (campo `actions`) |
 | `php artisan migrate --force` falha se banco não provisionado | Baixa (slice 002 mergeado) | Alto — deploy trava | Dependência atendida; `provision-staging.sh` pode validar conectividade PG antes do deploy |
-| Secrets GitHub ausentes (`STAGING_SSH_KEY` etc.) | Média (configuração manual pré-requisito) | Alto — workflow falha com erro de autenticação | Checklist de pré-requisitos documentado em `infra/scripts/setup-secrets.md`; AC-001 só passa após secrets configurados |
+| Secrets GitHub ausentes (`STAGING_SSH_KEY`, `STAGING_SSH_FINGERPRINT` etc.) | Média (configuração manual pré-requisito) | Alto — workflow falha com erro de autenticação | Checklist de pré-requisitos documentado no spec do slice; AC-001 só passa após secrets configurados |
 | `horizon:terminate` sem Supervisor não reinicia o Horizon | Alta se Supervisor não configurado | Médio — AC-003 falha | TASK-004 configura Supervisor com `autorestart=true`; `provision-staging.sh` valida `supervisorctl status horizon` antes de encerrar |
 | Certificado SSL ausente na primeira execução | Média | Médio — `curl https://` falha em AC-002 | `provision-staging.sh` executa Certbot; AC-002 pode ser verificado inicialmente via HTTP enquanto SSL está sendo provisionado |
 | Assets não compilados no VPS (`public/build/` ausente) | Baixa | Médio — página carrega sem CSS/JS | TASK-001 inclui `npm ci && npm run build` no runner antes do rsync; `public/build/` incluído no rsync (não excluído) |
@@ -308,7 +308,7 @@ Script idempotente (verifica existência antes de instalar cada componente):
 **Pré-condições externas (requerem ação do PM/operador fora do agente):**
 - VPS KVM 1 provisionado via `provision-staging.sh` (execução manual uma vez)
 - DNS `staging.kalibrium.com.br` apontando para o IP do KVM 1
-- Secrets `STAGING_SSH_KEY`, `STAGING_HOST`, `STAGING_USER`, `STAGING_PATH` configurados em `Settings > Secrets > Actions` no repositório GitHub
+- Secrets `STAGING_SSH_KEY`, `STAGING_SSH_FINGERPRINT`, `STAGING_HOST`, `STAGING_USER`, `STAGING_PATH` configurados em `Settings > Secrets > Actions` no repositório GitHub
 
 ---
 

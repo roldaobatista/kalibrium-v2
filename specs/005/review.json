@@ -1,7 +1,7 @@
 {
   "slice_id": "slice-005",
   "verdict": "approved",
-  "timestamp": "2026-04-12T23:59:00Z",
+  "timestamp": "2026-04-13T01:09:03Z",
   "quality_checks": [
     {
       "category": "duplication",
@@ -11,17 +11,17 @@
     {
       "category": "complexity",
       "status": "pass",
-      "evidence": "HealthCheckController.php: 42 linhas, método __invoke com nesting máximo de 2 níveis. HealthCheckRateLimit.php: 38 linhas, método handle com 1 nível de nesting. Ambos dentro dos limites (50 linhas, 3 níveis). Testes: 265 linhas com funções simples e planas."
+      "evidence": "HealthCheckController.php e HealthCheckRateLimit.php mantem responsabilidades pequenas, com nesting maximo de 2 niveis no controller e try/catch isolado no middleware. Testes continuam com funcoes simples e planas."
     },
     {
       "category": "naming",
       "status": "pass",
-      "evidence": "Classes: HealthCheckController, HealthCheckRateLimit — PascalCase Laravel, verbo+substantivo descritivos. Variáveis: $db, $redis, $status, $httpCode, $ip, $key, $hits — todos descritivos sem abreviações obscuras. Constantes: MAX_REQUESTS, WINDOW_SECONDS — claras e sem ambiguidade."
+      "evidence": "Classes: HealthCheckController, HealthCheckRateLimit — PascalCase Laravel, verbo+substantivo descritivos. Variáveis: $db, $redis, $status, $httpCode, $ip, $key, $hits, $payload — todos descritivos sem abreviações obscuras. Constantes: MAX_REQUESTS, WINDOW_SECONDS, DETAIL_TRUSTED_IPS — claras e sem ambiguidade."
     },
     {
       "category": "security",
       "status": "pass",
-      "evidence": "Sem SQL injection: query literal hardcoded 'SELECT 1' sem interpolação de input. Sem secrets hardcoded. Rate limit por IP via Cache::store('array') evita dependência circular com Redis. Endpoint público sem auth é explicitamente fora de escopo no spec. Nenhum path traversal, XSS ou SSRF introduzido."
+      "evidence": "Sem SQL injection: query literal hardcoded 'SELECT 1' sem interpolação de input. Sem secrets hardcoded. Rate limit por IP usa o cache configurado por ambiente e captura falha do cache para manter o diagnostico do /health. Detalhes db/redis ficam restritos a IP local. Endpoint público sem auth é explicitamente fora de escopo no spec. Nenhum path traversal, XSS ou SSRF introduzido."
     },
     {
       "category": "simplicity",
@@ -36,12 +36,12 @@
     {
       "category": "adr_compliance",
       "status": "pass",
-      "evidence": "ADR-0001 respeitado: Laravel 13 + PostgreSQL + Redis. Implementação usa DB facade, Redis facade e Cache::store('array') — todos nativos do Laravel 13. Nenhum pacote externo adicionado. Nenhuma decisão contradiz ADR-0001 nem ADR-0002."
+      "evidence": "ADR-0001 respeitado: Laravel 13 + PostgreSQL + Redis. Implementação usa DB facade, Redis facade e Cache store configurado por ambiente — todos nativos do Laravel 13. Nenhum pacote externo adicionado. Nenhuma decisão contradiz ADR-0001 nem ADR-0002."
     },
     {
       "category": "dead_code",
       "status": "pass",
-      "evidence": "Imports em HealthCheckController.php (DB, Redis, JsonResponse) todos usados. Imports em HealthCheckRateLimit.php (Cache, Closure, Request, Response) todos usados. registrar-plan-reviewer.bat e .claude/agents/plan-reviewer.md são artefatos de harness com função documentada. Nenhuma função órfã."
+      "evidence": "Imports em HealthCheckController.php (DB, Redis, JsonResponse, Request) todos usados. Imports em HealthCheckRateLimit.php (Cache, Closure, Request, Response) todos usados. registrar-plan-reviewer.bat e .claude/agents/plan-reviewer.md são artefatos de harness com função documentada. Nenhuma função órfã."
     }
   ],
   "findings": [],

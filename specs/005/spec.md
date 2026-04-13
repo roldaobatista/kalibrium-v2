@@ -11,7 +11,7 @@ O projeto Kalibrium V2 tem scaffold Laravel 13 (slice 001), PostgreSQL + Redis (
 
 ## Jornada alvo
 
-PM (ou uptime robot) faz `GET /health` em staging → recebe JSON com status de cada componente → se tudo ok, HTTP 200 com `"status": "ok"` → se algo falhar, HTTP 503 com `"status": "degraded"` e componente marcado como `"disconnected"`.
+PM (ou uptime robot) faz `GET /health` em staging → recebe JSON com status geral → se tudo ok, HTTP 200 com `"status": "ok"` → se algo falhar, HTTP 503 com `"status": "degraded"`. Chamadas locais continuam recebendo os detalhes `db` e `redis` para diagnóstico controlado.
 
 ## Acceptance Criteria
 
@@ -40,4 +40,4 @@ PM (ou uptime robot) faz `GET /health` em staging → recebe JSON com status de 
 ## Riscos
 
 - `DB::connection()->getPdo()` pode lançar exception não capturada — mitigação: try/catch com fallback para `"disconnected"`
-- Rate limiting com Redis como backend pode criar dependência circular — mitigação: usar driver array no middleware de `/health`
+- Rate limiting com cache externo pode criar dependência circular — mitigação: usar o cache configurado por ambiente e permitir que `/health` continue respondendo se o cache de limite estiver indisponível

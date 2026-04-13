@@ -1,7 +1,7 @@
 {
   "slice_id": "slice-004",
   "verdict": "approved",
-  "timestamp": "2026-04-12T23:55:00Z",
+  "timestamp": "2026-04-13T01:09:03Z",
   "quality_checks": [
     {
       "category": "duplication",
@@ -11,7 +11,7 @@
     {
       "category": "complexity",
       "status": "pass",
-      "evidence": "deploy.sh com 32 linhas, sequencia linear sem branching nem nesting. provision-staging.sh com 128 linhas estruturadas em 10 steps numerados com guards de idempotencia (command -v, [ ! -f ]). Nenhuma funcao ultrapassa 50 linhas nem 3 niveis de nesting. DeployStagingTest.php com 230 linhas, mas cada test() e independente e tem responsabilidade unica."
+      "evidence": "deploy.sh com sequencia linear sem branching nem nesting. provision-staging.sh estruturado em steps numerados com guards de idempotencia (command -v, [ ! -f ]). Nenhuma funcao ultrapassa 50 linhas nem 3 niveis de nesting. DeployStagingTest.php mantem cada test() independente e com responsabilidade unica."
     },
     {
       "category": "naming",
@@ -21,7 +21,7 @@
     {
       "category": "security",
       "status": "pass",
-      "evidence": "Ambos os blockers da review anterior corrigidos: StrictHostKeyChecking=no ausente em todo o diff (grep retornou zero matches). Step rsync usa -e 'ssh -i ~/.ssh/staging_key' sem flags inseguros. Step SSH remoto usa 'ssh -i ~/.ssh/staging_key' sem flags inseguros. ssh-keyscan -H popula known_hosts antes dos dois steps. STAGING_SSH_KEY referenciada via secrets do GitHub, sem hardcode. Nenhum secret literal em nenhum arquivo do diff. provision-staging.sh usa set -euo pipefail. Nginx com X-Frame-Options SAMEORIGIN e X-Content-Type-Options nosniff. fastcgi_hide_header X-Powered-By presente. Bloco location ~ /\.(?!well-known).* { deny all; } protege arquivos ocultos."
+      "evidence": "StrictHostKeyChecking=no ausente em todo o diff. Step rsync usa -e 'ssh -i ~/.ssh/staging_key' sem flags inseguros. Step SSH remoto usa 'ssh -i ~/.ssh/staging_key' sem flags inseguros. ssh-keyscan grava chave temporaria, ssh-keygen calcula fingerprint e grep -Fx compara com STAGING_SSH_FINGERPRINT antes de gravar known_hosts. STAGING_SSH_KEY referenciada via secrets do GitHub, sem hardcode. Nenhum secret literal em nenhum arquivo do diff. provision-staging.sh usa set -euo pipefail. Nginx com X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff e CSP sem unsafe-inline/unsafe-eval. fastcgi_hide_header X-Powered-By presente. O bloco que protege arquivos ocultos continua negando acesso, exceto para .well-known."
     },
     {
       "category": "simplicity",
@@ -41,7 +41,7 @@
     {
       "category": "dead_code",
       "status": "pass",
-      "evidence": "Todos os arquivos adicionados sao referenciados na cadeia de execucao: deploy-staging.yml invoca deploy.sh via SSH; provision-staging.sh instala nginx/php-fpm/supervisor/crontab configs; horizon-staging.conf referenciado por provision-staging.sh step 7. use Monolog\Formatter\JsonFormatter em config/logging.php e utilizado no canal daily_json. use Illuminate\Support\Facades\Schedule em routes/console.php e utilizado na linha seguinte. Nenhum import nao-utilizado."
+      "evidence": "Todos os arquivos adicionados sao referenciados na cadeia de execucao: deploy-staging.yml invoca deploy.sh via SSH; provision-staging.sh instala nginx/php-fpm/supervisor/crontab configs; horizon-staging.conf referenciado por provision-staging.sh step 7. use Monolog\\Formatter\\JsonFormatter em config/logging.php e utilizado no canal daily_json. use Illuminate\\Support\\Facades\\Schedule em routes/console.php e utilizado na linha seguinte. Nenhum import nao-utilizado."
     }
   ],
   "findings": [],

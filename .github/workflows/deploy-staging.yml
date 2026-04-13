@@ -49,7 +49,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/staging_key
           chmod 600 ~/.ssh/staging_key
-          ssh-keyscan -H "${{ secrets.STAGING_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -t ed25519 "${{ secrets.STAGING_HOST }}" > ~/.ssh/staging_known_hosts
+          ssh-keygen -lf ~/.ssh/staging_known_hosts | awk '{print $2}' | grep -Fx "${{ secrets.STAGING_SSH_FINGERPRINT }}"
+          ssh-keygen -H -f ~/.ssh/staging_known_hosts
+          cat ~/.ssh/staging_known_hosts >> ~/.ssh/known_hosts
+          rm -f ~/.ssh/staging_known_hosts.old
 
       - name: Deploy via rsync
         run: |

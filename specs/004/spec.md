@@ -54,4 +54,4 @@ Agente faz merge para `main` → CI roda e passa → workflow `deploy-staging.ym
 - E01-S03 completa (Pipeline CI) ✅
 - VPS Hostinger KVM 1 provisionado (SSH ativo, IP disponível)
 - DNS `staging.kalibrium.com.br` apontando para o IP do KVM 1
-- Secrets `STAGING_SSH_KEY`, `STAGING_HOST`, `STAGING_USER`, `STAGING_PATH` nas GitHub Secrets
+- Secrets `STAGING_SSH_KEY`, `STAGING_SSH_FINGERPRINT`, `STAGING_HOST`, `STAGING_USER`, `STAGING_PATH` nas GitHub Secrets

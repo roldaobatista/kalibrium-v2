@@ -36,11 +36,11 @@ O `ci.yml` já existe no repositório (criado no scaffold do slice 001). Ele con
 **Opções consideradas:**
 - **Opção A: `cyclonedx/cyclonedx-php-composer` via `composer global require`** — instala na home do runner; prós: nativo PHP, acessa `composer.lock` diretamente; contras: instalação lenta (~30s), versão ^5 requer Composer 2.2+.
 - **Opção B: CycloneDX CLI binário pré-compilado via download direto** — baixa o binário `cyclonedx-cli` da release do GitHub; prós: zero dependência de Composer global, rápido, versão pinada; contras: dependência de URL externa, binário Linux-only (adequado para ubuntu-latest).
-- **Opção C: Manter comportamento atual do scaffold** — `composer global require ... || true` com warning em falha; contras: `|| true` mascara falha, AC-005 exige `sbom.xml` como artefato garantido, não opcional.
+- **Opção C: Manter comportamento atual do scaffold** — `composer global require ... || true` com warning em falha; contras: `|| true` mascara falha, AC-005 exige `sbom-php.xml` como artefato garantido, não opcional.
 
 **Escolhida:** A (com ajuste: remover `|| true`, fixar versão, adicionar cache da home do Composer)
 
-**Razão:** AC-005 exige que o artefato `sbom.xml` exista na aba Artifacts — é um critério objetivo, não opcional. O `|| true` atual no scaffold torna o AC não verificável mecanicamente (falha silenciosa). A opção A com cache da home do Composer resolve o problema de velocidade e é mais simples do que introduzir um binário externo (Opção B). A opção B permanece como fallback documentado no spec.
+**Razão:** AC-005 exige que o artefato `sbom-php.xml` exista na aba Artifacts — é um critério objetivo, não opcional. O `|| true` atual no scaffold torna o AC não verificável mecanicamente (falha silenciosa). A opção A com cache da home do Composer resolve o problema de velocidade e é mais simples do que introduzir um binário externo (Opção B). A opção B permanece como fallback documentado no spec.
 
 **Reversibilidade:** fácil — trocar o passo de instalação no `ci.yml` sem impacto em código de aplicação.
 
@@ -96,7 +96,7 @@ O `ci.yml` já existe no repositório (criado no scaffold do slice 001). Ele con
 | AC-002 | Push com erro PHPStan nível 8 → job `static-analysis` falha | `.github/workflows/ci.yml`, `phpstan.neon` | `vendor/bin/phpstan analyse` retorna exit 1 |
 | AC-003 | Push com teste falhando → job `tests` falha | `.github/workflows/ci.yml`, `phpunit.xml`, `tests/Feature/CiSmokeTest.php` | `vendor/bin/pest --ci` retorna exit 1 |
 | AC-004 | PR para `main` com tudo verde → check verde no GitHub | `.github/workflows/ci.yml` (todos os jobs encadeados) | Status `success` via GitHub Checks API no PR |
-| AC-005 | Artefato `sbom.xml` gerado na aba Artifacts | `.github/workflows/ci.yml` (job `security`, step CycloneDX corrigido) | `actions/upload-artifact@v4` com `sbom-php.xml` presente e download disponível |
+| AC-005 | Artefato `sbom-php.xml` gerado na aba Artifacts | `.github/workflows/ci.yml` (job `security`, step CycloneDX corrigido) | `actions/upload-artifact@v4` com `sbom-php.xml` presente e download disponível |
 
 ---
 

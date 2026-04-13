@@ -1,7 +1,7 @@
 {
   "slice_id": "slice-003",
   "verdict": "approved",
-  "timestamp": "2026-04-12T13:51:36Z",
+  "timestamp": "2026-04-13T01:09:03Z",
   "ac_assessment": [
     {
       "ac": "AC-001",
@@ -30,19 +30,12 @@
     {
       "ac": "AC-005",
       "met": true,
-      "confidence": "medium",
-      "notes": "SBOM é gerado como sbom-php.xml (ci.yml:372) sem || true nos steps CycloneDX. upload-artifact está configurado com retention-days: 30 (ci.yml:374-380). Confiança 'medium' por dois motivos: (1) o spec descreve o artefato como 'sbom.xml' mas a implementação gera 'sbom-php.xml' — divergência de nomenclatura sem impacto funcional confirmável localmente; (2) upload-artifact usa condição 'hashFiles(sbom-php.xml) != empty' que faria o step ser skipped se a geração falhar antes — contudo, como o step de geração não tem || true, a falha já causa exit 1 no job antes do upload, minimizando risco real."
+      "confidence": "high",
+      "notes": "SBOM é gerado como sbom-php.xml (ci.yml:372) sem || true nos steps CycloneDX. upload-artifact está configurado com name: sbom, path: sbom-php.xml e retention-days: 30 (ci.yml:374-380). specs/003/spec.md e specs/003/plan.md agora referenciam sbom-php.xml de forma consistente."
     }
   ],
   "ux_findings": [],
-  "consistency_findings": [
-    {
-      "id": "CON-001",
-      "severity": "low",
-      "description": "O spec (AC-005) refere o artefato como 'sbom.xml' mas a implementação gera 'sbom-php.xml' e os testes validam 'sbom-php.xml'. A jornada descrita no spec ('artefato sbom.xml disponível na aba Artifacts') é atendida funcionalmente, mas o nome diverge do spec literal.",
-      "recommendation": "Atualizar o spec para referenciar 'sbom-php.xml' ou adicionar alias no upload-artifact com name: 'sbom' apontando para o arquivo correto — o que já ocorre na implementação atual (artifact name: 'sbom', path: 'sbom-php.xml')."
-    }
-  ],
+  "consistency_findings": [],
   "business_rule_findings": [],
   "next_action": "approved"
 }

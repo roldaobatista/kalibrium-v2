@@ -20,18 +20,23 @@ final class HealthCheckRateLimit
         $ip = $request->ip() ?? 'unknown';
         $key = 'healthcheck_rate_limit:'.$ip;
 
-        $store = Cache::store('array');
+        $storeName = (string) config('cache.default', 'redis');
 
-        $hits = (int) ($store->get($key, 0));
+        try {
+            $store = Cache::store($storeName);
+            $hits = (int) ($store->get($key, 0));
 
-        if ($hits >= self::MAX_REQUESTS) {
-            return response()->json([
-                'error' => 'Too Many Requests',
-                'message' => 'Rate limit exceeded: max '.self::MAX_REQUESTS.' requests per minute.',
-            ], 429);
+            if ($hits >= self::MAX_REQUESTS) {
+                return response()->json([
+                    'error' => 'Too Many Requests',
+                    'message' => 'Rate limit exceeded: max '.self::MAX_REQUESTS.' requests per minute.',
+                ], 429);
+            }
+
+            $store->put($key, $hits + 1, self::WINDOW_SECONDS);
+        } catch (\Throwable) {
+            // Healthcheck must still report dependency status if the cache store is down.
         }
-
-        $store->put($key, $hits + 1, self::WINDOW_SECONDS);
 
         return $next($request);
     }

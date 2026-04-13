@@ -60,7 +60,7 @@ test('AC-005: upload-artifact está configurado para expor sbom na aba Artifacts
     );
 })->group('slice-003', 'ac-005');
 
-// AC-005: o artefato gerado é nomeado sbom-php.xml (não sbom.xml genérico)
+// AC-005: o artefato gerado usa o nome específico do pacote PHP.
 test('AC-005: o step CycloneDX gera sbom-php.xml como arquivo de saída', function (): void {
     $ciYmlPath = base_path('.github/workflows/ci.yml');
     expect(file_exists($ciYmlPath))->toBeTrue("ci.yml não encontrado em {$ciYmlPath}");

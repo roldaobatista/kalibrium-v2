@@ -15,6 +15,7 @@ declare(strict_types=1);
  * Todos os testes nascem RED — o controller e o middleware ainda não existem.
  */
 
+use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
@@ -92,6 +93,28 @@ test('AC-002: campos db e redis retornam "connected" quando os serviços estão 
             'redis' => 'connected',
         ]);
 })->group('slice-005', 'ac-002');
+
+test('SEC-002: detalhes de dependências não aparecem para IP externo', function (): void {
+    DB::shouldReceive('select')
+        ->once()
+        ->with('SELECT 1')
+        ->andReturn([]);
+
+    Redis::shouldReceive('ping')
+        ->once()
+        ->andReturn('PONG');
+
+    $response = $this
+        ->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+        ->getJson('/health');
+
+    $response->assertStatus(200)
+        ->assertJsonStructure(['status', 'timestamp']);
+
+    $payload = $response->json();
+    expect($payload)->not->toHaveKey('db');
+    expect($payload)->not->toHaveKey('redis');
+})->group('slice-005', 'security');
 
 test('AC-002: campo timestamp é uma string ISO 8601 com timezone', function (): void {
     DB::shouldReceive('select')
@@ -220,18 +243,48 @@ test('AC-004: rota /health resolve para HealthCheckController sem erro 404/500',
     expect($response->json())->toBeArray('AC-004: resposta deve ser JSON válido.');
 })->group('slice-005', 'ac-004');
 
+test('SEC-003: /health retorna headers de segurança globais', function (): void {
+    DB::shouldReceive('select')
+        ->once()
+        ->with('SELECT 1')
+        ->andReturn([]);
+
+    Redis::shouldReceive('ping')
+        ->once()
+        ->andReturn('PONG');
+
+    $response = $this->getJson('/health');
+
+    $response->assertHeader('X-Frame-Options', 'DENY');
+    $response->assertHeader('X-Content-Type-Options', 'nosniff');
+    $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    $response->assertHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+})->group('slice-005', 'security');
+
 // ---------------------------------------------------------------------------
 // AC-005: PHPStan level 8 passa no HealthCheckController
 // ---------------------------------------------------------------------------
 
+test('SEC-001: rate limit usa cache configurado e não driver array fixo', function (): void {
+    $path = base_path('app/Http/Middleware/HealthCheckRateLimit.php');
+    $content = file_get_contents($path);
+
+    expect(str_contains($content, "Cache::store('array')"))->toBeFalse(
+        'SEC-001 nao permite fixar rate limit no driver array.'
+    );
+    expect(str_contains($content, "config('cache.default', 'redis')"))->toBeTrue(
+        'SEC-001 requer usar o store configurado para compartilhar contadores em producao.'
+    );
+})->group('slice-005', 'security');
+
 test('AC-005: HealthCheckController é instanciável e invocável via reflexão', function (): void {
     // AC-005 exige PHPStan level 8. Validamos via reflexão que o controller
     // atende os requisitos estruturais sem ler o filesystem.
-    $class = \App\Http\Controllers\HealthCheckController::class;
+    $class = HealthCheckController::class;
 
     expect(class_exists($class))->toBeTrue('AC-005: controller class deve existir no autoloader.');
 
-    $reflection = new \ReflectionClass($class);
+    $reflection = new ReflectionClass($class);
 
     expect($reflection->isFinal())->toBeTrue(
         'AC-005: controller deve ser final class para PHPStan level 8.'

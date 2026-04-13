@@ -1,19 +1,19 @@
 {
   "slice_id": "slice-005",
   "verdict": "approved",
-  "timestamp": "2026-04-12T23:00:00-03:00",
+  "timestamp": "2026-04-13T01:09:03Z",
   "ac_assessment": [
     {
       "ac": "AC-001",
       "met": true,
       "confidence": "high",
-      "notes": "Dois testes cobrem o cenário: HTTP 200 retornado e 'status':'ok' no JSON quando DB e Redis respondem. Pest exit 0, 11 testes passaram."
+      "notes": "Dois testes cobrem o cenário: HTTP 200 retornado e 'status':'ok' no JSON quando DB e Redis respondem. Pest exit 0, 15 testes passaram."
     },
     {
       "ac": "AC-002",
       "met": true,
       "confidence": "high",
-      "notes": "Três testes verificam estrutura JSON: assertJsonStructure(['status','db','redis','timestamp']), valores 'connected' em db e redis, e formato ISO 8601 com timezone via regex. Controller retorna todos os 4 campos exigidos."
+      "notes": "Três testes verificam a resposta local: assertJsonStructure(['status','db','redis','timestamp']), valores 'connected' em db e redis, e formato ISO 8601 com timezone via regex. Um teste adicional confirma que chamadas de IP externo recebem status/timestamp sem detalhes internos."
     },
     {
       "ac": "AC-003",
@@ -25,7 +25,7 @@
       "ac": "AC-004",
       "met": true,
       "confidence": "high",
-      "notes": "Suite com 11 testes (superando o mínimo de 3). Testes mapeados aos grupos 'ac-001', 'ac-002', 'ac-003' incluem os cenários ok, db-fail e redis-fail exigidos. Pest exit 0 confirmado."
+      "notes": "Suite com 15 testes (superando o mínimo de 3). Testes mapeados aos grupos 'ac-001', 'ac-002', 'ac-003' incluem os cenários ok, db-fail e redis-fail exigidos. Pest exit 0 confirmado."
     },
     {
       "ac": "AC-005",

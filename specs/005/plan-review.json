@@ -15,11 +15,11 @@
     },
     "technical_feasibility": {
       "status": "pass",
-      "details": "Tasks são concretas com arquivo-alvo, código orientador e checklist de validação. Dependências entre tasks seguem ordem lógica (controller → middleware → rota → testes). Todas as primitivas usadas (DB facade, Redis facade, Cache::store array, response()->json) são nativas do Laravel 13 conforme ADR-0001. Nenhum pacote externo adicionado."
+      "details": "Tasks são concretas com arquivo-alvo, código orientador e checklist de validação. Dependências entre tasks seguem ordem lógica (controller → middleware → rota → testes). Todas as primitivas usadas (DB facade, Redis facade, cache store configurado, response()->json) são nativas do Laravel 13 conforme ADR-0001. Nenhum pacote externo adicionado."
     },
     "risks_mitigations": {
       "status": "pass",
-      "details": "2 riscos do spec endereçados: (1) exception não capturada → try/catch em D2/D3 + risco Throwable na tabela, (2) dependência circular Redis → D4 driver array. 3 riscos adicionais com mitigações concretas (PHPStan catch syntax, middleware stack interference, mock cleanup). Nenhum risco vago tipo 'monitorar' ou 'avaliar depois'."
+      "details": "2 riscos do spec endereçados: (1) exception não capturada → try/catch em D2/D3 + risco Throwable na tabela, (2) dependência circular Redis → D4 com cache configurado e fallback aberto. 3 riscos adicionais com mitigações concretas (PHPStan catch syntax, middleware stack interference, mock cleanup). Nenhum risco vago tipo 'monitorar' ou 'avaliar depois'."
     },
     "security": {
       "status": "pass",

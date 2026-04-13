@@ -1,7 +1,7 @@
 {
   "slice_id": "slice-001",
   "verdict": "approved",
-  "timestamp": "2026-04-12T08:20:00Z",
+  "timestamp": "2026-04-13T01:09:03Z",
   "quality_checks": [
     {
       "category": "duplication",
@@ -16,7 +16,7 @@
     {
       "category": "naming",
       "status": "pass",
-      "evidence": "Nomes seguem convencoes Laravel (app/, config/, routes/) e plan.md (Domain/, Infrastructure/)"
+      "evidence": "Nomes seguem convencoes Laravel (app/, config/, routes/). composer.json mantem apenas App\\ -> app/ e entradas Database\\Factories\\ / Database\\Seeders\\ necessarias."
     },
     {
       "category": "security",
@@ -26,7 +26,7 @@
     {
       "category": "simplicity",
       "status": "pass",
-      "evidence": "Minimo necessario para atender 5 ACs, sem over-engineering"
+      "evidence": "Minimo necessario para atender 5 ACs, sem over-engineering. Entradas PSR-4 redundantes App\\Domain\\ e App\\Infrastructure\\ nao existem mais no composer.json."
     },
     {
       "category": "glossary",
@@ -41,17 +41,9 @@
     {
       "category": "dead_code",
       "status": "pass",
-      "evidence": "src/Utils/Greeting.php e tests/Unit/GreetingTest.php (smoke test antigo) removidos corretamente"
+      "evidence": "Sem imports nao usados ou artefatos orfaos identificados nos arquivos do scaffold atual."
     }
   ],
-  "findings": [
-    {
-      "severity": "minor",
-      "category": "simplicity",
-      "file": "composer.json",
-      "line": 18,
-      "message": "PSR-4 entries App\\Domain\\ e App\\Infrastructure\\ sao redundantes com App\\ -> app/, mas explicitam intencao arquitetural conforme plan.md D2. Nao requer acao."
-    }
-  ],
+  "findings": [],
   "next_action": "approve_pr"
 }
