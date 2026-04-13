@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Testing\TestCase as LaravelTestCase;
 use Illuminate\Support\Facades\Artisan;
 use Livewire\Factory\Factory;
 use Livewire\Finder\Finder;
-
-uses(LaravelTestCase::class);
 
 require_once __DIR__.'/TestHelpers.php';
 

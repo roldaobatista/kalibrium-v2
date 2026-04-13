@@ -161,6 +161,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:8
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -195,6 +204,17 @@ jobs:
         if: steps.check.outputs.run == 'true'
         run: composer install --no-interaction --no-progress --prefer-dist
 
+      - name: Setup Node
+        if: steps.check.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: npm ci
+        if: steps.check.outputs.run == 'true'
+        run: npm ci --no-audit --no-fund
+
       - name: Copy .env for CI
         if: steps.check.outputs.run == 'true'
         run: |
@@ -215,9 +235,11 @@ jobs:
           DB_DATABASE: kalibrium_test
           DB_USERNAME: kalibrium
           DB_PASSWORD: kalibrium_ci
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
         run: php artisan migrate --force
 
-      - name: Pest (suite full — P8 gate final de CI)
+      - name: Test scope all (P8 gate final de CI)
         if: steps.check.outputs.run == 'true'
         env:
           DB_CONNECTION: pgsql
@@ -226,7 +248,10 @@ jobs:
           DB_DATABASE: kalibrium_test
           DB_USERNAME: kalibrium
           DB_PASSWORD: kalibrium_ci
-        run: vendor/bin/pest --ci
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          RUN_REMOTE_SMOKE: 0
+        run: php scripts/test-scope.php all
 
   # =========================================================================
   # Job 5 — PHP Rector (dry-run — detecta sem alterar)

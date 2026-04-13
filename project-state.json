@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-13T00:55:00-04:00",
+  "updated_at": "2026-04-13T08:10:34-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -88,8 +88,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "A sessao Codex fechou o slice 006 por excecao operacional auditavel: a branch atual era main, o merge formal do harness exige feature branch, e todos os 5 gates ja estavam approved com findings vazios. Foram gerados slice-report e retrospectiva do slice 006.",
-    "next_action": "Escolher o proximo slice/story e iniciar o trabalho em feature branch ou git worktree antes de editar codigo.",
+    "last_session_summary": "Auditoria de testes aplicada em branch fix/test-suite-audit-fixes: escopos de teste centralizados, composer test passou a usar escopo fast, testes lentos/externos foram separados, slice 006 entrou no phpunit.xml, CI ganhou Redis/Node para o escopo completo, e scripts Bash passaram a resolver PHP/Composer do Windows via bootstrap local.",
+    "next_action": "Revisar a branch fix/test-suite-audit-fixes e validar o CI com Postgres/Redis para confirmar o escopo test:all em ambiente com servicos ativos.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

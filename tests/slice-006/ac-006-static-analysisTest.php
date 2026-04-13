@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Testing\TestCase as LaravelTestCase;
-
-uses(LaravelTestCase::class);
-
 require_once __DIR__.'/TestHelpers.php';
 
 test('AC-004: phpstan analyse em app/Livewire/Ping.php retorna exit 0', function (): void {
@@ -24,7 +20,7 @@ test('AC-004: phpstan analyse em app/Livewire/Ping.php retorna exit 0', function
     ]);
 
     expect($result['exit'])->toBe(0, 'AC-004: phpstan deve retornar exit 0. STDERR: '.$result['stderr']);
-})->group('slice-006', 'ac-004');
+})->group('slice-006', 'ac-004', 'tooling');
 
 test('AC-009: phpstan retorna exit diferente de 0 para um Ping com erro de tipo', function (): void {
     $source = base_path('app/Livewire/Ping.php');
@@ -48,4 +44,4 @@ test('AC-009: phpstan retorna exit diferente de 0 para um Ping com erro de tipo'
     } finally {
         slice006_cleanup_temp_file($brokenFixture);
     }
-})->group('slice-006', 'ac-009');
+})->group('slice-006', 'ac-009', 'tooling');

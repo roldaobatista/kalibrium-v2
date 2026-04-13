@@ -7,4 +7,4 @@ test('config:cache completes without errors', function () {
 
     // Clean up cached config to not affect other tests
     $this->artisan('config:clear');
-});
+})->group('mutates-config');

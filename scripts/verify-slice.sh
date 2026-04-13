@@ -186,17 +186,18 @@ if ! bash "$SCRIPT_DIR/sanitize-input.sh" --check "$SLICE_DIR/spec.md"; then
 fi
 say "spec.md limpo"
 
+# Cria verification-input antes dos gates para reaproveitar o output real dos testes
+# capturado pelo mechanical-gates.sh, sem rodar a mesma suite duas vezes.
+rm -rf "$INPUT_DIR"
+mkdir -p "$INPUT_DIR"
+
 # Gates mecanicos ANTES de qualquer agente LLM.
 # Se falhar, o verifier nem e spawnado. Gate binario, nao opiniao.
 say "rodando gates mecanicos (testes, PHPStan, Pint, composer audit)..."
-if ! bash "$SCRIPT_DIR/mechanical-gates.sh" "$NNN"; then
+if ! KALIB_TEST_RESULTS_FILE="$INPUT_DIR/test-results.txt" bash "$SCRIPT_DIR/mechanical-gates.sh" "$NNN"; then
   fail "gates mecanicos falharam — corrija antes de spawnar o verifier"
 fi
 say "gates mecanicos OK"
-
-# Limpa e recria verification-input
-rm -rf "$INPUT_DIR"
-mkdir -p "$INPUT_DIR"
 
 # 1. Copia spec envelopado em XML CDATA + constitution snapshot
 bash "$SCRIPT_DIR/sanitize-input.sh" --wrap "$SLICE_DIR/spec.md" "$INPUT_DIR/spec.md" || \
@@ -245,20 +246,9 @@ else
   echo "(sem git log ainda)" > "$INPUT_DIR/files-changed.txt"
 fi
 
-# 4. test-results.txt — roda testes REAIS (nao aceita placeholder)
-say "rodando testes e capturando output real..."
-if [ -f "vendor/bin/pest" ]; then
-  vendor/bin/pest tests/ 2>&1 > "$INPUT_DIR/test-results.txt"
-  TEST_EXIT=$?
-  echo "" >> "$INPUT_DIR/test-results.txt"
-  echo "# exit_code=$TEST_EXIT" >> "$INPUT_DIR/test-results.txt"
-  if [ $TEST_EXIT -ne 0 ]; then
-    fail "testes falharam (exit $TEST_EXIT) — output em $INPUT_DIR/test-results.txt"
-  fi
-  say "testes capturados (exit $TEST_EXIT)"
-else
-  fail "vendor/bin/pest nao encontrado — impossivel gerar test-results.txt real"
-fi
+# 4. test-results.txt — reaproveita output REAL capturado pelo mechanical-gates.
+[ ! -s "$INPUT_DIR/test-results.txt" ] && fail "test-results.txt real nao foi capturado pelos gates mecanicos"
+say "testes capturados em $INPUT_DIR/test-results.txt"
 
 say ""
 say "verification-input/ montado:"

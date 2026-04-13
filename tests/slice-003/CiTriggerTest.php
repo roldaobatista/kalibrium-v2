@@ -64,7 +64,7 @@ test('AC-003: trigger push cobre feature branches E job php-test existe', functi
         'AC-003 requer que o job php-test exista no ci.yml.'
     );
 
-    expect(str_contains($content, 'vendor/bin/pest --ci'))->toBeTrue(
-        'AC-003 requer que o job php-test execute pest --ci.'
+    expect(str_contains($content, 'php scripts/test-scope.php all'))->toBeTrue(
+        'AC-003 requer que o job php-test execute o escopo completo centralizado.'
     );
 })->group('slice-003', 'ac-003');

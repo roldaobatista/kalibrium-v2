@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Testing\TestCase as LaravelTestCase;
-
-uses(LaravelTestCase::class);
-
 require_once __DIR__.'/TestHelpers.php';
 
 test('AC-002: GET /ping fora de production retorna 200 e Livewire OK', function (): void {
