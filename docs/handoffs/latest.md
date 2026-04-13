@@ -41,7 +41,12 @@ Reduzir lentidao e inconsistencias na execucao de testes sem rodar suite full no
 
 ## Observacoes
 
-- `php scripts\test-scope.php all` foi tentado localmente com `RUN_REMOTE_SMOKE=0` e parou no grupo `integration`: Postgres em `127.0.0.1:5432` recusou conexao. Isso e pre-condicao de ambiente, nao regressao de codigo; o CI agora declara Postgres e Redis para esse escopo.
+- O PM autorizou o agente a ativar ou instalar dependencias locais quando forem necessarias para o trabalho.
+- PostgreSQL local foi ativado via Docker: container `kalibrium-local-postgres`, imagem `postgres:18`, porta `127.0.0.1:5432`, volume `kalibrium-local-postgresql-18`, `POSTGRES_DB=kalibrium`.
+- Redis ja estava ativo em `127.0.0.1:6379` e respondeu `PONG`.
+- `php artisan migrate --force`: exit 0, migrations aplicadas no banco `kalibrium`.
+- `php scripts\test-scope.php integration`: exit 0, `6 passed (8 assertions)`.
+- `RUN_REMOTE_SMOKE=0 php scripts\test-scope.php all`: exit 0, escopos fast/integration/build/tooling/mutates-config passaram.
 - `RUN_REMOTE_SMOKE=1` inclui smoke remoto no escopo `all`.
 - `RUN_LEGACY_AC_TESTS=1` inclui os ACs shell legados no escopo `all`.
 - Hooks selados em `scripts/hooks/` nao foram editados.

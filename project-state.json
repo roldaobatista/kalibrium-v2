@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "maintenance",
-  "updated_at": "2026-04-13T08:10:34-04:00",
+  "updated_at": "2026-04-13T08:24:05-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -88,8 +88,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Auditoria de testes aplicada em branch fix/test-suite-audit-fixes: escopos de teste centralizados, composer test passou a usar escopo fast, testes lentos/externos foram separados, slice 006 entrou no phpunit.xml, CI ganhou Redis/Node para o escopo completo, e scripts Bash passaram a resolver PHP/Composer do Windows via bootstrap local.",
-    "next_action": "Revisar a branch fix/test-suite-audit-fixes e validar o CI com Postgres/Redis para confirmar o escopo test:all em ambiente com servicos ativos.",
+    "last_session_summary": "Auditoria de testes aplicada em branch fix/test-suite-audit-fixes e ambiente local de integracao ativado: Postgres 18 roda no container Docker kalibrium-local-postgres em 127.0.0.1:5432, Redis responde em 127.0.0.1:6379, migrations foram aplicadas e test:all passou localmente com RUN_REMOTE_SMOKE=0.",
+    "next_action": "Revisar a branch fix/test-suite-audit-fixes; quando precisar, o agente tem autorizacao do PM para ativar ou instalar dependencias locais necessarias e deve verificar o resultado por comando.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
