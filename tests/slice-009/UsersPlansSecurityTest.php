@@ -8,6 +8,7 @@ use App\Support\Settings\PlanUpgradeRequestService;
 use App\Support\Settings\UserDeactivationService;
 use App\Support\Settings\UserInvitationService;
 use App\Support\Settings\UserRoleService;
+use App\Support\Settings\UsersDirectoryQuery;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -124,6 +125,28 @@ test('AC-013: tela de usuarios nao diferencia id inexistente de usuario existent
     $externalTenantUser = $externalMember['tenant_user']->fresh();
     expect($externalTenantUser->role)->toBe('tecnico');
     expect($externalTenantUser->status)->toBe('active');
+})->group('slice-009', 'ac-013');
+
+test('AC-013: busca por e-mail de outro tenant nao retorna usuarios do tenant atual', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    slice009_create_tenant_member($context, [
+        'role' => 'tecnico',
+        'user_name' => 'Usuario Atual Visivel',
+    ]);
+    $external = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+
+    $results = app(UsersDirectoryQuery::class)->forTenant(
+        (int) $context['tenant']->id,
+        $external['user']->email,
+    );
+
+    expect($results)->toHaveCount(0);
 })->group('slice-009', 'ac-013');
 
 test('AC-SEC-001: HTML, JavaScript e SQL em nome, e-mail, busca ou justificativa sao tratados como dado e nao refletem sem escape', function (): void {

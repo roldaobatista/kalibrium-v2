@@ -69,8 +69,8 @@ final readonly class UserInvitationService
                 $tenantUser = TenantUser::query()->create([
                     'tenant_id' => $tenant->id,
                     'user_id' => $user->id,
-                    'company_id' => $data['company_id'] ?? null,
-                    'branch_id' => $data['branch_id'] ?? null,
+                    'company_id' => $data['company_id'],
+                    'branch_id' => $data['branch_id'],
                     'role' => $role,
                     'status' => 'invited',
                     'requires_2fa' => TenantRole::requiresTwoFactor($role),
@@ -226,7 +226,7 @@ final readonly class UserInvitationService
 
     /**
      * @param  array<string, mixed>  $payload
-     * @return array{name:string,email:string,role:string,company_id?:int|null,branch_id?:int|null}
+     * @return array{name:string,email:string,role:string,company_id:int,branch_id:int}
      *
      * @throws ValidationException
      */
@@ -236,8 +236,8 @@ final readonly class UserInvitationService
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255'],
             'role' => ['required', 'string', Rule::in(TenantRole::values())],
-            'company_id' => ['nullable', 'integer'],
-            'branch_id' => ['nullable', 'integer'],
+            'company_id' => ['required', 'integer'],
+            'branch_id' => ['required', 'integer'],
         ])->validate();
 
         if (isset($data['company_id']) && ! Company::query()
@@ -247,18 +247,14 @@ final readonly class UserInvitationService
             throw ValidationException::withMessages(['company_id' => 'Empresa invalida.']);
         }
 
-        if (isset($data['branch_id']) && ! isset($data['company_id'])) {
-            throw ValidationException::withMessages(['company_id' => 'Empresa obrigatoria para a filial informada.']);
-        }
-
-        if (isset($data['branch_id']) && ! Branch::query()
+        if (! Branch::query()
             ->whereKey($data['branch_id'])
             ->where('tenant_id', $tenantId)
             ->exists()) {
             throw ValidationException::withMessages(['branch_id' => 'Filial invalida.']);
         }
 
-        if (isset($data['company_id'], $data['branch_id']) && ! Branch::query()
+        if (! Branch::query()
             ->whereKey($data['branch_id'])
             ->where('tenant_id', $tenantId)
             ->where('company_id', $data['company_id'])
@@ -270,8 +266,8 @@ final readonly class UserInvitationService
             'name' => (string) $data['name'],
             'email' => (string) $data['email'],
             'role' => (string) $data['role'],
-            'company_id' => isset($data['company_id']) ? (int) $data['company_id'] : null,
-            'branch_id' => isset($data['branch_id']) ? (int) $data['branch_id'] : null,
+            'company_id' => (int) $data['company_id'],
+            'branch_id' => (int) $data['branch_id'],
         ];
     }
 }

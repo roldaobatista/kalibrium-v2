@@ -25,9 +25,11 @@ final class UsersDirectoryQuery
             ->when($normalizedSearch !== '', static function ($query) use ($normalizedSearch): void {
                 $needle = '%'.str_replace(['%', '_'], ['\%', '\_'], $normalizedSearch).'%';
                 $query->whereHas('user', static function ($userQuery) use ($needle): void {
-                    $userQuery
-                        ->where('name', 'like', $needle)
-                        ->orWhere('email', 'like', $needle);
+                    $userQuery->where(static function ($userSearchQuery) use ($needle): void {
+                        $userSearchQuery
+                            ->where('name', 'like', $needle)
+                            ->orWhere('email', 'like', $needle);
+                    });
                 });
             })
             ->orderBy('role')

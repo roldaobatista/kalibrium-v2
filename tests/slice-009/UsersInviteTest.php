@@ -136,6 +136,8 @@ test('AC-010: convite com campos invalidos ou empresa e filial de outro tenant r
     'nome com espacos' => [['name' => '   ']],
     'email invalido' => [['email' => 'email-invalido']],
     'papel invalido' => [['role' => 'owner']],
+    'empresa ausente' => [['company_id' => null, 'branch_id' => null]],
+    'filial ausente' => [['branch_id' => null]],
     'filial sem empresa' => [['company_id' => null]],
     'empresa de outro tenant' => [['company_id' => 'external']],
     'filial de outro tenant' => [['branch_id' => 'external']],
