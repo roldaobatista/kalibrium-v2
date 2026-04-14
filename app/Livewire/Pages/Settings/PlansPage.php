@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Settings;
 
-use App\Models\TenantUser;
+use App\Livewire\Pages\Settings\Concerns\ResolvesTenantSettingsContext;
 use App\Models\User;
 use App\Support\Settings\PlanSummaryService;
 use App\Support\Settings\PlanUpgradeRequestService;
 use App\Support\Tenancy\CurrentTenantResolver;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
 final class PlansPage extends Component
 {
+    use ResolvesTenantSettingsContext;
+
     public bool $readOnly = false;
 
     public bool $canRequestUpgrade = false;
@@ -27,17 +30,15 @@ final class PlansPage extends Component
         }
 
         $context = $resolver->resolve($user);
-        $role = strtolower((string) $context['tenant_user']->role);
-        if (! in_array($role, ['gerente', 'administrativo', 'visualizador'], true)) {
-            abort(403);
-        }
+        Gate::forUser($user)->authorize('tenant-plans.view', $context['tenant_user']);
 
-        if ($role === 'gerente' && (bool) $context['tenant_user']->requires_2fa && $user->two_factor_confirmed_at === null) {
+        if ((bool) $context['tenant_user']->requires_2fa && $user->two_factor_confirmed_at === null) {
             abort(403, 'Conclua a verificação em duas etapas.');
         }
 
         $this->readOnly = $context['access_mode'] === 'read-only' || session('tenant.access_mode') === 'read-only';
-        $this->canRequestUpgrade = $role === 'gerente' && ! $this->readOnly;
+        $this->canRequestUpgrade = Gate::forUser($user)->allows('tenant-plans.request-upgrade', $context['tenant_user'])
+            && ! $this->readOnly;
     }
 
     public function requestUpgrade(
@@ -60,20 +61,5 @@ final class PlansPage extends Component
         return view('livewire.pages.settings.plans-page', [
             'summary' => $summaryService->summaryFor($tenantUser->tenant()->firstOrFail()),
         ])->layout('layouts.app');
-    }
-
-    private function actor(): User
-    {
-        $user = Auth::user();
-        if (! $user instanceof User) {
-            abort(403);
-        }
-
-        return $user;
-    }
-
-    private function actorTenantUser(): TenantUser
-    {
-        return app(CurrentTenantResolver::class)->resolve($this->actor())['tenant_user'];
     }
 }

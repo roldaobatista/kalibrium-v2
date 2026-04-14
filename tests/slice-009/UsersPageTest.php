@@ -7,6 +7,7 @@ use App\Support\Settings\UserDeactivationService;
 use App\Support\Settings\UserInvitationService;
 use App\Support\Settings\UserRoleService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -57,6 +58,8 @@ test('AC-008: usuario sem papel gerente nao acessa dados administrativos nem con
         'status' => 'active',
     ]);
     $initialTenantUserCount = TenantUser::query()->where('tenant_id', $context['tenant']->id)->count();
+
+    expect(Gate::forUser($context['user'])->denies('tenant-users.manage', $context['tenant_user']))->toBeTrue();
 
     $response = $this
         ->actingAs($context['user'])

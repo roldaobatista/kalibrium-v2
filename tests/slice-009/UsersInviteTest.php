@@ -131,3 +131,29 @@ test('AC-011: e-mail ja ativo ou convidado no tenant atual nao recebe segundo co
     'ativo' => ['active'],
     'convidado' => ['invited'],
 ])->group('slice-009', 'ac-011');
+
+test('AC-013: convite para usuario existente em outro tenant nao altera nome global da conta', function (): void {
+    Mail::fake();
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $external = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'tecnico',
+        'user_name' => 'Nome Original Externo',
+    ]);
+
+    app(UserInvitationService::class)->invite($context['user'], $context['tenant_user'], slice009_invite_payload($context, [
+        'name' => 'Nome Tentativa Alteracao',
+        'email' => $external['user']->email,
+        'role' => 'visualizador',
+    ]));
+
+    expect($external['user']->fresh()->name)->toBe('Nome Original Externo');
+    expect(TenantUser::query()
+        ->where('tenant_id', $context['tenant']->id)
+        ->where('user_id', $external['user']->id)
+        ->where('status', 'invited')
+        ->exists())->toBeTrue();
+})->group('slice-009', 'ac-013');

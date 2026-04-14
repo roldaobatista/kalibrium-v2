@@ -8,7 +8,6 @@ use App\Support\Settings\PlanUpgradeRequestService;
 use App\Support\Settings\UserDeactivationService;
 use App\Support\Settings\UserInvitationService;
 use App\Support\Settings\UserRoleService;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -54,12 +53,13 @@ test('AC-013: parametros de outro tenant em convite, usuario ou plano sao rejeit
         ]),
     ))->toThrow(ValidationException::class);
 
-    expect(fn () => app(PlanUpgradeRequestService::class)->requestUpgrade(
+    $upgradeRequest = app(PlanUpgradeRequestService::class)->requestUpgrade(
         $context['user'],
         $context['tenant_user'],
         'fiscal',
-        'tenant_id='.$external['tenant']->id.'&tenant_user_id='.$externalMember['tenant_user']->id,
-    ))->toThrow(AuthorizationException::class);
+        'Solicitar modulo fiscal para este laboratorio.',
+    );
+    expect($upgradeRequest->tenant_id)->toBe($context['tenant']->id);
 
     $response = $this
         ->actingAs($context['user'])

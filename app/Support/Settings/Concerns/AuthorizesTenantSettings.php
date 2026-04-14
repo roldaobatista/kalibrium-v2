@@ -8,6 +8,7 @@ use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Gate;
 
 trait AuthorizesTenantSettings
 {
@@ -24,9 +25,11 @@ trait AuthorizesTenantSettings
             ->where('status', 'active')
             ->first();
 
-        if ($fresh === null || $fresh->tenant === null || strtolower((string) $fresh->role) !== 'gerente') {
+        if ($fresh === null || $fresh->tenant === null) {
             throw new AuthorizationException('Acesso indisponivel para esta conta.');
         }
+
+        Gate::forUser($actor)->authorize('tenant-users.manage', $fresh);
 
         $tenantStatus = strtolower((string) $fresh->tenant->status);
         if (! in_array($tenantStatus, $allowTrial ? ['active', 'trial', 'suspended'] : ['active', 'trial'], true)) {

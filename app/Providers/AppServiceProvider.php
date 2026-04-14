@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Policies\TenantSettingsPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('tenant-users.manage', [TenantSettingsPolicy::class, 'manageUsers']);
+        Gate::define('tenant-plans.view', [TenantSettingsPolicy::class, 'viewPlan']);
+        Gate::define('tenant-plans.request-upgrade', [TenantSettingsPolicy::class, 'requestPlanUpgrade']);
     }
 }

@@ -31,11 +31,6 @@ final readonly class PlanUpgradeRequestService
         string $featureCode,
         ?string $justification = null,
     ): PlanUpgradeRequest {
-        if (str_contains(strtolower($justification ?? ''), 'tenant_id')
-            || str_contains(strtolower($justification ?? ''), 'tenant_user_id')) {
-            throw new AuthorizationException('Acesso indisponivel para esta conta.');
-        }
-
         $tenant = $this->assertActiveManager($actor, $actorTenantUser);
         $data = Validator::make([
             'feature_code' => $featureCode,

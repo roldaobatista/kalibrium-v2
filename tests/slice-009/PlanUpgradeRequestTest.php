@@ -40,3 +40,23 @@ test('AC-007: gerente solicita upgrade de modulo fora do plano e o sistema regis
         }
     }
 })->group('slice-009', 'ac-007');
+
+test('AC-007: justificativa legitima com texto tenant_id nao bloqueia pedido de upgrade', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $fixture = slice009_seed_plan_fixture($context['tenant'], [
+        'feature_code' => 'fiscal',
+    ]);
+
+    $request = app(PlanUpgradeRequestService::class)->requestUpgrade(
+        $context['user'],
+        $context['tenant_user'],
+        $fixture['feature_code'],
+        'Comparar tenant_id do sistema legado durante a migracao.',
+    );
+
+    expect($request->tenant_id)->toBe($context['tenant']->id);
+    expect((string) $request->justification)->toContain('tenant_id do sistema legado');
+})->group('slice-009', 'ac-007');

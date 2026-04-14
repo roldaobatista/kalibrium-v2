@@ -11,6 +11,7 @@ use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\Concerns\AuthorizesTenantSettings;
 use App\Support\Tenancy\TenantAuditRecorder;
+use App\Support\Tenancy\TenantRole;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -23,12 +24,6 @@ use Illuminate\Validation\ValidationException;
 final readonly class UserInvitationService
 {
     use AuthorizesTenantSettings;
-
-    /** @var array<int, string> */
-    private const array ROLES = ['gerente', 'tecnico', 'administrativo', 'visualizador'];
-
-    /** @var array<int, string> */
-    private const array CRITICAL_ROLES = ['gerente', 'administrativo'];
 
     public function __construct(
         private TenantAuditRecorder $auditRecorder,
@@ -65,9 +60,6 @@ final readonly class UserInvitationService
                 'password' => Hash::make(Str::random(32)),
                 'email_verified_at' => null,
             ]);
-            if ($existingUser !== null) {
-                $user->forceFill(['name' => trim((string) $data['name'])])->save();
-            }
 
             $token = Str::random(64);
             $tenantUser = TenantUser::query()->create([
@@ -77,7 +69,7 @@ final readonly class UserInvitationService
                 'branch_id' => $data['branch_id'] ?? null,
                 'role' => $role,
                 'status' => 'invited',
-                'requires_2fa' => in_array($role, self::CRITICAL_ROLES, true),
+                'requires_2fa' => TenantRole::requiresTwoFactor($role),
                 'invited_at' => now(),
                 'accepted_at' => null,
                 'invitation_token_hash' => hash('sha256', $token),
@@ -183,7 +175,7 @@ final readonly class UserInvitationService
         $data = Validator::make($payload, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255'],
-            'role' => ['required', 'string', Rule::in(self::ROLES)],
+            'role' => ['required', 'string', Rule::in(TenantRole::values())],
             'company_id' => ['nullable', 'integer'],
             'branch_id' => ['nullable', 'integer'],
         ])->validate();

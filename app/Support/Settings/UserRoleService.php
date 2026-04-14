@@ -8,6 +8,7 @@ use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\Concerns\AuthorizesTenantSettings;
 use App\Support\Tenancy\TenantAuditRecorder;
+use App\Support\Tenancy\TenantRole;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -17,12 +18,6 @@ use Illuminate\Validation\ValidationException;
 final readonly class UserRoleService
 {
     use AuthorizesTenantSettings;
-
-    /** @var array<int, string> */
-    private const array ROLES = ['gerente', 'tecnico', 'administrativo', 'visualizador'];
-
-    /** @var array<int, string> */
-    private const array CRITICAL_ROLES = ['gerente', 'administrativo'];
 
     public function __construct(
         private TenantAuditRecorder $auditRecorder,
@@ -36,7 +31,7 @@ final readonly class UserRoleService
         $tenant = $this->assertActiveManager($actor, $actorTenantUser);
         $this->assertSameTenant($actorTenantUser, $target);
         $data = Validator::make(['role' => $role], [
-            'role' => ['required', 'string', Rule::in(self::ROLES)],
+            'role' => ['required', 'string', Rule::in(TenantRole::values())],
         ])->validate();
         $newRole = strtolower((string) $data['role']);
 
@@ -61,7 +56,7 @@ final readonly class UserRoleService
 
             $fresh->forceFill([
                 'role' => $newRole,
-                'requires_2fa' => in_array($newRole, self::CRITICAL_ROLES, true),
+                'requires_2fa' => TenantRole::requiresTwoFactor($newRole),
             ])->save();
 
             $this->auditRecorder->record(

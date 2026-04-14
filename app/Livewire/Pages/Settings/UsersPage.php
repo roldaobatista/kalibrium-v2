@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Settings;
 
+use App\Livewire\Pages\Settings\Concerns\ResolvesTenantSettingsContext;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\UserDeactivationService;
@@ -13,11 +14,14 @@ use App\Support\Settings\UsersDirectoryQuery;
 use App\Support\Tenancy\CurrentTenantResolver;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
 final class UsersPage extends Component
 {
+    use ResolvesTenantSettingsContext;
+
     public string $search = '';
 
     public string $role = '';
@@ -41,7 +45,7 @@ final class UsersPage extends Component
         }
 
         $context = $resolver->resolve($user);
-        $resolver->assertManager($context);
+        Gate::forUser($user)->authorize('tenant-users.manage', $context['tenant_user']);
 
         if ((bool) $context['tenant_user']->requires_2fa && $user->two_factor_confirmed_at === null) {
             abort(403, 'Conclua a verificação em duas etapas.');
@@ -92,21 +96,6 @@ final class UsersPage extends Component
             $this->search,
             $this->role === '' ? null : $this->role,
         );
-    }
-
-    private function actor(): User
-    {
-        $user = Auth::user();
-        if (! $user instanceof User) {
-            abort(403);
-        }
-
-        return $user;
-    }
-
-    private function actorTenantUser(): TenantUser
-    {
-        return app(CurrentTenantResolver::class)->resolve($this->actor())['tenant_user'];
     }
 
     private function targetTenantUser(int $tenantUserId): TenantUser
