@@ -1,0 +1,128 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Models\TenantUser;
+use Illuminate\Support\Str;
+use Livewire\Livewire;
+
+require_once __DIR__.'/TestHelpers.php';
+
+test('AC-001: gerente com 2FA concluido acessa /settings/users e ve usuarios, papeis, status, 2FA e filtros do tenant atual', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+        'two_factor_confirmed' => true,
+        'tenant_name' => 'Laboratorio Alfa '.Str::uuid(),
+    ]);
+    $member = slice009_create_tenant_member($context, [
+        'role' => 'tecnico',
+        'user_name' => 'Tecnico Tenant Atual',
+    ]);
+    $otherTenant = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+        'tenant_name' => 'Laboratorio Sigiloso '.Str::uuid(),
+    ]);
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->get(slice009_routes()['users']);
+
+    $response->assertStatus(200);
+    $response->assertSee($context['user']->email);
+    $response->assertSee($member['user']->email);
+    $response->assertSee('Papel');
+    $response->assertSee('Status');
+    $response->assertSee('2FA');
+    $response->assertSee('Buscar');
+    $response->assertSee('gerente');
+    $response->assertSee('tecnico');
+    slice009_assert_body_does_not_leak($response, [
+        $otherTenant['tenant']->name,
+        $otherTenant['user']->email,
+    ]);
+})->group('slice-009', 'ac-001');
+
+test('AC-008: usuario sem papel gerente nao acessa dados administrativos nem consegue convidar usuario', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'tecnico',
+    ]);
+    $initialTenantUserCount = TenantUser::query()->where('tenant_id', $context['tenant']->id)->count();
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->get(slice009_routes()['users']);
+
+    expect(in_array($response->status(), [302, 403], true))->toBeTrue();
+    slice009_assert_body_does_not_leak($response, [
+        'Convidar usuario',
+        'Alterar papel',
+        $context['tenant']->name,
+    ]);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(slice009_users_component())
+        ->set('form', slice009_invite_payload($context))
+        ->call('inviteUser'))->toThrow(Throwable::class);
+
+    expect(TenantUser::query()->where('tenant_id', $context['tenant']->id)->count())->toBe($initialTenantUserCount);
+})->group('slice-009', 'ac-008');
+
+test('AC-009: gerente com 2FA pendente e redirecionado antes de convidar, alterar papel ou desativar usuario', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+        'requires_2fa' => true,
+        'two_factor_confirmed' => false,
+    ]);
+    $member = slice009_create_tenant_member($context, ['role' => 'tecnico']);
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->withSession(['auth.two_factor_pending' => true])
+        ->get(slice009_routes()['users']);
+
+    $response->assertRedirect('/auth/two-factor-challenge');
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(slice009_users_component())
+        ->set('form', slice009_invite_payload($context))
+        ->call('inviteUser'))->toThrow(Throwable::class);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(slice009_users_component())
+        ->call('updateRole', $member['tenant_user']->id, 'gerente'))->toThrow(Throwable::class);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(slice009_users_component())
+        ->call('deactivateUser', $member['tenant_user']->id))->toThrow(Throwable::class);
+})->group('slice-009', 'ac-009');
+
+test('AC-014: tenant suspended pode ler /settings/users em modo somente leitura, mas acoes mutaveis ficam bloqueadas', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'suspended',
+        'role' => 'gerente',
+    ]);
+    $member = slice009_create_tenant_member($context, ['role' => 'tecnico']);
+    $before = TenantUser::query()->where('tenant_id', $context['tenant']->id)->count();
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->withSession(['tenant.access_mode' => 'read-only'])
+        ->get(slice009_routes()['users']);
+
+    $response->assertStatus(200);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(slice009_users_component())
+        ->set('form', slice009_invite_payload($context))
+        ->call('inviteUser'))->toThrow(Throwable::class);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(slice009_users_component())
+        ->call('updateRole', $member['tenant_user']->id, 'administrativo'))->toThrow(Throwable::class);
+
+    expect(TenantUser::query()->where('tenant_id', $context['tenant']->id)->count())->toBe($before);
+})->group('slice-009', 'ac-014');

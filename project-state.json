@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T14:09:47-04:00",
+  "updated_at": "2026-04-14T16:05:31-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -37,10 +37,10 @@
   },
   "execution": {
     "current_epic": "E02",
-    "current_story": "TEN-001",
-    "current_slice": "008",
-    "slice_status": "merged_mainline_exception",
-    "last_green_commit": "7286cf3",
+    "current_story": "TEN-002",
+    "current_slice": "009",
+    "slice_status": "tests_red_awaiting_pm_acceptance",
+    "last_green_commit": "bf22fd4",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -49,11 +49,11 @@
     "spec_auditor": "approved",
     "plan": "approved",
     "plan_review": "approved",
-    "verifier": "approved",
-    "reviewer": "approved",
-    "security_reviewer": "approved",
-    "test_auditor": "approved",
-    "functional_reviewer": "approved"
+    "verifier": "not_started",
+    "reviewer": "not_started",
+    "security_reviewer": "not_started",
+    "test_auditor": "not_started",
+    "functional_reviewer": "not_started"
   },
   "pending_decisions": [
     {
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 008 encerrado como excecao operacional de mainline, com todos os gates obrigatorios aprovados e findings vazios. O harness de merge foi corrigido para exigir os 5 gates antes de qualquer PR. A excecao foi documentada em docs/incidents/slice-008-mainline-integration-2026-04-14.md, a telemetria recebeu evento merge via script permitido, e slice-report/retrospective foram gerados.",
-    "next_action": "Iniciar o proximo slice em feature branch ou git worktree; nao iniciar novo slice de produto diretamente em main.",
+    "last_session_summary": "Slice 009 iniciou em branch dedicada. A spec foi aceita pelo PM, auditada e aprovada. O plano foi gerado, reprovou duas vezes em plan-review, foi corrigido e reauditoria aprovou com findings vazios. O PM aprovou o plano e os testes RED do slice 009 foram criados e validados, cobrindo AC-001..AC-018 e AC-SEC-001..AC-SEC-003.",
+    "next_action": "PM aceitar os testes RED do slice 009; se aceita, commitar `test(slice-009): AC tests red` e iniciar implementacao para tornar os testes verdes.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -157,21 +157,38 @@
       "docs/handoffs/latest.md",
       "project-state.json",
       ".claude/agents/orchestrator.md",
-      ".claude/skills/merge-slice.md",
-      "scripts/merge-slice.sh",
+      ".claude/skills/audit-spec.md",
+      ".claude/skills/draft-spec.md",
+      ".claude/skills/draft-tests.md",
+      ".claude/skills/new-slice.md",
+      ".claude/agents/ac-to-test.md",
+      "scripts/audit-spec.sh",
+      "scripts/draft-spec.sh",
+      "scripts/draft-tests.sh",
+      "scripts/new-slice.sh",
       "scripts/where-am-i.sh",
       "docs/product/roadmap.md",
       "docs/slice-registry.md",
-      "docs/incidents/slice-008-mainline-integration-2026-04-14.md",
-      "docs/retrospectives/slice-008-report.md",
-      "docs/retrospectives/slice-008.md",
       "specs/.current",
-      "specs/008/spec.md",
-      "specs/008/spec-audit.json",
-      "specs/008/plan.md",
-      "specs/008/plan-review.json",
-      "docs/adr/0010-constitution-amendment-r6-gate-threshold.md",
-      "docs/retrospectives/constitution-r6-gate-threshold-2026-04-14.md"
+      "specs/009/spec.md",
+      "specs/009/spec-audit.json",
+      "specs/009/plan.md",
+      "specs/009/plan-review.json",
+      "tests/Pest.php",
+      "tests/slice-009/TestHelpers.php",
+      "tests/slice-009/UsersPageTest.php",
+      "tests/slice-009/UsersInviteTest.php",
+      "tests/slice-009/UsersInviteAcceptanceTest.php",
+      "tests/slice-009/UsersRoleTest.php",
+      "tests/slice-009/UsersDeactivateTest.php",
+      "tests/slice-009/PlansPageTest.php",
+      "tests/slice-009/PlanUpgradeRequestTest.php",
+      "tests/slice-009/UsersPlansSecurityTest.php",
+      "docs/design/wireframes/wireframes-e02-auth.md",
+      "docs/architecture/api-contracts/api-e02-auth.md",
+      "docs/architecture/data-models/erd-e02-auth.md",
+      "docs/architecture/data-models/migrations-e02-auth.md",
+      "docs/product/flows/flows-e02-auth.md"
     ]
   }
 }

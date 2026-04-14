@@ -1,0 +1,112 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Models\TenantUser;
+use App\Models\User;
+use App\Support\Settings\UserInvitationService;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
+
+require_once __DIR__.'/TestHelpers.php';
+
+test('AC-002: gerente convida usuario, vinculo pendente fica no tenant atual, 2FA e obrigatoria para papeis criticos e auditoria nao vaza token', function (): void {
+    Mail::fake();
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $payload = slice009_invite_payload($context, [
+        'role' => 'gerente',
+        'email' => slice009_unique_email(),
+    ]);
+
+    app(UserInvitationService::class)->invite($context['user'], $context['tenant_user'], $payload);
+
+    $invitedUser = User::query()->where('email', mb_strtolower($payload['email']))->first();
+    expect($invitedUser)->not->toBeNull();
+
+    $tenantUser = TenantUser::query()
+        ->where('tenant_id', $context['tenant']->id)
+        ->where('user_id', $invitedUser->id)
+        ->first();
+
+    expect($tenantUser)->not->toBeNull();
+    expect($tenantUser->status)->toBe('invited');
+    expect($tenantUser->role)->toBe('gerente');
+    expect((bool) $tenantUser->requires_2fa)->toBeTrue();
+
+    Mail::assertSentCount(1);
+    slice009_assert_audit_does_not_leak($context['tenant']->id, [
+        'SenhaSegura123!',
+        'invitation_token_hash',
+        (string) ($tenantUser->invitation_token_hash ?? ''),
+    ]);
+})->group('slice-009', 'ac-002');
+
+test('AC-010: convite com campos invalidos ou empresa e filial de outro tenant retorna erro e nao cria vinculo', function (array $payloadOverrides): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $external = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $beforeUsers = User::query()->count();
+    $beforeTenantUsers = TenantUser::query()->where('tenant_id', $context['tenant']->id)->count();
+    $payload = slice009_invite_payload($context, array_merge([
+        'company_id' => $context['company']->id,
+        'branch_id' => $context['branch']->id,
+    ], $payloadOverrides));
+
+    if (($payloadOverrides['company_id'] ?? null) === 'external') {
+        $payload['company_id'] = $external['company']->id;
+    }
+    if (($payloadOverrides['branch_id'] ?? null) === 'external') {
+        $payload['branch_id'] = $external['branch']->id;
+    }
+
+    expect(fn () => app(UserInvitationService::class)
+        ->invite($context['user'], $context['tenant_user'], $payload))->toThrow(ValidationException::class);
+
+    expect(User::query()->count())->toBe($beforeUsers);
+    expect(TenantUser::query()->where('tenant_id', $context['tenant']->id)->count())->toBe($beforeTenantUsers);
+    slice009_assert_audit_does_not_leak($context['tenant']->id, [$payload['email'] ?? '']);
+})->with([
+    'nome vazio' => [['name' => '']],
+    'email invalido' => [['email' => 'email-invalido']],
+    'papel invalido' => [['role' => 'owner']],
+    'empresa de outro tenant' => [['company_id' => 'external']],
+    'filial de outro tenant' => [['branch_id' => 'external']],
+])->group('slice-009', 'ac-010');
+
+test('AC-011: e-mail ja ativo ou convidado no tenant atual nao recebe segundo convite', function (string $existingStatus): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $member = slice009_create_tenant_member($context, [
+        'status' => $existingStatus,
+        'email' => slice009_unique_email(),
+    ]);
+    $before = TenantUser::query()
+        ->where('tenant_id', $context['tenant']->id)
+        ->where('user_id', $member['user']->id)
+        ->count();
+    $payload = slice009_invite_payload($context, [
+        'email' => $member['user']->email,
+        'role' => 'tecnico',
+    ]);
+
+    expect(fn () => app(UserInvitationService::class)
+        ->invite($context['user'], $context['tenant_user'], $payload))->toThrow(ValidationException::class);
+
+    expect(TenantUser::query()
+        ->where('tenant_id', $context['tenant']->id)
+        ->where('user_id', $member['user']->id)
+        ->count())->toBe($before);
+})->with([
+    'ativo' => ['active'],
+    'convidado' => ['invited'],
+])->group('slice-009', 'ac-011');
