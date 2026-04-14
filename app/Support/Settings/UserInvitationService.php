@@ -194,6 +194,14 @@ final readonly class UserInvitationService
             throw ValidationException::withMessages(['branch_id' => 'Filial invalida.']);
         }
 
+        if (isset($data['company_id'], $data['branch_id']) && ! Branch::query()
+            ->whereKey($data['branch_id'])
+            ->where('tenant_id', $tenantId)
+            ->where('company_id', $data['company_id'])
+            ->exists()) {
+            throw ValidationException::withMessages(['branch_id' => 'Filial invalida para a empresa informada.']);
+        }
+
         return [
             'name' => (string) $data['name'],
             'email' => (string) $data['email'],

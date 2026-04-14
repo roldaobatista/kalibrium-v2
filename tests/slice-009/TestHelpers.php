@@ -351,7 +351,7 @@ function slice009_seed_plan_fixture(Tenant $tenant, array $overrides = []): arra
 
     slice009_insert_filtered('plan_entitlements', [
         'plan_id' => $planId,
-        'feature_id' => $featureId,
+        'feature_id' => null,
         'feature_code' => 'users',
         'limit_key' => 'users',
         'limit_value' => $usersLimit,
@@ -359,7 +359,7 @@ function slice009_seed_plan_fixture(Tenant $tenant, array $overrides = []): arra
     ]);
     slice009_insert_filtered('plan_entitlements', [
         'plan_id' => $planId,
-        'feature_id' => $featureId,
+        'feature_id' => null,
         'feature_code' => 'monthly_os',
         'limit_key' => 'monthly_os',
         'limit_value' => $monthlyOsLimit,

@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 use App\Mail\UserInvitationMail;
+use App\Models\Branch;
+use App\Models\Company;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\UserInvitationService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -101,6 +104,31 @@ test('AC-010: convite com campos invalidos ou empresa e filial de outro tenant r
     'empresa de outro tenant' => [['company_id' => 'external']],
     'filial de outro tenant' => [['branch_id' => 'external']],
 ])->group('slice-009', 'ac-010');
+
+test('AC-010: convite bloqueia filial que nao pertence a empresa informada no mesmo tenant', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $otherCompany = Company::factory()->create([
+        'tenant_id' => $context['tenant']->id,
+        'legal_name' => 'Outra empresa '.Str::uuid(),
+    ]);
+    $otherBranch = Branch::factory()->create([
+        'tenant_id' => $context['tenant']->id,
+        'company_id' => $otherCompany->id,
+        'name' => 'Outra filial '.Str::uuid(),
+    ]);
+
+    expect(fn () => app(UserInvitationService::class)->invite(
+        $context['user'],
+        $context['tenant_user'],
+        slice009_invite_payload($context, [
+            'company_id' => $context['company']->id,
+            'branch_id' => $otherBranch->id,
+        ]),
+    ))->toThrow(ValidationException::class);
+})->group('slice-009', 'ac-010');
 
 test('AC-011: e-mail ja ativo ou convidado no tenant atual nao recebe segundo convite', function (string $existingStatus): void {
     $context = slice009_user_with_tenant_context([

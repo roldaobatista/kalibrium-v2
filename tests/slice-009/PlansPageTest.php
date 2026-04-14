@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\Settings\PlanSummaryService;
 use App\Support\Settings\PlanUpgradeRequestService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Carbon;
@@ -35,6 +36,34 @@ test('AC-006: gerente com 2FA concluido acessa /settings/plans e ve plano, statu
     $response->assertSee('Armazenamento');
     $response->assertSee('80%');
     $response->assertSee('Modulo Fiscal');
+})->group('slice-009', 'ac-006');
+
+test('AC-006: uso de usuarios em /settings/plans reflete vinculos ativos sem gravar metricas', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    slice009_create_tenant_member($context, [
+        'role' => 'tecnico',
+        'status' => 'active',
+    ]);
+    slice009_seed_plan_fixture($context['tenant'], [
+        'users_used' => 99,
+        'users_limit' => 10,
+        'monthly_os_used' => 20,
+        'monthly_os_limit' => 100,
+    ]);
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->get(slice009_routes()['plans']);
+
+    $response->assertStatus(200);
+    $response->assertSee('2 de 10');
+    $summary = app(PlanSummaryService::class)->summaryFor($context['tenant']);
+    expect($summary['usage']['users'])->toBe(2);
+    $metric = DB::table('tenant_plan_metrics')->where('tenant_id', $context['tenant']->id)->first();
+    expect((int) $metric->users_used)->toBe(99);
 })->group('slice-009', 'ac-006');
 
 test('AC-014: tenant suspended pode ler /settings/plans, mas pedido de upgrade e bloqueado em modo somente leitura', function (): void {

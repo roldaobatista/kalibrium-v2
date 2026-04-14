@@ -85,7 +85,7 @@ test('AC-013: parametros de outro tenant em convite, usuario ou plano sao rejeit
     $summary = app(PlanSummaryService::class)->summaryFor($context['tenant']);
     expect($summary['limits']['users'])->toBe(10);
     expect($summary['limits']['monthly_os'])->toBe(100);
-    expect($summary['usage']['users'])->toBe(2);
+    expect($summary['usage']['users'])->toBe(1);
     expect($summary['usage']['monthly_os'])->toBe(20);
 })->group('slice-009', 'ac-013');
 

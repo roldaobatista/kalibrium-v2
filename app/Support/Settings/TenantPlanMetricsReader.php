@@ -12,20 +12,24 @@ final class TenantPlanMetricsReader
 {
     public function snapshotForTenant(Tenant $tenant): TenantPlanMetric
     {
+        $activeUsers = TenantUser::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('status', 'active')
+            ->count();
+
         $metric = TenantPlanMetric::query()
             ->where('tenant_id', $tenant->id)
             ->first();
 
         if ($metric !== null) {
+            $metric->users_used = $activeUsers;
+
             return $metric;
         }
 
         return new TenantPlanMetric([
             'tenant_id' => $tenant->id,
-            'users_used' => TenantUser::query()
-                ->where('tenant_id', $tenant->id)
-                ->where('status', 'active')
-                ->count(),
+            'users_used' => $activeUsers,
             'monthly_os_used' => 0,
             'storage_used_bytes' => 0,
             'sampled_at' => null,
