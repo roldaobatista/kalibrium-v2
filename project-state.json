@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T10:17:56-04:00",
+  "updated_at": "2026-04-14T11:33:17-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,8 +39,8 @@
     "current_epic": "E02",
     "current_story": "TEN-001",
     "current_slice": "008",
-    "slice_status": "reviewer_approved_pending_parallel_quality_gates",
-    "last_green_commit": "b7a812b",
+    "slice_status": "all_gates_approved_pending_merge",
+    "last_green_commit": "7286cf3",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -51,9 +51,9 @@
     "plan_review": "approved",
     "verifier": "approved",
     "reviewer": "approved",
-    "security_reviewer": "not_started",
-    "test_auditor": "not_started",
-    "functional_reviewer": "not_started"
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved"
   },
   "pending_decisions": [
     {
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 008 passou pelo gate /review-pr 008 apos uma rejeicao estrutural menor: o reviewer apontou escrita duplicada/dead code no TenantPage, a escrita foi removida do Livewire e centralizada no controller + TenantSettingsUpdater, e a re-review isolada aprovou com findings vazios. O harness de review tambem foi corrigido para nao montar diff vazio quando main...HEAD estiver vazio em trabalho direto na main; agora usa commits que mencionam slice-NNN como fallback, falha se ainda assim nao houver material e aponta aos gates finais apos reviewer aprovado.",
-    "next_action": "Rodar os gates finais em contexto isolado: /security-review 008, /test-audit 008 e /functional-review 008. Se qualquer gate emitir finding, corrigir todos os achados e reexecutar o mesmo gate antes de avancar.",
+    "last_session_summary": "Slice 008 passou pelos gates finais apos correcoes sem pular processo. Security-review aprovou apos revalidacao transacional de vinculo/papel/status em TenantSettingsUpdater. Test-audit aprovou apos reforcar AC-005 com dados reais no tenant B, AC-012 com falha dentro da transacao, AC-011 com stale role e AC-002/003/004 com persistencia de campos. Functional-review aprovou apos validação da combinacao perfil operacional x emissao metrologica.",
+    "next_action": "Rodar /merge-slice 008. Todos os gates do pipeline estao approved com findings vazios e relatorio PM atualizado.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

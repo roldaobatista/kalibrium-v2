@@ -1,0 +1,83 @@
+{
+  "slice_id": "slice-008",
+  "verdict": "approved",
+  "timestamp": "2026-04-14T11:23:03.0725843-04:00",
+  "ac_assessment": [
+    {
+      "ac": "AC-001",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta nos testes de página; o formulário é exibido para gerente autenticado em tenant active com os campos esperados."
+    },
+    {
+      "ac": "AC-002",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta nos testes de persistência; a operação cria tenant, empresa raiz e filial raiz no mesmo tenant quando ainda não existem."
+    },
+    {
+      "ac": "AC-003",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta nos testes de atualização; os registros existentes são reaproveitados e não há duplicação."
+    },
+    {
+      "ac": "AC-004",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta no fluxo trial; a configuração inicial é aceita e permanece vinculada ao tenant atual."
+    },
+    {
+      "ac": "AC-005",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta de isolamento; acesso e salvamento ficam restritos ao tenant A sem vazamento de dados do tenant B."
+    },
+    {
+      "ac": "AC-006",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta de auditoria; o log registra usuário, tenant, ação e campos alterados sem armazenar segredos."
+    },
+    {
+      "ac": "AC-007",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta de validação; os casos de CNPJ ausente, inválido e duplicado retornam erro e não alteram persistência."
+    },
+    {
+      "ac": "AC-008",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta de validação por campo; há também o caso de combinação intermediário/acreditado sem emissão metrológica, que retorna erro de produto e impede gravação parcial."
+    },
+    {
+      "ac": "AC-009",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta de autorização; o usuário sem papel gerente não vê edição e recebe bloqueio seguro."
+    },
+    {
+      "ac": "AC-010",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta do modo read-only; visualização continua disponível e o salvamento é bloqueado sem escrita."
+    },
+    {
+      "ac": "AC-011",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta da revalidação transacional; a troca, suspensão ou remoção do vínculo bloqueia o write e evita persistência no tenant anterior."
+    },
+    {
+      "ac": "AC-012",
+      "met": true,
+      "confidence": "high",
+      "notes": "Cobertura direta de atomicidade; a falha desfaz a operação inteira e evita estados divergentes."
+    }
+  ],
+  "ux_findings": [],
+  "consistency_findings": [],
+  "business_rule_findings": [],
+  "next_action": "approved"
+}

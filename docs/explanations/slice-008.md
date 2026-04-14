@@ -1,6 +1,6 @@
 # Slice 008 — TEN-001 - Primeiro laboratorio isolado
 
-**Status:** revisão aprovada; aguardando gates finais
+**Status:** ✓ pronto para usar
 **Data:** 2026-04-14
 **Slice:** 008
 
@@ -66,7 +66,7 @@ Esta entrega cobre os seguintes critérios:
 
 ## Próximo passo
 
-Seguir para as revisões de segurança, testes e funcionalidade antes de qualquer merge.
+Você pode testar visualmente a funcionalidade nova. Se tudo estiver como esperado, aprove o merge.
 
 ---
 
@@ -75,14 +75,17 @@ Seguir para as revisões de segurança, testes e funcionalidade antes de qualque
 
 - **Verifier verdict:** approved
 - **Reviewer verdict:** approved
-- **Security verdict:** -
-- **Test audit verdict:** -
-- **Functional verdict:** -
+- **Security verdict:** approved
+- **Test audit verdict:** approved
+- **Functional verdict:** approved
 - **ACs pass/fail:** 12 / 0
 - **Artefatos:**
     - `specs/008/spec.md`
     - `specs/008/verification.json`
     - `specs/008/review.json`
+    - `specs/008/security-review.json`
+    - `specs/008/test-audit.json`
+    - `specs/008/functional-review.json`
 
 Tradução gerada automaticamente por `scripts/translate-pm.sh` (B-010).
 
