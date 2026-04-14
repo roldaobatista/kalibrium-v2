@@ -1,7 +1,7 @@
 # Plano técnico do slice 008 — TEN-001 Primeiro laboratorio isolado
 
 **Gerado por:** Codex CLI (orquestrador)
-**Status:** draft
+**Status:** approved
 **Spec de origem:** `specs/008/spec.md`
 
 ---
