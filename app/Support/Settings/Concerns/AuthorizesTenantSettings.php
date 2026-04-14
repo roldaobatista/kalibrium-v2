@@ -8,6 +8,7 @@ use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 trait AuthorizesTenantSettings
@@ -55,5 +56,24 @@ trait AuthorizesTenantSettings
         if ((int) $actorTenantUser->tenant_id !== (int) $target->tenant_id) {
             throw new AuthorizationException('Acesso indisponivel para esta conta.');
         }
+    }
+
+    private function lockActiveManagerSetForTenant(int $tenantId): int
+    {
+        DB::table('tenants')
+            ->where('id', $tenantId)
+            ->lockForUpdate()
+            ->first(['id']);
+
+        $activeManagers = TenantUser::query()
+            ->where('tenant_id', $tenantId)
+            ->where('role', 'gerente')
+            ->where('status', 'active')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get(['id'])
+            ->all();
+
+        return count($activeManagers);
     }
 }

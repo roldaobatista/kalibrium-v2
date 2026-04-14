@@ -172,13 +172,15 @@ test('AC-SEC-002: auditorias de convite, aceite, papel, desativacao e upgrade na
         $context['user'],
         $context['tenant_user'],
         'fiscal',
-        'Precisamos avaliar o modulo fiscal.',
+        'Precisamos avaliar o modulo fiscal com token interno convite-privado-123.',
     );
 
     slice009_assert_audit_does_not_leak($context['tenant']->id, [
         'SenhaSegura123!',
         'NovaSenhaSegura123!',
         'invitation-token',
+        'convite-privado-123',
+        'justification',
         'two_factor_secret',
         'recovery-code-1',
     ]);

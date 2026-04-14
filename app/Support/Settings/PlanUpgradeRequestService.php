@@ -64,7 +64,7 @@ final readonly class PlanUpgradeRequestService
                 (int) $tenant->id,
                 $actor->id,
                 'tenant.plan.upgrade_requested',
-                ['feature_code', 'justification', 'status'],
+                ['feature_code', 'status'],
             );
 
             return $request;

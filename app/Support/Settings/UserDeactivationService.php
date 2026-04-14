@@ -28,6 +28,7 @@ final readonly class UserDeactivationService
         $this->assertSameTenant($actorTenantUser, $target);
 
         DB::transaction(function () use ($actor, $tenant, $target): void {
+            $activeManagers = $this->lockActiveManagerSetForTenant((int) $tenant->id);
             $fresh = TenantUser::query()
                 ->whereKey($target->id)
                 ->where('tenant_id', $tenant->id)
@@ -35,12 +36,6 @@ final readonly class UserDeactivationService
                 ->firstOrFail();
 
             if ($fresh->role === 'gerente' && $fresh->status === 'active') {
-                $activeManagers = TenantUser::query()
-                    ->where('tenant_id', $tenant->id)
-                    ->where('role', 'gerente')
-                    ->where('status', 'active')
-                    ->count();
-
                 if ($activeManagers <= 1 || (int) $fresh->user_id === $actor->id) {
                     throw new AuthorizationException('Mantenha ao menos um gerente ativo.');
                 }

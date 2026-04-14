@@ -36,6 +36,7 @@ final readonly class UserRoleService
         $newRole = strtolower((string) $data['role']);
 
         DB::transaction(function () use ($actor, $tenant, $target, $newRole): void {
+            $activeManagers = $this->lockActiveManagerSetForTenant((int) $tenant->id);
             $fresh = TenantUser::query()
                 ->whereKey($target->id)
                 ->where('tenant_id', $tenant->id)
@@ -43,12 +44,6 @@ final readonly class UserRoleService
                 ->firstOrFail();
 
             if ($fresh->status === 'active' && $fresh->role === 'gerente' && $newRole !== 'gerente') {
-                $activeManagers = TenantUser::query()
-                    ->where('tenant_id', $tenant->id)
-                    ->where('role', 'gerente')
-                    ->where('status', 'active')
-                    ->count();
-
                 if ($activeManagers <= 1) {
                     throw new AuthorizationException('Mantenha ao menos um gerente ativo.');
                 }
