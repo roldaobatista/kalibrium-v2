@@ -1,112 +1,112 @@
 {
   "slice_id": "slice-007",
   "verdict": "approved",
-  "timestamp": "2026-04-14T01:30:50Z",
+  "timestamp": "2026-04-14T01:46:21Z",
   "ac_checks": [
     {
       "ac": "AC-001",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: POST /auth/login autentica usuario ativo e redireciona para /app"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - login autentica usuario ativo e redireciona para /app"
     },
     {
       "ac": "AC-002",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: POST /auth/login com 2FA exigido redireciona para /auth/two-factor-challenge"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - login com 2FA exigido redireciona para /auth/two-factor-challenge e renova sessao"
     },
     {
       "ac": "AC-003",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php: POST /auth/two-factor-challenge com codigo TOTP valido conclui autenticao e redireciona para /app"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php: PASS - codigo TOTP valido conclui autenticacao e redireciona para /app"
     },
     {
       "ac": "AC-004",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php: POST /auth/two-factor-challenge com recovery_code valido conclui autenticao, invalida o codigo e registra auditoria"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php: PASS - recovery_code valido conclui autenticacao, invalida codigo e registra auditoria"
     },
     {
       "ac": "AC-005",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php: POST /auth/forgot-password responde com mensagem neutra para e-mail valido"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php: PASS - forgot-password responde mensagem neutra para email valido e usuario existente"
     },
     {
       "ac": "AC-006",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php: POST /auth/reset-password com token valido altera a senha, invalida o token e redireciona para /auth/login"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php: PASS - reset-password com token valido altera senha, invalida token e redireciona para /auth/login"
     },
     {
       "ac": "AC-007",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthAuditTest.php: tentativa de login grava login_audit_logs sem expor credenciais"
+      "evidence": "tests/slice-007/AuthAuditTest.php: PASS - login_audit_logs gravam evento, user_id, IP e hash de user agent sem expor segredo"
     },
     {
       "ac": "AC-008",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: POST /auth/login com credenciais incorretas retorna 422 neutro sem enumerar usuario"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - credenciais incorretas retornam 422 neutro sem enumerar usuario"
     },
     {
       "ac": "AC-009",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: POST /auth/login aplica rate limit e retorna 429 quando excede tentativas"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - rate limit retorna 429 quando excede tentativas"
     },
     {
       "ac": "AC-010",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php: POST /auth/forgot-password com e-mail invalido retorna 422 e nao envia e-mail"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php: PASS - email invalido em forgot-password retorna 422 e nao envia email"
     },
     {
       "ac": "AC-011",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: POST /auth/login com tenant suspended autentica em modo somente leitura e bloqueia metodos mutaveis"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - tenant suspended autentica em modo somente leitura e bloqueia metodos mutaveis"
     },
     {
       "ac": "AC-012",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: POST /auth/login bloqueia tenant cancelled com 403 sem redirecionar para /app"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - tenant cancelled bloqueia acesso com 403 sem redirecionar para /app"
     },
     {
       "ac": "AC-013",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: POST /auth/login bloqueia vínculo suspended, invited ou removed com 403"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - vinculos suspended, invited e removed bloqueiam somente o usuario sem sessao de aplicacao"
     },
     {
       "ac": "AC-014",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php: POST /auth/two-factor-challenge com codigo TOTP invalido retorna 422 e mantem o desafio pendente"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php: PASS - TOTP invalido retorna 422, mantem desafio pendente e nao cria sessao"
     },
     {
       "ac": "AC-015",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php: POST /auth/two-factor-challenge com recovery_code usado ou inexistente retorna 422"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php: PASS - recovery_code usado ou inexistente retorna 422 e nao cria sessao"
     },
     {
       "ac": "AC-016",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php: POST /auth/reset-password com senha fraca ou confirmacao divergente retorna 422 e preserva a senha atual"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php: PASS - senha fraca ou confirmacao divergente retorna 422 e preserva senha atual"
     },
     {
       "ac": "AC-017",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php: POST /auth/reset-password com token invalido ou expirado retorna 422 e orienta novo link"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php: PASS - token invalido ou expirado retorna 422 e orienta novo link"
     },
     {
       "ac": "AC-018",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthAuditTest.php: input malicioso em login e tratado como dado e nao reflete payload sem escape"
+      "evidence": "tests/slice-007/AuthAuditTest.php: PASS - input malicioso em login e tratado como dado e nao reflete payload sem escape"
     },
     {
       "ac": "AC-019",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php: GET /app sem autenticacao redireciona para /auth/login"
+      "evidence": "tests/slice-007/AuthLoginTest.php: PASS - GET /app sem autenticacao redireciona para /auth/login"
     },
     {
       "ac": "AC-020",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php: GET /app com 2FA pendente bloqueia a rota e devolve para /auth/two-factor-challenge"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php: PASS - GET /app com 2FA pendente bloqueia rota e devolve para challenge"
     },
     {
       "ac": "AC-021",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthAuditTest.php e AuthConfigTest.php: responses e config de auth nao vazam senha, token, segredo TOTP ou recovery code"
+      "evidence": "tests/slice-007/AuthAuditTest.php and tests/slice-007/AuthConfigTest.php: PASS - responses/logs nao vazam senha, token, segredo TOTP, codigo TOTP ou recovery code"
     }
   ],
   "violations": [],

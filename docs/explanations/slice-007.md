@@ -8,22 +8,26 @@
 
 ## O que foi feito
 
-_Sem critérios declarados no spec ainda._
+- A tentativa autorizada corrigiu os formulários de autenticação para voltarem à tela com erro visível quando o envio vem de HTML.
+- A tentativa também renovou a sessão antes de marcar o desafio de 2FA como pendente.
+- Os testes do slice passaram e o verifier aprovou.
 
 ## O que o usuário final vai ver
 
-_Nada visível ainda — slice em estágio inicial._
+- Nos formulários de login, reset de senha e 2FA, erros esperados voltam para a tela com mensagem de erro, em vez de mostrar uma resposta técnica em JSON.
 
 ## O que funcionou
 
-_A verificação encontrou problemas (ver abaixo)._
+- Verificação mecânica aprovada: todos os 21 critérios de aceite continuam cobertos.
+- Testes do slice aprovados: 31 testes e 207 verificações.
+- Verifier aprovado.
 
 ## O que precisa de atenção
 
 **Encontrados na revisão estrutural:**
 
-- **⚠ IMPORTANTE:** problema de segurança — O backend retorna JSON puro em caminhos de erro de login/2FA/reset
-- **⚠ IMPORTANTE:** problema de segurança — O fluxo que exige 2FA grava `auth.two_factor_pending` na sessao sem renovar o ID da sessao apos validar a senha
+- **⚠ IMPORTANTE:** problema de segurança — se aparecer um status novo ou inesperado para tenant/vinculo, o sistema pode liberar acesso em vez de bloquear por seguranca.
+- **⚠ IMPORTANTE:** problema de segurança — os codigos de recuperacao do 2FA ainda podem ficar tratados como valores reversiveis; o reviewer pediu tratar esses codigos como segredo.
 
 ## O que NÃO está neste slice (fica pra depois)
 
@@ -60,7 +64,6 @@ Marque uma opção acima e me avise. Não vou continuar sem sua decisão.
 - **Verifier verdict:** approved
 - **Reviewer verdict:** rejected
 - **ACs pass/fail:** 21 / 0
-0
 - **Artefatos:**
     - `specs/007/spec.md`
     - `specs/007/verification.json`

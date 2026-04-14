@@ -1,38 +1,38 @@
 {
   "slice_id": "slice-007",
   "verdict": "rejected",
-  "timestamp": "2026-04-14T01:33:59Z",
+  "timestamp": "2026-04-14T00:00:00Z",
   "quality_checks": [
     {
       "category": "simplicity",
       "status": "pass",
-      "evidence": "Escopo concentrado em login, recuperacao de senha, 2FA e auditoria."
+      "evidence": "A implementação concentra o fluxo em autenticação, recuperação de senha, 2FA, auditoria e bloqueios de tenant sem antecipar gestão completa de usuários."
+    },
+    {
+      "category": "adr_compliance",
+      "status": "pass",
+      "evidence": "A escolha de Fortify + Sanctum e Laravel + Livewire permanece alinhada às ADRs 0001 e 0004 presentes no pacote de revisão."
     },
     {
       "category": "security",
       "status": "fail",
-      "evidence": "Rotas de auth retornam JSON em caminhos usados por formularios HTML simples."
-    },
-    {
-      "category": "security",
-      "status": "fail",
-      "evidence": "O fluxo com 2FA pendente nao renova a sessao antes do challenge."
+      "evidence": "Há falha aberta em estados não reconhecidos de tenant/vínculo e os recovery codes de 2FA são tratados como valores reversíveis."
     }
   ],
   "findings": [
     {
       "severity": "major",
       "category": "security",
-      "file": "routes/web.php",
-      "line": 4150,
-      "message": "O backend retorna JSON puro em caminhos de erro de login/2FA/reset, mas as views de auth usam formularios HTML simples. Em navegadores, isso quebra a experiencia e expõe respostas brutas em vez de manter o usuario nas telas de autenticacao."
+      "file": "app/Support/Auth/TenantAccessResolver.php",
+      "line": 83,
+      "message": "O resolvedor bloqueia apenas vínculo suspended/invited/removed e tenant cancelled; depois disso, qualquer status não reconhecido segue para allowed=true, com full access se não for exatamente suspended. Como as migrations usam strings livres sem constraint, valores como pending, disabled ou archived falham abertos e podem autenticar sessão plena fora dos estados active/trial/suspended previstos no slice."
     },
     {
       "severity": "major",
       "category": "security",
       "file": "routes/web.php",
-      "line": 4196,
-      "message": "O fluxo que exige 2FA grava `auth.two_factor_pending` na sessao sem renovar o ID da sessao apos validar a senha, abrindo uma janela de fixation ate a confirmacao do segundo fator."
+      "line": 225,
+      "message": "O fluxo de 2FA lê two_factor_recovery_codes como array, compara o recovery_code enviado com in_array e depois salva o array filtrado diretamente. Com o cast array em app/Models/User.php:44 e a coluna text em database/migrations/2026_04_13_000130_extend_users_for_two_factor_auth.php:16, os códigos de recuperação ficam persistidos como valores reversíveis/plaintext; recovery code deve ser tratado como segredo e validado via hash ou criptografia adequada."
     }
   ],
   "next_action": "return_to_implementer"
