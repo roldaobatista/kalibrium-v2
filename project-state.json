@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T09:21:28-04:00",
+  "updated_at": "2026-04-14T09:46:10-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,7 +39,7 @@
     "current_epic": "E02",
     "current_story": "TEN-001",
     "current_slice": "008",
-    "slice_status": "tests_red_pending_implementation",
+    "slice_status": "implementation_green_pending_verify_slice",
     "last_green_commit": "81597e6",
     "consecutive_rejections": 0,
     "blocked": false,
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "PM aprovou o plano revisado do slice 008. O plan.md foi marcado como approved. /draft-tests 008 passou no pre-check, o ac-to-test gerou testes red para AC-001 a AC-012 e AC-SEC-001 a AC-SEC-003, e php artisan test tests/slice-008 confirmou vermelho esperado com 19 falhas por /settings/tenant ainda nao implementado.",
-    "next_action": "Iniciar implementacao do slice 008 com o implementer para fazer os testes red ficarem verdes, tarefa por tarefa.",
+    "last_session_summary": "Slice 008 implementado localmente: /settings/tenant foi criado para gerente autenticado, com validacao de CNPJ, criacao/atualizacao transacional de tenant, empresa raiz e filial raiz, auditoria cadastral, bloqueio de nao gerente, modo read-only e isolamento entre tenants. Testes focados do slice ficaram verdes.",
+    "next_action": "Rodar /verify-slice 008 em contexto isolado. Se aprovado, seguir para /review-pr 008; se houver finding, corrigir e reexecutar o mesmo gate.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

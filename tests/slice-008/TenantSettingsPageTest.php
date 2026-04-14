@@ -68,12 +68,12 @@ test('AC-003: POST /settings/tenant atualiza registros existentes sem criar empr
     $initialPayload = slice008_form_payload([
         'legal_name' => 'Laboratorio Inicial '.Str::uuid(),
         'trade_name' => 'Lab Inicial '.Str::uuid(),
-        'document_number' => '12.345.678/0001-91',
+        'document_number' => slice008_valid_cnpj(),
     ]);
     $updatedPayload = slice008_form_payload([
         'legal_name' => 'Laboratorio Atualizado '.Str::uuid(),
         'trade_name' => 'Lab Atualizado '.Str::uuid(),
-        'document_number' => '12.345.678/0001-92',
+        'document_number' => slice008_valid_cnpj(),
     ]);
 
     $firstResponse = $this
@@ -115,7 +115,7 @@ test('AC-004: POST /settings/tenant permite configuracao inicial em tenant trial
 
     $response->assertStatus(302);
     $response->assertRedirect(slice008_routes()['tenant_settings']);
-    expect(DB::table('tenants')->whereKey($context['tenant']->id)->value('status'))->toBe('trial');
+    expect(DB::table('tenants')->where('id', $context['tenant']->id)->value('status'))->toBe('trial');
 })->group('slice-008', 'ac-004');
 
 test('AC-009: usuario sem papel gerente nao ve o formulario editavel e recebe bloqueio seguro em /settings/tenant', function (): void {

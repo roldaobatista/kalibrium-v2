@@ -22,12 +22,12 @@ test('AC-005: gerente do tenant A acessa e salva /settings/tenant sem expor dado
     ]);
     $payloadA = slice008_form_payload([
         'legal_name' => 'Laboratorio A LTDA '.Str::uuid(),
-        'document_number' => '12345678000194',
+        'document_number' => slice008_valid_cnpj(),
         'trade_name' => 'Lab A '.Str::uuid(),
     ]);
     $payloadB = slice008_form_payload([
         'legal_name' => 'Laboratorio B LTDA '.Str::uuid(),
-        'document_number' => '12345678000195',
+        'document_number' => slice008_valid_cnpj(),
         'trade_name' => 'Lab B '.Str::uuid(),
     ]);
 
@@ -54,7 +54,7 @@ test('AC-005: gerente do tenant A acessa e salva /settings/tenant sem expor dado
         $payloadB['document_number'],
     ]);
 
-    expect(DB::table('tenants')->whereKey($tenantA['tenant']->id)->exists())->toBeTrue();
+    expect(DB::table('tenants')->where('id', $tenantA['tenant']->id)->exists())->toBeTrue();
 })->group('slice-008', 'ac-005');
 
 test('AC-SEC-001: payload com ID externo de tenant, empresa ou filial nao altera registros fora do tenant atual', function (): void {

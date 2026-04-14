@@ -21,6 +21,31 @@ function slice008_unique_email(): string
     return 'lab+'.Str::uuid().'@example.com';
 }
 
+function slice008_valid_cnpj(): string
+{
+    $base = str_pad((string) random_int(10000000, 99999999), 8, '0', STR_PAD_LEFT).'0001';
+    $firstDigit = slice008_cnpj_digit($base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+    $secondDigit = slice008_cnpj_digit($base.$firstDigit, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+
+    return $base.$firstDigit.$secondDigit;
+}
+
+/**
+ * @param  array<int, int>  $weights
+ */
+function slice008_cnpj_digit(string $base, array $weights): int
+{
+    $sum = 0;
+
+    foreach ($weights as $index => $weight) {
+        $sum += (int) $base[$index] * $weight;
+    }
+
+    $remainder = $sum % 11;
+
+    return $remainder < 2 ? 0 : 11 - $remainder;
+}
+
 function slice008_persisted_user(array $attributes = []): User
 {
     return User::factory()->create($attributes);
@@ -66,7 +91,7 @@ function slice008_form_payload(array $overrides = []): array
 {
     return array_merge([
         'legal_name' => 'Laboratorio Alfa LTDA '.Str::uuid(),
-        'document_number' => '12345678000190',
+        'document_number' => slice008_valid_cnpj(),
         'trade_name' => 'Laboratorio Alfa '.Str::uuid(),
         'main_email' => 'contato+'.Str::uuid().'@example.com',
         'phone' => '(65) 99999-0000',
@@ -109,6 +134,12 @@ function slice008_assert_body_does_not_leak_secrets(TestResponse $response, arra
     $body = (string) $response->getContent();
 
     foreach ($secrets === [] ? slice008_sensitive_fragments() : $secrets as $secret) {
-        expect($body)->not->toContain((string) $secret);
+        $secret = (string) $secret;
+
+        if ($secret === '') {
+            continue;
+        }
+
+        expect($body)->not->toContain($secret);
     }
 }

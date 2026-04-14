@@ -15,7 +15,7 @@ test('AC-006: alteracao bem-sucedida em /settings/tenant grava auditoria com usu
     ]);
     $payload = slice008_form_payload([
         'legal_name' => 'Laboratorio Auditado '.Str::uuid(),
-        'document_number' => '12345678000196',
+        'document_number' => slice008_valid_cnpj(),
         'trade_name' => 'Lab Auditado '.Str::uuid(),
     ]);
 

@@ -17,6 +17,10 @@ test('AC-007: CNPJ ausente, invalido ou duplicado em outro tenant retorna erro e
     ]);
 
     if ($extraSetup !== null) {
+        $duplicateDocumentNumber = slice008_valid_cnpj();
+        $payload = slice008_form_payload([
+            'document_number' => $duplicateDocumentNumber,
+        ]);
         $contextB = slice008_user_with_tenant_context([
             'tenant_status' => 'active',
             'binding_status' => 'active',
@@ -27,7 +31,7 @@ test('AC-007: CNPJ ausente, invalido ou duplicado em outro tenant retorna erro e
             ->actingAs($contextA['user'])
             ->from(slice008_routes()['tenant_settings'])
             ->post(slice008_routes()['tenant_settings'], slice008_form_payload([
-                'document_number' => '12.345.678/0001-93',
+                'document_number' => $duplicateDocumentNumber,
             ]));
         $successResponse->assertStatus(302);
 
@@ -48,15 +52,15 @@ test('AC-007: CNPJ ausente, invalido ou duplicado em outro tenant retorna erro e
     }
 
     slice008_assert_body_does_not_leak_secrets($response, [
-        '12.345.678/0001-93',
+        $documentNumber,
         $contextA['tenant']->name,
     ]);
 
-    expect(DB::table('tenants')->whereKey($contextA['tenant']->id)->exists())->toBeTrue();
+    expect(DB::table('tenants')->where('id', $contextA['tenant']->id)->exists())->toBeTrue();
 })->with([
     'CNPJ ausente' => ['', null],
     'CNPJ invalido' => ['123', null],
-    'CNPJ duplicado' => ['12345678000193', ['duplicate_across_tenants' => true]],
+    'CNPJ duplicado' => ['duplicate', ['duplicate_across_tenants' => true]],
 ])->group('slice-008', 'ac-007');
 
 test('AC-008: razao social vazia, e-mail principal invalido ou perfil operacional invalido retornam erro por campo e nao gravam dados parciais', function (string $field, mixed $value): void {
@@ -108,7 +112,7 @@ test('AC-012: falha ao persistir empresa ou filial desfaz a operacao inteira e p
         ->post(slice008_routes()['tenant_settings'], $payload);
 
     expect(in_array($response->status(), [302, 422, 500], true))->toBeTrue();
-    expect(DB::table('tenants')->whereKey($context['tenant']->id)->value('status'))->toBe('active');
+    expect(DB::table('tenants')->where('id', $context['tenant']->id)->value('status'))->toBe('active');
 })->group('slice-008', 'ac-012');
 
 test('AC-SEC-002: input HTML, JavaScript ou SQL comum e tratado como dado sem refletir payload sem escape', function (): void {

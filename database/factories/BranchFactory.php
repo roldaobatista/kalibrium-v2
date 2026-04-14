@@ -2,15 +2,17 @@
 
 namespace Database\Factories;
 
+use App\Models\Branch;
+use App\Models\Company;
 use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Tenant>
+ * @extends Factory<Branch>
  */
-class TenantFactory extends Factory
+class BranchFactory extends Factory
 {
-    protected $model = Tenant::class;
+    protected $model = Branch::class;
 
     /**
      * Define the model's default state.
@@ -20,15 +22,13 @@ class TenantFactory extends Factory
     public function definition(): array
     {
         return [
+            'tenant_id' => Tenant::factory(),
+            'company_id' => Company::factory(),
             'name' => fake()->company(),
-            'legal_name' => null,
             'document_number' => null,
-            'trade_name' => null,
-            'main_email' => null,
-            'phone' => null,
-            'operational_profile' => null,
-            'emits_metrological_certificate' => false,
-            'status' => 'active',
+            'city' => fake()->city(),
+            'state' => 'MT',
+            'is_root' => false,
         ];
     }
 }

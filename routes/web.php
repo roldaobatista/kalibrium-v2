@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\HealthCheckController;
+use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\HealthCheckRateLimit;
+use App\Http\Middleware\SetCurrentTenantContext;
 use App\Http\Responses\Auth\AuthFailureResponse;
 use App\Http\Responses\Auth\LoginResponse;
 use App\Http\Responses\Auth\PasswordResetLinkSentResponse;
@@ -16,6 +18,7 @@ use App\Livewire\Pages\Auth\ForgotPasswordPage;
 use App\Livewire\Pages\Auth\LoginPage;
 use App\Livewire\Pages\Auth\ResetPasswordPage;
 use App\Livewire\Pages\Auth\TwoFactorChallengePage;
+use App\Livewire\Pages\Settings\TenantPage;
 use App\Livewire\Ping;
 use App\Models\Tenant;
 use App\Models\User;
@@ -364,9 +367,16 @@ Route::post('/auth/two-factor-challenge', function (
     return (new TwoFactorLoginResponse)->toResponse($request);
 })->name('auth.two-factor.store');
 
-Route::middleware(['auth', EnsureTwoFactorChallengeCompleted::class, EnsureReadOnlyTenantMode::class])
+Route::middleware([
+    'auth',
+    EnsureTwoFactorChallengeCompleted::class,
+    SetCurrentTenantContext::class,
+    EnsureReadOnlyTenantMode::class,
+])
     ->group(function (): void {
         Route::get('/app', HomePage::class)->name('app.home');
+        Route::get('/settings/tenant', TenantPage::class)->name('settings.tenant');
+        Route::post('/settings/tenant', TenantSettingsController::class)->name('settings.tenant.store');
     });
 
 Route::get('/health', HealthCheckController::class)
