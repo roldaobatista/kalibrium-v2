@@ -69,6 +69,38 @@ test('AC-002: gerente convida usuario, vinculo pendente fica no tenant atual, 2F
     ]);
 })->group('slice-009', 'ac-002');
 
+test('AC-002: falha no envio do e-mail nao deixa convite pendente bloqueando nova tentativa', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $payload = slice009_invite_payload($context, [
+        'email' => slice009_unique_email(),
+    ]);
+    $failedMailer = new class
+    {
+        public function send(mixed $mailable): void
+        {
+            throw new RuntimeException('smtp failure');
+        }
+    };
+
+    Mail::shouldReceive('to')
+        ->once()
+        ->with($payload['email'])
+        ->andReturn($failedMailer);
+
+    expect(fn () => app(UserInvitationService::class)
+        ->invite($context['user'], $context['tenant_user'], $payload))->toThrow(RuntimeException::class, 'smtp failure');
+
+    $invitedUser = User::query()->where('email', mb_strtolower($payload['email']))->first();
+    expect(TenantUser::query()
+        ->where('tenant_id', $context['tenant']->id)
+        ->when($invitedUser !== null, static fn ($query) => $query->where('user_id', $invitedUser->id))
+        ->where('status', 'invited')
+        ->exists())->toBeFalse();
+})->group('slice-009', 'ac-002');
+
 test('AC-010: convite com campos invalidos ou empresa e filial de outro tenant retorna erro e nao cria vinculo', function (array $payloadOverrides): void {
     $context = slice009_user_with_tenant_context([
         'tenant_status' => 'active',

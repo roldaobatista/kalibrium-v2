@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Support\Settings\PlanSummaryService;
 use App\Support\Settings\PlanUpgradeRequestService;
+use App\Support\Settings\TenantPlanMetricsReader;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +67,29 @@ test('AC-006: uso de usuarios em /settings/plans reflete vinculos ativos sem gra
     expect((int) $metric->users_used)->toBe(99);
 })->group('slice-009', 'ac-006');
 
+test('AC-006: snapshot de metricas calculadas nao deixa modelo persistido marcado como alterado', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    slice009_create_tenant_member($context, [
+        'role' => 'tecnico',
+        'status' => 'active',
+    ]);
+    slice009_seed_plan_fixture($context['tenant'], [
+        'users_used' => 99,
+        'users_limit' => 10,
+    ]);
+
+    $metric = app(TenantPlanMetricsReader::class)->snapshotForTenant($context['tenant']);
+
+    expect($metric->users_used)->toBe(2);
+    expect($metric->isDirty())->toBeFalse();
+    expect((int) DB::table('tenant_plan_metrics')
+        ->where('tenant_id', $context['tenant']->id)
+        ->value('users_used'))->toBe(99);
+})->group('slice-009', 'ac-006');
+
 test('AC-006: resumo de plano considera liberacoes especificas do tenant', function (): void {
     $context = slice009_user_with_tenant_context([
         'tenant_status' => 'active',
@@ -99,6 +123,60 @@ test('AC-006: resumo de plano considera liberacoes especificas do tenant', funct
     $summary = app(PlanSummaryService::class)->summaryFor($context['tenant']);
     expect($summary['limits']['users'])->toBe(12);
     expect($summary['modules'][0]['enabled'])->toBeTrue();
+})->group('slice-009', 'ac-006');
+
+test('AC-006: resumo de modulos consulta liberacoes em lote para varias features', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $fixture = slice009_seed_plan_fixture($context['tenant'], [
+        'feature_code' => 'fiscal',
+    ]);
+    $planId = DB::table('subscriptions')->where('tenant_id', $context['tenant']->id)->value('plan_id');
+
+    foreach (['estoque', 'financeiro', 'relatorios'] as $code) {
+        $featureId = slice009_insert_filtered('features', [
+            'code' => $code,
+            'name' => 'Modulo '.$code,
+            'status' => 'active',
+        ], ['code']);
+
+        slice009_insert_filtered('plan_entitlements', [
+            'plan_id' => $planId,
+            'feature_id' => $featureId,
+            'feature_code' => $code,
+            'enabled' => $code !== 'relatorios',
+        ], ['plan_id']);
+    }
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $summary = app(PlanSummaryService::class)->summaryFor($context['tenant']);
+    $queries = DB::getQueryLog();
+    DB::disableQueryLog();
+
+    $entitlementQueries = collect($queries)
+        ->filter(static function (array $query): bool {
+            $sql = strtolower((string) ($query['query'] ?? ''));
+
+            return preg_match('/\bfrom\s+["`]?tenant_entitlements["`]?/i', $sql) === 1
+                || preg_match('/\bfrom\s+["`]?plan_entitlements["`]?/i', $sql) === 1;
+        })
+        ->count();
+
+    $enabledByCode = [];
+    foreach ($summary['modules'] as $module) {
+        $enabledByCode[(string) $module['code']] = (bool) $module['enabled'];
+    }
+
+    expect($summary['modules'])->toHaveCount(count($enabledByCode));
+    expect(count($enabledByCode))->toBeGreaterThanOrEqual(4);
+    expect($enabledByCode[$fixture['feature_code']])->toBeTrue();
+    expect($enabledByCode['estoque'])->toBeTrue();
+    expect($enabledByCode['financeiro'])->toBeTrue();
+    expect($enabledByCode['relatorios'])->toBeFalse();
+    expect($entitlementQueries)->toBeLessThanOrEqual(8);
 })->group('slice-009', 'ac-006');
 
 test('AC-SEC-001: codigo de modulo com aspas e serializado com seguranca no botao de upgrade', function (): void {

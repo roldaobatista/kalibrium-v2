@@ -22,7 +22,9 @@ final class TenantPlanMetricsReader
             ->first();
 
         if ($metric !== null) {
-            $metric->users_used = $activeUsers;
+            $attributes = $metric->getAttributes();
+            $attributes['users_used'] = $activeUsers;
+            $metric->setRawAttributes($attributes, true);
 
             return $metric;
         }

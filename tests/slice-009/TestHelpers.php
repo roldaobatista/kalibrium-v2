@@ -79,7 +79,7 @@ function slice009_user_with_tenant_context(array $overrides = []): array
     slice009_update_tenant_user_optional_columns($tenantUser->id, [
         'company_id' => $company->id,
         'branch_id' => $branch->id,
-    ]);
+    ], ['company_id', 'branch_id']);
 
     return [
         'user' => $user,
@@ -120,7 +120,7 @@ function slice009_create_tenant_member(array $context, array $overrides = []): a
         'branch_id' => $context['branch']->id,
         'invited_at' => $overrides['invited_at'] ?? null,
         'accepted_at' => $overrides['accepted_at'] ?? null,
-    ]);
+    ], ['company_id', 'branch_id', 'invited_at', 'accepted_at']);
 
     return [
         'user' => $user,
@@ -128,16 +128,31 @@ function slice009_create_tenant_member(array $context, array $overrides = []): a
     ];
 }
 
-function slice009_update_tenant_user_optional_columns(int $tenantUserId, array $values): void
+/**
+ * @param  array<string, mixed>  $values
+ * @param  array<int, string>  $requiredColumns
+ */
+function slice009_update_tenant_user_optional_columns(int $tenantUserId, array $values, array $requiredColumns = []): void
 {
     if (! Schema::hasTable('tenant_users')) {
-        return;
+        throw new RuntimeException('A tabela tenant_users e obrigatoria para os testes do slice 009.');
     }
 
     $columns = array_flip(Schema::getColumnListing('tenant_users'));
+
+    foreach ($requiredColumns as $column) {
+        if (! array_key_exists($column, $columns)) {
+            throw new RuntimeException("A coluna tenant_users.{$column} e obrigatoria para os testes do slice 009.");
+        }
+    }
+
     $updates = array_intersect_key($values, $columns);
 
     if ($updates === []) {
+        if ($requiredColumns !== []) {
+            throw new RuntimeException('Nenhuma coluna obrigatoria de tenant_users foi atualizada nos testes do slice 009.');
+        }
+
         return;
     }
 
@@ -173,7 +188,7 @@ function slice009_invitation_context(array $overrides = []): array
         'accepted_at' => $overrides['accepted_at'] ?? null,
         'invitation_token_hash' => hash('sha256', $token),
         'invitation_expires_at' => $overrides['invitation_expires_at'] ?? now()->addDay(),
-    ]);
+    ], ['invited_at', 'accepted_at', 'invitation_token_hash', 'invitation_expires_at']);
 
     return array_merge($context, [
         'invited_user' => $member['user'],
@@ -264,6 +279,10 @@ function slice009_assert_audit_does_not_leak(int $tenantId, array $secrets = [])
 function slice009_insert_filtered(string $table, array $values, array $requiredColumns = []): ?int
 {
     if (! Schema::hasTable($table)) {
+        if ($requiredColumns !== []) {
+            throw new RuntimeException("A tabela {$table} e obrigatoria para os testes do slice 009.");
+        }
+
         return null;
     }
 
@@ -271,7 +290,7 @@ function slice009_insert_filtered(string $table, array $values, array $requiredC
 
     foreach ($requiredColumns as $column) {
         if (! array_key_exists($column, $columns)) {
-            return null;
+            throw new RuntimeException("A coluna {$table}.{$column} e obrigatoria para os testes do slice 009.");
         }
     }
 
@@ -286,6 +305,10 @@ function slice009_insert_filtered(string $table, array $values, array $requiredC
     $filtered = array_intersect_key($values, $columns);
 
     if ($filtered === []) {
+        if ($requiredColumns !== []) {
+            throw new RuntimeException("Nenhuma coluna obrigatoria de {$table} foi atualizada nos testes do slice 009.");
+        }
+
         return null;
     }
 

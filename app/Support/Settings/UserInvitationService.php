@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 final readonly class UserInvitationService
 {
@@ -103,7 +104,13 @@ final readonly class UserInvitationService
             ];
         });
 
-        Mail::to($invitation['email'])->send(new UserInvitationMail($invitation['invitation_url']));
+        try {
+            Mail::to($invitation['email'])->send(new UserInvitationMail($invitation['invitation_url']));
+        } catch (Throwable $exception) {
+            $this->rollbackUndeliveredInvitation((int) $invitation['tenant_user']->id);
+
+            throw $exception;
+        }
 
         return $invitation['tenant_user'];
     }
@@ -140,9 +147,11 @@ final readonly class UserInvitationService
             }
             $user = $fresh->user;
 
-            $user->forceFill([
-                'password' => Hash::make((string) $data['password']),
-            ])->save();
+            if (! $this->hasActiveAccessOutsideInvitation($user, $fresh)) {
+                $user->forceFill([
+                    'password' => Hash::make((string) $data['password']),
+                ])->save();
+            }
 
             $fresh->forceFill([
                 'status' => 'active',
@@ -190,6 +199,29 @@ final readonly class UserInvitationService
             || in_array($driverCode, ['1062', '1555', '2067'], true)
             || str_contains($message, 'unique constraint')
             || str_contains($message, 'duplicate entry');
+    }
+
+    private function rollbackUndeliveredInvitation(int $tenantUserId): void
+    {
+        DB::transaction(function () use ($tenantUserId): void {
+            TenantUser::query()
+                ->whereKey($tenantUserId)
+                ->where('status', 'invited')
+                ->update([
+                    'status' => 'removed',
+                    'invitation_token_hash' => null,
+                    'invitation_expires_at' => null,
+                ]);
+        });
+    }
+
+    private function hasActiveAccessOutsideInvitation(User $user, TenantUser $invitation): bool
+    {
+        return TenantUser::query()
+            ->where('user_id', $user->id)
+            ->whereKeyNot($invitation->id)
+            ->where('status', 'active')
+            ->exists();
     }
 
     /**

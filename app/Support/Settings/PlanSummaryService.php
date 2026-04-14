@@ -138,29 +138,20 @@ final readonly class PlanSummaryService
             ]];
         }
 
-        return $features->map(function (object $feature) use ($tenantId, $planId): array {
-            $enabled = false;
-            if (Schema::hasTable('tenant_entitlements')) {
-                $enabled = DB::table('tenant_entitlements')
-                    ->where('tenant_id', $tenantId)
-                    ->where(static function ($query) use ($feature): void {
-                        $query->where('feature_id', $feature->id)
-                            ->orWhere('feature_code', $feature->code);
-                    })
-                    ->where('enabled', true)
-                    ->exists();
-            }
+        $tenantEntitlements = $this->enabledFeatureKeys('tenant_entitlements', [
+            ['tenant_id', '=', $tenantId],
+        ]);
+        $planEntitlements = $planId > 0
+            ? $this->enabledFeatureKeys('plan_entitlements', [
+                ['plan_id', '=', $planId],
+            ])
+            : [];
 
-            if ($planId > 0 && Schema::hasTable('plan_entitlements')) {
-                $enabled = $enabled || DB::table('plan_entitlements')
-                    ->where('plan_id', $planId)
-                    ->where(static function ($query) use ($feature): void {
-                        $query->where('feature_id', $feature->id)
-                            ->orWhere('feature_code', $feature->code);
-                    })
-                    ->where('enabled', true)
-                    ->exists();
-            }
+        return $features->map(function (object $feature) use ($tenantEntitlements, $planEntitlements): array {
+            $enabled = isset($tenantEntitlements['id:'.(string) $feature->id])
+                || isset($tenantEntitlements['code:'.(string) $feature->code])
+                || isset($planEntitlements['id:'.(string) $feature->id])
+                || isset($planEntitlements['code:'.(string) $feature->code]);
 
             return [
                 'code' => (string) $feature->code,
@@ -168,6 +159,34 @@ final readonly class PlanSummaryService
                 'enabled' => $enabled,
             ];
         })->all();
+    }
+
+    /**
+     * @param  array<int, array{0:string,1:string,2:mixed}>  $filters
+     * @return array<string, true>
+     */
+    private function enabledFeatureKeys(string $table, array $filters): array
+    {
+        if (! Schema::hasTable($table)) {
+            return [];
+        }
+
+        $query = DB::table($table)->where('enabled', true);
+        foreach ($filters as [$column, $operator, $value]) {
+            $query->where($column, $operator, $value);
+        }
+
+        $keys = [];
+        foreach ($query->get(['feature_id', 'feature_code']) as $entitlement) {
+            if ($entitlement->feature_id !== null) {
+                $keys['id:'.(string) $entitlement->feature_id] = true;
+            }
+            if ($entitlement->feature_code !== null && $entitlement->feature_code !== '') {
+                $keys['code:'.(string) $entitlement->feature_code] = true;
+            }
+        }
+
+        return $keys;
     }
 
     private function percent(int $used, int $limit): int
