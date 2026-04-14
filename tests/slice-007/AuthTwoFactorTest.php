@@ -12,7 +12,9 @@ test('AC-003: POST /auth/two-factor-challenge com codigo TOTP valido conclui aut
 
     $response = $this
         ->withSession(slice007_two_factor_pending_session($context))
-        ->postJson(slice007_routes()['two_factor_challenge'], slice007_two_factor_payload());
+        ->postJson(slice007_routes()['two_factor_challenge'], slice007_two_factor_payload([
+            'code' => slice007_current_totp_code($context['two_factor_secret']),
+        ]));
 
     $response->assertStatus(302);
     $response->assertRedirect(slice007_routes()['app']);
@@ -52,7 +54,7 @@ test('AC-014: POST /auth/two-factor-challenge com codigo TOTP invalido retorna 4
     $response = $this
         ->withSession(slice007_two_factor_pending_session($context))
         ->postJson(slice007_routes()['two_factor_challenge'], [
-            'code' => '000000',
+            'code' => slice007_invalid_totp_code($context['two_factor_secret']),
         ]);
 
     $response->assertStatus(422);

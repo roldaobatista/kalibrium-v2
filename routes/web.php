@@ -1,13 +1,305 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\HealthCheckController;
+use App\Http\Middleware\EnsureReadOnlyTenantMode;
+use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\HealthCheckRateLimit;
+use App\Http\Responses\Auth\LoginResponse;
+use App\Http\Responses\Auth\PasswordResetLinkSentResponse;
+use App\Http\Responses\Auth\PasswordResetResponse;
+use App\Http\Responses\Auth\TwoFactorLoginResponse;
+use App\Livewire\Pages\App\HomePage;
+use App\Livewire\Pages\Auth\ForgotPasswordPage;
+use App\Livewire\Pages\Auth\LoginPage;
+use App\Livewire\Pages\Auth\ResetPasswordPage;
+use App\Livewire\Pages\Auth\TwoFactorChallengePage;
 use App\Livewire\Ping;
+use App\Models\User;
+use App\Support\Auth\LoginAuditRecorder;
+use App\Support\Auth\TenantAccessResolver;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect('/app');
+    }
+
     return view('welcome');
 });
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('/auth/login', LoginPage::class)->name('auth.login');
+
+    Route::post('/auth/login', function (
+        Request $request,
+        TenantAccessResolver $resolver,
+        LoginAuditRecorder $auditRecorder,
+    ) {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
+        ]);
+
+        $rateKey = 'auth:login:'.mb_strtolower((string) $credentials['email']).'|'.$request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            $auditRecorder->record($request, 'auth.login.locked_out', null, null, [
+                'email' => (string) $credentials['email'],
+            ]);
+
+            return response()->json([
+                'message' => 'Muitas tentativas. Tente novamente mais tarde.',
+            ], 429);
+        }
+
+        /** @var User|null $user */
+        $user = User::query()
+            ->where('email', (string) $credentials['email'])
+            ->with('primaryTenantUser')
+            ->first();
+
+        if ($user === null || ! Hash::check((string) $credentials['password'], (string) $user->password)) {
+            RateLimiter::hit($rateKey, 60);
+            $auditRecorder->record(
+                $request,
+                'auth.login.failed',
+                $user?->id,
+                $user?->primaryTenantUser?->tenant_id,
+                ['email' => (string) $credentials['email']]
+            );
+
+            throw ValidationException::withMessages([
+                'email' => 'Credenciais invalidas.',
+            ]);
+        }
+
+        $decision = $resolver->resolve($user);
+
+        if (! $decision['allowed']) {
+            RateLimiter::clear($rateKey);
+            $auditRecorder->record(
+                $request,
+                $decision['event'],
+                $user->id,
+                $decision['tenant_id'],
+                ['email' => $credentials['email']]
+            );
+
+            return response()->json([
+                'message' => 'Acesso indisponivel para esta conta.',
+            ], 403);
+        }
+
+        if ($decision['requires_two_factor']) {
+            RateLimiter::clear($rateKey);
+            $request->session()->put([
+                'auth.two_factor_pending' => true,
+                'auth.two_factor_user_id' => $user->id,
+                'auth.two_factor_tenant_id' => $decision['tenant_id'],
+                'auth.two_factor_access_mode' => $decision['access_mode'],
+            ]);
+
+            return redirect('/auth/two-factor-challenge');
+        }
+
+        RateLimiter::clear($rateKey);
+        Auth::login($user, (bool) ($credentials['remember'] ?? false));
+        $request->session()->regenerate();
+        $request->session()->put('tenant.access_mode', $decision['access_mode']);
+
+        $auditRecorder->record(
+            $request,
+            $decision['event'],
+            $user->id,
+            $decision['tenant_id'],
+            ['email' => $credentials['email']]
+        );
+
+        return (new LoginResponse)->toResponse($request);
+    });
+
+    Route::get('/auth/forgot-password', ForgotPasswordPage::class)->name('auth.password.request');
+
+    Route::post('/auth/forgot-password', function (Request $request) {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        return (new PasswordResetLinkSentResponse)->toResponse($request);
+    })->name('auth.password.email');
+
+    Route::get('/auth/reset-password/{token}', ResetPasswordPage::class)->name('auth.password.reset');
+
+    Route::post('/auth/reset-password', function (Request $request) {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:12', 'confirmed'],
+        ]);
+
+        $status = Password::broker()->reset(
+            [
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'password_confirmation' => (string) $request->input('password_confirmation'),
+                'token' => $data['token'],
+            ],
+            static function (User $user, string $password): void {
+                $user->forceFill(['password' => $password])->save();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => 'Token invalido ou expirado. Solicite novo link.',
+            ], 422);
+        }
+
+        return (new PasswordResetResponse)->toResponse($request);
+    })->name('auth.password.update');
+});
+
+Route::get('/auth/two-factor-challenge', TwoFactorChallengePage::class)
+    ->name('auth.two-factor');
+
+Route::post('/auth/two-factor-challenge', function (
+    Request $request,
+    LoginAuditRecorder $auditRecorder,
+    TwoFactorAuthenticationProviderContract $twoFactorProvider,
+) {
+    if ($request->session()->get('auth.two_factor_pending') !== true) {
+        return response()->json([
+            'message' => 'Desafio de dois fatores nao encontrado.',
+        ], 422);
+    }
+
+    $request->validate([
+        'code' => ['nullable', 'string', 'required_without:recovery_code'],
+        'recovery_code' => ['nullable', 'string', 'required_without:code'],
+    ]);
+
+    $rateKey = 'auth:two-factor:'.$request->session()->get('auth.two_factor_user_id').'|'.$request->ip();
+    if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+        return response()->json([
+            'message' => 'Muitas tentativas. Tente novamente mais tarde.',
+        ], 429);
+    }
+
+    $userId = (int) $request->session()->get('auth.two_factor_user_id');
+    $tenantId = $request->session()->has('auth.two_factor_tenant_id')
+        ? (int) $request->session()->get('auth.two_factor_tenant_id')
+        : null;
+
+    /** @var User|null $user */
+    $user = User::query()->find($userId);
+    if ($user === null) {
+        RateLimiter::hit($rateKey, 60);
+
+        return response()->json([
+            'message' => 'Codigo invalido.',
+        ], 422);
+    }
+
+    $recoveryCode = (string) $request->input('recovery_code', '');
+    if ($recoveryCode !== '') {
+        $recoveryCodes = $user->two_factor_recovery_codes;
+        if (! is_array($recoveryCodes) || ! in_array($recoveryCode, $recoveryCodes, true)) {
+            RateLimiter::hit($rateKey, 60);
+
+            return response()->json([
+                'message' => 'Codigo invalido.',
+            ], 422);
+        }
+
+        $user->forceFill([
+            'two_factor_recovery_codes' => array_values(array_filter(
+                $recoveryCodes,
+                static fn (string $code): bool => $code !== $recoveryCode
+            )),
+        ])->save();
+
+        RateLimiter::clear($rateKey);
+        Auth::login($user);
+        $request->session()->regenerate();
+        $request->session()->put('tenant.access_mode', (string) $request->session()->get('auth.two_factor_access_mode', 'full'));
+        $request->session()->forget([
+            'auth.two_factor_pending',
+            'auth.two_factor_user_id',
+            'auth.two_factor_tenant_id',
+            'auth.two_factor_access_mode',
+        ]);
+
+        $auditRecorder->record($request, 'auth.two_factor.recovery_code_used', $user->id, $tenantId);
+
+        return (new TwoFactorLoginResponse)->toResponse($request);
+    }
+
+    $code = trim((string) $request->input('code', ''));
+    if ($code === '') {
+        RateLimiter::hit($rateKey, 60);
+
+        return response()->json([
+            'message' => 'Codigo invalido.',
+        ], 422);
+    }
+
+    $encryptedSecret = $user->two_factor_secret;
+    if (! is_string($encryptedSecret) || $encryptedSecret === '') {
+        RateLimiter::hit($rateKey, 60);
+
+        return response()->json([
+            'message' => 'Codigo invalido.',
+        ], 422);
+    }
+
+    try {
+        $secret = decrypt($encryptedSecret);
+    } catch (DecryptException) {
+        RateLimiter::hit($rateKey, 60);
+
+        return response()->json([
+            'message' => 'Codigo invalido.',
+        ], 422);
+    }
+
+    if (! $twoFactorProvider->verify((string) $secret, $code)) {
+        RateLimiter::hit($rateKey, 60);
+
+        return response()->json([
+            'message' => 'Codigo invalido.',
+        ], 422);
+    }
+
+    RateLimiter::clear($rateKey);
+    Auth::login($user);
+    $request->session()->regenerate();
+    $request->session()->put('tenant.access_mode', (string) $request->session()->get('auth.two_factor_access_mode', 'full'));
+    $request->session()->forget([
+        'auth.two_factor_pending',
+        'auth.two_factor_user_id',
+        'auth.two_factor_tenant_id',
+        'auth.two_factor_access_mode',
+    ]);
+
+    $auditRecorder->record($request, 'auth.two_factor.success', $user->id, $tenantId);
+
+    return (new TwoFactorLoginResponse)->toResponse($request);
+})->name('auth.two-factor.store');
+
+Route::middleware(['auth', EnsureTwoFactorChallengeCompleted::class, EnsureReadOnlyTenantMode::class])
+    ->group(function (): void {
+        Route::get('/app', HomePage::class)->name('app.home');
+    });
 
 Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);

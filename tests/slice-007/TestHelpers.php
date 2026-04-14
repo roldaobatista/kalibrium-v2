@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Laravel\Fortify\TwoFactorAuthenticationProvider;
+use PragmaRX\Google2FA\Google2FA;
 
 function slice007_routes(): array
 {
@@ -42,10 +44,16 @@ function slice007_user_with_access_context(array $overrides = []): array
     $tenantUserClass = slice007_required_model('App\\Models\\TenantUser');
     $password = $overrides['password'] ?? 'SenhaSegura123!';
     $role = $overrides['role'] ?? 'tecnico';
+    $requiresTwoFactor = (bool) ($overrides['requires_2fa'] ?? in_array($role, ['gerente', 'administrativo'], true));
+    $twoFactorSecret = $overrides['two_factor_secret'] ?? app(TwoFactorAuthenticationProvider::class)->generateSecretKey();
+    $recoveryCodes = $overrides['recovery_codes'] ?? ['recovery-code-1'];
 
     $user = slice007_persisted_user([
         'email' => $overrides['email'] ?? slice007_unique_email(),
         'password' => Hash::make($password),
+        'two_factor_secret' => $requiresTwoFactor ? encrypt($twoFactorSecret) : null,
+        'two_factor_recovery_codes' => $requiresTwoFactor ? $recoveryCodes : [],
+        'two_factor_confirmed_at' => $requiresTwoFactor ? now() : null,
     ]);
     $tenant = $tenantClass::factory()->create([
         'status' => $overrides['tenant_status'] ?? 'active',
@@ -55,7 +63,7 @@ function slice007_user_with_access_context(array $overrides = []): array
         'user_id' => $user->id,
         'role' => $role,
         'status' => $overrides['binding_status'] ?? 'active',
-        'requires_2fa' => $overrides['requires_2fa'] ?? in_array($role, ['gerente', 'administrativo'], true),
+        'requires_2fa' => $requiresTwoFactor,
     ]);
 
     return [
@@ -63,6 +71,8 @@ function slice007_user_with_access_context(array $overrides = []): array
         'tenant' => $tenant,
         'tenant_user' => $tenantUser,
         'password' => $password,
+        'two_factor_secret' => $twoFactorSecret,
+        'recovery_codes' => $recoveryCodes,
     ];
 }
 
@@ -100,8 +110,22 @@ function slice007_reset_password_payload(string $token, string $email, array $ov
 function slice007_two_factor_payload(array $overrides = []): array
 {
     return array_merge([
-        'code' => '123456',
+        'code' => '000000',
     ], $overrides);
+}
+
+function slice007_current_totp_code(string $secret): string
+{
+    return app(Google2FA::class)->getCurrentOtp($secret);
+}
+
+function slice007_invalid_totp_code(string $secret): string
+{
+    $validCode = slice007_current_totp_code($secret);
+    $firstDigit = (int) $validCode[0];
+    $replacementDigit = (string) (($firstDigit + 1) % 10);
+
+    return $replacementDigit.substr($validCode, 1);
 }
 
 function slice007_two_factor_pending_session(array $context): array
