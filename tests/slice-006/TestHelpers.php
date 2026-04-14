@@ -143,7 +143,7 @@ function slice006_validate_manifest_hashes(array $manifest): void
 {
     foreach (['resources/js/app.js', 'resources/css/app.css'] as $entry) {
         $asset = $manifest[$entry]['file'] ?? null;
-        if (! is_string($asset) || ! preg_match('/-[A-Za-z0-9]{8,}\./', $asset)) {
+        if (! is_string($asset) || ! preg_match('/-[A-Za-z0-9_-]{8,}\./', $asset)) {
             throw new RuntimeException("AC-008: asset {$entry} nao esta versionado: ".var_export($asset, true));
         }
     }
