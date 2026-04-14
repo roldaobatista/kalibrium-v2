@@ -135,6 +135,8 @@ function slice007_two_factor_pending_session(array $context): array
         'auth.two_factor_pending' => true,
         'auth.two_factor_user_id' => $context['user']->id,
         'auth.two_factor_tenant_id' => $context['tenant']->id,
+        'auth.two_factor_tenant_user_id' => $context['tenant_user']->id,
+        'auth.two_factor_access_mode' => $context['tenant']->status === 'suspended' ? 'read-only' : 'full',
     ];
 }
 

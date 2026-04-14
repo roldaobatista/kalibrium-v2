@@ -24,6 +24,29 @@ test('AC-003: POST /auth/two-factor-challenge com codigo TOTP valido conclui aut
     $this->assertAuthenticatedAs($context['user']);
 })->group('slice-007', 'ac-003');
 
+test('AC-003: POST /auth/two-factor-challenge revalida modo read-only antes de criar sessao', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+        'requires_2fa' => true,
+    ]);
+    $context['tenant']->forceFill([
+        'status' => 'suspended',
+    ])->save();
+
+    $response = $this
+        ->withSession(slice007_two_factor_pending_session($context))
+        ->postJson(slice007_routes()['two_factor_challenge'], slice007_two_factor_payload([
+            'code' => slice007_current_totp_code($context['two_factor_secret']),
+        ]));
+
+    $response->assertStatus(302);
+    $response->assertRedirect(slice007_routes()['app']);
+    $response->assertSessionHas('tenant.access_mode', 'read-only');
+    $response->assertSessionMissing('auth.two_factor_pending');
+    $this->assertAuthenticatedAs($context['user']);
+})->group('slice-007', 'ac-003', 'security');
+
 test('AC-004: POST /auth/two-factor-challenge com recovery_code valido conclui autenticao, invalida o codigo e registra auditoria', function (): void {
     $context = slice007_user_with_access_context([
         'role' => 'gerente',
@@ -50,6 +73,36 @@ test('AC-004: POST /auth/two-factor-challenge com recovery_code valido conclui a
         'tenant_id' => $context['tenant']->id,
     ]);
 })->group('slice-007', 'ac-004');
+
+test('AC-014: POST /auth/two-factor-challenge bloqueia se o acesso mudou antes do codigo valido', function (string $target, string $status, string $event): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => 'gerente',
+        'requires_2fa' => true,
+    ]);
+    $context[$target]->forceFill([
+        'status' => $status,
+    ])->save();
+
+    $response = $this
+        ->withSession(slice007_two_factor_pending_session($context))
+        ->postJson(slice007_routes()['two_factor_challenge'], slice007_two_factor_payload([
+            'code' => slice007_current_totp_code($context['two_factor_secret']),
+        ]));
+
+    $response->assertStatus(403);
+    $response->assertSessionMissing('auth.two_factor_pending');
+    $this->assertGuest();
+    $this->assertDatabaseHas('login_audit_logs', [
+        'event' => $event,
+        'user_id' => $context['user']->id,
+        'tenant_id' => $context['tenant']->id,
+    ]);
+})->with([
+    ['tenant', 'cancelled', 'auth.login.blocked_tenant_status'],
+    ['tenant_user', 'removed', 'auth.login.blocked_binding_status'],
+])->group('slice-007', 'ac-014', 'security');
 
 test('AC-014: POST /auth/two-factor-challenge com codigo TOTP invalido retorna 422 e mantem o desafio pendente', function (): void {
     $context = slice007_user_with_access_context([

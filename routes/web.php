@@ -107,6 +107,7 @@ Route::middleware('guest')->group(function (): void {
                 'auth.two_factor_pending' => true,
                 'auth.two_factor_user_id' => $user->id,
                 'auth.two_factor_tenant_id' => $decision['tenant_id'],
+                'auth.two_factor_tenant_user_id' => $decision['tenant_user_id'],
                 'auth.two_factor_access_mode' => $decision['access_mode'],
             ]);
 
@@ -179,6 +180,7 @@ Route::get('/auth/two-factor-challenge', TwoFactorChallengePage::class)
 Route::post('/auth/two-factor-challenge', function (
     Request $request,
     LoginAuditRecorder $auditRecorder,
+    TenantAccessResolver $resolver,
     TwoFactorAuthenticationProviderContract $twoFactorProvider,
 ) {
     $tenantId = $request->session()->has('auth.two_factor_tenant_id')
@@ -190,6 +192,15 @@ Route::post('/auth/two-factor-challenge', function (
 
     $recordFailedAttempt = static function (?User $user = null) use ($auditRecorder, $request, $tenantId): void {
         $auditRecorder->record($request, 'auth.two_factor.failed', $user?->id, $tenantId);
+    };
+    $clearTwoFactorChallenge = static function () use ($request): void {
+        $request->session()->forget([
+            'auth.two_factor_pending',
+            'auth.two_factor_user_id',
+            'auth.two_factor_tenant_id',
+            'auth.two_factor_tenant_user_id',
+            'auth.two_factor_access_mode',
+        ]);
     };
 
     if ($request->session()->get('auth.two_factor_pending') !== true) {
@@ -221,6 +232,27 @@ Route::post('/auth/two-factor-challenge', function (
         return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
 
+    $accessDecision = $resolver->resolve($user);
+    $pendingTenantUserId = $request->session()->has('auth.two_factor_tenant_user_id')
+        ? (int) $request->session()->get('auth.two_factor_tenant_user_id')
+        : null;
+    $bindingChanged = $pendingTenantUserId !== null
+        && $accessDecision['tenant_user_id'] !== $pendingTenantUserId;
+    $tenantChanged = $accessDecision['tenant_id'] !== $tenantId;
+
+    if (! $accessDecision['allowed'] || $tenantChanged || $bindingChanged) {
+        $event = $accessDecision['allowed'] ? 'auth.login.blocked_binding_status' : $accessDecision['event'];
+        $auditRecorder->record(
+            $request,
+            $event,
+            $user->id,
+            $tenantId ?? $accessDecision['tenant_id'],
+        );
+        $clearTwoFactorChallenge();
+
+        return AuthFailureResponse::make($request, 'Acesso indisponivel para esta conta.', 403, 'code');
+    }
+
     $recoveryCode = (string) $request->input('recovery_code', '');
     if ($recoveryCode !== '') {
         $recoveryCodes = $user->two_factor_recovery_codes;
@@ -245,13 +277,8 @@ Route::post('/auth/two-factor-challenge', function (
         RateLimiter::clear($rateKey);
         Auth::login($user);
         $request->session()->regenerate();
-        $request->session()->put('tenant.access_mode', (string) $request->session()->get('auth.two_factor_access_mode', 'full'));
-        $request->session()->forget([
-            'auth.two_factor_pending',
-            'auth.two_factor_user_id',
-            'auth.two_factor_tenant_id',
-            'auth.two_factor_access_mode',
-        ]);
+        $request->session()->put('tenant.access_mode', $accessDecision['access_mode']);
+        $clearTwoFactorChallenge();
 
         $auditRecorder->record($request, 'auth.two_factor.recovery_code_used', $user->id, $tenantId);
 
@@ -293,13 +320,8 @@ Route::post('/auth/two-factor-challenge', function (
     RateLimiter::clear($rateKey);
     Auth::login($user);
     $request->session()->regenerate();
-    $request->session()->put('tenant.access_mode', (string) $request->session()->get('auth.two_factor_access_mode', 'full'));
-    $request->session()->forget([
-        'auth.two_factor_pending',
-        'auth.two_factor_user_id',
-        'auth.two_factor_tenant_id',
-        'auth.two_factor_access_mode',
-    ]);
+    $request->session()->put('tenant.access_mode', $accessDecision['access_mode']);
+    $clearTwoFactorChallenge();
 
     $auditRecorder->record($request, 'auth.two_factor.success', $user->id, $tenantId);
 
