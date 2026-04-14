@@ -108,6 +108,8 @@ if [ "$VERIF_STATUS" = "approved" ] && [ "$REVIEW_STATUS" = "approved" ]; then
   STATUS_FRIENDLY="✓ pronto para usar"
 elif [ "$VERIF_STATUS" = "rejected" ] || [ "$REVIEW_STATUS" = "rejected" ]; then
   STATUS_FRIENDLY="⚠ precisa da sua decisão"
+elif [ "$VERIF_STATUS" = "approved" ] && [ "$REVIEW_STATUS" = "-" ]; then
+  STATUS_FRIENDLY="verificação aprovada; aguardando revisão"
 elif [ "$VERIF_STATUS" = "-" ] && [ "$REVIEW_STATUS" = "-" ]; then
   STATUS_FRIENDLY="em andamento (aguardando verificação)"
 else
@@ -117,12 +119,13 @@ fi
 # ============================================================================
 # 3. Extrai ACs do spec.md
 #
-# Formato esperado (templates/spec.md):
+# Formatos esperados:
 #   ### AC-001 — Título do AC
+#   - **AC-001:** Dado/quando/então...
 # A linha seguinte (dado/quando/então) é o comportamento visível.
 # ============================================================================
 AC_LIST_FILE="$(mktemp)"
-grep -E '^### AC-[0-9]{3}' "$SLICE_DIR/spec.md" > "$AC_LIST_FILE" 2>/dev/null || true
+grep -E '(^### AC-[0-9]{3}|^[[:space:]]*-[[:space:]]*\*\*AC-[0-9]{3}:?\*\*)' "$SLICE_DIR/spec.md" > "$AC_LIST_FILE" 2>/dev/null || true
 
 # ============================================================================
 # 4. Contagem de ac_checks do verification.json (quantos pass / fail)
@@ -130,9 +133,17 @@ grep -E '^### AC-[0-9]{3}' "$SLICE_DIR/spec.md" > "$AC_LIST_FILE" 2>/dev/null ||
 AC_PASS_COUNT=0
 AC_FAIL_COUNT=0
 if [ -f "$VJSON" ]; then
-  AC_PASS_COUNT="$(grep -c '"status"[[:space:]]*:[[:space:]]*"pass"' "$VJSON" 2>/dev/null || echo 0)"
-  AC_FAIL_COUNT="$(grep -c '"status"[[:space:]]*:[[:space:]]*"fail"' "$VJSON" 2>/dev/null || echo 0)"
+  AC_PASS_COUNT="$(grep -c '"status"[[:space:]]*:[[:space:]]*"pass"' "$VJSON" 2>/dev/null || true)"
+  AC_FAIL_COUNT="$(grep -c '"status"[[:space:]]*:[[:space:]]*"fail"' "$VJSON" 2>/dev/null || true)"
+  AC_PASS_COUNT="${AC_PASS_COUNT:-0}"
+  AC_FAIL_COUNT="${AC_FAIL_COUNT:-0}"
 fi
+
+ac_title_from_line() {
+  echo "$1" | sed -E \
+    -e 's/^### AC-[0-9]{3}[[:space:]]*[—-][[:space:]]*//' \
+    -e 's/^[[:space:]]*-[[:space:]]*\*\*AC-[0-9]{3}:?\*\*[[:space:]]*//'
+}
 
 # ============================================================================
 # 5. Traduz findings do review.json para bullets em PT-BR
@@ -281,7 +292,7 @@ WORKING_BULLETS=""
 if [ "$VERIF_STATUS" = "approved" ]; then
   while IFS= read -r ac_line; do
     # Extrai "AC-NNN — Título" e vira "✓ Título"
-    title_part="$(echo "$ac_line" | sed -E 's/^### AC-[0-9]{3}[[:space:]]*[—-][[:space:]]*//')"
+    title_part="$(ac_title_from_line "$ac_line")"
     [ -n "$title_part" ] && WORKING_BULLETS="${WORKING_BULLETS}- ✓ ${title_part}"$'\n'
   done < "$AC_LIST_FILE"
 fi
@@ -300,8 +311,8 @@ fi
 {
   echo "# ${TITLE}"
   echo
-  echo "**Status:** ${STATUS_FRIENDLY}  "
-  echo "**Data:** ${DATE_UTC}  "
+  echo "**Status:** ${STATUS_FRIENDLY}"
+  echo "**Data:** ${DATE_UTC}"
   echo "**Slice:** ${NNN}"
   echo
   echo "---"
@@ -313,7 +324,7 @@ fi
     echo
     while IFS= read -r ac_line; do
       ac_id="$(echo "$ac_line" | grep -oE 'AC-[0-9]{3}')"
-      ac_title="$(echo "$ac_line" | sed -E 's/^### AC-[0-9]{3}[[:space:]]*[—-][[:space:]]*//')"
+      ac_title="$(ac_title_from_line "$ac_line")"
       echo "- **${ac_id}** — ${ac_title}"
     done < "$AC_LIST_FILE"
   else
@@ -326,7 +337,7 @@ fi
   if [ -s "$AC_LIST_FILE" ]; then
     # Reutiliza títulos dos ACs como proxy de funcionalidades visíveis
     while IFS= read -r ac_line; do
-      ac_title="$(echo "$ac_line" | sed -E 's/^### AC-[0-9]{3}[[:space:]]*[—-][[:space:]]*//')"
+      ac_title="$(ac_title_from_line "$ac_line")"
       echo "- ${ac_title}"
     done < "$AC_LIST_FILE"
   else
@@ -392,6 +403,9 @@ fi
       ;;
     "⚠ precisa da sua decisão")
       echo "Marque uma opção acima e me avise. Não vou continuar sem sua decisão."
+      ;;
+    "verificação aprovada; aguardando revisão")
+      echo "Seguir para a revisão estrutural independente antes dos próximos gates."
       ;;
     *)
       echo "A entrega ainda está em andamento. Volte aqui quando a verificação terminar."

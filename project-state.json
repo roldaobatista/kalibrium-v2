@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T09:46:10-04:00",
+  "updated_at": "2026-04-14T10:00:19-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,8 +39,8 @@
     "current_epic": "E02",
     "current_story": "TEN-001",
     "current_slice": "008",
-    "slice_status": "implementation_green_pending_verify_slice",
-    "last_green_commit": "81597e6",
+    "slice_status": "verifier_approved_pending_review_pr",
+    "last_green_commit": "a43c6c3",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -49,7 +49,7 @@
     "spec_auditor": "approved",
     "plan": "approved",
     "plan_review": "approved",
-    "verifier": "not_started",
+    "verifier": "approved",
     "reviewer": "not_started",
     "security_reviewer": "not_started",
     "test_auditor": "not_started",
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 008 implementado localmente: /settings/tenant foi criado para gerente autenticado, com validacao de CNPJ, criacao/atualizacao transacional de tenant, empresa raiz e filial raiz, auditoria cadastral, bloqueio de nao gerente, modo read-only e isolamento entre tenants. Testes focados do slice ficaram verdes.",
-    "next_action": "Rodar /verify-slice 008 em contexto isolado. Se aprovado, seguir para /review-pr 008; se houver finding, corrigir e reexecutar o mesmo gate.",
+    "last_session_summary": "Slice 008 passou pelo gate /verify-slice 008: gates mecanicos verdes, verifier isolado aprovou com findings vazios, specs/008/verification.json foi persistido e o relatorio PM docs/explanations/slice-008.md foi gerado. O tradutor PM foi corrigido para reconhecer ACs em formato bullet e status de verifier aprovado antes do reviewer.",
+    "next_action": "Rodar /review-pr 008 em contexto isolado. Se aprovado, seguir para security-review, test-audit e functional-review; se houver finding, corrigir e reexecutar o mesmo gate.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

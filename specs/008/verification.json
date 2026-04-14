@@ -1,0 +1,69 @@
+{
+  "slice_id": "slice-008",
+  "verdict": "approved",
+  "timestamp": "2026-04-14T13:56:53.3933544Z",
+  "ac_checks": [
+    {
+      "ac": "AC-001",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsPageTest (GET /settings/tenant exibe os campos do formulario para gerente autenticado em tenant active)"
+    },
+    {
+      "ac": "AC-002",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsPageTest (POST /settings/tenant atualiza o tenant atual e cria empresa e filial raiz vinculadas ao mesmo tenant)"
+    },
+    {
+      "ac": "AC-003",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsPageTest (POST /settings/tenant atualiza registros existentes sem criar empresa ou filial raiz duplicadas)"
+    },
+    {
+      "ac": "AC-004",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsPageTest (POST /settings/tenant permite configuracao inicial em tenant trial e preserva o tenant atual)"
+    },
+    {
+      "ac": "AC-005",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsIsolationTest (gerente do tenant A acessa e salva /settings/tenant sem expor dados do tenant B)"
+    },
+    {
+      "ac": "AC-006",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsAuditTest (alteracao bem-sucedida em /settings/tenant grava auditoria com usuario, tenant, acao e campos alterados)"
+    },
+    {
+      "ac": "AC-007",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsValidationTest (CNPJ ausente, invalido ou duplicado em outro tenant retorna erro e nao altera o tenant atual)"
+    },
+    {
+      "ac": "AC-008",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsValidationTest (razao social vazia, e-mail principal invalido ou perfil operacional invalido retornam erro por campo)"
+    },
+    {
+      "ac": "AC-009",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsPageTest (usuario sem papel gerente nao ve o formulario editavel e recebe bloqueio seguro em /settings/tenant)"
+    },
+    {
+      "ac": "AC-010",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsPageTest (tenant suspended com sessao read-only pode visualizar, mas o salvamento retorna bloqueio)"
+    },
+    {
+      "ac": "AC-011",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsPageTest (se o vinculo mudar antes do salvamento, o sistema revalida e bloqueia a alteracao)"
+    },
+    {
+      "ac": "AC-012",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice008\\TenantSettingsValidationTest (falha ao persistir empresa ou filial desfaz a operacao inteira e preserva o tenant atual)"
+    }
+  ],
+  "violations": [],
+  "next_action": "open_pr"
+}
