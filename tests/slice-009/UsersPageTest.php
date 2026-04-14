@@ -52,6 +52,10 @@ test('AC-008: usuario sem papel gerente nao acessa dados administrativos nem con
         'tenant_status' => 'active',
         'role' => 'tecnico',
     ]);
+    $member = slice009_create_tenant_member($context, [
+        'role' => 'visualizador',
+        'status' => 'active',
+    ]);
     $initialTenantUserCount = TenantUser::query()->where('tenant_id', $context['tenant']->id)->count();
 
     $response = $this
@@ -69,6 +73,17 @@ test('AC-008: usuario sem papel gerente nao acessa dados administrativos nem con
         ->invite($context['user'], $context['tenant_user'], slice009_invite_payload($context)))
         ->toThrow(AuthorizationException::class);
 
+    expect(fn () => app(UserRoleService::class)
+        ->updateRole($context['user'], $context['tenant_user'], $member['tenant_user'], 'gerente'))
+        ->toThrow(AuthorizationException::class);
+
+    expect(fn () => app(UserDeactivationService::class)
+        ->deactivate($context['user'], $context['tenant_user'], $member['tenant_user']))
+        ->toThrow(AuthorizationException::class);
+
+    $memberTenantUser = $member['tenant_user']->fresh();
+    expect($memberTenantUser->role)->toBe('visualizador');
+    expect($memberTenantUser->status)->toBe('active');
     expect(TenantUser::query()->where('tenant_id', $context['tenant']->id)->count())->toBe($initialTenantUserCount);
 })->group('slice-009', 'ac-008');
 

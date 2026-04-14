@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\TenantUser;
+use App\Support\Auth\TenantAccessResolver;
 use Illuminate\Support\Facades\Schema;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -23,6 +24,8 @@ test('AC-003: convite valido permite definir senha, ativa vinculo correto e redi
     $tenantUser = TenantUser::query()->find($context['invited_tenant_user']->id);
     expect($tenantUser)->not->toBeNull();
     expect($tenantUser->tenant_id)->toBe($context['tenant']->id);
+    expect($tenantUser->company_id)->toBe($context['company']->id);
+    expect($tenantUser->branch_id)->toBe($context['branch']->id);
     expect($tenantUser->status)->toBe('active');
 
     if (Schema::hasColumn('tenant_users', 'accepted_at')) {
@@ -37,6 +40,10 @@ test('AC-003: convite valido permite definir senha, ativa vinculo correto e redi
         'password' => 'NovaSenhaSegura123!',
     ]);
     $login->assertRedirect('/app');
+
+    $decision = app(TenantAccessResolver::class)->resolve($context['invited_user']->fresh());
+    expect($decision['tenant_id'])->toBe($context['tenant']->id);
+    expect($decision['tenant_user_id'])->toBe($tenantUser->id);
 })->group('slice-009', 'ac-003');
 
 test('AC-015: convite expirado, usado ou de outro tenant bloqueia aceite sem alterar senha nem ativar vinculo', function (array $overrides, string $expectedStatus): void {

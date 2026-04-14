@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\UserInvitationService;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
@@ -35,6 +36,22 @@ test('AC-002: gerente convida usuario, vinculo pendente fica no tenant atual, 2F
     expect($tenantUser->status)->toBe('invited');
     expect($tenantUser->role)->toBe('gerente');
     expect((bool) $tenantUser->requires_2fa)->toBeTrue();
+
+    $invitedUser->forceFill([
+        'password' => Hash::make('SenhaConviteGerente123!'),
+        'two_factor_confirmed_at' => null,
+    ])->save();
+    $tenantUser->forceFill(['status' => 'active'])->save();
+
+    $login = $this->post('/auth/login', [
+        'email' => $invitedUser->email,
+        'password' => 'SenhaConviteGerente123!',
+    ]);
+    $login->assertRedirect('/auth/two-factor-challenge');
+    $login->assertSessionHas('auth.two_factor_pending', true);
+
+    $privilegedAccess = $this->get(slice009_routes()['users']);
+    $privilegedAccess->assertRedirect('/auth/two-factor-challenge');
 
     Mail::assertSentCount(1);
     slice009_assert_audit_does_not_leak($context['tenant']->id, [

@@ -24,6 +24,22 @@ test('AC-013: parametros de outro tenant em convite, usuario ou plano sao rejeit
         'tenant_name' => 'Laboratorio Externo '.Str::uuid(),
     ]);
     $externalMember = slice009_create_tenant_member($external, ['role' => 'tecnico']);
+    $currentPlanName = 'Plano Atual '.Str::uuid();
+    $externalPlanName = 'Plano Externo '.Str::uuid();
+    slice009_seed_plan_fixture($context['tenant'], [
+        'plan_name' => $currentPlanName,
+        'users_limit' => 10,
+        'users_used' => 2,
+        'monthly_os_limit' => 100,
+        'monthly_os_used' => 20,
+    ]);
+    slice009_seed_plan_fixture($external['tenant'], [
+        'plan_name' => $externalPlanName,
+        'users_limit' => 999,
+        'users_used' => 999,
+        'monthly_os_limit' => 777,
+        'monthly_os_used' => 777,
+    ]);
 
     expect(fn () => app(UserInvitationService::class)->invite(
         $context['user'],
@@ -51,6 +67,18 @@ test('AC-013: parametros de outro tenant em convite, usuario ou plano sao rejeit
         $external['user']->email,
         (string) $external['tenant']->id,
     ]);
+
+    $plansResponse = $this
+        ->actingAs($context['user'])
+        ->get(slice009_routes()['plans']);
+
+    $plansResponse->assertStatus(200);
+    $plansResponse->assertSee($currentPlanName);
+    $plansResponse->assertSee('2 de 10');
+    $plansResponse->assertSee('20 de 100');
+    $plansResponse->assertDontSee($externalPlanName);
+    $plansResponse->assertDontSee('999');
+    $plansResponse->assertDontSee('777');
 })->group('slice-009', 'ac-013');
 
 test('AC-SEC-001: HTML, JavaScript e SQL em nome, e-mail, busca ou justificativa sao tratados como dado e nao refletem sem escape', function (): void {
