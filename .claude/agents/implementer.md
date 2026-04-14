@@ -52,7 +52,8 @@ Ao terminar todas as tasks com testes verdes:
 2. Aguardar `specs/NNN/verification.json` do verifier.
 3. Se `verdict: approved` → abrir PR conforme `next_action: open_pr`.
 4. Se `rejected` → ler `violations`, corrigir, re-verificar.
-5. Se **segundo** `rejected` consecutivo → **parar**. R6 escalará ao humano automaticamente.
+5. Se houver `rejected` consecutivo da 1ª à 5ª vez → corrigir e re-verificar pelo mesmo gate.
+6. Se houver **6º** `rejected` consecutivo → **parar**. R6 escalará ao humano automaticamente.
 
 ## Output em linguagem de produto (B-016 / R12)
 

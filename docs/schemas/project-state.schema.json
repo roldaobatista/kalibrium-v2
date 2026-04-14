@@ -55,9 +55,9 @@
         "current_epic": { "type": ["string", "null"] },
         "current_story": { "type": ["string", "null"] },
         "current_slice": { "type": ["string", "null"] },
-        "slice_status": { "type": "string", "enum": ["not_started", "spec", "plan", "tests_red", "implementing", "verifying", "review", "approved", "merged"] },
+        "slice_status": { "type": "string", "enum": ["not_started", "spec", "plan", "tests_red", "implementing", "verifying", "review", "reviewer_r6_escalated", "approved", "merged"] },
         "last_green_commit": { "type": ["string", "null"] },
-        "consecutive_rejections": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "consecutive_rejections": { "type": "integer", "minimum": 0 },
         "blocked": { "type": "boolean" },
         "blocked_reason": { "type": ["string", "null"] }
       }
@@ -66,7 +66,7 @@
       "type": "object",
       "properties": {
         "verifier": { "type": "string", "enum": ["pending", "approved", "rejected"] },
-        "reviewer": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "reviewer": { "type": "string", "enum": ["pending", "approved", "rejected", "rejected_r6"] },
         "security_reviewer": { "type": "string", "enum": ["pending", "approved", "rejected", "skipped"] },
         "test_auditor": { "type": "string", "enum": ["pending", "approved", "rejected", "skipped"] },
         "functional_reviewer": { "type": "string", "enum": ["pending", "approved", "rejected", "skipped"] }

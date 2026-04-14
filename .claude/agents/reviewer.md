@@ -83,8 +83,8 @@ Schema obrigatório (validação por `validate-review.sh` — outputs inválidos
 4. Contradição com ADR aceita → sempre blocker
 5. Secret hardcoded → sempre blocker
 6. **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. O fixer corrige TUDO e o gate re-roda até `findings: []`.
-7. `rejected` primeira vez → `next_action: return_to_implementer`
-8. `rejected` segunda vez consecutiva (R6) → `next_action: escalate_human`
+7. `rejected` da 1ª à 5ª vez consecutiva → `next_action: return_to_implementer`
+8. `rejected` pela 6ª vez consecutiva (R6) → `next_action: escalate_human`
 
 ## Proibido
 
@@ -101,7 +101,7 @@ Ao terminar:
 1. Escrever `review-input/review.json` válido contra schema
 2. Se `verdict=approved` → parent dispara `/merge-slice` (dupla aprovação verifier+reviewer)
 3. Se `rejected` → parent retorna ao implementer com a lista de `findings`
-4. Se 2ª rejeição → parent cria `docs/incidents/slice-NNN-review-escalation-*.md` e bloqueia até decisão humana
+4. Se 6ª rejeição consecutiva → parent cria `docs/incidents/slice-NNN-review-escalation-*.md` e bloqueia até decisão humana
 
 ## Output em linguagem de produto (B-016 / R12)
 

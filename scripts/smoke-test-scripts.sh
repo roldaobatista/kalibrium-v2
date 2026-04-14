@@ -233,16 +233,16 @@ fi
 echo "[4/5] verify-slice.sh --validate"
 
 # Prepara estrutura mínima de slice
-mkdir -p specs/998
-cat > specs/998/spec.md <<'EOF'
-# Slice 998 — teste smoke
+mkdir -p specs/995
+cat > specs/995/spec.md <<'EOF'
+# Slice 995 — teste smoke
 
 ## Acceptance Criteria
 
 - **AC-001:** primeira coisa
 - **AC-002:** segunda coisa
 EOF
-cat > specs/998/plan.md <<'EOF'
+cat > specs/995/plan.md <<'EOF'
 # Plan
 EOF
 
@@ -250,7 +250,7 @@ EOF
 mkdir -p verification-input
 cat > verification-input/verification.json <<'EOF'
 {
-  "slice_id": "slice-998",
+  "slice_id": "slice-995",
   "verdict": "approved",
   "timestamp": "2026-04-10T14:30:00Z",
   "ac_checks": [
@@ -263,15 +263,15 @@ cat > verification-input/verification.json <<'EOF'
 EOF
 
 # Limpa telemetria anterior
-rm -f .claude/telemetry/slice-998.jsonl
+rm -f .claude/telemetry/slice-995.jsonl
 
 run_test "verify-slice --validate approved" 0 \
-  bash scripts/verify-slice.sh 998 --validate
+  bash scripts/verify-slice.sh 995 --validate
 
 # Segunda invocação com rejected
 cat > verification-input/verification.json <<'EOF'
 {
-  "slice_id": "slice-997",
+  "slice_id": "slice-994",
   "verdict": "rejected",
   "timestamp": "2026-04-10T14:30:00Z",
   "ac_checks": [{"ac": "AC-001", "status": "fail", "evidence": "x"}],
@@ -279,22 +279,28 @@ cat > verification-input/verification.json <<'EOF'
   "next_action": "return_to_implementer"
 }
 EOF
-mkdir -p specs/997
-cp specs/998/spec.md specs/997/spec.md
-cp specs/998/plan.md specs/997/plan.md
-rm -f .claude/telemetry/slice-997.jsonl
+mkdir -p specs/994
+cp specs/995/spec.md specs/994/spec.md
+cp specs/995/plan.md specs/994/plan.md
+rm -f .claude/telemetry/slice-994.jsonl
 
-run_test "verify-slice --validate rejected (primeira)" 1 \
-  bash scripts/verify-slice.sh 997 --validate
+run_test "verify-slice --validate rejected (primeira de seis)" 1 \
+  bash scripts/verify-slice.sh 994 --validate
 
-# Segunda rejeição → R6 (exit 2)
-run_test "verify-slice --validate rejected (segunda → R6 exit 2)" 2 \
-  bash scripts/verify-slice.sh 997 --validate
+# Rejeições 2 a 5 permanecem no loop automático
+for attempt in 2 3 4 5; do
+  run_test "verify-slice --validate rejected (${attempt}/6)" 1 \
+    bash scripts/verify-slice.sh 994 --validate
+done
+
+# Sexta rejeição → R6 (exit 2)
+run_test "verify-slice --validate rejected (sexta → R6 exit 2)" 2 \
+  bash scripts/verify-slice.sh 994 --validate
 
 # Verifica que incident foi criado
 TESTS=$((TESTS+1))
 printf "  [%d] %-70s " "$TESTS" "R6 criou incident file"
-if ls docs/incidents/slice-997-escalation-*.md >/dev/null 2>&1; then
+if ls docs/incidents/slice-994-escalation-*.md >/dev/null 2>&1; then
   echo "OK"
   PASS=$((PASS+1))
 else
@@ -380,13 +386,15 @@ run_test "plan-review rejeita approved com finding minor" 1 \
 # ======================================================================
 # Cleanup
 # ======================================================================
-rm -rf specs/998 specs/997 verification-input
+rm -rf specs/995 specs/994 verification-input
 rm -rf specs/996
 rm -f .claude/telemetry/slice-999.jsonl
-rm -f .claude/telemetry/slice-998.jsonl
-rm -f .claude/telemetry/slice-997.jsonl
+rm -f .claude/telemetry/slice-995.jsonl
+rm -f .claude/telemetry/slice-994.jsonl
 rm -f docs/retrospectives/slice-999-report.md
-rm -f docs/incidents/slice-997-escalation-*.md
+rm -f docs/incidents/slice-994-escalation-*.md
+rm -f docs/explanations/slice-995.md
+rm -f docs/explanations/slice-994.md
 
 # ======================================================================
 # Resultado

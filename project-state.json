@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T22:32:58-04:00",
+  "updated_at": "2026-04-13T22:58:21-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 007 recebeu autorizacao para nova tentativa focada em revalidar acesso ao concluir 2FA. O fix foi commitado em 113c6fb, o metadado aprovado do spec foi commitado em 4c2687a, e o verifier aprovou. O reviewer reprovou novamente com 1 finding novo de seguranca sobre o fluxo real de /app com 2FA pendente.",
-    "next_action": "Aguardar decisao do PM sobre PD-011. Recomendacao operacional: pedir nova tentativa focada nesse finding do reviewer.",
+    "last_session_summary": "Harness R6 alterado por ADR-0010 para 5 ciclos automaticos de correcao em loops de review/auditoria e escalacao ao PM na 6a rejeicao consecutiva. Scripts verify-slice/review-slice, comandos, skills, schemas e politica R6/R7 foram alinhados. Slice 007 continua bloqueado por reviewer R6 porque ja havia 7 rejeicoes consecutivas registradas antes desta alteracao.",
+    "next_action": "Retomar a decisao PD-011 do slice 007. Recomendacao operacional: como o slice ja passou do novo limite de 6 rejeicoes, pedir decisao explicita do PM antes de nova tentativa ou reescopo.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -162,7 +162,9 @@
       "specs/007/plan.md",
       "specs/007/verification.json",
       "specs/007/review.json",
-      "docs/incidents/slice-007-review-escalation-2026-04-14.md"
+      "docs/incidents/slice-007-review-escalation-2026-04-14.md",
+      "docs/adr/0010-constitution-amendment-r6-gate-threshold.md",
+      "docs/retrospectives/constitution-r6-gate-threshold-2026-04-14.md"
     ]
   }
 }

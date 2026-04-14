@@ -99,7 +99,7 @@
     "next_action": {
       "type": "string",
       "enum": ["approve_pr", "return_to_implementer", "escalate_human"],
-      "description": "approve_pr = pronto para merge (combinado com verification.json approved). return_to_implementer = primeira rejeição. escalate_human = segunda rejeição consecutiva (R6)."
+      "description": "approve_pr = pronto para merge (combinado com verification.json approved). return_to_implementer = rejeições consecutivas 1 a 5. escalate_human = 6ª rejeição consecutiva (R6)."
     }
   },
   "allOf": [

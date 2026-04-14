@@ -16,6 +16,7 @@
 | [0002](adr/0002-mcp-policy.md) | Política de MCP servers autorizados | accepted | 2026-04-10 | Tooling |
 | [0008](adr/0008-codex-cli-orchestrator.md) | Codex CLI como orquestrador alternativo exclusivo | accepted | 2026-04-12 | Harness |
 | [0004](adr/0004-estrategia-de-identidade-e-autenticacao.md) | Estratégia de identidade e autenticação | accepted | 2026-04-13 | Identidade e autenticação |
+| [0010](adr/0010-constitution-amendment-r6-gate-threshold.md) | Alterar R6 para 5 ciclos automáticos e escalação na 6ª rejeição | accepted | 2026-04-14 | Harness |
 
 ## Decisões Pendentes
 

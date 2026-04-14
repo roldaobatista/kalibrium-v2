@@ -80,13 +80,13 @@ Vou corrigir a spec e reauditar.
 ### 5. Loop de correcao
 
 ```
-loop (max 3 iteracoes):
+loop (5 ciclos automáticos; 6ª rejeição escala PM):
   1. spec-auditor emite findings
   2. fixer corrige somente specs/NNN/spec.md
   3. rodar bash scripts/draft-spec.sh NNN --check
   4. reexecutar /audit-spec NNN
   5. se approved + findings [] -> sair
-  6. se 3 iteracoes sem aprovar -> escalar PM com resumo R12
+  6. se 6 iteracoes sem aprovar -> escalar PM com resumo R12
 ```
 
 ## Agentes
@@ -102,4 +102,4 @@ loop (max 3 iteracoes):
 
 - Approved -> `/draft-plan NNN`.
 - Rejected e corrigido -> reauditar automaticamente.
-- Rejected 3x -> escalar PM em linguagem de produto.
+- Rejected 6x -> escalar PM em linguagem de produto.

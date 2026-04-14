@@ -56,4 +56,4 @@ Gate só passa com `verdict: approved`, todos os checks em `pass`, `findings: []
 ## Regras
 - Não existe "aprovado com ressalva".
 - Não pular para `/draft-tests NNN` sem `plan-review.json` aprovado com `findings: []`.
-- Máximo 2 tentativas de correção; na 3ª falha, escalar ao PM em linguagem de produto.
+- Até 5 ciclos automáticos de correção; na 6ª falha consecutiva, escalar ao PM em linguagem de produto.

@@ -99,4 +99,4 @@ Registrar em telemetria.
 ## Handoff
 - `approved` → proximo gate (`/test-audit NNN`)
 - `rejected` → `/fix NNN security` → re-run `/security-review NNN`
-- 2 rejeicoes consecutivas → R6 escalacao
+- 6 rejeicoes consecutivas → R6 escalacao

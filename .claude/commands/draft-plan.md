@@ -103,7 +103,7 @@ Próximo passo:
 |---|---|
 | `specs/NNN/spec.md` não passa validação (`draft-spec.sh --check`) | Abortar e sugerir `/draft-spec NNN` para corrigir o spec antes de gerar o plan. |
 | `specs/NNN/spec-audit.json` ausente ou reprovado | Abortar e rodar `/audit-spec NNN`; se houver findings, corrigir spec e reauditar. |
-| `architect` gera plan.md que falha na validação (`draft-plan.sh --validate`) | Re-instruir o architect com o motivo da falha. Máximo 2 tentativas; na 3ª, escalar humano (R6). |
+| `architect` gera plan.md que falha na validação (`draft-plan.sh --validate`) | Re-instruir o architect com o motivo da falha. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
 | `plan-reviewer` rejeita ou emite qualquer finding | Corrigir TODOS os findings no plan e re-rodar `/review-plan NNN`; não apresentar ao PM como aprovado. |
 | `architect` inventa requisitos que não estão no spec | Rejeitar o plan, re-spawnar architect com instrução explícita de manter escopo do spec. |
 | PM não entende o resumo R12 do plan | Reformular com analogias mais simples. Oferecer "quer que eu explique de outro jeito?" antes de prosseguir. |
@@ -112,4 +112,4 @@ Próximo passo:
 - Não inventar requisitos além do spec
 - Não apresentar plan ao PM nem seguir para testes sem `plan-review.json` aprovado com `findings: []`
 - Se o architect gerar ADR, mencionar ao PM: "surgiu uma decisão que afeta o projeto todo — rode /decide-stack ou peça mais detalhes"
-- Máximo 2 tentativas de re-geração do plan. Na 3ª falha, escalar humano (R6)
+- Até 5 ciclos automáticos de re-geração do plan. Na 6ª falha consecutiva, escalar humano (R6)

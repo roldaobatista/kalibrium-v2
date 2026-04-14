@@ -45,4 +45,4 @@ bash scripts/audit-spec.sh NNN --approved
 
 - Approved -> `/draft-plan NNN`.
 - Rejected e corrigido -> reauditar automaticamente.
-- Rejected 3x -> escalar PM em linguagem de produto.
+- Rejected 6x -> escalar PM em linguagem de produto.

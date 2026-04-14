@@ -148,7 +148,7 @@ O orquestrador **DEVE** rodar auditoria independente em contexto limpo após cad
   → epic-decomposer gera épicos + ROADMAP.md
   → /audit-planning roadmap (OBRIGATÓRIO — contexto limpo)
     → planning-auditor valida cobertura FRs/REQs, dependências, completude
-    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: escala humano por política de planejamento
+    → se rejected: fixer corrige → re-audita (5 ciclos automáticos; 6ª rejeição escala humano) → se não converge: escala humano por política de planejamento
     → se approved: apresenta ao PM
   → PM aprova/ajusta épicos
 ```
@@ -160,7 +160,7 @@ O orquestrador **DEVE** rodar auditoria independente em contexto limpo após cad
   → story-decomposer gera stories + INDEX.md
   → /audit-stories ENN (OBRIGATÓRIO — contexto limpo)
     → story-auditor valida contratos, ACs, cobertura, dependências
-    → se rejected: fixer corrige → re-audita (max 3x) → se não converge: escala humano por política de planejamento
+    → se rejected: fixer corrige → re-audita (5 ciclos automáticos; 6ª rejeição escala humano) → se não converge: escala humano por política de planejamento
     → se approved: apresenta ao PM
   → PM aprova/ajusta stories
   → gate documental obrigatório:
@@ -185,8 +185,8 @@ Mesmo protocolo da cadeia fixer → re-gate:
 2. Orquestrador analisa findings e corrige (fixer ou story-decomposer)
 3. Re-invoca **o mesmo auditor** em contexto limpo novo
 4. Se aprovar → apresenta ao PM
-5. Se rejeitar 2ª vez → tenta mais 1x (total 3 tentativas)
-6. Se 3ª rejeição → escala humano via `/explain-slice` com incidente de planejamento, sem consumir o contador R6 de verifier do slice
+5. Se rejeitar até a 5ª vez consecutiva → repetir o ciclo automático de correção e re-auditoria
+6. Se rejeitar pela 6ª vez consecutiva → escala humano via `/explain-slice` com incidente de planejamento, sem consumir o contador R6 de verifier do slice
 
 ### Outputs de auditoria
 
@@ -210,7 +210,7 @@ Fluxo:
 /draft-spec NNN
   → /audit-spec NNN
     → spec-auditor valida escopo, ACs, testabilidade, segurança, dependências e gate documental
-    → se rejected: fixer corrige specs/NNN/spec.md → re-audita (max 3x)
+    → se rejected: fixer corrige specs/NNN/spec.md → re-audita (5 ciclos automáticos; 6ª rejeição escala PM)
     → se approved com findings []: PM aprova spec
   → /draft-plan NNN
 ```
@@ -230,7 +230,7 @@ Fluxo:
   → architect gera specs/NNN/plan.md
   → /review-plan NNN
     → plan-reviewer valida cobertura de ACs, decisões, viabilidade, riscos, segurança e simplicidade
-    → se rejected ou findings != []: architect/fixer corrige specs/NNN/plan.md → reaudita (max 3x)
+    → se rejected ou findings != []: architect/fixer corrige specs/NNN/plan.md → reaudita (5 ciclos automáticos; 6ª rejeição escala PM)
     → se approved com findings []: PM aprova plan
   → /draft-tests NNN
 ```
@@ -255,14 +255,14 @@ O loop é: gate rejeita → fixer corrige TODOS os findings → re-roda o MESMO 
 4. Orquestrador **re-invoca o mesmo gate** que rejeitou (não pula para o próximo)
 5. Se gate aprovar (findings=[]) → próximo gate na sequência
 6. Se gate ainda tiver findings → volta ao passo 2 (novo ciclo fixer)
-7. Se gate rejeitar **segunda vez consecutiva** (R6) → `escalate_human`
+7. Se gate rejeitar pela **6ª vez consecutiva** (R6) → `escalate_human`
 
 ### Contadores de rejeição
 
 - Mantidos em `.claude/telemetry/slice-NNN.jsonl`
-- Formato: `{"event": "gate_result", "gate": "verifier", "verdict": "rejected", "attempt": 2}`
-- Orquestrador lê telemetria antes de invocar fixer para saber se é attempt 1 ou 2
-- No attempt 2 rejeitado: cria `docs/incidents/slice-NNN-escalation-<date>.md` + invoca `/explain-slice NNN`
+- Formato: `{"event": "gate_result", "gate": "verifier", "verdict": "rejected", "attempt": 6}`
+- Orquestrador lê telemetria antes de invocar fixer para saber se é attempt 1 a 6
+- No attempt 6 rejeitado: cria `docs/incidents/slice-NNN-escalation-<date>.md` + invoca `/explain-slice NNN`
 
 ### Regras do fixer
 
@@ -325,7 +325,7 @@ Quando contexto comprime:
 > "Encontrei [N] pontos para ajustar em [área]. Vou corrigir automaticamente e verificar de novo."
 
 **Após escalação R6:**
-> "Tentei corrigir duas vezes mas o problema persiste. Preciso da sua decisão: [opções em linguagem de produto]."
+> "Tentei corrigir cinco vezes mas o problema persiste. Preciso da sua decisão: [opções em linguagem de produto]."
 
 ---
 
@@ -366,24 +366,24 @@ Quando contexto comprime:
 | Agente | Budget | Invocações típicas | Total |
 |--------|--------|---------------------|-------|
 | epic-decomposer | 30k | 1 | 30k |
-| planning-auditor | 40k | 1-3 | 40-120k |
+| planning-auditor | 40k | 1-6 | 40-240k |
 | story-decomposer | 30k | 1 por épico | 30k |
-| story-auditor | 40k | 1-3 por épico | 40-120k |
-| spec-auditor | 25k | 1-3 por slice | 25-75k |
-| **Total por épico (planejamento)** | | | **140k-300k** |
+| story-auditor | 40k | 1-6 por épico | 40-240k |
+| spec-auditor | 25k | 1-6 por slice | 25-150k |
+| **Total por épico (planejamento)** | | | **165k-690k** |
 
 ### Budget total por slice (execução — estimativa)
 
 | Agente | Budget | Invocações típicas | Total |
 |--------|--------|---------------------|-------|
 | architect | 30k | 1 | 30k |
-| plan-reviewer | 25k | 1-3 | 25-75k |
+| plan-reviewer | 25k | 1-6 | 25-150k |
 | ac-to-test | 40k | 1 | 40k |
 | implementer | 80k | 1-3 | 80-240k |
-| verifier | 25k | 1-2 | 25-50k |
-| reviewer | 30k | 1-2 | 30-60k |
-| security-reviewer | 25k | 1 | 25k |
-| test-auditor | 25k | 1 | 25k |
-| functional-reviewer | 25k | 1 | 25k |
-| fixer | 60k | 0-3 | 0-180k |
-| **Total por slice** | | | **305k-750k** |
+| verifier | 25k | 1-6 | 25-150k |
+| reviewer | 30k | 1-6 | 30-180k |
+| security-reviewer | 25k | 1-6 | 25-150k |
+| test-auditor | 25k | 1-6 | 25-150k |
+| functional-reviewer | 25k | 1-6 | 25-150k |
+| fixer | 60k | 0-25 | 0-1500k |
+| **Total por slice** | | | **305k-2665k** |
