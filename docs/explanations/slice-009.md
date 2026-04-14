@@ -1,6 +1,6 @@
 # Slice 009 — TEN-002 - Usuarios, papeis e plano do laboratorio
 
-**Status:** ⚠ precisa da sua decisão
+**Status:** revisão aprovada; aguardando gates finais
 **Data:** 2026-04-14
 **Slice:** 009
 
@@ -71,12 +71,6 @@ Esta entrega cobre os seguintes critérios:
 - ✓ Dado consumo de usuarios, OS mensal ou armazenamento maior ou igual a 80% do limite, quando o gerente acessar `/settings/plans`, entao o sistema exibe alerta leve; dado consumo maior ou igual a 95%, entao exibe alerta forte.
 - ✓ Dado usuario sem papel `gerente`, quando acessar `/settings/plans`, entao o sistema permite visualizar informacoes basicas do plano quando autorizado, mas nao exibe botao de pedido de upgrade.
 
-## O que precisa de atenção
-
-**Encontrados na revisão estrutural:**
-
-- **🛑 IMPEDITIVO:** problema estrutural — O pacote isolado do reviewer inclui specs/009/verification.json. A constitution R11 determina que o reviewer nao ve verification.json; portanto o gate estrutural nao preserva isolamento entre verifier e reviewer.
-
 ## O que NÃO está neste slice (fica pra depois)
 
 - Registro publico de novo laboratorio por visitante anonimo.
@@ -88,21 +82,9 @@ Esta entrega cobre os seguintes critérios:
 - Console interno de suporte Kalibrium para trocar plano de tenants.
 - Permissoes finas por modulo alem dos papeis canonicos e bloqueios basicos de plano deste slice.
 
-## Sua decisão é necessária
-
-A entrega não ficou pronta nesta tentativa. Os problemas acima foram
-encontrados por uma verificação automática — não é opinião minha,
-é resultado mecânico.
-
-**Opções:**
-
-- [ ] **Pedir nova tentativa** — o agente implementador corrige os problemas e tenta de novo
-- [ ] **Reescopar** — o slice é grande demais; dividir em pedaços menores
-- [ ] **Pausar** — prefiro discutir antes de decidir
-
 ## Próximo passo
 
-Marque uma opção acima e me avise. Não vou continuar sem sua decisão.
+Seguir para as revisões de segurança, testes e funcionalidade antes de qualquer merge.
 
 ---
 
@@ -110,7 +92,7 @@ Marque uma opção acima e me avise. Não vou continuar sem sua decisão.
 <summary>Detalhes técnicos (não precisa abrir)</summary>
 
 - **Verifier verdict:** approved
-- **Reviewer verdict:** rejected
+- **Reviewer verdict:** approved
 - **Security verdict:** -
 - **Test audit verdict:** -
 - **Functional verdict:** -
