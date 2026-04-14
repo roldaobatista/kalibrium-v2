@@ -7,10 +7,10 @@ namespace App\Support\Auth;
 use App\Models\LoginAuditLog;
 use Illuminate\Http\Request;
 
-final class LoginAuditRecorder
+final readonly class LoginAuditRecorder
 {
     public function __construct(
-        private readonly AuthPayloadSanitizer $sanitizer,
+        private AuthPayloadSanitizer $sanitizer,
     ) {}
 
     /**

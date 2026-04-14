@@ -20,6 +20,7 @@ class TenantUser extends Model
     /** @use HasFactory<TenantUserFactory> */
     use HasFactory;
 
+    #[\Override]
     protected function casts(): array
     {
         return [

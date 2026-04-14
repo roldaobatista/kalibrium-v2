@@ -11,10 +11,10 @@ use App\Models\User;
 final class TenantAccessResolver
 {
     /** @var array<int, string> */
-    private const ALLOWED_TENANT_STATUSES = ['active', 'trial', 'suspended'];
+    private const array ALLOWED_TENANT_STATUSES = ['active', 'trial', 'suspended'];
 
     /** @var array<int, string> */
-    private const TWO_FACTOR_REQUIRED_ROLES = ['gerente', 'administrativo'];
+    private const array TWO_FACTOR_REQUIRED_ROLES = ['gerente', 'administrativo'];
 
     /**
      * @return array{

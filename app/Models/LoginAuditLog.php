@@ -21,6 +21,7 @@ class LoginAuditLog extends Model
     /** @use HasFactory<LoginAuditLogFactory> */
     use HasFactory;
 
+    #[\Override]
     protected function casts(): array
     {
         return [

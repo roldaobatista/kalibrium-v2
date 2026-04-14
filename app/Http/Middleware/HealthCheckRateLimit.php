@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class HealthCheckRateLimit
 {
-    private const MAX_REQUESTS = 60;
+    private const int MAX_REQUESTS = 60;
 
-    private const WINDOW_SECONDS = 60;
+    private const int WINDOW_SECONDS = 60;
 
     public function handle(Request $request, Closure $next): Response
     {
