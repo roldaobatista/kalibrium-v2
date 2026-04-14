@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use App\Support\Auth\RecoveryCodeHasher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -52,7 +53,7 @@ function slice007_user_with_access_context(array $overrides = []): array
         'email' => $overrides['email'] ?? slice007_unique_email(),
         'password' => Hash::make($password),
         'two_factor_secret' => $requiresTwoFactor ? encrypt($twoFactorSecret) : null,
-        'two_factor_recovery_codes' => $requiresTwoFactor ? $recoveryCodes : [],
+        'two_factor_recovery_codes' => $requiresTwoFactor ? RecoveryCodeHasher::hashMany($recoveryCodes) : [],
         'two_factor_confirmed_at' => $requiresTwoFactor ? now() : null,
     ]);
     $tenant = $tenantClass::factory()->create([

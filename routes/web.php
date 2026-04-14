@@ -20,6 +20,7 @@ use App\Livewire\Ping;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\Auth\LoginAuditRecorder;
+use App\Support\Auth\RecoveryCodeHasher;
 use App\Support\Auth\TenantAccessResolver;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
@@ -223,7 +224,11 @@ Route::post('/auth/two-factor-challenge', function (
     $recoveryCode = (string) $request->input('recovery_code', '');
     if ($recoveryCode !== '') {
         $recoveryCodes = $user->two_factor_recovery_codes;
-        if (! is_array($recoveryCodes) || ! in_array($recoveryCode, $recoveryCodes, true)) {
+        $matchedRecoveryCode = is_array($recoveryCodes)
+            ? RecoveryCodeHasher::matchingHash($recoveryCode, $recoveryCodes)
+            : null;
+
+        if (! is_array($recoveryCodes) || $matchedRecoveryCode === null) {
             RateLimiter::hit($rateKey, 60);
             $recordFailedAttempt($user);
 
@@ -233,7 +238,7 @@ Route::post('/auth/two-factor-challenge', function (
         $user->forceFill([
             'two_factor_recovery_codes' => array_values(array_filter(
                 $recoveryCodes,
-                static fn (string $code): bool => $code !== $recoveryCode
+                static fn (mixed $code): bool => $code !== $matchedRecoveryCode
             )),
         ])->save();
 

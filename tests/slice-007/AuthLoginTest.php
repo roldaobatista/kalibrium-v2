@@ -226,6 +226,30 @@ test('AC-012: formulario HTML de login bloqueado redireciona com erro de sessao'
     expect((string) $response->headers->get('content-type'))->not->toContain('application/json');
 })->group('slice-007', 'ac-012');
 
+test('AC-012: status desconhecido de tenant falha fechado sem criar sessao', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'archived',
+        'binding_status' => 'active',
+        'role' => 'tecnico',
+        'requires_2fa' => false,
+    ]);
+
+    $response = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $response->assertStatus(403);
+    $response->assertHeaderMissing('Location');
+    $this->assertGuest();
+    $this->assertDatabaseHas('login_audit_logs', [
+        'event' => 'auth.login.blocked_tenant_status',
+        'user_id' => $context['user']->id,
+        'tenant_id' => $context['tenant']->id,
+    ]);
+})->group('slice-007', 'ac-012', 'security');
+
 test('AC-013: POST /auth/login bloqueia vínculo suspended, invited ou removed com 403', function (string $bindingStatus): void {
     $context = slice007_user_with_access_context([
         'tenant_status' => 'active',
@@ -249,6 +273,30 @@ test('AC-013: POST /auth/login bloqueia vínculo suspended, invited ou removed c
         'tenant_id' => $context['tenant']->id,
     ]);
 })->with(['suspended', 'invited', 'removed'])->group('slice-007', 'ac-013');
+
+test('AC-013: status desconhecido de vinculo falha fechado sem criar sessao', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'pending',
+        'role' => 'tecnico',
+        'requires_2fa' => false,
+    ]);
+
+    $response = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $response->assertStatus(403);
+    $response->assertHeaderMissing('Location');
+    $this->assertGuest();
+    $this->assertDatabaseHas('login_audit_logs', [
+        'event' => 'auth.login.blocked_binding_status',
+        'user_id' => $context['user']->id,
+        'tenant_id' => $context['tenant']->id,
+    ]);
+})->group('slice-007', 'ac-013', 'security');
 
 test('AC-019: GET /app sem autenticacao redireciona para /auth/login', function (): void {
     $response = $this->get(slice007_routes()['app']);

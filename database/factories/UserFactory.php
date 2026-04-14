@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
-            'two_factor_recovery_codes' => ['recovery-code-1'],
+            'two_factor_recovery_codes' => [Hash::make('recovery-code-1')],
             'two_factor_confirmed_at' => null,
         ];
     }

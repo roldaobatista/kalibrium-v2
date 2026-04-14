@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Hash;
+
 require_once __DIR__.'/TestHelpers.php';
 
 test('AC-003: POST /auth/two-factor-challenge com codigo TOTP valido conclui autenticao e redireciona para /app', function (): void {
@@ -28,6 +30,10 @@ test('AC-004: POST /auth/two-factor-challenge com recovery_code valido conclui a
         'requires_2fa' => true,
         'recovery_codes' => ['recovery-code-1'],
     ]);
+    $storedRecoveryCode = $context['user']->fresh()->two_factor_recovery_codes[0] ?? '';
+
+    expect($storedRecoveryCode)->not->toBe('recovery-code-1');
+    expect(Hash::check('recovery-code-1', $storedRecoveryCode))->toBeTrue();
 
     $response = $this
         ->withSession(slice007_two_factor_pending_session($context))

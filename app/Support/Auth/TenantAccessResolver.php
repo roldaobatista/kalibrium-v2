@@ -10,6 +10,9 @@ use App\Models\User;
 
 final class TenantAccessResolver
 {
+    /** @var array<int, string> */
+    private const ALLOWED_TENANT_STATUSES = ['active', 'trial', 'suspended'];
+
     /**
      * @return array{
      *   allowed: bool,
@@ -58,7 +61,7 @@ final class TenantAccessResolver
         $tenantStatus = strtolower((string) $tenant->status);
         $bindingStatus = strtolower((string) $tenantUser->status);
 
-        if (in_array($bindingStatus, ['suspended', 'invited', 'removed'], true)) {
+        if ($bindingStatus !== 'active') {
             return [
                 'allowed' => false,
                 'requires_two_factor' => false,
@@ -69,7 +72,7 @@ final class TenantAccessResolver
             ];
         }
 
-        if ($tenantStatus === 'cancelled') {
+        if (! in_array($tenantStatus, self::ALLOWED_TENANT_STATUSES, true)) {
             return [
                 'allowed' => false,
                 'requires_two_factor' => false,
