@@ -1,0 +1,99 @@
+{
+  "slice_id": "slice-009",
+  "verdict": "approved",
+  "timestamp": "2026-04-14T20:48:00Z",
+  "ac_checks": [
+    {
+      "ac": "AC-001",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersPageTest; test 'AC-001: gerente com 2FA concluido acessa /settings/users e ve usuarios, papeis, status, 2FA e filtros do tenant'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-002",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersInviteTest; test 'AC-002: gerente convida usuario, vinculo pendente fica no tenant atual, 2FA e obrigatoria para papeis criticos'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-003",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersInviteAcceptanceTest; test 'AC-003: convite valido permite definir senha, ativa vinculo correto e redireciona para login'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-004",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersRoleTest; test 'AC-004: gerente altera papel de usuario do mesmo tenant, recalcula 2FA para papel critico e registra auditoria'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-005",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersDeactivateTest; test 'AC-005: gerente desativa usuario do mesmo tenant sem remover o ultimo gerente e registra auditoria'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-006",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\PlansPageTest; tests 'AC-006: gerente com 2FA concluido acessa /settings/plans e ve plano, status, uso, limites e modulos', 'AC-006: uso de usuarios em /settings/plans reflete vinculos ativos sem gravar metricas', and 'AC-006: resumo de plano considera liberacoes especificas do tenant'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-007",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\PlanUpgradeRequestTest; tests 'AC-007: gerente solicita upgrade de modulo fora do plano e o sistema registra pedido sem executar cobranca', 'AC-007: justificativa legitima com texto tenant_id nao bloqueia pedido de upgrade', 'AC-007: pedido de upgrade aceita apenas modulo existente e fora do plano atual', and 'AC-007: pedido de upgrade bloqueia modulo ja liberado para o tenant'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-008",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersPageTest; test 'AC-008: usuario sem papel gerente nao acessa dados administrativos nem consegue convidar usuario'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-009",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersPageTest; test 'AC-009: gerente com 2FA pendente e redirecionado antes de convidar, alterar papel ou desativar usuario'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-010",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersInviteTest; multiple datasets for 'AC-010: convite com campos invalidos ou empresa e filial de outro tenant retorna erro e nao cria vinculo' plus 'AC-010: convite bloqueia filial que nao pertence a empresa informada no mesmo tenant'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-011",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersInviteTest; tests 'AC-011: e-mail ja ativo ou convidado no tenant atual nao recebe segundo convite' with datasets ativo/convidado and 'AC-011: banco impede vinculo duplicado para o mesmo usuario no tenant'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-012",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersDeactivateTest test 'AC-012: ultimo gerente ativo nao pode remover a si mesmo nem deixar o tenant sem gerente' and PASS Tests\\slice009\\UsersRoleTest test 'AC-012: ultimo gerente ativo nao pode ser rebaixado para outro papel'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-013",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersPlansSecurityTest; tests 'AC-013: parametros de outro tenant em convite, usuario ou plano sao rejeitados sem revelar dados externos' and 'AC-013: tela de usuarios nao diferencia id inexistente de usuario existente em outro tenant'; also PASS Tests\\slice009\\UsersInviteTest test 'AC-013: convite para usuario existente em outro tenant nao altera nome global da conta'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-014",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\PlansPageTest tests 'AC-014: tenant suspended pode ler /settings/plans, mas pedido de upgrade e bloqueado em modo somente leitura' and 'AC-014: leitura de /settings/plans nao atualiza metricas em tenant suspended somente leitura'; PASS Tests\\slice009\\UsersPageTest test 'AC-014: tenant suspended pode ler /settings/users em modo somente leitura, mas acoes mutaveis ficam bloqueadas'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-015",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersInviteAcceptanceTest; three datasets for 'AC-015: convite expirado, usado ou de outro tenant bloqueia aceite sem alterar senha nem ativar vinculo'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-016",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\UsersInviteAcceptanceTest; datasets senha curta and confirmacao divergente for 'AC-016: senha curta ou confirmacao divergente retorna validacao e mantem convite pendente'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-017",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\PlansPageTest; two datasets for 'AC-017: consumo acima de 80 e 95 por cento exibe alertas leve e forte em /settings/plans'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    },
+    {
+      "ac": "AC-018",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: PASS Tests\\slice009\\PlansPageTest; test 'AC-018: usuario nao gerente autorizado ve informacoes basicas do plano sem botao de upgrade'; command 'php vendor/bin/pest tests/slice-009' exit_code=0; 44 passed, 237 assertions."
+    }
+  ],
+  "violations": [],
+  "next_action": "open_pr"
+}

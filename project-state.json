@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T16:22:39-04:00",
+  "updated_at": "2026-04-14T17:55:54-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,18 +39,18 @@
     "current_epic": "E02",
     "current_story": "TEN-002",
     "current_slice": "009",
-    "slice_status": "implementation_green_pending_verify_slice",
-    "last_green_commit": "bf22fd4",
-    "consecutive_rejections": 0,
-    "blocked": false,
-    "blocked_reason": null
+    "slice_status": "blocked_r6_reviewer_pending_pm_decision",
+    "last_green_commit": "e334077",
+    "consecutive_rejections": 6,
+    "blocked": true,
+    "blocked_reason": "R6: reviewer reprovou slice-009 pela 6ª vez consecutiva; aguardando decisão PM para nova tentativa, reescopo ou pausa."
   },
   "gates_status": {
     "spec_auditor": "approved",
     "plan": "approved",
     "plan_review": "approved",
-    "verifier": "not_started",
-    "reviewer": "not_started",
+    "verifier": "approved",
+    "reviewer": "rejected_r6",
     "security_reviewer": "not_started",
     "test_auditor": "not_started",
     "functional_reviewer": "not_started"
@@ -135,6 +135,14 @@
       "created_at": "2026-04-13T22:32:58-04:00",
       "resolved_at": "2026-04-14T01:03:00-04:00",
       "decision": "Pedir nova tentativa focada nesse finding; fix aplicado e cadeia completa de gates reexecutada ate approved com zero findings"
+    },
+    {
+      "id": "PD-012",
+      "question": "R6 do slice 009: reviewer reprovou pela 6ª vez com risco de ultimo gerente em concorrencia e auditoria de justificativa livre; continuar, reescopar ou pausar?",
+      "options": ["Pedir nova tentativa focada nesses 3 findings", "Reescopar o slice 009", "Pausar para discussao"],
+      "created_at": "2026-04-14T17:55:54-04:00",
+      "resolved_at": null,
+      "decision": null
     }
   ],
   "harness": {
@@ -147,8 +155,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 009 iniciou em branch dedicada. Spec, spec-audit, plan e plan-review foram aprovados. Testes RED foram commitados e a implementacao local deixou verdes AC-001..AC-018 e AC-SEC-001..AC-SEC-003, incluindo usuarios, papeis, convites, aceite, planos, pedidos de upgrade, alertas e isolamento por tenant.",
-    "next_action": "Rodar /verify-slice 009 em contexto isolado. Se aprovado, seguir para /review-pr 009; se houver finding, corrigir e reexecutar o mesmo gate.",
+    "last_session_summary": "Slice 009 teve varias correcoes de reviewer aplicadas e committadas. Verifier esta approved, mas reviewer chegou ao limite R6 com 3 findings restantes: serializar a protecao de ultimo gerente por tenant na desativacao/troca de papel e remover justificativa livre da auditoria de upgrade.",
+    "next_action": "Aguardar decisao PM em PD-012. Recomendacao forte: pedir nova tentativa focada nesses 3 findings; se aprovado, corrigir UserDeactivationService, UserRoleService e PlanUpgradeRequestService, depois reexecutar verifier e reviewer.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

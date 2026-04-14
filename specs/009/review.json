@@ -1,0 +1,71 @@
+{
+  "slice_id": "slice-009",
+  "verdict": "rejected",
+  "timestamp": "2026-04-14T17:53:53-04:00",
+  "quality_checks": [
+    {
+      "category": "duplication",
+      "status": "pass",
+      "evidence": "diff.patch cria TenantRole e AuthorizesTenantSettings para concentrar papeis e autorizacao; nao ha duplicacao estrutural bloqueante nos fluxos revisados."
+    },
+    {
+      "category": "complexity",
+      "status": "fail",
+      "evidence": "app/Support/Settings/UserDeactivationService.php:38 e app/Support/Settings/UserRoleService.php:51 fazem contagem concorrente de gerentes ativos dentro de transacoes que bloqueiam apenas o registro alvo."
+    },
+    {
+      "category": "naming",
+      "status": "pass",
+      "evidence": "app/Support/Tenancy/TenantRole.php usa os papeis do spec: gerente, tecnico, administrativo e visualizador."
+    },
+    {
+      "category": "security",
+      "status": "fail",
+      "evidence": "app/Support/Settings/PlanUpgradeRequestService.php:65 envia justification, campo livre do usuario, para auditoria de pedido de upgrade."
+    },
+    {
+      "category": "simplicity",
+      "status": "fail",
+      "evidence": "A protecao do ultimo gerente depende de count() mais lockForUpdate() apenas no alvo, criando uma regra distribuida e fragil em vez de uma operacao serializada por tenant."
+    },
+    {
+      "category": "glossary",
+      "status": "pass",
+      "evidence": "Os termos de tenant e papeis permanecem alinhados ao spec e ao glossary-snapshot.md; nenhum alias de dominio bloqueante foi encontrado no diff revisado."
+    },
+    {
+      "category": "adr_compliance",
+      "status": "pass",
+      "evidence": "O diff segue ADR-0001/ADR-0004 ao usar Laravel, Livewire, PostgreSQL/RLS e Fortify/Sanctum sem introduzir stack externa."
+    },
+    {
+      "category": "dead_code",
+      "status": "pass",
+      "evidence": "Os novos componentes, services, models, migrations, views, rotas e testes aparecem referenciados dentro do diff; nao foi encontrado arquivo de codigo novo totalmente morto."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "blocker",
+      "category": "complexity",
+      "file": "app/Support/Settings/UserDeactivationService.php",
+      "line": 38,
+      "message": "A regra de ultimo gerente nao e serializada por tenant: duas desativacoes concorrentes de gerentes diferentes podem bloquear apenas seus proprios registros, ambas contar dois gerentes ativos e concluir removendo todos os gerentes."
+    },
+    {
+      "severity": "blocker",
+      "category": "complexity",
+      "file": "app/Support/Settings/UserRoleService.php",
+      "line": 51,
+      "message": "A regra de ultimo gerente tambem fica sujeita a corrida na troca de papel: duas transacoes concorrentes podem rebaixar gerentes distintos depois de contar o mesmo conjunto ativo, violando AC-012."
+    },
+    {
+      "severity": "major",
+      "category": "security",
+      "file": "app/Support/Settings/PlanUpgradeRequestService.php",
+      "line": 65,
+      "message": "O auditRecorder recebe justification, que e texto livre fornecido pelo usuario; se a justificativa contiver senha, token ou outro segredo, a auditoria de upgrade pode registrar dado proibido por AC-SEC-002."
+    }
+  ],
+  "next_action": "return_to_implementer"
+}
