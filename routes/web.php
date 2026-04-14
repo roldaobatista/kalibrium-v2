@@ -102,6 +102,7 @@ Route::middleware('guest')->group(function (): void {
 
         if ($decision['requires_two_factor']) {
             RateLimiter::clear($rateKey);
+            Auth::login($user);
             $request->session()->regenerate();
             $request->session()->put([
                 'auth.two_factor_pending' => true,
@@ -228,6 +229,9 @@ Route::post('/auth/two-factor-challenge', function (
     if ($user === null) {
         RateLimiter::hit($rateKey, 60);
         $recordFailedAttempt();
+        Auth::logout();
+        $clearTwoFactorChallenge();
+        $request->session()->regenerate();
 
         return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
@@ -248,7 +252,9 @@ Route::post('/auth/two-factor-challenge', function (
             $user->id,
             $tenantId ?? $accessDecision['tenant_id'],
         );
+        Auth::logout();
         $clearTwoFactorChallenge();
+        $request->session()->regenerate();
 
         return AuthFailureResponse::make($request, 'Acesso indisponivel para esta conta.', 403, 'code');
     }

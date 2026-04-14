@@ -44,7 +44,7 @@ test('AC-002: POST /auth/login com 2FA exigido redireciona para /auth/two-factor
     $response->assertStatus(302);
     $response->assertRedirect(slice007_routes()['two_factor_challenge']);
     $response->assertSessionHas('auth.two_factor_pending', true);
-    $this->assertGuest();
+    $this->assertAuthenticatedAs($context['user']);
 })->group('slice-007', 'ac-002');
 
 test('AC-002: POST /auth/login com 2FA exigido renova a sessao antes do desafio pendente', function (): void {

@@ -104,6 +104,39 @@ test('AC-014: POST /auth/two-factor-challenge bloqueia se o acesso mudou antes d
     ['tenant_user', 'removed', 'auth.login.blocked_binding_status'],
 ])->group('slice-007', 'ac-014', 'security');
 
+test('AC-014: fluxo real de 2FA encerra sessao se acesso for bloqueado antes do codigo valido', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => 'gerente',
+        'requires_2fa' => true,
+    ]);
+
+    $loginResponse = $this->post(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $loginResponse->assertRedirect(slice007_routes()['two_factor_challenge']);
+    $this->assertAuthenticatedAs($context['user']);
+
+    $context['tenant']->forceFill([
+        'status' => 'cancelled',
+    ])->save();
+
+    $response = $this->postJson(slice007_routes()['two_factor_challenge'], slice007_two_factor_payload([
+        'code' => slice007_current_totp_code($context['two_factor_secret']),
+    ]));
+
+    $response->assertStatus(403);
+    $response->assertSessionMissing('auth.two_factor_pending');
+    $this->assertGuest();
+
+    $appResponse = $this->get(slice007_routes()['app']);
+    $appResponse->assertRedirect(slice007_routes()['login']);
+})->group('slice-007', 'ac-014', 'security');
+
 test('AC-014: POST /auth/two-factor-challenge com codigo TOTP invalido retorna 422 e mantem o desafio pendente', function (): void {
     $context = slice007_user_with_access_context([
         'role' => 'gerente',
@@ -172,10 +205,15 @@ test('AC-020: GET /app com 2FA pendente bloqueia a rota e devolve para /auth/two
         'requires_2fa' => true,
     ]);
 
-    $response = $this
-        ->actingAs($context['user'])
-        ->withSession(slice007_two_factor_pending_session($context))
-        ->get(slice007_routes()['app']);
+    $loginResponse = $this->post(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $loginResponse->assertRedirect(slice007_routes()['two_factor_challenge']);
+
+    $response = $this->get(slice007_routes()['app']);
 
     $response->assertStatus(302);
     $response->assertRedirect(slice007_routes()['two_factor_challenge']);
