@@ -114,11 +114,11 @@
 
 - [ ] **Step 1: escrever testes RED do modelo de dados**
 
-Criar testes do slice 008 que esperam os campos cadastrais do tenant, a empresa raiz, a filial raiz e a tabela de auditoria.
+Criar testes RED em `tests/slice-008/TenantSettingsValidationTest.php`, `tests/slice-008/TenantSettingsIsolationTest.php` e `tests/slice-008/TenantSettingsAuditTest.php` que esperam os campos cadastrais do tenant, uma única empresa raiz por tenant, uma única filial raiz por tenant e a tabela de auditoria.
 
 - [ ] **Step 2: criar migrations mínimas do slice**
 
-Adicionar no tenant: `legal_name`, `document_number`, `trade_name`, `main_email`, `phone`, `operational_profile`, `emits_metrological_certificate`. Para `operational_profile`, usar os três perfis do PRD: `basic`, `intermediate` e `accredited`. Criar `companies`, `branches` e `tenant_audit_logs` com `tenant_id` obrigatório, índices compostos por tenant e policies PostgreSQL de isolamento quando o driver for `pgsql`.
+Adicionar no tenant: `legal_name`, `document_number`, `trade_name`, `main_email`, `phone`, `operational_profile`, `emits_metrological_certificate`. Para `operational_profile`, usar os três perfis do PRD: `basic`, `intermediate` e `accredited`. Criar `companies`, `branches` e `tenant_audit_logs` com `tenant_id` obrigatório, índices compostos por tenant, unique parcial para permitir no máximo um registro `is_root = true` por tenant em `companies` e em `branches`, e policies PostgreSQL de isolamento quando o driver for `pgsql`.
 
 - [ ] **Step 3: criar modelos e factories**
 
@@ -126,7 +126,7 @@ Adicionar relações `Tenant::companies()`, `Tenant::branches()` e `Tenant::audi
 
 - [ ] **Step 4: validar dados e migrations**
 
-Rodar `php artisan test tests/slice-008 --filter=TenantSettingsData` até confirmar que a estrutura mínima atende AC-002, AC-003, AC-005, AC-006 e AC-012.
+Rodar `php artisan test tests/slice-008/TenantSettingsValidationTest.php tests/slice-008/TenantSettingsIsolationTest.php tests/slice-008/TenantSettingsAuditTest.php` até confirmar que a estrutura mínima atende AC-002, AC-003, AC-005, AC-006 e AC-012.
 
 ### Task 2: Criar regra de CNPJ e serviço transacional de atualização
 
@@ -138,6 +138,8 @@ Rodar `php artisan test tests/slice-008 --filter=TenantSettingsData` até confir
 - Create: `app/Http/Middleware/SetCurrentTenantContext.php`
 - Modify: `app/Support/Auth/TenantAccessResolver.php`
 - Modify: `app/Support/Auth/PostgresAuthContext.php`
+- Modify: `bootstrap/app.php`
+- Modify: `routes/web.php`
 
 - [ ] **Step 1: escrever testes RED de validação e consistência**
 
@@ -151,9 +153,11 @@ Validar CNPJ por dígitos e normalizar para apenas números antes de persistir.
 
 Usar o vínculo ativo do usuário para encontrar o tenant atual; falhar fechado quando o vínculo estiver suspenso, removido, convidado ou trocar antes do salvamento. Definir o contexto PostgreSQL do usuário e do tenant atual em requests autenticados para manter as policies de isolamento ativas.
 
+Registrar `SetCurrentTenantContext` em `bootstrap/app.php` como alias `tenant.context` e aplicar o middleware no grupo autenticado de `routes/web.php` que atende `/settings/tenant`, depois de `auth` e `EnsureTwoFactorChallengeCompleted` e antes de executar a página Livewire. A rota deve falhar fechado se o tenant atual não puder ser resolvido, sem continuar com `app.current_tenant_id` vazio.
+
 - [ ] **Step 4: implementar atualização em transação**
 
-`TenantSettingsUpdater` atualiza tenant, cria ou atualiza empresa raiz e cria ou atualiza filial raiz em uma única transação. Se qualquer parte falhar, nada fica salvo.
+`TenantSettingsUpdater` atualiza tenant, cria ou atualiza empresa raiz e cria ou atualiza filial raiz em uma única transação. Dentro da transação, bloquear o tenant atual com `lockForUpdate()` antes de buscar/criar os registros raiz e usar upsert por `tenant_id + is_root` para impedir duplicidade em concorrência. Se qualquer parte falhar, nada fica salvo.
 
 - [ ] **Step 5: registrar auditoria sem segredo**
 
@@ -169,15 +173,17 @@ Usar o vínculo ativo do usuário para encontrar o tenant atual; falhar fechado 
 
 - [ ] **Step 1: escrever testes RED de acesso e renderização**
 
-Cobrir `GET /settings/tenant` para gerente ativo, usuário não gerente, tenant suspenso em modo somente leitura e usuário sem vínculo ativo.
+Cobrir `GET /settings/tenant` para gerente ativo, usuário não gerente, tenant suspenso em modo somente leitura e usuário sem vínculo ativo. O teste de usuário não gerente deve provar que o formulário editável não é renderizado e que a resposta é `403` ou redirecionamento seguro antes de qualquer salvamento.
 
 - [ ] **Step 2: registrar rota protegida**
 
-Adicionar `GET /settings/tenant` dentro do grupo autenticado com `EnsureTwoFactorChallengeCompleted` e `EnsureReadOnlyTenantMode`.
+Adicionar `GET /settings/tenant` dentro do grupo autenticado com `EnsureTwoFactorChallengeCompleted`, `SetCurrentTenantContext` e `EnsureReadOnlyTenantMode`. A ordem do grupo deve garantir `auth` → 2FA concluído → contexto do tenant atual → modo somente leitura → página Livewire.
 
 - [ ] **Step 3: implementar página Livewire**
 
 Carregar dados atuais do tenant, empresa raiz e filial raiz no `mount()`. Exibir campos: razão social, CNPJ, nome fantasia, e-mail principal, telefone, perfil operacional e emissão de certificado metrológico.
+
+No início do `mount()`, resolver o vínculo atual pelo `CurrentTenantResolver` e bloquear no servidor qualquer usuário sem papel `gerente` antes de carregar dados do formulário editável. Para tenant `suspended`, renderizar apenas visualização sem ação de salvamento.
 
 - [ ] **Step 4: implementar `save()` com validação e revalidação de acesso**
 
@@ -230,13 +236,13 @@ Expected: todos os testes do slice 008 passam.
 
 - [ ] **Step 2: rodar formatação nos arquivos tocados**
 
-Run: `vendor/bin/pint --test app/Models app/Rules app/Support/Tenancy app/Livewire/Pages/Settings resources/views/livewire/pages/settings routes/web.php tests/slice-008 tests/Pest.php`
+Run: `vendor/bin/pint --test app/Models app/Rules app/Support/Auth app/Support/Tenancy app/Http/Middleware app/Livewire/Pages/Settings database/migrations database/factories resources/views/livewire/pages/settings resources/views/layouts/app.blade.php routes/web.php bootstrap/app.php tests/slice-008 tests/Pest.php`
 
 Expected: `PASS` sem mudanças pendentes.
 
 - [ ] **Step 3: rodar validação estática nos arquivos novos**
 
-Run: `vendor/bin/phpstan analyse app/Models app/Rules app/Support/Tenancy app/Livewire/Pages/Settings --level=8 --no-progress`
+Run: `vendor/bin/phpstan analyse app/Models app/Rules app/Support/Auth app/Support/Tenancy app/Http/Middleware app/Livewire/Pages/Settings database/migrations database/factories --level=8 --no-progress`
 
 Expected: exit 0.
 
@@ -254,7 +260,7 @@ Registrar em `specs/008/tasks.md` quais tarefas ficaram concluídas e quais coma
 | AC-002 | `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Models/Tenant.php`, `app/Models/Company.php`, `app/Models/Branch.php`, migrations E02 do slice 008 | `tests/slice-008/TenantSettingsPageTest.php` |
 | AC-003 | `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Models/Company.php`, `app/Models/Branch.php` | `tests/slice-008/TenantSettingsPageTest.php` |
 | AC-004 | `app/Support/Tenancy/CurrentTenantResolver.php`, `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Livewire/Pages/Settings/TenantPage.php` | `tests/slice-008/TenantSettingsPageTest.php` |
-| AC-005 | `app/Support/Tenancy/CurrentTenantResolver.php`, `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Livewire/Pages/Settings/TenantPage.php` | `tests/slice-008/TenantSettingsIsolationTest.php` |
+| AC-005 | `app/Support/Tenancy/CurrentTenantResolver.php`, `app/Http/Middleware/SetCurrentTenantContext.php`, `routes/web.php`, `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Livewire/Pages/Settings/TenantPage.php` | `tests/slice-008/TenantSettingsIsolationTest.php` |
 | AC-006 | `app/Support/Tenancy/TenantAuditRecorder.php`, `app/Models/TenantAuditLog.php`, `database/migrations/2026_04_14_000230_create_tenant_audit_logs_table.php` | `tests/slice-008/TenantSettingsAuditTest.php` |
 | AC-007 | `app/Rules/Cnpj.php`, `app/Livewire/Pages/Settings/TenantPage.php`, `app/Support/Tenancy/TenantSettingsUpdater.php` | `tests/slice-008/TenantSettingsValidationTest.php` |
 | AC-008 | `app/Livewire/Pages/Settings/TenantPage.php`, `app/Support/Tenancy/TenantSettingsUpdater.php` | `tests/slice-008/TenantSettingsValidationTest.php` |
@@ -262,7 +268,7 @@ Registrar em `specs/008/tasks.md` quais tarefas ficaram concluídas e quais coma
 | AC-010 | `app/Livewire/Pages/Settings/TenantPage.php`, `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Http/Middleware/EnsureReadOnlyTenantMode.php` | `tests/slice-008/TenantSettingsPageTest.php` |
 | AC-011 | `app/Support/Tenancy/CurrentTenantResolver.php`, `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Livewire/Pages/Settings/TenantPage.php` | `tests/slice-008/TenantSettingsIsolationTest.php` |
 | AC-012 | `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Models/Tenant.php`, `app/Models/Company.php`, `app/Models/Branch.php` | `tests/slice-008/TenantSettingsValidationTest.php` |
-| AC-SEC-001 | `app/Support/Tenancy/CurrentTenantResolver.php`, `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Http/Middleware/SetCurrentTenantContext.php`, `app/Livewire/Pages/Settings/TenantPage.php` | `tests/slice-008/TenantSettingsIsolationTest.php` |
+| AC-SEC-001 | `app/Support/Tenancy/CurrentTenantResolver.php`, `app/Support/Tenancy/TenantSettingsUpdater.php`, `app/Http/Middleware/SetCurrentTenantContext.php`, `bootstrap/app.php`, `routes/web.php`, `app/Livewire/Pages/Settings/TenantPage.php` | `tests/slice-008/TenantSettingsIsolationTest.php` |
 | AC-SEC-002 | `app/Rules/Cnpj.php`, `app/Livewire/Pages/Settings/TenantPage.php`, `resources/views/livewire/pages/settings/tenant-page.blade.php` | `tests/slice-008/TenantSettingsValidationTest.php` |
 | AC-SEC-003 | `app/Livewire/Pages/Settings/TenantPage.php`, `app/Support/Tenancy/CurrentTenantResolver.php`, `app/Support/Tenancy/TenantSettingsUpdater.php` | `tests/slice-008/TenantSettingsIsolationTest.php` |
 
@@ -282,7 +288,7 @@ Registrar em `specs/008/tasks.md` quais tarefas ficaram concluídas e quais coma
 - `app/Support/Tenancy/CurrentTenantResolver.php` — resolução do tenant atual e do vínculo ativo.
 - `app/Support/Tenancy/TenantSettingsUpdater.php` — atualização transacional do tenant, empresa raiz e filial raiz.
 - `app/Support/Tenancy/TenantAuditRecorder.php` — gravação sanitizada da auditoria cadastral.
-- `app/Http/Middleware/SetCurrentTenantContext.php` — configuração do contexto PostgreSQL do usuário e tenant atual nas rotas autenticadas.
+- `app/Http/Middleware/SetCurrentTenantContext.php` — configuração do contexto PostgreSQL do usuário e tenant atual nas rotas autenticadas, registrado no pipeline que atende `/settings/tenant`.
 - `app/Livewire/Pages/Settings/TenantPage.php` — página Livewire de configuração do laboratório.
 - `resources/views/livewire/pages/settings/tenant-page.blade.php` — formulário de configuração do laboratório.
 - `tests/slice-008/TestHelpers.php` — helpers focados do slice.
@@ -296,6 +302,7 @@ Registrar em `specs/008/tasks.md` quais tarefas ficaram concluídas e quais coma
 - `app/Models/Tenant.php` — fillable e relações com empresa, filial e auditoria.
 - `database/factories/TenantFactory.php` — defaults cadastrais do tenant.
 - `routes/web.php` — rota protegida `/settings/tenant`.
+- `bootstrap/app.php` — alias `tenant.context` para `SetCurrentTenantContext`.
 - `resources/views/layouts/app.blade.php` — link mínimo para configurações quando autenticado, se necessário para navegação do slice.
 - `app/Support/Auth/TenantAccessResolver.php` — reaproveitar ou expor decisão de vínculo sem duplicar regra de status.
 - `app/Support/Auth/PostgresAuthContext.php` — permitir limpar e reaplicar contexto de tenant por request autenticado.
@@ -305,8 +312,8 @@ Registrar em `specs/008/tasks.md` quais tarefas ficaram concluídas e quais coma
 ## Schema / migrations
 
 - `2026_04_14_000200_extend_tenants_for_settings.php` adiciona `legal_name`, `document_number`, `trade_name`, `main_email`, `phone`, `operational_profile`, `emits_metrological_certificate` em `tenants`, com índice único para `document_number` quando não nulo e validação de aplicação para `basic`, `intermediate` e `accredited`.
-- `2026_04_14_000210_create_companies_table.php` cria `companies` com `tenant_id`, `legal_name`, `document_number`, `trade_name`, `is_root` e unique composto `tenant_id + document_number`; em PostgreSQL, habilita RLS com `tenant_id = current_setting('app.current_tenant_id')`.
-- `2026_04_14_000220_create_branches_table.php` cria `branches` com `tenant_id`, `company_id`, `name`, `document_number`, `city`, `state`, `is_root` e unique composto `tenant_id + company_id + name`; em PostgreSQL, habilita RLS com o mesmo contexto de tenant.
+- `2026_04_14_000210_create_companies_table.php` cria `companies` com `tenant_id`, `legal_name`, `document_number`, `trade_name`, `is_root` e unique composto `tenant_id + document_number`; também cria unique parcial `tenant_id where is_root = true` para garantir uma única empresa raiz por tenant. Em PostgreSQL, habilita RLS com `tenant_id = current_setting('app.current_tenant_id')`.
+- `2026_04_14_000220_create_branches_table.php` cria `branches` com `tenant_id`, `company_id`, `name`, `document_number`, `city`, `state`, `is_root` e unique composto `tenant_id + company_id + name`; também cria unique parcial `tenant_id where is_root = true` para garantir uma única filial raiz por tenant. Em PostgreSQL, habilita RLS com o mesmo contexto de tenant.
 - `2026_04_14_000230_create_tenant_audit_logs_table.php` cria `tenant_audit_logs` com `tenant_id`, `user_id`, `action`, `changed_fields`, `ip_address`, `user_agent_hash` e timestamps; em PostgreSQL, habilita RLS para leitura/escrita no tenant atual.
 
 ## APIs / contratos
@@ -319,7 +326,7 @@ Autorização:
 - usuário autenticado;
 - 2FA concluído quando exigido;
 - vínculo ativo com tenant;
-- papel `gerente` para formulário editável.
+- gate server-side em `TenantPage::mount()` exigindo papel `gerente` antes de carregar dados do formulário editável.
 
 Resultados:
 - `200` com formulário editável para gerente em tenant `active` ou `trial`;
@@ -348,7 +355,8 @@ Resultados:
 ## Riscos e mitigações
 
 - **Cadastro parcial do laboratório** → mitigação: `TenantSettingsUpdater` usa transação e AC-012 cobre rollback total.
-- **Usuário técnico alterar configurações por request direto** → mitigação: `TenantPage::save()` revalida papel `gerente`, não só o botão da tela.
+- **Empresa raiz ou filial raiz duplicada** → mitigação: migrations criam unique parcial para `is_root = true` por tenant e o updater bloqueia o tenant com `lockForUpdate()` antes do upsert transacional.
+- **Usuário técnico acessar ou alterar configurações por request direto** → mitigação: `TenantPage::mount()` bloqueia não gerente antes de renderizar formulário editável e `TenantPage::save()` revalida papel `gerente`, não só o botão da tela.
 - **Tenant suspenso salvar dados por chamada Livewire** → mitigação: ação `save()` verifica `tenant.access_mode` e bloqueia escrita no servidor.
 - **CNPJ duplicado revelar nome de outro laboratório** → mitigação: validação retorna mensagem neutra sem citar tenant externo.
 - **IDs externos no payload alterarem empresa ou filial de outro tenant** → mitigação: updater ignora ou rejeita IDs externos, sempre consulta registros pelo tenant atual e as novas tabelas escopadas usam RLS em PostgreSQL.

@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T08:43:30-04:00",
+  "updated_at": "2026-04-14T09:03:40-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,7 +39,7 @@
     "current_epic": "E02",
     "current_story": "TEN-001",
     "current_slice": "008",
-    "slice_status": "plan_review_pending_isolated_agent",
+    "slice_status": "plan_review_approved_pending_pm",
     "last_green_commit": "81597e6",
     "consecutive_rejections": 0,
     "blocked": false,
@@ -48,7 +48,7 @@
   "gates_status": {
     "spec_auditor": "approved",
     "plan": "draft_validated",
-    "plan_review": "pending_isolated_agent",
+    "plan_review": "approved",
     "verifier": "not_started",
     "reviewer": "not_started",
     "security_reviewer": "not_started",
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "PM questionou se o plan-review do slice 008 passou por agente auditor isolado. A resposta foi nao: o plan-review.json de specs/008 foi criado no fluxo principal. O harness foi ajustado para exigir provenance.agent=plan-reviewer e provenance.context=isolated antes de aprovar /review-plan ou liberar /draft-tests. O plan-review atual do slice 008 agora fica bloqueado ate reauditoria real.",
-    "next_action": "Rodar /review-plan 008 com o plan-reviewer em contexto limpo. So depois de novo plan-review.json aprovado com provenance valida apresentar o plano ao PM.",
+    "last_session_summary": "Reexecutado /review-plan 008 com plan-reviewer em contexto isolado. O auditor rejeitou tres rodadas; o plan.md foi ajustado para explicitar middleware de contexto do tenant, unicidade de registros raiz, comandos de validacao reais, gate server-side de gerente e cobertura de todos os arquivos tocados. Na quarta rodada, specs/008/plan-review.json ficou approved com provenance valida e findings vazio.",
+    "next_action": "Apresentar o plano revisado do slice 008 ao PM para aceite. Se o PM responder aceito, marcar specs/008/plan.md como approved e seguir para /draft-tests 008.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
