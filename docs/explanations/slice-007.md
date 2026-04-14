@@ -8,26 +8,26 @@
 
 ## O que foi feito
 
-- A tentativa autorizada corrigiu os formulários de autenticação para voltarem à tela com erro visível quando o envio vem de HTML.
-- A tentativa também renovou a sessão antes de marcar o desafio de 2FA como pendente.
+- A tentativa autorizada corrigiu o comportamento de seguranca para status inesperados de tenant/vinculo.
+- A tentativa tambem passou a tratar codigos de recuperacao do 2FA como segredo, armazenando hash em vez de texto puro.
 - Os testes do slice passaram e o verifier aprovou.
 
 ## O que o usuário final vai ver
 
-- Nos formulários de login, reset de senha e 2FA, erros esperados voltam para a tela com mensagem de erro, em vez de mostrar uma resposta técnica em JSON.
+- Se o status de acesso mudar para um valor inesperado, o login falha com seguranca em vez de liberar acesso.
+- O uso de recovery code do 2FA continua funcionando para o usuario final, mas o codigo nao fica guardado como texto puro.
 
 ## O que funcionou
 
-- Verificação mecânica aprovada: todos os 21 critérios de aceite continuam cobertos.
-- Testes do slice aprovados: 31 testes e 207 verificações.
+- Verificacao mecanica aprovada: todos os 21 criterios de aceite continuam cobertos.
+- Testes do slice aprovados: 33 testes e 221 verificacoes.
 - Verifier aprovado.
 
 ## O que precisa de atenção
 
 **Encontrados na revisão estrutural:**
 
-- **⚠ IMPORTANTE:** problema de segurança — se aparecer um status novo ou inesperado para tenant/vinculo, o sistema pode liberar acesso em vez de bloquear por seguranca.
-- **⚠ IMPORTANTE:** problema de segurança — os codigos de recuperacao do 2FA ainda podem ficar tratados como valores reversiveis; o reviewer pediu tratar esses codigos como segredo.
+- **⚠ IMPORTANTE:** problema de segurança — depois que a senha e aceita e antes de concluir o 2FA, o status do acesso pode mudar; o reviewer pediu revalidar esse acesso no momento final do 2FA antes de criar a sessao da aplicacao.
 
 ## O que NÃO está neste slice (fica pra depois)
 

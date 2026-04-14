@@ -6,33 +6,26 @@
     {
       "category": "simplicity",
       "status": "pass",
-      "evidence": "A implementação concentra o fluxo em autenticação, recuperação de senha, 2FA, auditoria e bloqueios de tenant sem antecipar gestão completa de usuários."
+      "evidence": "A implementação permanece concentrada no fluxo de autenticação, recuperação de senha, 2FA, auditoria e bloqueios de tenant sem antecipar gestão completa de usuários."
     },
     {
       "category": "adr_compliance",
       "status": "pass",
-      "evidence": "A escolha de Fortify + Sanctum e Laravel + Livewire permanece alinhada às ADRs 0001 e 0004 presentes no pacote de revisão."
+      "evidence": "A escolha de Laravel Fortify + Sanctum permanece alinhada às ADRs 0001 e 0004 presentes no pacote de revisão."
     },
     {
       "category": "security",
       "status": "fail",
-      "evidence": "Há falha aberta em estados não reconhecidos de tenant/vínculo e os recovery codes de 2FA são tratados como valores reversíveis."
+      "evidence": "O fechamento do desafio 2FA confia no estado salvo em sessão e não revalida o vínculo/status do tenant no momento em que autentica o usuário."
     }
   ],
   "findings": [
     {
       "severity": "major",
       "category": "security",
-      "file": "app/Support/Auth/TenantAccessResolver.php",
-      "line": 83,
-      "message": "O resolvedor bloqueia apenas vínculo suspended/invited/removed e tenant cancelled; depois disso, qualquer status não reconhecido segue para allowed=true, com full access se não for exatamente suspended. Como as migrations usam strings livres sem constraint, valores como pending, disabled ou archived falham abertos e podem autenticar sessão plena fora dos estados active/trial/suspended previstos no slice."
-    },
-    {
-      "severity": "major",
-      "category": "security",
       "file": "routes/web.php",
-      "line": 225,
-      "message": "O fluxo de 2FA lê two_factor_recovery_codes como array, compara o recovery_code enviado com in_array e depois salva o array filtrado diretamente. Com o cast array em app/Models/User.php:44 e a coluna text em database/migrations/2026_04_13_000130_extend_users_for_two_factor_auth.php:16, os códigos de recuperação ficam persistidos como valores reversíveis/plaintext; recovery code deve ser tratado como segredo e validado via hash ou criptografia adequada."
+      "line": 187,
+      "message": "O POST /auth/two-factor-challenge apenas verifica se o tenant salvo na sessão ainda existe; depois autentica o usuário sem reexecutar TenantAccessResolver nem validar se o vínculo continua active e se o tenant continua active/trial/suspended. Se o vínculo for removed/suspended ou o tenant virar cancelled entre a senha correta e a conclusão do 2FA, a sessão de aplicação ainda pode ser criada com o access_mode antigo salvo em sessão."
     }
   ],
   "next_action": "return_to_implementer"
