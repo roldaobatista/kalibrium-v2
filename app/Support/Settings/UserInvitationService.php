@@ -47,6 +47,7 @@ final readonly class UserInvitationService
             $role = strtolower((string) $data['role']);
             $existingUser = User::query()->where('email', $email)->first();
 
+            // Friendly validation only; the tenant_users tenant/user unique key is the concurrency backstop.
             if ($existingUser !== null && TenantUser::query()
                 ->where('tenant_id', $tenant->id)
                 ->where('user_id', $existingUser->id)

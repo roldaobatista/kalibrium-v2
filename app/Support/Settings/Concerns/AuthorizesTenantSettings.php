@@ -7,6 +7,7 @@ namespace App\Support\Settings\Concerns;
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
+use App\Support\Tenancy\TenantRole;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -41,7 +42,8 @@ trait AuthorizesTenantSettings
             throw new AuthorizationException('Conta em modo somente leitura.');
         }
 
-        if ((bool) $fresh->requires_2fa && $actor->two_factor_confirmed_at === null) {
+        if (((bool) $fresh->requires_2fa || TenantRole::requiresTwoFactor((string) $fresh->role))
+            && $actor->two_factor_confirmed_at === null) {
             throw new AuthorizationException('Conclua a verificação em duas etapas.');
         }
 

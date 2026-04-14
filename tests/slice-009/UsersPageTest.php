@@ -121,6 +121,19 @@ test('AC-009: gerente com 2FA pendente e redirecionado antes de convidar, altera
         ->toThrow(AuthorizationException::class);
 })->group('slice-009', 'ac-009');
 
+test('AC-009: papel gerente exige 2FA mesmo se o vinculo estiver inconsistente', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+        'requires_2fa' => false,
+        'two_factor_confirmed' => false,
+    ]);
+
+    expect(fn () => app(UserInvitationService::class)
+        ->invite($context['user'], $context['tenant_user'], slice009_invite_payload($context)))
+        ->toThrow(AuthorizationException::class);
+})->group('slice-009', 'ac-009');
+
 test('AC-014: tenant suspended pode ler /settings/users em modo somente leitura, mas acoes mutaveis ficam bloqueadas', function (): void {
     $context = slice009_user_with_tenant_context([
         'tenant_status' => 'suspended',
