@@ -133,6 +133,7 @@ test('AC-010: convite com campos invalidos ou empresa e filial de outro tenant r
     slice009_assert_audit_does_not_leak($context['tenant']->id, [$payload['email'] ?? '']);
 })->with([
     'nome vazio' => [['name' => '']],
+    'nome com espacos' => [['name' => '   ']],
     'email invalido' => [['email' => 'email-invalido']],
     'papel invalido' => [['role' => 'owner']],
     'filial sem empresa' => [['company_id' => null]],
