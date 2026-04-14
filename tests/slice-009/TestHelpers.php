@@ -24,16 +24,6 @@ function slice009_routes(): array
     ];
 }
 
-function slice009_users_component(): string
-{
-    return 'App\\Livewire\\Pages\\Settings\\UsersPage';
-}
-
-function slice009_plans_component(): string
-{
-    return 'App\\Livewire\\Pages\\Settings\\PlansPage';
-}
-
 function slice009_unique_email(): string
 {
     return 'slice009+'.Str::uuid().'@example.com';

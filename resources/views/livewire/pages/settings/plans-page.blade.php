@@ -52,7 +52,7 @@
                 <span>{{ $module['name'] }}</span>
                 <span>{{ $module['enabled'] ? 'ativo' : 'fora do plano' }}</span>
                 @if ($canRequestUpgrade && ! $module['enabled'])
-                    <button wire:click="requestUpgrade('{{ $module['code'] }}', 'Solicitado pela tela de planos.')" class="rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white">
+                    <button wire:click="requestUpgrade(@js($module['code']), @js('Solicitado pela tela de planos.'))" class="rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white">
                         Pedir upgrade
                     </button>
                 @endif

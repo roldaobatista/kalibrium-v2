@@ -215,6 +215,10 @@ final readonly class UserInvitationService
             throw ValidationException::withMessages(['company_id' => 'Empresa invalida.']);
         }
 
+        if (isset($data['branch_id']) && ! isset($data['company_id'])) {
+            throw ValidationException::withMessages(['company_id' => 'Empresa obrigatoria para a filial informada.']);
+        }
+
         if (isset($data['branch_id']) && ! Branch::query()
             ->whereKey($data['branch_id'])
             ->where('tenant_id', $tenantId)

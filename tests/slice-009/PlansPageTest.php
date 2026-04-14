@@ -101,6 +101,23 @@ test('AC-006: resumo de plano considera liberacoes especificas do tenant', funct
     expect($summary['modules'][0]['enabled'])->toBeTrue();
 })->group('slice-009', 'ac-006');
 
+test('AC-SEC-001: codigo de modulo com aspas e serializado com seguranca no botao de upgrade', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    slice009_seed_plan_fixture($context['tenant'], [
+        'feature_code' => "fiscal');alert(1);//",
+    ]);
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->get(slice009_routes()['plans']);
+
+    $response->assertStatus(200);
+    $response->assertDontSee("requestUpgrade('fiscal');alert", false);
+})->group('slice-009', 'ac-sec-001');
+
 test('AC-014: tenant suspended pode ler /settings/plans, mas pedido de upgrade e bloqueado em modo somente leitura', function (): void {
     $context = slice009_user_with_tenant_context([
         'tenant_status' => 'suspended',
