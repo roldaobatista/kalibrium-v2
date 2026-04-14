@@ -341,7 +341,7 @@ cat > specs/996/plan-review.json <<'EOF'
 }
 EOF
 
-run_test "plan-review aprova findings vazio" 0 \
+run_test "plan-review rejeita sem proveniencia do plan-reviewer" 1 \
   bash scripts/plan-review.sh 996 --approved
 
 cat > specs/996/plan-review.json <<'EOF'
@@ -349,6 +349,44 @@ cat > specs/996/plan-review.json <<'EOF'
   "schema_version": "1.0.0",
   "slice_id": "slice-996",
   "review_date": "2026-04-13",
+  "provenance": {
+    "agent": "plan-reviewer",
+    "context": "isolated"
+  },
+  "verdict": "approved",
+  "summary": "Plan review aprovado para smoke test.",
+  "checks": {
+    "ac_coverage": {"status": "pass", "details": "ok"},
+    "architectural_decisions": {"status": "pass", "details": "ok"},
+    "technical_feasibility": {"status": "pass", "details": "ok"},
+    "risks_mitigations": {"status": "pass", "details": "ok"},
+    "security": {"status": "pass", "details": "ok"},
+    "simplicity": {"status": "pass", "details": "ok"}
+  },
+  "findings": [],
+  "stats": {
+    "total_checks": 6,
+    "passed": 6,
+    "failed": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0
+  }
+}
+EOF
+
+run_test "plan-review aprova findings vazio com proveniencia" 0 \
+  bash scripts/plan-review.sh 996 --approved
+
+cat > specs/996/plan-review.json <<'EOF'
+{
+  "schema_version": "1.0.0",
+  "slice_id": "slice-996",
+  "review_date": "2026-04-13",
+  "provenance": {
+    "agent": "plan-reviewer",
+    "context": "isolated"
+  },
   "verdict": "approved",
   "summary": "Plan review com finding deve bloquear o smoke.",
   "checks": {

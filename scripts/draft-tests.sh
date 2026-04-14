@@ -65,9 +65,9 @@ if [ "$MODE" = "--check" ]; then
 
   # plan-reviewer deve ter aprovado o plan em contexto isolado, sem findings.
   if bash "$SCRIPT_DIR/plan-review.sh" "$NNN" --approved >/dev/null; then
-    ok "plan-review.json aprovado com findings []"
+    ok "plan-review.json aprovado pelo plan-reviewer isolado com findings []"
   else
-    echo "  ⚠ plan-review.json ausente, reprovado ou com findings" >&2
+    echo "  ⚠ plan-review.json ausente, sem proveniencia do plan-reviewer, reprovado ou com findings" >&2
     echo "  ⚠ rode /review-plan $NNN antes de gerar testes" >&2
     fail "plan-review obrigatório não aprovado"
   fi

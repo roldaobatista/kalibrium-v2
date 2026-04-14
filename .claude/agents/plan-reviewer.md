@@ -79,6 +79,10 @@ Revisor independente de planos técnicos. Roda em contexto limpo, **separado do 
   "schema_version": "1.0.0",
   "slice_id": "slice-NNN",
   "review_date": "YYYY-MM-DD",
+  "provenance": {
+    "agent": "plan-reviewer",
+    "context": "isolated"
+  },
   "verdict": "approved | rejected",
   "summary": "Resumo em 1-2 frases",
   "checks": {

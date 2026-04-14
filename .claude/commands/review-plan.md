@@ -39,7 +39,7 @@ Inputs permitidos:
 - `docs/product/glossary-domain.md`, se existir
 
 Output:
-- `specs/NNN/plan-review.json`
+- `specs/NNN/plan-review.json` com `provenance.agent: plan-reviewer` e `provenance.context: isolated`
 
 ### Fase 3 — Validar aprovação
 
@@ -47,7 +47,7 @@ Output:
 bash scripts/plan-review.sh NNN --approved
 ```
 
-Gate só passa com `verdict: approved`, todos os checks em `pass`, `findings: []` e contadores de findings zerados.
+Gate só passa com `provenance` do `plan-reviewer` em contexto `isolated`, `verdict: approved`, todos os checks em `pass`, `findings: []` e contadores de findings zerados.
 
 ## Handoff
 - **Aprovado com findings []** → apresentar recomendação do plano ao PM em linguagem R12.
@@ -55,5 +55,5 @@ Gate só passa com `verdict: approved`, todos os checks em `pass`, `findings: []
 
 ## Regras
 - Não existe "aprovado com ressalva".
-- Não pular para `/draft-tests NNN` sem `plan-review.json` aprovado com `findings: []`.
+- Não pular para `/draft-tests NNN` sem `plan-review.json` aprovado, com proveniencia do `plan-reviewer` em contexto `isolated` e `findings: []`.
 - Até 5 ciclos automáticos de correção; na 6ª falha consecutiva, escalar ao PM em linguagem de produto.

@@ -3,11 +3,20 @@
   "title": "Plan Review Output",
   "description": "Schema para output do plan-reviewer agent",
   "type": "object",
-  "required": ["schema_version", "slice_id", "review_date", "verdict", "summary", "checks", "findings", "stats"],
+  "required": ["schema_version", "slice_id", "review_date", "provenance", "verdict", "summary", "checks", "findings", "stats"],
   "properties": {
     "schema_version": { "type": "string", "const": "1.0.0" },
     "slice_id": { "type": "string", "pattern": "^slice-\\d{3}$" },
     "review_date": { "type": "string", "format": "date" },
+    "provenance": {
+      "type": "object",
+      "required": ["agent", "context"],
+      "additionalProperties": false,
+      "properties": {
+        "agent": { "type": "string", "const": "plan-reviewer" },
+        "context": { "type": "string", "const": "isolated" }
+      }
+    },
     "verdict": { "type": "string", "enum": ["approved", "rejected"] },
     "summary": { "type": "string", "minLength": 10 },
     "checks": {

@@ -63,7 +63,7 @@ O orquestrador nunca implementa código diretamente. Ele:
 | Story ativa | `S5` | `/start-story` | Slice(s) criado(s) | spec.md preenchido |
 | Spec auditada | `S5.1` | `/audit-spec` | spec.md sem findings | PM aprova spec |
 | Plan gerado | `S6` | `/draft-plan` | plan.md pronto | plan-reviewer aprova com findings [] |
-| Plan revisado | `S6.1` | `/review-plan` | plan-review.json approved com findings [] | PM aprova plan |
+| Plan revisado | `S6.1` | `/review-plan` | plan-review.json approved com proveniencia do plan-reviewer e findings [] | PM aprova plan |
 | Testes red | `S7` | `/draft-tests` | Testes falhando | Commit dos testes |
 | Implementação | `S8` | implementer | Testes verdes | Todos AC-tests passam |
 | Pipeline de gates | `S9` | `/verify-slice` | Todos gates approved | 5 gates verdes |
@@ -76,7 +76,7 @@ O orquestrador nunca implementa código diretamente. Ele:
 
 - `S0 → S5` — Não pode pular descoberta e ir direto para código
 - `S2 → S7` — Não pode gerar testes sem plano aprovado
-- `S6 → S7` — Não pode gerar testes sem plan-review.json aprovado com `findings: []`
+- `S6 → S7` — Não pode gerar testes sem plan-review.json aprovado, com proveniencia do `plan-reviewer` em contexto `isolated` e `findings: []`
 - `S8 → S10` — Não pode mergear sem passar pelos 5 gates
 - Qualquer `→ S8` sem `S7` completo — Não pode implementar sem testes red
 
@@ -97,7 +97,7 @@ O orquestrador nunca implementa código diretamente. Ele:
 |-----------|--------|
 | `domain-analyst` → `nfr-analyst` | nfr-analyst precisa do glossário de domínio |
 | `architect` → `plan-reviewer` | plan-reviewer audita o plan.md em contexto limpo antes do PM |
-| `plan-reviewer` → `ac-to-test` | ac-to-test precisa de plan.md aprovado pelo PM e plan-review.json com findings [] |
+| `plan-reviewer` → `ac-to-test` | ac-to-test precisa de plan.md aprovado pelo PM e plan-review.json com proveniencia do plan-reviewer e findings [] |
 | `ac-to-test` → `implementer` | implementer precisa dos testes red |
 | `verifier` → `reviewer` | reviewer só roda se verifier aprovar (R11) |
 | `implementer` → qualquer gate | gates só rodam após implementação completa |
@@ -235,7 +235,7 @@ Fluxo:
   → /draft-tests NNN
 ```
 
-`/draft-tests NNN` deve falhar se `specs/NNN/plan-review.json` não existir ou não estiver `approved` com `findings: []` e todos os checks em `pass`.
+`/draft-tests NNN` deve falhar se `specs/NNN/plan-review.json` não existir ou não estiver com `provenance.agent: plan-reviewer`, `provenance.context: isolated`, `approved`, `findings: []` e todos os checks em `pass`.
 
 ---
 
