@@ -121,6 +121,43 @@ test('AC-011: modo somente leitura bloqueia metodos mutaveis no backend', functi
     expect($request->attributes->get('tenant_read_only'))->toBeTrue();
 })->group('slice-007', 'ac-011');
 
+test('AC-011: login falha fechado quando usuario tem mais de um vinculo ativo sem tenant explicito', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => 'tecnico',
+        'requires_2fa' => false,
+    ]);
+
+    $tenantClass = slice007_required_model('App\\Models\\Tenant');
+    $tenantUserClass = slice007_required_model('App\\Models\\TenantUser');
+    $secondTenant = $tenantClass::factory()->create([
+        'status' => 'suspended',
+    ]);
+    $tenantUserClass::factory()->create([
+        'tenant_id' => $secondTenant->id,
+        'user_id' => $context['user']->id,
+        'role' => 'tecnico',
+        'status' => 'active',
+        'requires_2fa' => false,
+    ]);
+
+    $response = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $response->assertStatus(403);
+    $response->assertHeaderMissing('Location');
+    $this->assertGuest();
+    $this->assertDatabaseHas('login_audit_logs', [
+        'event' => 'auth.login.blocked_ambiguous_tenant',
+        'user_id' => $context['user']->id,
+        'tenant_id' => null,
+    ]);
+})->group('slice-007', 'ac-011');
+
 test('AC-012: POST /auth/login bloqueia tenant cancelled com 403 sem redirecionar para /app', function (): void {
     $context = slice007_user_with_access_context([
         'tenant_status' => 'cancelled',

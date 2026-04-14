@@ -22,8 +22,25 @@ final class TenantAccessResolver
      */
     public function resolve(User $user): array
     {
+        $tenantUsers = $user->tenantUsers()->with('tenant')->get();
+        $activeTenantUsers = $tenantUsers->filter(
+            static fn (TenantUser $tenantUser): bool => strtolower((string) $tenantUser->status) === 'active'
+                && $tenantUser->tenant !== null
+        )->values();
+
+        if ($activeTenantUsers->count() > 1) {
+            return [
+                'allowed' => false,
+                'requires_two_factor' => false,
+                'access_mode' => 'full',
+                'event' => 'auth.login.blocked_ambiguous_tenant',
+                'tenant_id' => null,
+                'tenant_user_id' => null,
+            ];
+        }
+
         /** @var TenantUser|null $tenantUser */
-        $tenantUser = $user->tenantUsers()->with('tenant')->latest('id')->first();
+        $tenantUser = $activeTenantUsers->first() ?? $tenantUsers->sortByDesc('id')->first();
 
         if ($tenantUser === null || $tenantUser->tenant === null) {
             return [
