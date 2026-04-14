@@ -206,10 +206,22 @@ fi
 if git rev-parse --verify main >/dev/null 2>&1; then
   git diff main...HEAD -- 2>/dev/null > "$INPUT_DIR/diff.patch" || true
   git diff --name-only main...HEAD 2>/dev/null > "$INPUT_DIR/files-changed.txt" || true
+
+  if [ ! -s "$INPUT_DIR/diff.patch" ]; then
+    say "diff main...HEAD vazio; usando commits que mencionam slice-${NNN} como fallback"
+    git log --reverse --format='%H' --grep="slice-${NNN}" 2>/dev/null | while read -r h; do
+      git show --no-ext-diff --format='commit %H%nsubject %s%n' "$h" 2>/dev/null
+    done > "$INPUT_DIR/diff.patch"
+    git log --format='%H' --grep="slice-${NNN}" 2>/dev/null | while read -r h; do
+      git show --name-only --format='' "$h" 2>/dev/null
+    done | sort -u > "$INPUT_DIR/files-changed.txt"
+  fi
 else
   echo "(sem main ainda)" > "$INPUT_DIR/diff.patch"
   echo "" > "$INPUT_DIR/files-changed.txt"
 fi
+
+[ ! -s "$INPUT_DIR/diff.patch" ] && fail "diff.patch vazio — reviewer ficaria sem material de review"
 
 # Snapshot dos ADRs (cópia completa)
 mkdir -p "$INPUT_DIR/adr-snapshot"
