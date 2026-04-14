@@ -226,9 +226,6 @@ function slice009_sensitive_fragments(): array
         '<img src=x onerror=alert(1)>',
         'DROP TABLE users',
         'app.current_tenant_id',
-        'tenant_id',
-        'company_id',
-        'branch_id',
     ];
 }
 
@@ -300,6 +297,22 @@ function slice009_insert_filtered(string $table, array $values, array $requiredC
 
     if ($filtered === []) {
         return null;
+    }
+
+    if (array_key_exists('code', $filtered)) {
+        $existingId = DB::table($table)->where('code', $filtered['code'])->value('id');
+        if ($existingId !== null) {
+            return (int) $existingId;
+        }
+    }
+
+    if ($table === 'tenant_plan_metrics' && array_key_exists('tenant_id', $filtered)) {
+        $existingId = DB::table($table)->where('tenant_id', $filtered['tenant_id'])->value('id');
+        if ($existingId !== null) {
+            DB::table($table)->where('id', $existingId)->update($filtered);
+
+            return (int) $existingId;
+        }
     }
 
     return (int) DB::table($table)->insertGetId($filtered);

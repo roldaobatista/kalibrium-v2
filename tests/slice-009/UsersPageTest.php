@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use App\Models\TenantUser;
+use App\Support\Settings\UserDeactivationService;
+use App\Support\Settings\UserInvitationService;
+use App\Support\Settings\UserRoleService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Str;
-use Livewire\Livewire;
 
 require_once __DIR__.'/TestHelpers.php';
 
@@ -62,10 +65,9 @@ test('AC-008: usuario sem papel gerente nao acessa dados administrativos nem con
         $context['tenant']->name,
     ]);
 
-    expect(fn () => Livewire::actingAs($context['user'])
-        ->test(slice009_users_component())
-        ->set('form', slice009_invite_payload($context))
-        ->call('inviteUser'))->toThrow(Throwable::class);
+    expect(fn () => app(UserInvitationService::class)
+        ->invite($context['user'], $context['tenant_user'], slice009_invite_payload($context)))
+        ->toThrow(AuthorizationException::class);
 
     expect(TenantUser::query()->where('tenant_id', $context['tenant']->id)->count())->toBe($initialTenantUserCount);
 })->group('slice-009', 'ac-008');
@@ -86,18 +88,17 @@ test('AC-009: gerente com 2FA pendente e redirecionado antes de convidar, altera
 
     $response->assertRedirect('/auth/two-factor-challenge');
 
-    expect(fn () => Livewire::actingAs($context['user'])
-        ->test(slice009_users_component())
-        ->set('form', slice009_invite_payload($context))
-        ->call('inviteUser'))->toThrow(Throwable::class);
+    expect(fn () => app(UserInvitationService::class)
+        ->invite($context['user'], $context['tenant_user'], slice009_invite_payload($context)))
+        ->toThrow(AuthorizationException::class);
 
-    expect(fn () => Livewire::actingAs($context['user'])
-        ->test(slice009_users_component())
-        ->call('updateRole', $member['tenant_user']->id, 'gerente'))->toThrow(Throwable::class);
+    expect(fn () => app(UserRoleService::class)
+        ->updateRole($context['user'], $context['tenant_user'], $member['tenant_user'], 'gerente'))
+        ->toThrow(AuthorizationException::class);
 
-    expect(fn () => Livewire::actingAs($context['user'])
-        ->test(slice009_users_component())
-        ->call('deactivateUser', $member['tenant_user']->id))->toThrow(Throwable::class);
+    expect(fn () => app(UserDeactivationService::class)
+        ->deactivate($context['user'], $context['tenant_user'], $member['tenant_user']))
+        ->toThrow(AuthorizationException::class);
 })->group('slice-009', 'ac-009');
 
 test('AC-014: tenant suspended pode ler /settings/users em modo somente leitura, mas acoes mutaveis ficam bloqueadas', function (): void {
@@ -115,14 +116,13 @@ test('AC-014: tenant suspended pode ler /settings/users em modo somente leitura,
 
     $response->assertStatus(200);
 
-    expect(fn () => Livewire::actingAs($context['user'])
-        ->test(slice009_users_component())
-        ->set('form', slice009_invite_payload($context))
-        ->call('inviteUser'))->toThrow(Throwable::class);
+    expect(fn () => app(UserInvitationService::class)
+        ->invite($context['user'], $context['tenant_user'], slice009_invite_payload($context)))
+        ->toThrow(AuthorizationException::class);
 
-    expect(fn () => Livewire::actingAs($context['user'])
-        ->test(slice009_users_component())
-        ->call('updateRole', $member['tenant_user']->id, 'administrativo'))->toThrow(Throwable::class);
+    expect(fn () => app(UserRoleService::class)
+        ->updateRole($context['user'], $context['tenant_user'], $member['tenant_user'], 'administrativo'))
+        ->toThrow(AuthorizationException::class);
 
     expect(TenantUser::query()->where('tenant_id', $context['tenant']->id)->count())->toBe($before);
 })->group('slice-009', 'ac-014');

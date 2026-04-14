@@ -66,4 +66,16 @@ class Tenant extends Model
     {
         return $this->hasMany(TenantAuditLog::class);
     }
+
+    /** @return HasMany<PlanUpgradeRequest, $this> */
+    public function planUpgradeRequests(): HasMany
+    {
+        return $this->hasMany(PlanUpgradeRequest::class);
+    }
+
+    /** @return HasMany<TenantPlanMetric, $this> */
+    public function planMetrics(): HasMany
+    {
+        return $this->hasMany(TenantPlanMetric::class);
+    }
 }

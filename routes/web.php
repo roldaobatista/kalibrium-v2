@@ -14,11 +14,14 @@ use App\Http\Responses\Auth\PasswordResetLinkSentResponse;
 use App\Http\Responses\Auth\PasswordResetResponse;
 use App\Http\Responses\Auth\TwoFactorLoginResponse;
 use App\Livewire\Pages\App\HomePage;
+use App\Livewire\Pages\Auth\AcceptInvitationPage;
 use App\Livewire\Pages\Auth\ForgotPasswordPage;
 use App\Livewire\Pages\Auth\LoginPage;
 use App\Livewire\Pages\Auth\ResetPasswordPage;
 use App\Livewire\Pages\Auth\TwoFactorChallengePage;
+use App\Livewire\Pages\Settings\PlansPage;
 use App\Livewire\Pages\Settings\TenantPage;
+use App\Livewire\Pages\Settings\UsersPage;
 use App\Livewire\Ping;
 use App\Models\Tenant;
 use App\Models\User;
@@ -26,6 +29,7 @@ use App\Support\Auth\LoginAuditRecorder;
 use App\Support\Auth\PostgresAuthContext;
 use App\Support\Auth\RecoveryCodeHasher;
 use App\Support\Auth\TenantAccessResolver;
+use App\Support\Settings\UserInvitationService;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +38,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
 
 Route::get('/', function () {
@@ -203,6 +208,26 @@ Route::middleware('guest')->group(function (): void {
 
         return (new PasswordResetResponse)->toResponse($request);
     })->name('auth.password.update');
+
+    Route::get('/auth/invitations/{token}', AcceptInvitationPage::class)->name('auth.invitations.accept');
+
+    Route::post('/auth/invitations/{token}', function (
+        Request $request,
+        string $token,
+        UserInvitationService $service,
+    ) {
+        try {
+            $service->accept($token, $request->only(['password', 'password_confirmation']));
+        } catch (ValidationException $exception) {
+            if (array_key_exists('token', $exception->errors())) {
+                return response('Convite invalido. Solicite novo convite.', 404);
+            }
+
+            throw $exception;
+        }
+
+        return redirect('/auth/login')->with('status', 'Convite aceito.');
+    })->name('auth.invitations.store');
 });
 
 Route::get('/auth/two-factor-challenge', TwoFactorChallengePage::class)
@@ -377,6 +402,8 @@ Route::middleware([
         Route::get('/app', HomePage::class)->name('app.home');
         Route::get('/settings/tenant', TenantPage::class)->name('settings.tenant');
         Route::post('/settings/tenant', TenantSettingsController::class)->name('settings.tenant.store');
+        Route::get('/settings/users', UsersPage::class)->name('settings.users');
+        Route::get('/settings/plans', PlansPage::class)->name('settings.plans');
     });
 
 Route::get('/health', HealthCheckController::class)

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Support\Settings\PlanUpgradeRequestService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Livewire\Livewire;
 
 require_once __DIR__.'/TestHelpers.php';
 
@@ -52,9 +53,12 @@ test('AC-014: tenant suspended pode ler /settings/plans, mas pedido de upgrade e
 
     $response->assertStatus(200);
 
-    expect(fn () => Livewire::actingAs($context['user'])
-        ->test(slice009_plans_component())
-        ->call('requestUpgrade', 'fiscal', 'Preciso avaliar o modulo fiscal.'))->toThrow(Throwable::class);
+    expect(fn () => app(PlanUpgradeRequestService::class)->requestUpgrade(
+        $context['user'],
+        $context['tenant_user'],
+        'fiscal',
+        'Preciso avaliar o modulo fiscal.',
+    ))->toThrow(AuthorizationException::class);
 
     if (Schema::hasTable('plan_upgrade_requests')) {
         expect(DB::table('plan_upgrade_requests')->where('tenant_id', $context['tenant']->id)->count())->toBe($before);

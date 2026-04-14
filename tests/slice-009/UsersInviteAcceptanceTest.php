@@ -43,11 +43,12 @@ test('AC-015: convite expirado, usado ou de outro tenant bloqueia aceite sem alt
     $context = slice009_invitation_context(array_merge([
         'role' => 'tecnico',
         'status' => 'invited',
-    ], $overrides));
+    ], array_diff_key($overrides, ['request_token' => true])));
     $originalPassword = $context['invited_user']->password;
+    $requestToken = (string) ($overrides['request_token'] ?? $context['token']);
 
     $response = $this->post(
-        slice009_routes()['invitation']($context['token']),
+        slice009_routes()['invitation']($requestToken),
         slice009_accept_payload(),
     );
 
@@ -68,7 +69,7 @@ test('AC-015: convite expirado, usado ou de outro tenant bloqueia aceite sem alt
 })->with([
     'expirado' => [['invitation_expires_at' => now()->subMinute()], 'invited'],
     'ja usado' => [['status' => 'active', 'accepted_at' => now()], 'active'],
-    'token inexistente' => [['token' => 'invitation-token-invalido'], 'invited'],
+    'token inexistente' => [['request_token' => 'invitation-token-invalido'], 'invited'],
 ])->group('slice-009', 'ac-015');
 
 test('AC-016: senha curta ou confirmacao divergente retorna validacao e mantem convite pendente', function (array $payloadOverrides): void {
