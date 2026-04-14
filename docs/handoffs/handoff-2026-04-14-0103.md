@@ -6,6 +6,8 @@ O PM autorizou continuar o fluxo do slice 007 e a regra de loop R6 ja estava amp
 
 O slice 007 passou pela cadeia completa de gates: verifier, reviewer, security-reviewer, test-auditor e functional-reviewer. Todos terminaram em `approved` com `findings: []`.
 
+O PR #9 foi aberto: https://github.com/roldaobatista/kalibrium-v2/pull/9. O CI do PR ficou bloqueado antes de iniciar por billing/spending limit do GitHub Actions, nao por falha de codigo.
+
 ## Estado ao sair
 
 ### Fase do projeto
@@ -63,4 +65,4 @@ Fechar os gates restantes do slice 007 sem pular etapas, corrigindo findings enc
 
 ## Proxima acao recomendada
 
-Abrir ou atualizar o PR do slice 007 e seguir para merge quando os checks do PR estiverem verdes.
+Resolver o bloqueio de billing/spending limit do GitHub Actions e reexecutar os checks do PR #9. Se os checks ficarem verdes, seguir para merge.
