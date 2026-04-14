@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Livewire\Pages\Settings\UsersPage;
+use App\Models\PlanUpgradeRequest;
+use App\Models\TenantPlanMetric;
 use App\Support\Settings\PlanSummaryService;
 use App\Support\Settings\PlanUpgradeRequestService;
 use App\Support\Settings\UserDeactivationService;
@@ -245,4 +247,27 @@ test('AC-SEC-003: usuarios e planos de dois tenants ficam isolados nas telas de 
         $tenantB['tenant']->name,
         'Enterprise B',
     ]);
+})->group('slice-009', 'ac-sec-003', 'security');
+
+test('AC-SEC-003: modelos de plano com tenant_id respeitam escopo do tenant atual', function (): void {
+    $tenantA = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $tenantB = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+
+    PlanUpgradeRequest::factory()->create(['tenant_id' => $tenantA['tenant']->id]);
+    PlanUpgradeRequest::factory()->create(['tenant_id' => $tenantB['tenant']->id]);
+    TenantPlanMetric::factory()->create(['tenant_id' => $tenantA['tenant']->id]);
+    TenantPlanMetric::factory()->create(['tenant_id' => $tenantB['tenant']->id]);
+
+    request()->attributes->set('current_tenant', $tenantA['tenant']);
+
+    expect(PlanUpgradeRequest::query()->pluck('tenant_id')->unique()->values()->all())
+        ->toBe([(int) $tenantA['tenant']->id]);
+    expect(TenantPlanMetric::query()->pluck('tenant_id')->unique()->values()->all())
+        ->toBe([(int) $tenantA['tenant']->id]);
 })->group('slice-009', 'ac-sec-003', 'security');
