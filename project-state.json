@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T22:58:21-04:00",
+  "updated_at": "2026-04-13T23:11:55-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,18 +39,18 @@
     "current_epic": "E02",
     "current_story": "SEG-001",
     "current_slice": "007",
-    "slice_status": "reviewer_r6_escalated",
-    "last_green_commit": "4c2687a",
-    "consecutive_rejections": 7,
-    "blocked": true,
-    "blocked_reason": "R6: reviewer reprovou novamente apos a tentativa focada em revalidar acesso ao concluir 2FA; implementer bloqueado ate decisao do PM sobre o fluxo real de /app com 2FA pendente."
+    "slice_status": "verifying",
+    "last_green_commit": "9db2b66",
+    "consecutive_rejections": 0,
+    "blocked": false,
+    "blocked_reason": null
   },
   "gates_status": {
     "spec_auditor": "approved",
     "plan": "approved",
     "plan_review": "approved",
-    "verifier": "approved",
-    "reviewer": "rejected_r6",
+    "verifier": "pending",
+    "reviewer": "pending",
     "security_reviewer": "pending",
     "test_auditor": "pending",
     "functional_reviewer": "pending"
@@ -69,8 +69,8 @@
       "question": "3 suposicoes pendentes de consultor de metrologia (ASS-002, ASS-012, ASS-018)",
       "options": ["Bloquear stories dependentes", "Prosseguir e validar depois"],
       "created_at": "2026-04-13T01:00:00Z",
-      "resolved_at": null,
-      "decision": null
+      "resolved_at": "2026-04-13T23:11:55-04:00",
+      "decision": "Pedir nova tentativa focada no fluxo real de /app com 2FA pendente"
     },
     {
       "id": "PD-004",
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Harness R6 alterado por ADR-0010 para 5 ciclos automaticos de correcao em loops de review/auditoria e escalacao ao PM na 6a rejeicao consecutiva. Scripts verify-slice/review-slice, comandos, skills, schemas e politica R6/R7 foram alinhados. Slice 007 continua bloqueado por reviewer R6 porque ja havia 7 rejeicoes consecutivas registradas antes desta alteracao.",
-    "next_action": "Retomar a decisao PD-011 do slice 007. Recomendacao operacional: como o slice ja passou do novo limite de 6 rejeicoes, pedir decisao explicita do PM antes de nova tentativa ou reescopo.",
+    "last_session_summary": "PD-011 autorizado pelo PM. O fluxo real de /app com 2FA pendente foi corrigido no commit 9db2b66: o login com 2FA pendente autentica a sessao, /app permanece bloqueado pelo desafio, e a sessao e encerrada se o acesso for bloqueado antes do codigo valido. Testes do slice passaram com 37 tests e 259 assertions.",
+    "next_action": "Rodar os gates do slice 007 novamente: verifier primeiro e reviewer apenas se o verifier aprovar.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
