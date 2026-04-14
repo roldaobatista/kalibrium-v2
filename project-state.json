@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T18:25:58-04:00",
+  "updated_at": "2026-04-14T18:57:27-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,11 +39,11 @@
     "current_epic": "E02",
     "current_story": "TEN-002",
     "current_slice": "009",
-    "slice_status": "blocked_r6_reviewer_pending_pm_decision",
+    "slice_status": "review_package_fix_authorized",
     "last_green_commit": "945a098",
     "consecutive_rejections": 7,
-    "blocked": true,
-    "blocked_reason": "R6: reviewer reprovou slice-009 novamente; desta vez o pacote isolado do reviewer expôs specs/009/verification.json, violando R11. Aguardando decisão PM para corrigir o empacotamento do review e tentar novamente."
+    "blocked": false,
+    "blocked_reason": null
   },
   "gates_status": {
     "spec_auditor": "approved",
@@ -149,8 +149,8 @@
       "question": "R6 do slice 009: reviewer encontrou que o pacote de review inclui verification.json, quebrando o isolamento entre verifier e reviewer; continuar corrigindo o empacotamento do review, reescopar ou pausar?",
       "options": ["Pedir nova tentativa focada no empacotamento do review", "Reescopar o slice 009", "Pausar para discussao"],
       "created_at": "2026-04-14T18:25:58-04:00",
-      "resolved_at": null,
-      "decision": null
+      "resolved_at": "2026-04-14T18:57:27-04:00",
+      "decision": "Pedir nova tentativa focada no empacotamento do review; corrigir o pacote para nao expor verification.json ou artefatos operacionais ao reviewer e rerodar ate 10 rodadas ou ate passar."
     }
   ],
   "harness": {

@@ -38,6 +38,74 @@ fail() { echo "[review-slice FAIL] $*" >&2; exit 1; }
 
 [ ! -d "$SLICE_DIR" ] && fail "slice $NNN não existe em $SLICE_DIR"
 
+build_review_diff_pathspecs() {
+  REVIEW_DIFF_PATHSPECS=(
+    "."
+    ":(exclude)project-state.json"
+    ":(exclude)docs/handoffs/*"
+    ":(exclude)docs/explanations/*"
+    ":(exclude)docs/incidents/*"
+    ":(exclude).claude/telemetry/*"
+    ":(exclude)specs/.current"
+    ":(exclude)$SLICE_DIR/plan.md"
+    ":(exclude)$SLICE_DIR/tasks.md"
+    ":(exclude)$SLICE_DIR/spec-audit.json"
+    ":(exclude)$SLICE_DIR/plan-review.json"
+    ":(exclude)$SLICE_DIR/verification.json"
+    ":(exclude)$SLICE_DIR/review.json"
+    ":(exclude)$SLICE_DIR/security-review.json"
+    ":(exclude)$SLICE_DIR/test-audit.json"
+    ":(exclude)$SLICE_DIR/functional-review.json"
+  )
+}
+
+forbidden_review_input_patterns() {
+  cat <<EOF
+project-state.json
+docs/handoffs/
+docs/explanations/
+docs/incidents/
+.claude/telemetry/
+specs/.current
+$SLICE_DIR/plan.md
+$SLICE_DIR/tasks.md
+$SLICE_DIR/spec-audit.json
+$SLICE_DIR/plan-review.json
+$SLICE_DIR/verification.json
+$SLICE_DIR/review.json
+$SLICE_DIR/security-review.json
+$SLICE_DIR/test-audit.json
+$SLICE_DIR/functional-review.json
+EOF
+}
+
+assert_review_input_isolated() {
+  local pattern
+
+  while IFS= read -r pattern; do
+    [ -z "$pattern" ] && continue
+
+    case "$pattern" in
+      */)
+        if grep -F -- "$pattern" "$INPUT_DIR/files-changed.txt" >/dev/null 2>&1; then
+          fail "review-input lista artefato proibido ($pattern) em $INPUT_DIR/files-changed.txt"
+        fi
+        ;;
+      *)
+        if grep -Fx -- "$pattern" "$INPUT_DIR/files-changed.txt" >/dev/null 2>&1; then
+          fail "review-input lista artefato proibido ($pattern) em $INPUT_DIR/files-changed.txt"
+        fi
+        ;;
+    esac
+
+    if grep -F -- "diff --git a/$pattern" "$INPUT_DIR/diff.patch" >/dev/null 2>&1 || \
+       grep -F -- "--- a/$pattern" "$INPUT_DIR/diff.patch" >/dev/null 2>&1 || \
+       grep -F -- "+++ b/$pattern" "$INPUT_DIR/diff.patch" >/dev/null 2>&1; then
+      fail "review-input inclui diff de artefato proibido ($pattern) em $INPUT_DIR/diff.patch"
+    fi
+  done < <(forbidden_review_input_patterns)
+}
+
 # ==========================================================================
 # MODE: --validate
 # ==========================================================================
@@ -203,17 +271,18 @@ else
 fi
 
 # Diff do slice contra main (ou base)
+build_review_diff_pathspecs
 if git rev-parse --verify main >/dev/null 2>&1; then
-  git diff main...HEAD -- 2>/dev/null > "$INPUT_DIR/diff.patch" || true
-  git diff --name-only main...HEAD 2>/dev/null > "$INPUT_DIR/files-changed.txt" || true
+  git diff main...HEAD -- "${REVIEW_DIFF_PATHSPECS[@]}" 2>/dev/null > "$INPUT_DIR/diff.patch" || true
+  git diff --name-only main...HEAD -- "${REVIEW_DIFF_PATHSPECS[@]}" 2>/dev/null > "$INPUT_DIR/files-changed.txt" || true
 
   if [ ! -s "$INPUT_DIR/diff.patch" ]; then
     say "diff main...HEAD vazio; usando commits que mencionam slice-${NNN} como fallback"
     git log --reverse --format='%H' --grep="slice-${NNN}" 2>/dev/null | while read -r h; do
-      git show --no-ext-diff --format='commit %H%nsubject %s%n' "$h" 2>/dev/null
+      git show --no-ext-diff --format='commit %H%nsubject %s%n' "$h" -- "${REVIEW_DIFF_PATHSPECS[@]}" 2>/dev/null
     done > "$INPUT_DIR/diff.patch"
     git log --format='%H' --grep="slice-${NNN}" 2>/dev/null | while read -r h; do
-      git show --name-only --format='' "$h" 2>/dev/null
+      git show --name-only --format='' "$h" -- "${REVIEW_DIFF_PATHSPECS[@]}" 2>/dev/null
     done | sort -u > "$INPUT_DIR/files-changed.txt"
   fi
 else
@@ -222,6 +291,7 @@ else
 fi
 
 [ ! -s "$INPUT_DIR/diff.patch" ] && fail "diff.patch vazio — reviewer ficaria sem material de review"
+assert_review_input_isolated
 
 # Snapshot dos ADRs (cópia completa)
 mkdir -p "$INPUT_DIR/adr-snapshot"
