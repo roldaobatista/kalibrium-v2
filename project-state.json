@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T07:18:24-04:00",
+  "updated_at": "2026-04-14T07:40:47-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -37,23 +37,23 @@
   },
   "execution": {
     "current_epic": "E02",
-    "current_story": "SEG-001",
-    "current_slice": "007",
-    "slice_status": "merged",
+    "current_story": "TEN-001",
+    "current_slice": "008",
+    "slice_status": "spec_draft",
     "last_green_commit": "81597e6",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
-    "spec_auditor": "approved",
-    "plan": "approved",
-    "plan_review": "approved",
-    "verifier": "approved",
-    "reviewer": "approved",
-    "security_reviewer": "approved",
-    "test_auditor": "approved",
-    "functional_reviewer": "approved"
+    "spec_auditor": "not_started",
+    "plan": "not_started",
+    "plan_review": "not_started",
+    "verifier": "not_started",
+    "reviewer": "not_started",
+    "security_reviewer": "not_started",
+    "test_auditor": "not_started",
+    "functional_reviewer": "not_started"
   },
   "pending_decisions": [
     {
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 007 foi mergeado no PR #9 usando a validacao publica verde como evidencia externa, porque o CI privado nao iniciou por billing/spending limit. O PR #9 ficou MERGED em 2026-04-14T11:16:43Z com merge commit 81597e6; o run publico 24395439095 passou no commit b029e72.",
-    "next_action": "Executar o encerramento de pos-merge ja registrado em docs/retrospectives/slice-007.md e seguir para escolha do proximo slice pelo harness.",
+    "last_session_summary": "PM aceitou iniciar o proximo slice recomendado pelo roadmap: TEN-001 - Primeiro laboratorio isolado. O slice 008 foi criado via new-slice, specs/.current aponta para 008, specs/008/spec.md foi preenchido com 12 ACs sequenciais e scripts/draft-spec.sh 008 --check passou.",
+    "next_action": "PM revisar e aprovar o spec do slice 008. Se aprovado, seguir para /audit-spec 008 antes de gerar o plano.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -157,17 +157,10 @@
       "docs/handoffs/latest.md",
       "project-state.json",
       ".claude/agents/orchestrator.md",
-      "specs/007/spec.md",
-      "specs/007/spec-audit.json",
-      "specs/007/plan.md",
-      "specs/007/verification.json",
-      "specs/007/review.json",
-      "specs/007/security-review.json",
-      "specs/007/test-audit.json",
-      "specs/007/functional-review.json",
-      "docs/explanations/slice-007.md",
-      "docs/retrospectives/slice-007-report.md",
-      "docs/retrospectives/slice-007.md",
+      "docs/product/roadmap.md",
+      "docs/slice-registry.md",
+      "specs/.current",
+      "specs/008/spec.md",
       "docs/adr/0010-constitution-amendment-r6-gate-threshold.md",
       "docs/retrospectives/constitution-r6-gate-threshold-2026-04-14.md"
     ]
