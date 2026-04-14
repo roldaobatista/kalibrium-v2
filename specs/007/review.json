@@ -1,0 +1,34 @@
+{
+  "slice_id": "slice-007",
+  "verdict": "rejected",
+  "timestamp": "2026-04-14T01:06:15.7327321Z",
+  "quality_checks": [
+    {
+      "category": "security",
+      "status": "fail",
+      "evidence": "config/sanctum.php:14-15 — SANCTUM_STATEFUL_DOMAINS concatena a lista local com Sanctum::currentApplicationUrlWithPort() sem separador, gerando um domínio stateful inválido."
+    },
+    {
+      "category": "complexity",
+      "status": "fail",
+      "evidence": "app/Support/Auth/TenantAccessResolver.php:18-34 — resolve() escolhe o tenantUser mais recente do usuário como fonte de verdade, sem seleção explícita do tenant, o que pode aplicar o acesso errado em contas com múltiplos vínculos."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "major",
+      "category": "security",
+      "file": "config/sanctum.php",
+      "line": 14,
+      "message": "O default de SANCTUM_STATEFUL_DOMAINS concatena a lista local com Sanctum::currentApplicationUrlWithPort() sem vírgula separadora. Isso produz um host inválido e pode quebrar a autenticação stateful fora do cenário local."
+    },
+    {
+      "severity": "major",
+      "category": "complexity",
+      "file": "app/Support/Auth/TenantAccessResolver.php",
+      "line": 18,
+      "message": "O resolvedor usa o vínculo de tenant mais recente do usuário como decisão final. Em uma conta com mais de um vínculo, o login pode cair no tenant errado e aplicar o modo de acesso incorreto."
+    }
+  ],
+  "next_action": "return_to_implementer"
+}

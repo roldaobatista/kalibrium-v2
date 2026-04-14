@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T19:34:18-04:00",
+  "updated_at": "2026-04-13T21:07:26-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,18 +39,18 @@
     "current_epic": "E02",
     "current_story": "SEG-001",
     "current_slice": "007",
-    "slice_status": "plan_review_approved",
-    "last_green_commit": "0c61e73",
-    "consecutive_rejections": 0,
-    "blocked": false,
-    "blocked_reason": null
+    "slice_status": "reviewer_r6_escalated",
+    "last_green_commit": "23e1bf0",
+    "consecutive_rejections": 2,
+    "blocked": true,
+    "blocked_reason": "R6: reviewer reprovou o slice 007 pela segunda vez; implementer bloqueado ate decisao do PM."
   },
   "gates_status": {
     "spec_auditor": "approved",
     "plan": "approved",
     "plan_review": "approved",
-    "verifier": "pending",
-    "reviewer": "pending",
+    "verifier": "approved",
+    "reviewer": "rejected_r6",
     "security_reviewer": "pending",
     "test_auditor": "pending",
     "functional_reviewer": "pending"
@@ -87,6 +87,14 @@
       "created_at": "2026-04-13T17:05:48-04:00",
       "resolved_at": "2026-04-13T17:15:28-04:00",
       "decision": "Seguir PRD/E02 amplo: permitir modo somente leitura para tenant suspended e atualizar contrato E02"
+    },
+    {
+      "id": "PD-006",
+      "question": "R6 do slice 007: reviewer reprovou duas vezes; corrigir novos achados ou reescopar?",
+      "options": ["Pedir nova tentativa focada nos 2 findings do reviewer", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T21:07:26-04:00",
+      "resolved_at": null,
+      "decision": null
     }
   ],
   "harness": {
@@ -99,8 +107,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "O harness passou a exigir /review-plan NNN antes de /draft-tests NNN. O plano do slice 007 foi corrigido, reauditorado pelo plan-reviewer e aprovado com findings vazio.",
-    "next_action": "Executar /draft-tests 007 com ac-to-test para criar testes red cobrindo AC-001..AC-021.",
+    "last_session_summary": "Slice 007 implementado e corrigido apos primeira rejeicao do reviewer. Verifier aprovou o commit corrigido, mas reviewer reprovou pela segunda vez e acionou R6 com 2 findings novos.",
+    "next_action": "Aguardar decisao do PM sobre PD-006. Recomendacao operacional: pedir nova tentativa focada nos 2 findings do reviewer.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -111,7 +119,10 @@
       ".claude/agents/orchestrator.md",
       "specs/007/spec.md",
       "specs/007/spec-audit.json",
-      "specs/007/plan.md"
+      "specs/007/plan.md",
+      "specs/007/verification.json",
+      "specs/007/review.json",
+      "docs/incidents/slice-007-review-escalation-2026-04-14.md"
     ]
   }
 }

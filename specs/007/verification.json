@@ -1,0 +1,114 @@
+{
+  "slice_id": "slice-007",
+  "verdict": "approved",
+  "timestamp": "2026-04-14T01:03:00.4917826Z",
+  "ac_checks": [
+    {
+      "ac": "AC-001",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para 'POST /auth/login autentica usuario ativo e redireciona para /app'"
+    },
+    {
+      "ac": "AC-002",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para 2FA exigido redirecionando para /auth/two-factor-challenge"
+    },
+    {
+      "ac": "AC-003",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php; pest output mostra PASS para TOTP valido concluir autenticação e redirecionar para /app"
+    },
+    {
+      "ac": "AC-004",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php; pest output mostra PASS para recovery_code valido concluir autenticação, invalidar o código e registrar auditoria"
+    },
+    {
+      "ac": "AC-005",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php; pest output mostra PASS para mensagem neutra em /auth/forgot-password"
+    },
+    {
+      "ac": "AC-006",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php; pest output mostra PASS para /auth/reset-password com token válido alterar senha e redirecionar para /auth/login"
+    },
+    {
+      "ac": "AC-007",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthAuditTest.php; pest output mostra PASS para login_audit_logs gravar evento, user_id, IP e hash de user agent sem vazamento"
+    },
+    {
+      "ac": "AC-008",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para credenciais incorretas retornando 422 neutro sem enumerar usuario"
+    },
+    {
+      "ac": "AC-009",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para rate limit com retorno 429"
+    },
+    {
+      "ac": "AC-010",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php; pest output mostra PASS para e-mail inválido em /auth/forgot-password retornar 422 e não enviar e-mail"
+    },
+    {
+      "ac": "AC-011",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para tenant suspended autenticar em modo somente leitura e bloquear métodos mutáveis no backend"
+    },
+    {
+      "ac": "AC-012",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para tenant cancelled bloquear acesso com 403 sem redirecionar para /app"
+    },
+    {
+      "ac": "AC-013",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para vínculo suspended, invited e removed bloquear somente esse usuário"
+    },
+    {
+      "ac": "AC-014",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php; pest output mostra PASS para TOTP inválido retornar 422 e manter o desafio pendente"
+    },
+    {
+      "ac": "AC-015",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php; pest output mostra PASS para recovery_code usado ou inexistente retornar 422"
+    },
+    {
+      "ac": "AC-016",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php; pest output mostra PASS para senha fraca ou confirmação divergente retornar 422"
+    },
+    {
+      "ac": "AC-017",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php; pest output mostra PASS para token inválido ou expirado retornar 422 e orientar novo link"
+    },
+    {
+      "ac": "AC-018",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthAuditTest.php; pest output mostra PASS para input malicioso em login ser tratado como dado e não refletir payload sem escape"
+    },
+    {
+      "ac": "AC-019",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthLoginTest.php; pest output mostra PASS para GET /app sem autenticação redirecionar para /auth/login"
+    },
+    {
+      "ac": "AC-020",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php; pest output mostra PASS para GET /app com 2FA pendente bloquear a rota e devolver para /auth/two-factor-challenge"
+    },
+    {
+      "ac": "AC-021",
+      "status": "pass",
+      "evidence": "tests/slice-007/AuthAuditTest.php; pest output mostra PASS para responses e logs nao vazarem senha, token, segredo TOTP ou recovery code"
+    }
+  ],
+  "violations": [],
+  "next_action": "open_pr"
+}
