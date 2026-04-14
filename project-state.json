@@ -40,7 +40,7 @@
     "current_story": "SEG-001",
     "current_slice": "007",
     "slice_status": "approved",
-    "last_green_commit": "9db2b66",
+    "last_green_commit": "d7c9e01",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null

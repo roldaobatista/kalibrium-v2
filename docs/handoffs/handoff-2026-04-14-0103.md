@@ -20,6 +20,10 @@ Execucao / slice 007 aprovado nos gates, pronto para PR/merge.
 
 `635958f chore(slice-007): registra checkpoint do fluxo 2fa`
 
+### Commit de fechamento do slice
+
+`d7c9e01 fix(slice-007): fecha gates de login seguro`
+
 ### Objetivo trabalhado
 
 Fechar os gates restantes do slice 007 sem pular etapas, corrigindo findings encontrados no loop de auditoria.
