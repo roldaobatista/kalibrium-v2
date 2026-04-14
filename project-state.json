@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T22:12:19-04:00",
+  "updated_at": "2026-04-13T22:32:58-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -40,10 +40,10 @@
     "current_story": "SEG-001",
     "current_slice": "007",
     "slice_status": "reviewer_r6_escalated",
-    "last_green_commit": "7816c5d",
-    "consecutive_rejections": 6,
+    "last_green_commit": "4c2687a",
+    "consecutive_rejections": 7,
     "blocked": true,
-    "blocked_reason": "R6: reviewer reprovou novamente apos a tentativa focada em fail-closed de status e recovery codes 2FA; implementer bloqueado ate decisao do PM sobre revalidar acesso ao concluir o 2FA."
+    "blocked_reason": "R6: reviewer reprovou novamente apos a tentativa focada em revalidar acesso ao concluir 2FA; implementer bloqueado ate decisao do PM sobre o fluxo real de /app com 2FA pendente."
   },
   "gates_status": {
     "spec_auditor": "approved",
@@ -125,6 +125,14 @@
       "question": "R6 do slice 007: reviewer encontrou que a conclusao do 2FA nao revalida se o acesso ainda continua permitido; corrigir ou pausar?",
       "options": ["Pedir nova tentativa focada nesse finding", "Reescopar o slice 007", "Pausar para discussao"],
       "created_at": "2026-04-13T22:12:19-04:00",
+      "resolved_at": "2026-04-13T22:32:58-04:00",
+      "decision": "Pedir nova tentativa focada nesse finding"
+    },
+    {
+      "id": "PD-011",
+      "question": "R6 do slice 007: reviewer encontrou que /app com 2FA pendente usa auth antes do middleware de desafio e pode voltar para login no fluxo real; corrigir ou pausar?",
+      "options": ["Pedir nova tentativa focada nesse finding", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T22:32:58-04:00",
       "resolved_at": null,
       "decision": null
     }
@@ -139,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 007 recebeu autorizacao para nova tentativa focada no fail-closed de status de tenant/vinculo e nos recovery codes 2FA como segredo usando gpt-5.4 xhigh. O fix foi commitado em 7816c5d e o verifier aprovou. O reviewer reprovou novamente com 1 finding novo de seguranca.",
-    "next_action": "Aguardar decisao do PM sobre PD-010. Recomendacao operacional: pedir nova tentativa focada no finding do reviewer.",
+    "last_session_summary": "Slice 007 recebeu autorizacao para nova tentativa focada em revalidar acesso ao concluir 2FA. O fix foi commitado em 113c6fb, o metadado aprovado do spec foi commitado em 4c2687a, e o verifier aprovou. O reviewer reprovou novamente com 1 finding novo de seguranca sobre o fluxo real de /app com 2FA pendente.",
+    "next_action": "Aguardar decisao do PM sobre PD-011. Recomendacao operacional: pedir nova tentativa focada nesse finding do reviewer.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

@@ -8,26 +8,27 @@
 
 ## O que foi feito
 
-- A tentativa autorizada corrigiu o comportamento de seguranca para status inesperados de tenant/vinculo.
-- A tentativa tambem passou a tratar codigos de recuperacao do 2FA como segredo, armazenando hash em vez de texto puro.
-- Os testes do slice passaram e o verifier aprovou.
+- A tentativa autorizada passou a revalidar o acesso no final do 2FA antes de criar a sessao da aplicacao.
+- Se o tenant mudar para somente leitura antes do codigo 2FA, a sessao final passa a entrar em modo somente leitura.
+- Se o acesso for cancelado/removido antes do codigo 2FA, o sistema bloqueia a conclusao do login.
+- O verifier aprovou depois que o metadado do spec foi alinhado para `approved`.
 
 ## O que o usuário final vai ver
 
-- Se o status de acesso mudar para um valor inesperado, o login falha com seguranca em vez de liberar acesso.
-- O uso de recovery code do 2FA continua funcionando para o usuario final, mas o codigo nao fica guardado como texto puro.
+- A experiencia do 2FA continua igual quando tudo esta valido.
+- Se o acesso mudar durante o 2FA, o login e bloqueado com seguranca.
 
 ## O que funcionou
 
 - Verificacao mecanica aprovada: todos os 21 criterios de aceite continuam cobertos.
-- Testes do slice aprovados: 33 testes e 221 verificacoes.
+- Testes do slice aprovados: 36 testes e 243 verificacoes.
 - Verifier aprovado.
 
 ## O que precisa de atenção
 
 **Encontrados na revisão estrutural:**
 
-- **⚠ IMPORTANTE:** problema de segurança — depois que a senha e aceita e antes de concluir o 2FA, o status do acesso pode mudar; o reviewer pediu revalidar esse acesso no momento final do 2FA antes de criar a sessao da aplicacao.
+- **⚠ IMPORTANTE:** problema de segurança — o fluxo real de `/app` com 2FA pendente ainda nao esta coberto corretamente: o middleware de login roda antes do middleware do desafio 2FA, entao o usuario pode voltar para `/auth/login` em vez de ser mantido em `/auth/two-factor-challenge`.
 
 ## O que NÃO está neste slice (fica pra depois)
 

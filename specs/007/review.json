@@ -1,22 +1,22 @@
 {
   "slice_id": "slice-007",
   "verdict": "rejected",
-  "timestamp": "2026-04-14T00:00:00Z",
+  "timestamp": "2026-04-14T02:32:11Z",
   "quality_checks": [
     {
       "category": "simplicity",
       "status": "pass",
-      "evidence": "A implementação permanece concentrada no fluxo de autenticação, recuperação de senha, 2FA, auditoria e bloqueios de tenant sem antecipar gestão completa de usuários."
+      "evidence": "A implementacao de produto permanece concentrada nos fluxos de login, 2FA, recuperacao de senha, auditoria e acesso por tenant."
     },
     {
       "category": "adr_compliance",
       "status": "pass",
-      "evidence": "A escolha de Laravel Fortify + Sanctum permanece alinhada às ADRs 0001 e 0004 presentes no pacote de revisão."
+      "evidence": "A solucao usa Laravel Fortify + Sanctum, alinhada aos ADRs 0001 e 0004 presentes no pacote de revisao."
     },
     {
       "category": "security",
       "status": "fail",
-      "evidence": "O fechamento do desafio 2FA confia no estado salvo em sessão e não revalida o vínculo/status do tenant no momento em que autentica o usuário."
+      "evidence": "A rota protegida /app executa o middleware auth antes do middleware de desafio 2FA, mas o login com 2FA pendente ainda nao autentica o usuario."
     }
   ],
   "findings": [
@@ -24,8 +24,8 @@
       "severity": "major",
       "category": "security",
       "file": "routes/web.php",
-      "line": 187,
-      "message": "O POST /auth/two-factor-challenge apenas verifica se o tenant salvo na sessão ainda existe; depois autentica o usuário sem reexecutar TenantAccessResolver nem validar se o vínculo continua active e se o tenant continua active/trial/suspended. Se o vínculo for removed/suspended ou o tenant virar cancelled entre a senha correta e a conclusão do 2FA, a sessão de aplicação ainda pode ser criada com o access_mode antigo salvo em sessão."
+      "line": 331,
+      "message": "O POST /auth/login com 2FA pendente grava apenas auth.two_factor_pending/auth.two_factor_user_id na sessao e nao chama Auth::login antes do desafio. Como /app declara o middleware auth antes de EnsureTwoFactorChallengeCompleted, uma sessao real com 2FA pendente sera tratada como guest e redirecionada para /auth/login antes de chegar ao middleware que deveria manter o usuario em /auth/two-factor-challenge. Isso viola AC-020; o teste atual usa actingAs e nao cobre o fluxo real iniciado pelo login."
     }
   ],
   "next_action": "return_to_implementer"

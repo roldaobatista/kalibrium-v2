@@ -1,112 +1,112 @@
 {
   "slice_id": "slice-007",
   "verdict": "approved",
-  "timestamp": "2026-04-14T02:05:18Z",
+  "timestamp": "2026-04-14T02:26:06Z",
   "ac_checks": [
     {
       "ac": "AC-001",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — POST /auth/login autentica usuario ativo e redireciona para /app; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - POST /auth/login autentica usuario ativo e redireciona para /app; pest exit_code=0"
     },
     {
       "ac": "AC-002",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — login com 2FA exigido redireciona para /auth/two-factor-challenge e renova a sessao; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - login com 2FA exigido redireciona para /auth/two-factor-challenge e renova sessao; pest exit_code=0"
     },
     {
       "ac": "AC-003",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php — codigo TOTP valido conclui autenticacao e redireciona para /app; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php - codigo TOTP valido conclui autenticacao e redireciona para /app; pest exit_code=0"
     },
     {
       "ac": "AC-004",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php — recovery_code valido conclui autenticacao, invalida o codigo e registra auditoria; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php - recovery_code valido conclui autenticacao, invalida codigo e registra auditoria; pest exit_code=0"
     },
     {
       "ac": "AC-005",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php — forgot-password responde mensagem neutra para e-mail valido e envia link sem revelar existencia; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php - forgot-password responde com mensagem neutra para e-mail valido existente ou nao; pest exit_code=0"
     },
     {
       "ac": "AC-006",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php — reset-password com token valido altera senha, invalida token e redireciona para /auth/login; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php - reset-password com token valido altera senha, invalida token e redireciona para /auth/login; pest exit_code=0"
     },
     {
       "ac": "AC-007",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthAuditTest.php — tentativa de login grava login_audit_logs com evento, user_id, IP e hash de user agent sem expor segredo; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthAuditTest.php - tentativa de login grava login_audit_logs sem expor segredo; pest exit_code=0"
     },
     {
       "ac": "AC-008",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — credenciais incorretas retornam 422 neutro sem enumerar usuario; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - credenciais incorretas retornam 422 neutro sem enumerar usuario; pest exit_code=0"
     },
     {
       "ac": "AC-009",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — rate limit retorna 429 quando excede tentativas; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - rate limit de login retorna 429 quando excede tentativas; pest exit_code=0"
     },
     {
       "ac": "AC-010",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php — forgot-password com e-mail invalido retorna 422 e nao envia e-mail; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php - forgot-password com e-mail invalido retorna 422 e nao envia e-mail; pest exit_code=0"
     },
     {
       "ac": "AC-011",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — tenant suspended autentica em modo somente leitura, redireciona para /app e bloqueia metodos mutaveis; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - tenant suspended autentica em modo somente leitura, bloqueia metodos mutaveis e falha fechado em ambiguidade; pest exit_code=0"
     },
     {
       "ac": "AC-012",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — tenant cancelled bloqueia acesso com 403, nao redireciona para /app e status desconhecido falha fechado; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - tenant cancelled bloqueia acesso com 403 e sem redirecionar para /app; pest exit_code=0"
     },
     {
       "ac": "AC-013",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — vinculos suspended, invited e removed bloqueados com 403 e status desconhecido falha fechado; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - vinculos suspended, invited ou removed bloqueiam usuario sem criar sessao; pest exit_code=0"
     },
     {
       "ac": "AC-014",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php — TOTP invalido retorna 422, mantem desafio pendente e nao cria sessao; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php - TOTP invalido retorna 422, mantem desafio pendente e nao cria sessao; pest exit_code=0"
     },
     {
       "ac": "AC-015",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php — recovery_code usado ou inexistente retorna 422 e nao cria sessao; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php - recovery_code usado ou inexistente retorna 422 e nao cria sessao; pest exit_code=0"
     },
     {
       "ac": "AC-016",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php — senha fraca ou confirmacao divergente retorna 422 e preserva senha atual; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php - senha fraca ou confirmacao divergente retorna 422 e preserva senha atual; pest exit_code=0"
     },
     {
       "ac": "AC-017",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthPasswordResetTest.php — token invalido ou expirado retorna 422, nao altera senha e orienta novo link; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthPasswordResetTest.php - token invalido ou expirado retorna 422 e orienta novo link; pest exit_code=0"
     },
     {
       "ac": "AC-018",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthAuditTest.php — input malicioso em login e tratado como dado e nao reflete payload sem escape; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthAuditTest.php - input malicioso em login e tratado como dado e nao reflete payload; pest exit_code=0"
     },
     {
       "ac": "AC-019",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthLoginTest.php — GET /app sem autenticacao redireciona para /auth/login; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthLoginTest.php - GET /app sem autenticacao redireciona para /auth/login; pest exit_code=0"
     },
     {
       "ac": "AC-020",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthTwoFactorTest.php — GET /app com 2FA pendente bloqueia rota e devolve para /auth/two-factor-challenge; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthTwoFactorTest.php - GET /app com 2FA pendente redireciona para /auth/two-factor-challenge; pest exit_code=0"
     },
     {
       "ac": "AC-021",
       "status": "pass",
-      "evidence": "tests/slice-007/AuthAuditTest.php — responses e logs nao vazam senha, token, segredo TOTP ou recovery code; tests/slice-007/AuthConfigTest.php — Sanctum separa dominios stateful; test-results exit_code=0"
+      "evidence": "tests/slice-007/AuthAuditTest.php and tests/slice-007/AuthConfigTest.php - responses/logs nao vazam segredos e Sanctum stateful domains configurados; pest exit_code=0"
     }
   ],
   "violations": [],
