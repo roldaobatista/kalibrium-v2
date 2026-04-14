@@ -59,6 +59,11 @@ test('AC-014: POST /auth/two-factor-challenge com codigo TOTP invalido retorna 4
 
     $response->assertStatus(422);
     $response->assertSessionHas('auth.two_factor_pending', true);
+    $this->assertDatabaseHas('login_audit_logs', [
+        'event' => 'auth.two_factor.failed',
+        'user_id' => $context['user']->id,
+        'tenant_id' => $context['tenant']->id,
+    ]);
 })->group('slice-007', 'ac-014');
 
 test('AC-015: POST /auth/two-factor-challenge com recovery_code usado ou inexistente retorna 422 e nao cria sessao', function (): void {
@@ -76,6 +81,11 @@ test('AC-015: POST /auth/two-factor-challenge com recovery_code usado ou inexist
     $response->assertStatus(422);
     $response->assertSessionHas('auth.two_factor_pending', true);
     $this->assertGuest();
+    $this->assertDatabaseHas('login_audit_logs', [
+        'event' => 'auth.two_factor.failed',
+        'user_id' => $context['user']->id,
+        'tenant_id' => $context['tenant']->id,
+    ]);
 })->group('slice-007', 'ac-015');
 
 test('AC-020: GET /app com 2FA pendente bloqueia a rota e devolve para /auth/two-factor-challenge', function (): void {

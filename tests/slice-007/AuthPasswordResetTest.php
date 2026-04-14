@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 
 require_once __DIR__.'/TestHelpers.php';
 
@@ -15,6 +17,24 @@ test('AC-005: POST /auth/forgot-password responde com mensagem neutra para e-mai
     $response->assertStatus(302);
     $response->assertSessionHas('status', 'Se o e-mail existir, enviaremos um link.');
     Mail::assertNothingSent();
+})->group('slice-007', 'ac-005');
+
+test('AC-005: POST /auth/forgot-password para usuario existente envia link sem revelar existencia da conta', function (): void {
+    Notification::fake();
+    $user = slice007_persisted_user([
+        'email' => slice007_unique_email(),
+    ]);
+
+    $response = $this->postJson(slice007_routes()['forgot_password'], slice007_forgot_password_payload([
+        'email' => $user->email,
+    ]));
+
+    $response->assertStatus(302);
+    $response->assertSessionHas('status', 'Se o e-mail existir, enviaremos um link.');
+    Notification::assertSentTo($user, ResetPasswordNotification::class);
+    $this->assertDatabaseHas('password_reset_tokens', [
+        'email' => $user->email,
+    ]);
 })->group('slice-007', 'ac-005');
 
 test('AC-010: POST /auth/forgot-password com e-mail invalido retorna 422 e nao envia e-mail', function (): void {

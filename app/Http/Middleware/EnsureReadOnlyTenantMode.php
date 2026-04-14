@@ -17,6 +17,12 @@ final class EnsureReadOnlyTenantMode
     {
         if ($request->session()->get('tenant.access_mode') === 'read-only') {
             $request->attributes->set('tenant_read_only', true);
+
+            if (! $request->isMethodSafe()) {
+                return response()->json([
+                    'message' => 'Conta em modo somente leitura.',
+                ], 403);
+            }
         }
 
         return $next($request);

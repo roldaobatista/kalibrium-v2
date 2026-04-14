@@ -16,6 +16,7 @@ use App\Livewire\Pages\Auth\LoginPage;
 use App\Livewire\Pages\Auth\ResetPasswordPage;
 use App\Livewire\Pages\Auth\TwoFactorChallengePage;
 use App\Livewire\Ping;
+use App\Models\Tenant;
 use App\Models\User;
 use App\Support\Auth\LoginAuditRecorder;
 use App\Support\Auth\TenantAccessResolver;
@@ -131,9 +132,11 @@ Route::middleware('guest')->group(function (): void {
     Route::get('/auth/forgot-password', ForgotPasswordPage::class)->name('auth.password.request');
 
     Route::post('/auth/forgot-password', function (Request $request) {
-        $request->validate([
+        $credentials = $request->validate([
             'email' => ['required', 'email'],
         ]);
+
+        Password::broker()->sendResetLink($credentials);
 
         return (new PasswordResetLinkSentResponse)->toResponse($request);
     })->name('auth.password.email');
@@ -177,7 +180,20 @@ Route::post('/auth/two-factor-challenge', function (
     LoginAuditRecorder $auditRecorder,
     TwoFactorAuthenticationProviderContract $twoFactorProvider,
 ) {
+    $tenantId = $request->session()->has('auth.two_factor_tenant_id')
+        ? (int) $request->session()->get('auth.two_factor_tenant_id')
+        : null;
+    if ($tenantId !== null && ! Tenant::query()->whereKey($tenantId)->exists()) {
+        $tenantId = null;
+    }
+
+    $recordFailedAttempt = static function (?User $user = null) use ($auditRecorder, $request, $tenantId): void {
+        $auditRecorder->record($request, 'auth.two_factor.failed', $user?->id, $tenantId);
+    };
+
     if ($request->session()->get('auth.two_factor_pending') !== true) {
+        $recordFailedAttempt();
+
         return response()->json([
             'message' => 'Desafio de dois fatores nao encontrado.',
         ], 422);
@@ -190,20 +206,20 @@ Route::post('/auth/two-factor-challenge', function (
 
     $rateKey = 'auth:two-factor:'.$request->session()->get('auth.two_factor_user_id').'|'.$request->ip();
     if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+        $recordFailedAttempt();
+
         return response()->json([
             'message' => 'Muitas tentativas. Tente novamente mais tarde.',
         ], 429);
     }
 
     $userId = (int) $request->session()->get('auth.two_factor_user_id');
-    $tenantId = $request->session()->has('auth.two_factor_tenant_id')
-        ? (int) $request->session()->get('auth.two_factor_tenant_id')
-        : null;
 
     /** @var User|null $user */
     $user = User::query()->find($userId);
     if ($user === null) {
         RateLimiter::hit($rateKey, 60);
+        $recordFailedAttempt();
 
         return response()->json([
             'message' => 'Codigo invalido.',
@@ -215,6 +231,7 @@ Route::post('/auth/two-factor-challenge', function (
         $recoveryCodes = $user->two_factor_recovery_codes;
         if (! is_array($recoveryCodes) || ! in_array($recoveryCode, $recoveryCodes, true)) {
             RateLimiter::hit($rateKey, 60);
+            $recordFailedAttempt($user);
 
             return response()->json([
                 'message' => 'Codigo invalido.',
@@ -247,6 +264,7 @@ Route::post('/auth/two-factor-challenge', function (
     $code = trim((string) $request->input('code', ''));
     if ($code === '') {
         RateLimiter::hit($rateKey, 60);
+        $recordFailedAttempt($user);
 
         return response()->json([
             'message' => 'Codigo invalido.',
@@ -256,6 +274,7 @@ Route::post('/auth/two-factor-challenge', function (
     $encryptedSecret = $user->two_factor_secret;
     if (! is_string($encryptedSecret) || $encryptedSecret === '') {
         RateLimiter::hit($rateKey, 60);
+        $recordFailedAttempt($user);
 
         return response()->json([
             'message' => 'Codigo invalido.',
@@ -266,6 +285,7 @@ Route::post('/auth/two-factor-challenge', function (
         $secret = decrypt($encryptedSecret);
     } catch (DecryptException) {
         RateLimiter::hit($rateKey, 60);
+        $recordFailedAttempt($user);
 
         return response()->json([
             'message' => 'Codigo invalido.',
@@ -274,6 +294,7 @@ Route::post('/auth/two-factor-challenge', function (
 
     if (! $twoFactorProvider->verify((string) $secret, $code)) {
         RateLimiter::hit($rateKey, 60);
+        $recordFailedAttempt($user);
 
         return response()->json([
             'message' => 'Codigo invalido.',

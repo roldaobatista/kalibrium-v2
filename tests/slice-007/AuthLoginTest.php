@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureReadOnlyTenantMode;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 require_once __DIR__.'/TestHelpers.php';
 
 test('AC-001: POST /auth/login autentica usuario ativo e redireciona para /app', function (): void {
@@ -102,6 +106,19 @@ test('AC-011: POST /auth/login com tenant suspended autentica em modo somente le
         'user_id' => $context['user']->id,
         'tenant_id' => $context['tenant']->id,
     ]);
+})->group('slice-007', 'ac-011');
+
+test('AC-011: modo somente leitura bloqueia metodos mutaveis no backend', function (): void {
+    $this->startSession();
+    $request = Request::create('/app', 'POST');
+    $request->setLaravelSession($this->app['session.store']);
+    $request->session()->put('tenant.access_mode', 'read-only');
+
+    $response = app(EnsureReadOnlyTenantMode::class)
+        ->handle($request, fn (): Response => new Response('mutated', 200));
+
+    expect($response->getStatusCode())->toBe(403);
+    expect($request->attributes->get('tenant_read_only'))->toBeTrue();
 })->group('slice-007', 'ac-011');
 
 test('AC-012: POST /auth/login bloqueia tenant cancelled com 403 sem redirecionar para /app', function (): void {
