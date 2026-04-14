@@ -50,3 +50,27 @@ test('AC-012: ultimo gerente ativo nao pode remover a si mesmo nem deixar o tena
     expect($context['tenant_user']->role)->toBe('gerente');
     expect($context['tenant_user']->status)->toBe('active');
 })->group('slice-009', 'ac-012');
+
+test('AC-005: gerente pode remover seu proprio acesso quando outro gerente ativo permanece', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $otherManager = slice009_create_tenant_member($context, [
+        'role' => 'gerente',
+        'status' => 'active',
+    ]);
+
+    app(UserDeactivationService::class)->deactivate(
+        $context['user'],
+        $context['tenant_user'],
+        $context['tenant_user'],
+    );
+
+    $context['tenant_user']->refresh();
+    $otherManager['tenant_user']->refresh();
+
+    expect($context['tenant_user']->status)->toBe('removed');
+    expect($otherManager['tenant_user']->role)->toBe('gerente');
+    expect($otherManager['tenant_user']->status)->toBe('active');
+})->group('slice-009', 'ac-005');

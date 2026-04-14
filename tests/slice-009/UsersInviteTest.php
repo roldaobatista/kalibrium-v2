@@ -99,6 +99,7 @@ test('AC-002: falha no envio do e-mail nao deixa convite pendente bloqueando nov
         ->when($invitedUser !== null, static fn ($query) => $query->where('user_id', $invitedUser->id))
         ->where('status', 'invited')
         ->exists())->toBeFalse();
+    expect(slice009_audit_payload($context['tenant']->id))->not->toContain('tenant.user.invited');
 })->group('slice-009', 'ac-002');
 
 test('AC-010: convite com campos invalidos ou empresa e filial de outro tenant retorna erro e nao cria vinculo', function (array $payloadOverrides): void {

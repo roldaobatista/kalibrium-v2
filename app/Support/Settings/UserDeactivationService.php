@@ -36,7 +36,7 @@ final readonly class UserDeactivationService
                 ->firstOrFail();
 
             if ($fresh->role === 'gerente' && $fresh->status === 'active') {
-                if ($activeManagers <= 1 || (int) $fresh->user_id === $actor->id) {
+                if ($activeManagers <= 1) {
                     throw new AuthorizationException('Mantenha ao menos um gerente ativo.');
                 }
             }

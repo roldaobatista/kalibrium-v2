@@ -42,7 +42,7 @@ final readonly class UserInvitationService
         $data = $this->validatedInvitation($payload, (int) $tenant->id);
 
         /** @var array{tenant_user: TenantUser, email: string, invitation_url: string} $invitation */
-        $invitation = DB::transaction(function () use ($actor, $data, $tenant) {
+        $invitation = DB::transaction(function () use ($data, $tenant) {
             $email = mb_strtolower(trim((string) $data['email']));
             $role = strtolower((string) $data['role']);
             $existingUser = User::query()->where('email', $email)->first();
@@ -89,14 +89,6 @@ final readonly class UserInvitationService
                 throw $exception;
             }
 
-            $this->auditRecorder->record(
-                request(),
-                (int) $tenant->id,
-                $actor->id,
-                'tenant.user.invited',
-                ['name', 'email', 'role', 'company_id', 'branch_id', 'requires_2fa'],
-            );
-
             return [
                 'tenant_user' => $tenantUser,
                 'email' => $email,
@@ -111,6 +103,14 @@ final readonly class UserInvitationService
 
             throw $exception;
         }
+
+        $this->auditRecorder->record(
+            request(),
+            (int) $tenant->id,
+            $actor->id,
+            'tenant.user.invited',
+            ['name', 'email', 'role', 'company_id', 'branch_id', 'requires_2fa'],
+        );
 
         return $invitation['tenant_user'];
     }
