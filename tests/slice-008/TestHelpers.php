@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -98,6 +99,53 @@ function slice008_form_payload(array $overrides = []): array
         'operational_profile' => 'basic',
         'emits_metrological_certificate' => true,
     ], $overrides);
+}
+
+function slice008_normalize_document_number(string $value): string
+{
+    return (string) preg_replace('/\D+/', '', $value);
+}
+
+function slice008_assert_root_records_match_payload(Tenant $tenant, array $payload): void
+{
+    $tenant->refresh();
+    $documentNumber = slice008_normalize_document_number((string) $payload['document_number']);
+    $expectedTradeName = $payload['trade_name'] === ''
+        ? null
+        : (string) $payload['trade_name'];
+    $expectedBranchName = $expectedTradeName ?? (string) $payload['legal_name'];
+
+    expect($tenant->legal_name)->toBe($payload['legal_name']);
+    expect($tenant->document_number)->toBe($documentNumber);
+    expect($tenant->trade_name)->toBe($expectedTradeName);
+    expect($tenant->main_email)->toBe(mb_strtolower((string) $payload['main_email']));
+    expect($tenant->phone)->toBe($payload['phone']);
+    expect($tenant->operational_profile)->toBe($payload['operational_profile']);
+    expect($tenant->emits_metrological_certificate)->toBe((bool) $payload['emits_metrological_certificate']);
+
+    $company = DB::table('companies')
+        ->where('tenant_id', $tenant->id)
+        ->where('is_root', true)
+        ->first();
+
+    expect($company)->not->toBeNull();
+    expect($company->tenant_id)->toBe($tenant->id);
+    expect($company->legal_name)->toBe($payload['legal_name']);
+    expect($company->document_number)->toBe($documentNumber);
+    expect($company->trade_name)->toBe($expectedTradeName);
+    expect((bool) $company->is_root)->toBeTrue();
+
+    $branch = DB::table('branches')
+        ->where('tenant_id', $tenant->id)
+        ->where('is_root', true)
+        ->first();
+
+    expect($branch)->not->toBeNull();
+    expect($branch->tenant_id)->toBe($tenant->id);
+    expect($branch->company_id)->toBe($company->id);
+    expect($branch->name)->toBe($expectedBranchName);
+    expect($branch->document_number)->toBe($documentNumber);
+    expect((bool) $branch->is_root)->toBeTrue();
 }
 
 function slice008_malicious_payload(array $overrides = []): array

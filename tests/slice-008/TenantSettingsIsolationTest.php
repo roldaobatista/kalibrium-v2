@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -31,11 +30,18 @@ test('AC-005: gerente do tenant A acessa e salva /settings/tenant sem expor dado
         'trade_name' => 'Lab B '.Str::uuid(),
     ]);
 
+    $tenantBSaveResponse = $this
+        ->actingAs($tenantB['user'])
+        ->from(slice008_routes()['tenant_settings'])
+        ->post(slice008_routes()['tenant_settings'], $payloadB);
+    $tenantBSaveResponse->assertStatus(302);
+    slice008_assert_root_records_match_payload($tenantB['tenant'], $payloadB);
+
     $viewResponse = $this
         ->actingAs($tenantA['user'])
         ->get(slice008_routes()['tenant_settings']);
 
-    expect(in_array($viewResponse->status(), [200, 302, 403], true))->toBeTrue();
+    $viewResponse->assertStatus(200);
     slice008_assert_body_does_not_leak_secrets($viewResponse, [
         $tenantB['tenant']->name,
         $payloadB['legal_name'],
@@ -47,14 +53,16 @@ test('AC-005: gerente do tenant A acessa e salva /settings/tenant sem expor dado
         ->from(slice008_routes()['tenant_settings'])
         ->post(slice008_routes()['tenant_settings'], $payloadA);
 
-    expect(in_array($saveResponse->status(), [302, 200, 422], true))->toBeTrue();
+    $saveResponse->assertStatus(302);
+    $saveResponse->assertRedirect(slice008_routes()['tenant_settings']);
     slice008_assert_body_does_not_leak_secrets($saveResponse, [
         $tenantB['tenant']->name,
         $payloadB['legal_name'],
         $payloadB['document_number'],
     ]);
 
-    expect(DB::table('tenants')->where('id', $tenantA['tenant']->id)->exists())->toBeTrue();
+    slice008_assert_root_records_match_payload($tenantA['tenant'], $payloadA);
+    slice008_assert_root_records_match_payload($tenantB['tenant'], $payloadB);
 })->group('slice-008', 'ac-005');
 
 test('AC-SEC-001: payload com ID externo de tenant, empresa ou filial nao altera registros fora do tenant atual', function (): void {

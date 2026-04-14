@@ -11,6 +11,7 @@ use App\Support\Tenancy\TenantSettingsUpdater;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 final class TenantSettingsController extends Controller
 {
@@ -41,6 +42,14 @@ final class TenantSettingsController extends Controller
             'emits_metrological_certificate' => ['sometimes', 'boolean'],
         ]);
         $data['emits_metrological_certificate'] = $request->boolean('emits_metrological_certificate');
+        if (
+            $data['emits_metrological_certificate'] === false
+            && in_array($data['operational_profile'], ['intermediate', 'accredited'], true)
+        ) {
+            throw ValidationException::withMessages([
+                'operational_profile' => 'Selecione o perfil Básico quando o laboratório não emitir certificado metrológico.',
+            ]);
+        }
 
         $updater->update($user, $context['tenant_user'], $data, $request);
 

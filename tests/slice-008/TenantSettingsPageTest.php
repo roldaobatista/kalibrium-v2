@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\TenantUser;
+use App\Support\Tenancy\TenantSettingsUpdater;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -45,10 +48,6 @@ test('AC-002: POST /settings/tenant atualiza o tenant atual e cria empresa e fil
     $response->assertStatus(302);
     $response->assertRedirect(slice008_routes()['tenant_settings']);
 
-    $this->assertDatabaseHas('tenants', [
-        'id' => $context['tenant']->id,
-    ]);
-
     expect((int) DB::table('companies')
         ->where('tenant_id', $context['tenant']->id)
         ->where('is_root', true)
@@ -57,6 +56,7 @@ test('AC-002: POST /settings/tenant atualiza o tenant atual e cria empresa e fil
         ->where('tenant_id', $context['tenant']->id)
         ->where('is_root', true)
         ->count())->toBe(1);
+    slice008_assert_root_records_match_payload($context['tenant'], $payload);
 })->group('slice-008', 'ac-002');
 
 test('AC-003: POST /settings/tenant atualiza registros existentes sem criar empresa ou filial raiz duplicadas', function (): void {
@@ -98,6 +98,7 @@ test('AC-003: POST /settings/tenant atualiza registros existentes sem criar empr
         ->where('tenant_id', $context['tenant']->id)
         ->where('is_root', true)
         ->count())->toBe(1);
+    slice008_assert_root_records_match_payload($context['tenant'], $updatedPayload);
 })->group('slice-008', 'ac-003');
 
 test('AC-004: POST /settings/tenant permite configuracao inicial em tenant trial e preserva o tenant atual', function (): void {
@@ -116,6 +117,7 @@ test('AC-004: POST /settings/tenant permite configuracao inicial em tenant trial
     $response->assertStatus(302);
     $response->assertRedirect(slice008_routes()['tenant_settings']);
     expect(DB::table('tenants')->where('id', $context['tenant']->id)->value('status'))->toBe('trial');
+    slice008_assert_root_records_match_payload($context['tenant'], $payload);
 })->group('slice-008', 'ac-004');
 
 test('AC-009: usuario sem papel gerente nao ve o formulario editavel e recebe bloqueio seguro em /settings/tenant', function (): void {
@@ -191,4 +193,32 @@ test('AC-011: se o vinculo mudar antes do salvamento, o sistema revalida e bloqu
     slice008_assert_body_does_not_leak_secrets($response, [
         $otherTenant['tenant']->name,
     ]);
+})->group('slice-008', 'ac-011');
+
+test('AC-011: se o papel do vinculo mudar apos a resolucao, a transacao revalida e bloqueia a gravacao', function (): void {
+    $context = slice008_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $payload = slice008_form_payload();
+    $staleTenantUser = $context['tenant_user'];
+
+    TenantUser::query()
+        ->whereKey($staleTenantUser->id)
+        ->update(['role' => 'tecnico']);
+
+    $request = Request::create(slice008_routes()['tenant_settings'], 'POST', $payload);
+
+    expect(fn () => app(TenantSettingsUpdater::class)->update(
+        $context['user'],
+        $staleTenantUser,
+        $payload,
+        $request,
+    ))->toThrow(AuthorizationException::class);
+
+    expect(DB::table('tenants')->where('id', $context['tenant']->id)->value('legal_name'))->toBeNull();
+    expect(DB::table('companies')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
+    expect(DB::table('branches')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
+    expect(DB::table('tenant_audit_logs')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
 })->group('slice-008', 'ac-011');

@@ -10,6 +10,7 @@ use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Rules\Cnpj;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,11 +34,26 @@ final readonly class TenantSettingsUpdater
     public function update(User $user, TenantUser $tenantUser, array $data, Request $request): void
     {
         DB::transaction(function () use ($user, $tenantUser, $data, $request): void {
+            $freshTenantUser = TenantUser::query()
+                ->whereKey($tenantUser->id)
+                ->where('user_id', $user->id)
+                ->where('tenant_id', $tenantUser->tenant_id)
+                ->where('status', 'active')
+                ->lockForUpdate()
+                ->first();
+            if ($freshTenantUser === null || strtolower((string) $freshTenantUser->role) !== 'gerente') {
+                throw new AuthorizationException('Acesso indisponivel para esta conta.');
+            }
+
             /** @var Tenant $tenant */
             $tenant = Tenant::query()
-                ->whereKey($tenantUser->tenant_id)
+                ->whereKey($freshTenantUser->tenant_id)
                 ->lockForUpdate()
                 ->firstOrFail();
+            if (! in_array(strtolower((string) $tenant->status), ['active', 'trial'], true)) {
+                throw new AuthorizationException('Acesso indisponivel para esta conta.');
+            }
+
             $tradeName = array_key_exists('trade_name', $data) && $data['trade_name'] !== null
                 ? trim((string) $data['trade_name'])
                 : null;

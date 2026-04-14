@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Branch;
 use Illuminate\Support\Facades\DB;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -95,15 +96,15 @@ test('AC-008: razao social vazia, e-mail principal invalido ou perfil operaciona
     'perfil operacional invalido' => ['operational_profile', 'advanced'],
 ])->group('slice-008', 'ac-008');
 
-test('AC-012: falha ao persistir empresa ou filial desfaz a operacao inteira e preserva o tenant atual', function (): void {
+test('AC-008: perfil intermediario ou acreditado sem emissao metrologica retorna erro de combinacao e nao grava dados parciais', function (string $profile): void {
     $context = slice008_user_with_tenant_context([
         'tenant_status' => 'active',
         'binding_status' => 'active',
         'role' => 'gerente',
     ]);
     $payload = slice008_form_payload([
-        'legal_name' => str_repeat('Laboratorio Quebrado ', 40),
-        'trade_name' => str_repeat('Quebra ', 80),
+        'operational_profile' => $profile,
+        'emits_metrological_certificate' => false,
     ]);
 
     $response = $this
@@ -111,8 +112,51 @@ test('AC-012: falha ao persistir empresa ou filial desfaz a operacao inteira e p
         ->from(slice008_routes()['tenant_settings'])
         ->post(slice008_routes()['tenant_settings'], $payload);
 
-    expect(in_array($response->status(), [302, 422, 500], true))->toBeTrue();
+    $response->assertRedirect(slice008_routes()['tenant_settings']);
+    $response->assertSessionHasErrors('operational_profile');
+
+    $context['tenant']->refresh();
+    expect($context['tenant']->legal_name)->toBeNull();
+    expect($context['tenant']->document_number)->toBeNull();
+    expect(DB::table('companies')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
+    expect(DB::table('branches')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
+})->with([
+    'intermediario sem emissao' => ['intermediate'],
+    'acreditado sem emissao' => ['accredited'],
+])->group('slice-008', 'ac-008');
+
+test('AC-012: falha ao persistir empresa ou filial desfaz a operacao inteira e preserva o tenant atual', function (): void {
+    $context = slice008_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $payload = slice008_form_payload();
+    $failBranchSave = true;
+
+    Branch::saving(static function () use (&$failBranchSave): void {
+        if ($failBranchSave) {
+            throw new RuntimeException('Falha intencional ao persistir filial raiz.');
+        }
+    });
+
+    try {
+        $this->withoutExceptionHandling()
+            ->actingAs($context['user'])
+            ->from(slice008_routes()['tenant_settings'])
+            ->post(slice008_routes()['tenant_settings'], $payload);
+    } catch (RuntimeException $exception) {
+        expect($exception->getMessage())->toBe('Falha intencional ao persistir filial raiz.');
+    } finally {
+        $failBranchSave = false;
+    }
+
     expect(DB::table('tenants')->where('id', $context['tenant']->id)->value('status'))->toBe('active');
+    expect(DB::table('tenants')->where('id', $context['tenant']->id)->value('legal_name'))->toBeNull();
+    expect(DB::table('tenants')->where('id', $context['tenant']->id)->value('document_number'))->toBeNull();
+    expect(DB::table('companies')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
+    expect(DB::table('branches')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
+    expect(DB::table('tenant_audit_logs')->where('tenant_id', $context['tenant']->id)->count())->toBe(0);
 })->group('slice-008', 'ac-012');
 
 test('AC-SEC-002: input HTML, JavaScript ou SQL comum e tratado como dado sem refletir payload sem escape', function (): void {
