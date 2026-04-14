@@ -99,15 +99,26 @@ DATE_UTC="$(date -u +%Y-%m-%d)"
 # ============================================================================
 VJSON="$SLICE_DIR/verification.json"
 RJSON="$SLICE_DIR/review.json"
+SJSON="$SLICE_DIR/security-review.json"
+TAJSON="$SLICE_DIR/test-audit.json"
+FJSON="$SLICE_DIR/functional-review.json"
 VERIF_STATUS="-"
 REVIEW_STATUS="-"
+SECURITY_STATUS="-"
+TEST_AUDIT_STATUS="-"
+FUNCTIONAL_STATUS="-"
 [ -f "$VJSON" ] && VERIF_STATUS="$(j_str "$VJSON" verdict)"
 [ -f "$RJSON" ] && REVIEW_STATUS="$(j_str "$RJSON" verdict)"
+[ -f "$SJSON" ] && SECURITY_STATUS="$(j_str "$SJSON" verdict)"
+[ -f "$TAJSON" ] && TEST_AUDIT_STATUS="$(j_str "$TAJSON" verdict)"
+[ -f "$FJSON" ] && FUNCTIONAL_STATUS="$(j_str "$FJSON" verdict)"
 
-if [ "$VERIF_STATUS" = "approved" ] && [ "$REVIEW_STATUS" = "approved" ]; then
-  STATUS_FRIENDLY="✓ pronto para usar"
-elif [ "$VERIF_STATUS" = "rejected" ] || [ "$REVIEW_STATUS" = "rejected" ]; then
+if [ "$VERIF_STATUS" = "rejected" ] || [ "$REVIEW_STATUS" = "rejected" ] || [ "$SECURITY_STATUS" = "rejected" ] || [ "$TEST_AUDIT_STATUS" = "rejected" ] || [ "$FUNCTIONAL_STATUS" = "rejected" ]; then
   STATUS_FRIENDLY="⚠ precisa da sua decisão"
+elif [ "$VERIF_STATUS" = "approved" ] && [ "$REVIEW_STATUS" = "approved" ] && [ "$SECURITY_STATUS" = "approved" ] && [ "$TEST_AUDIT_STATUS" = "approved" ] && [ "$FUNCTIONAL_STATUS" = "approved" ]; then
+  STATUS_FRIENDLY="✓ pronto para usar"
+elif [ "$VERIF_STATUS" = "approved" ] && [ "$REVIEW_STATUS" = "approved" ]; then
+  STATUS_FRIENDLY="revisão aprovada; aguardando gates finais"
 elif [ "$VERIF_STATUS" = "approved" ] && [ "$REVIEW_STATUS" = "-" ]; then
   STATUS_FRIENDLY="verificação aprovada; aguardando revisão"
 elif [ "$VERIF_STATUS" = "-" ] && [ "$REVIEW_STATUS" = "-" ]; then
@@ -407,6 +418,9 @@ fi
     "verificação aprovada; aguardando revisão")
       echo "Seguir para a revisão estrutural independente antes dos próximos gates."
       ;;
+    "revisão aprovada; aguardando gates finais")
+      echo "Seguir para as revisões de segurança, testes e funcionalidade antes de qualquer merge."
+      ;;
     *)
       echo "A entrega ainda está em andamento. Volte aqui quando a verificação terminar."
       ;;
@@ -420,11 +434,17 @@ fi
   echo
   echo "- **Verifier verdict:** ${VERIF_STATUS}"
   echo "- **Reviewer verdict:** ${REVIEW_STATUS}"
+  echo "- **Security verdict:** ${SECURITY_STATUS}"
+  echo "- **Test audit verdict:** ${TEST_AUDIT_STATUS}"
+  echo "- **Functional verdict:** ${FUNCTIONAL_STATUS}"
   echo "- **ACs pass/fail:** ${AC_PASS_COUNT} / ${AC_FAIL_COUNT}"
   echo "- **Artefatos:**"
   echo "    - \`${SLICE_DIR}/spec.md\`"
   [ -f "$VJSON" ] && echo "    - \`${VJSON}\`"
   [ -f "$RJSON" ] && echo "    - \`${RJSON}\`"
+  [ -f "$SJSON" ] && echo "    - \`${SJSON}\`"
+  [ -f "$TAJSON" ] && echo "    - \`${TAJSON}\`"
+  [ -f "$FJSON" ] && echo "    - \`${FJSON}\`"
   echo
   echo "Tradução gerada automaticamente por \`scripts/translate-pm.sh\` (B-010)."
   echo

@@ -134,7 +134,7 @@ EOF
 
   case "$VERDICT" in
     approved)
-      say "✓ reviewer aprovou — próximo passo: /merge-slice ${NNN} (se verifier também aprovou)"
+      say "✓ reviewer aprovou — próximo passo: /security-review ${NNN}, /test-audit ${NNN} e /functional-review ${NNN}"
       say "  relatório PM: $PM_REPORT"
       exit 0
       ;;
