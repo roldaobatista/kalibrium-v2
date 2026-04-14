@@ -40,6 +40,8 @@ test('AC-001: gerente com 2FA concluido acessa /settings/users e ve usuarios, pa
     $response->assertSee('Status');
     $response->assertSee('2FA');
     $response->assertSee('Buscar');
+    $response->assertSee('Alterar papel');
+    $response->assertSee('Remover acesso');
     $response->assertSee('gerente');
     $response->assertSee('tecnico');
     slice009_assert_body_does_not_leak($response, [

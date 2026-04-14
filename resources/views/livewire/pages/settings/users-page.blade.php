@@ -43,6 +43,9 @@
                     <th class="py-2">Papel</th>
                     <th class="py-2">Status</th>
                     <th class="py-2">2FA</th>
+                    @unless ($readOnly)
+                        <th class="py-2">Acoes</th>
+                    @endunless
                 </tr>
             </thead>
             <tbody>
@@ -53,6 +56,26 @@
                         <td class="py-2">{{ $tenantUser->role }}</td>
                         <td class="py-2">{{ $tenantUser->status }}</td>
                         <td class="py-2">{{ $tenantUser->requires_2fa ? 'obrigatoria' : 'opcional' }}</td>
+                        @unless ($readOnly)
+                            <td class="space-y-2 py-2">
+                                @if ($tenantUser->status === 'active')
+                                    <label class="block text-xs font-medium">
+                                        <span>Alterar papel</span>
+                                        <select wire:change="updateRole({{ $tenantUser->id }}, $event.target.value)" class="mt-1 rounded border border-slate-300 px-2 py-1">
+                                            <option value="gerente" @selected($tenantUser->role === 'gerente')>gerente</option>
+                                            <option value="tecnico" @selected($tenantUser->role === 'tecnico')>tecnico</option>
+                                            <option value="administrativo" @selected($tenantUser->role === 'administrativo')>administrativo</option>
+                                            <option value="visualizador" @selected($tenantUser->role === 'visualizador')>visualizador</option>
+                                        </select>
+                                    </label>
+                                    <button wire:click="deactivateUser({{ $tenantUser->id }})" class="rounded border border-red-500 px-3 py-1 text-xs font-medium text-red-700">
+                                        Remover acesso
+                                    </button>
+                                @else
+                                    <span class="text-xs text-slate-600">Sem acoes para convite pendente.</span>
+                                @endif
+                            </td>
+                        @endunless
                     </tr>
                 @endforeach
             </tbody>
@@ -75,7 +98,6 @@
                     Enviar convite
                 </button>
             </div>
-            <p class="text-sm text-slate-700">Alterar papel e remover acesso ficam disponiveis por usuario ativo.</p>
         </div>
     @endunless
 </section>
