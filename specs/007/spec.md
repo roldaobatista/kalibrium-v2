@@ -1,6 +1,6 @@
 # Slice 007 — SEG-001 - Login seguro do laboratorio
 
-**Status:** draft
+**Status:** approved
 **Data de criação:** 2026-04-13
 **Autor:** roldaobatista
 **Depende de:** slice-006
