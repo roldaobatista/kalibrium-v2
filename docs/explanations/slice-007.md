@@ -22,8 +22,7 @@ _A verificação encontrou problemas (ver abaixo)._
 
 **Encontrados na revisão estrutural:**
 
-- **⚠ IMPORTANTE:** problema de segurança — O default de SANCTUM_STATEFUL_DOMAINS concatena a lista local com Sanctum::currentApplicationUrlWithPort() sem vírgula separadora. Isso produz um host inválido e pode quebrar a autenticação stateful fora do cenário local.
-- **⚠ IMPORTANTE:** parte complicada demais para manter — O resolvedor usa o vínculo de tenant mais recente do usuário como decisão final. Em uma conta com mais de um vínculo
+- **⚠ IMPORTANTE:** problema de segurança — O fluxo de POST /auth/reset-password redefine a senha
 
 ## O que NÃO está neste slice (fica pra depois)
 

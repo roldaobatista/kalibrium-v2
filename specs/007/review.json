@@ -1,33 +1,31 @@
 {
   "slice_id": "slice-007",
   "verdict": "rejected",
-  "timestamp": "2026-04-14T01:06:15.7327321Z",
+  "timestamp": "2026-04-14T01:21:50.0475119Z",
   "quality_checks": [
     {
       "category": "security",
-      "status": "fail",
-      "evidence": "config/sanctum.php:14-15 — SANCTUM_STATEFUL_DOMAINS concatena a lista local com Sanctum::currentApplicationUrlWithPort() sem separador, gerando um domínio stateful inválido."
+      "status": "pass",
+      "evidence": "routes/web.php:4054-4140 — autenticacao ativa, bloqueio por tenant e 2FA seguem o fluxo esperado do slice."
     },
     {
-      "category": "complexity",
+      "category": "security",
+      "status": "pass",
+      "evidence": "routes/web.php:4188-4328 — challenge 2FA aceita TOTP e recovery code, registra auditoria e limpa o estado pendente."
+    },
+    {
+      "category": "security",
       "status": "fail",
-      "evidence": "app/Support/Auth/TenantAccessResolver.php:18-34 — resolve() escolhe o tenantUser mais recente do usuário como fonte de verdade, sem seleção explícita do tenant, o que pode aplicar o acesso errado em contas com múltiplos vínculos."
+      "evidence": "routes/web.php:4156-4172 — o callback de reset grava so a nova senha e nao rotaciona remember_token, deixando sessoes lembradas antigas validas apos a troca de senha."
     }
   ],
   "findings": [
     {
       "severity": "major",
       "category": "security",
-      "file": "config/sanctum.php",
-      "line": 14,
-      "message": "O default de SANCTUM_STATEFUL_DOMAINS concatena a lista local com Sanctum::currentApplicationUrlWithPort() sem vírgula separadora. Isso produz um host inválido e pode quebrar a autenticação stateful fora do cenário local."
-    },
-    {
-      "severity": "major",
-      "category": "complexity",
-      "file": "app/Support/Auth/TenantAccessResolver.php",
-      "line": 18,
-      "message": "O resolvedor usa o vínculo de tenant mais recente do usuário como decisão final. Em uma conta com mais de um vínculo, o login pode cair no tenant errado e aplicar o modo de acesso incorreto."
+      "file": "routes/web.php",
+      "line": 4169,
+      "message": "O fluxo de POST /auth/reset-password redefine a senha, mas nao invalida os cookies de remember me porque o callback do broker apenas faz forceFill(['password' => $password])->save(). Depois da troca de senha, sessoes lembradas antigas continuam autenticando o usuario."
     }
   ],
   "next_action": "return_to_implementer"
