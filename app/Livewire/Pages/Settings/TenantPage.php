@@ -6,11 +6,8 @@ namespace App\Livewire\Pages\Settings;
 
 use App\Models\Company;
 use App\Models\User;
-use App\Rules\Cnpj;
 use App\Support\Tenancy\CurrentTenantResolver;
-use App\Support\Tenancy\TenantSettingsUpdater;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -63,49 +60,6 @@ final class TenantPage extends Component
             'operational_profile' => old('operational_profile', $tenant->operational_profile ?? 'basic'),
             'emits_metrological_certificate' => in_array($certificateDefault, [true, 1, '1', 'on'], true),
         ];
-    }
-
-    public function save(): void
-    {
-        $user = Auth::user();
-        if (! $user instanceof User) {
-            abort(403);
-        }
-
-        $resolver = app(CurrentTenantResolver::class);
-        $context = $resolver->resolve($user);
-        $resolver->assertManager($context);
-
-        if ($context['access_mode'] === 'read-only' || $this->readOnly) {
-            abort(403, 'Conta em modo somente leitura.');
-        }
-
-        $validated = validator($this->form, [
-            'legal_name' => ['required', 'string', 'max:255'],
-            'document_number' => ['required', 'string', 'max:32', new Cnpj($context['tenant']->id)],
-            'trade_name' => ['nullable', 'string', 'max:255'],
-            'main_email' => ['required', 'email:rfc', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:32'],
-            'operational_profile' => ['required', 'string', Rule::in(['basic', 'intermediate', 'accredited'])],
-            'emits_metrological_certificate' => ['sometimes', 'boolean'],
-        ])->validate();
-        $data = [
-            'legal_name' => (string) $validated['legal_name'],
-            'document_number' => (string) $validated['document_number'],
-            'trade_name' => array_key_exists('trade_name', $validated) && $validated['trade_name'] !== null
-                ? (string) $validated['trade_name']
-                : null,
-            'main_email' => (string) $validated['main_email'],
-            'phone' => array_key_exists('phone', $validated) && $validated['phone'] !== null
-                ? (string) $validated['phone']
-                : null,
-            'operational_profile' => (string) $validated['operational_profile'],
-            'emits_metrological_certificate' => (bool) ($this->form['emits_metrological_certificate'] ?? false),
-        ];
-
-        app(TenantSettingsUpdater::class)->update($user, $context['tenant_user'], $data, request());
-
-        session()->flash('status', 'Dados do laboratorio salvos.');
     }
 
     public function render(): View
