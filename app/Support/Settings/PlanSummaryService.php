@@ -24,9 +24,9 @@ final readonly class PlanSummaryService
         $planId = (int) ($subscription['plan_id'] ?? 0);
         $planName = $this->planName($planId);
         $limits = [
-            'users' => $this->limit($planId, 'users', 10),
-            'monthly_os' => $this->limit($planId, 'monthly_os', 100),
-            'storage' => $this->limit($planId, 'storage', 10737418240),
+            'users' => $this->limit((int) $tenant->id, $planId, 'users', 10),
+            'monthly_os' => $this->limit((int) $tenant->id, $planId, 'monthly_os', 100),
+            'storage' => $this->limit((int) $tenant->id, $planId, 'storage', 10737418240),
         ];
         $usage = [
             'users' => (int) $metric->users_used,
@@ -45,7 +45,7 @@ final readonly class PlanSummaryService
                 'storage' => $this->percent($usage['storage'], $limits['storage']),
             ],
             'alerts' => $this->alerts($usage, $limits),
-            'modules' => $this->modules($planId),
+            'modules' => $this->modules((int) $tenant->id, $planId),
         ];
     }
 
@@ -85,8 +85,20 @@ final readonly class PlanSummaryService
         return 'Starter';
     }
 
-    private function limit(int $planId, string $key, int $fallback): int
+    private function limit(int $tenantId, int $planId, string $key, int $fallback): int
     {
+        if (Schema::hasTable('tenant_entitlements')) {
+            $tenantValue = DB::table('tenant_entitlements')
+                ->where('tenant_id', $tenantId)
+                ->where('feature_code', $key)
+                ->where('enabled', true)
+                ->value('limit_value');
+
+            if ($tenantValue !== null) {
+                return max(1, (int) $tenantValue);
+            }
+        }
+
         if ($planId > 0 && Schema::hasTable('plan_entitlements')) {
             $value = DB::table('plan_entitlements')
                 ->where('plan_id', $planId)
@@ -107,7 +119,7 @@ final readonly class PlanSummaryService
     /**
      * @return array<int, array{code:string,name:string,enabled:bool}>
      */
-    private function modules(int $planId): array
+    private function modules(int $tenantId, int $planId): array
     {
         if (! Schema::hasTable('features')) {
             return [[
@@ -126,10 +138,21 @@ final readonly class PlanSummaryService
             ]];
         }
 
-        return $features->map(function (object $feature) use ($planId): array {
+        return $features->map(function (object $feature) use ($tenantId, $planId): array {
             $enabled = false;
+            if (Schema::hasTable('tenant_entitlements')) {
+                $enabled = DB::table('tenant_entitlements')
+                    ->where('tenant_id', $tenantId)
+                    ->where(static function ($query) use ($feature): void {
+                        $query->where('feature_id', $feature->id)
+                            ->orWhere('feature_code', $feature->code);
+                    })
+                    ->where('enabled', true)
+                    ->exists();
+            }
+
             if ($planId > 0 && Schema::hasTable('plan_entitlements')) {
-                $enabled = DB::table('plan_entitlements')
+                $enabled = $enabled || DB::table('plan_entitlements')
                     ->where('plan_id', $planId)
                     ->where(static function ($query) use ($feature): void {
                         $query->where('feature_id', $feature->id)

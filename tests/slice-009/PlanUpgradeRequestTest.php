@@ -98,3 +98,29 @@ test('AC-007: pedido de upgrade aceita apenas modulo existente e fora do plano a
         'Modulo ja contratado.',
     ))->toThrow(ValidationException::class);
 })->group('slice-009', 'ac-007');
+
+test('AC-007: pedido de upgrade bloqueia modulo ja liberado para o tenant', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $fixture = slice009_seed_plan_fixture($context['tenant'], [
+        'plan_name' => 'Starter Upgrade '.Str::uuid(),
+        'feature_code' => 'fiscal',
+    ]);
+
+    $featureId = DB::table('features')->where('code', $fixture['feature_code'])->value('id');
+    slice009_insert_filtered('tenant_entitlements', [
+        'tenant_id' => $context['tenant']->id,
+        'feature_id' => $featureId,
+        'feature_code' => $fixture['feature_code'],
+        'enabled' => true,
+    ]);
+
+    expect(fn () => app(PlanUpgradeRequestService::class)->requestUpgrade(
+        $context['user'],
+        $context['tenant_user'],
+        $fixture['feature_code'],
+        'Modulo ja liberado para este laboratorio.',
+    ))->toThrow(ValidationException::class);
+})->group('slice-009', 'ac-007');

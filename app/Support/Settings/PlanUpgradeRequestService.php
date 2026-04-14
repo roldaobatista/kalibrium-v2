@@ -85,6 +85,17 @@ final readonly class PlanUpgradeRequestService
             throw ValidationException::withMessages(['feature_code' => 'Modulo indisponivel.']);
         }
 
+        if (Schema::hasTable('tenant_entitlements') && DB::table('tenant_entitlements')
+            ->where('tenant_id', $tenantId)
+            ->where(static function ($query) use ($feature, $featureCode): void {
+                $query->where('feature_id', $feature->id)
+                    ->orWhere('feature_code', $featureCode);
+            })
+            ->where('enabled', true)
+            ->exists()) {
+            throw ValidationException::withMessages(['feature_code' => 'Modulo ja incluido no plano atual.']);
+        }
+
         if (! Schema::hasTable('subscriptions') || ! Schema::hasTable('plan_entitlements')) {
             return;
         }

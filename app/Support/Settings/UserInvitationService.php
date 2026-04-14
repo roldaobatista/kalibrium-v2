@@ -13,6 +13,7 @@ use App\Support\Settings\Concerns\AuthorizesTenantSettings;
 use App\Support\Tenancy\TenantAuditRecorder;
 use App\Support\Tenancy\TenantRole;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -39,7 +40,8 @@ final readonly class UserInvitationService
         $tenant = $this->assertActiveManager($actor, $actorTenantUser);
         $data = $this->validatedInvitation($payload, (int) $tenant->id);
 
-        return DB::transaction(function () use ($actor, $data, $tenant): TenantUser {
+        /** @var array{tenant_user: TenantUser, email: string, invitation_url: string} $invitation */
+        $invitation = DB::transaction(function () use ($actor, $data, $tenant) {
             $email = mb_strtolower(trim((string) $data['email']));
             $role = strtolower((string) $data['role']);
             $existingUser = User::query()->where('email', $email)->first();
@@ -62,23 +64,29 @@ final readonly class UserInvitationService
             ]);
 
             $token = Str::random(64);
-            $tenantUser = TenantUser::query()->create([
-                'tenant_id' => $tenant->id,
-                'user_id' => $user->id,
-                'company_id' => $data['company_id'] ?? null,
-                'branch_id' => $data['branch_id'] ?? null,
-                'role' => $role,
-                'status' => 'invited',
-                'requires_2fa' => TenantRole::requiresTwoFactor($role),
-                'invited_at' => now(),
-                'accepted_at' => null,
-                'invitation_token_hash' => hash('sha256', $token),
-                'invitation_expires_at' => now()->addDays(7),
-            ]);
+            try {
+                $tenantUser = TenantUser::query()->create([
+                    'tenant_id' => $tenant->id,
+                    'user_id' => $user->id,
+                    'company_id' => $data['company_id'] ?? null,
+                    'branch_id' => $data['branch_id'] ?? null,
+                    'role' => $role,
+                    'status' => 'invited',
+                    'requires_2fa' => TenantRole::requiresTwoFactor($role),
+                    'invited_at' => now(),
+                    'accepted_at' => null,
+                    'invitation_token_hash' => hash('sha256', $token),
+                    'invitation_expires_at' => now()->addDays(7),
+                ]);
+            } catch (QueryException $exception) {
+                if ($this->isUniqueConstraintViolation($exception)) {
+                    throw ValidationException::withMessages([
+                        'email' => 'Este e-mail ja possui acesso ou convite pendente neste laboratorio.',
+                    ]);
+                }
 
-            Mail::to($email)->send(new UserInvitationMail(
-                route('auth.invitations.accept', ['token' => $token]),
-            ));
+                throw $exception;
+            }
 
             $this->auditRecorder->record(
                 request(),
@@ -88,8 +96,16 @@ final readonly class UserInvitationService
                 ['name', 'email', 'role', 'company_id', 'branch_id', 'requires_2fa'],
             );
 
-            return $tenantUser;
+            return [
+                'tenant_user' => $tenantUser,
+                'email' => $email,
+                'invitation_url' => (string) route('auth.invitations.accept', ['token' => $token]),
+            ];
         });
+
+        Mail::to($invitation['email'])->send(new UserInvitationMail($invitation['invitation_url']));
+
+        return $invitation['tenant_user'];
     }
 
     /**
@@ -162,6 +178,18 @@ final readonly class UserInvitationService
                     ->orWhere('invitation_expires_at', '>=', now());
             })
             ->first();
+    }
+
+    private function isUniqueConstraintViolation(QueryException $exception): bool
+    {
+        $sqlState = (string) ($exception->errorInfo[0] ?? '');
+        $driverCode = (string) ($exception->errorInfo[1] ?? '');
+        $message = strtolower($exception->getMessage());
+
+        return in_array($sqlState, ['23000', '23505'], true)
+            || in_array($driverCode, ['1062', '1555', '2067'], true)
+            || str_contains($message, 'unique constraint')
+            || str_contains($message, 'duplicate entry');
     }
 
     /**

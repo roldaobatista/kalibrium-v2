@@ -66,6 +66,41 @@ test('AC-006: uso de usuarios em /settings/plans reflete vinculos ativos sem gra
     expect((int) $metric->users_used)->toBe(99);
 })->group('slice-009', 'ac-006');
 
+test('AC-006: resumo de plano considera liberacoes especificas do tenant', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $fixture = slice009_seed_plan_fixture($context['tenant'], [
+        'users_limit' => 10,
+        'feature_code' => 'fiscal',
+    ]);
+
+    $featureId = DB::table('features')->where('code', $fixture['feature_code'])->value('id');
+    slice009_insert_filtered('tenant_entitlements', [
+        'tenant_id' => $context['tenant']->id,
+        'feature_id' => $featureId,
+        'feature_code' => $fixture['feature_code'],
+        'enabled' => true,
+    ]);
+    slice009_insert_filtered('tenant_entitlements', [
+        'tenant_id' => $context['tenant']->id,
+        'feature_code' => 'users',
+        'limit_value' => 12,
+        'enabled' => true,
+    ]);
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->get(slice009_routes()['plans']);
+
+    $response->assertStatus(200);
+    $response->assertSee('1 de 12');
+    $summary = app(PlanSummaryService::class)->summaryFor($context['tenant']);
+    expect($summary['limits']['users'])->toBe(12);
+    expect($summary['modules'][0]['enabled'])->toBeTrue();
+})->group('slice-009', 'ac-006');
+
 test('AC-014: tenant suspended pode ler /settings/plans, mas pedido de upgrade e bloqueado em modo somente leitura', function (): void {
     $context = slice009_user_with_tenant_context([
         'tenant_status' => 'suspended',

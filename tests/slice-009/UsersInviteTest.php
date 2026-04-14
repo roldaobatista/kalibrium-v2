@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\UserInvitationService;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -159,6 +160,21 @@ test('AC-011: e-mail ja ativo ou convidado no tenant atual nao recebe segundo co
     'ativo' => ['active'],
     'convidado' => ['invited'],
 ])->group('slice-009', 'ac-011');
+
+test('AC-011: banco impede vinculo duplicado para o mesmo usuario no tenant', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+
+    expect(fn () => TenantUser::factory()->create([
+        'tenant_id' => $context['tenant']->id,
+        'user_id' => $context['user']->id,
+        'role' => 'tecnico',
+        'status' => 'invited',
+        'requires_2fa' => false,
+    ]))->toThrow(QueryException::class);
+})->group('slice-009', 'ac-011');
 
 test('AC-013: convite para usuario existente em outro tenant nao altera nome global da conta', function (): void {
     Mail::fake();
