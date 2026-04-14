@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "planning",
-  "updated_at": "2026-04-13T21:23:41-04:00",
+  "updated_at": "2026-04-13T21:35:27-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -40,10 +40,10 @@
     "current_story": "SEG-001",
     "current_slice": "007",
     "slice_status": "reviewer_r6_escalated",
-    "last_green_commit": "96c4993",
-    "consecutive_rejections": 3,
+    "last_green_commit": "84e1f82",
+    "consecutive_rejections": 4,
     "blocked": true,
-    "blocked_reason": "R6: reviewer reprovou novamente apos a tentativa autorizada; implementer bloqueado ate decisao do PM."
+    "blocked_reason": "R6: reviewer reprovou novamente apos a tentativa focada no remember_token; implementer bloqueado ate decisao do PM."
   },
   "gates_status": {
     "spec_auditor": "approved",
@@ -101,6 +101,14 @@
       "question": "R6 do slice 007: reviewer encontrou risco de sessao lembrada continuar valida apos reset de senha; corrigir ou pausar?",
       "options": ["Pedir nova tentativa focada no remember_token", "Reescopar o slice 007", "Pausar para discussao"],
       "created_at": "2026-04-13T21:23:41-04:00",
+      "resolved_at": "2026-04-13T21:32:00-04:00",
+      "decision": "Pedir nova tentativa focada no remember_token"
+    },
+    {
+      "id": "PD-008",
+      "question": "R6 do slice 007: reviewer encontrou respostas JSON em formularios HTML e sessao 2FA pendente sem renovacao; corrigir ou pausar?",
+      "options": ["Pedir nova tentativa focada nesses 2 findings", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T21:35:27-04:00",
       "resolved_at": null,
       "decision": null
     }
@@ -115,8 +123,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 007 recebeu autorizacao para nova tentativa R6; os 2 findings anteriores foram corrigidos em 96c4993 e o verifier aprovou. O reviewer reprovou novamente com 1 finding de seguranca no reset de senha.",
-    "next_action": "Aguardar decisao do PM sobre PD-007. Recomendacao operacional: pedir nova tentativa focada em rotacionar remember_token no reset de senha.",
+    "last_session_summary": "Slice 007 recebeu autorizacao para nova tentativa focada no remember_token; o fix foi commitado em 84e1f82 e o verifier aprovou. O reviewer reprovou novamente com 2 findings novos de seguranca.",
+    "next_action": "Aguardar decisao do PM sobre PD-008. Recomendacao operacional: pedir nova tentativa focada nos 2 findings do reviewer.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

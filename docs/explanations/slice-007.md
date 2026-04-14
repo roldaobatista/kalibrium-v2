@@ -22,7 +22,8 @@ _A verificação encontrou problemas (ver abaixo)._
 
 **Encontrados na revisão estrutural:**
 
-- **⚠ IMPORTANTE:** problema de segurança — O fluxo de POST /auth/reset-password redefine a senha
+- **⚠ IMPORTANTE:** problema de segurança — O backend retorna JSON puro em caminhos de erro de login/2FA/reset
+- **⚠ IMPORTANTE:** problema de segurança — O fluxo que exige 2FA grava `auth.two_factor_pending` na sessao sem renovar o ID da sessao apos validar a senha
 
 ## O que NÃO está neste slice (fica pra depois)
 
