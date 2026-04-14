@@ -19,8 +19,6 @@ final class PlansPage extends Component
 
     public bool $canRequestUpgrade = false;
 
-    private ?int $tenantUserId = null;
-
     public function mount(CurrentTenantResolver $resolver): void
     {
         $user = Auth::user();
@@ -38,7 +36,6 @@ final class PlansPage extends Component
             abort(403, 'Conclua a verificação em duas etapas.');
         }
 
-        $this->tenantUserId = $context['tenant_user']->id;
         $this->readOnly = $context['access_mode'] === 'read-only' || session('tenant.access_mode') === 'read-only';
         $this->canRequestUpgrade = $role === 'gerente' && ! $this->readOnly;
     }
@@ -77,6 +74,6 @@ final class PlansPage extends Component
 
     private function actorTenantUser(): TenantUser
     {
-        return TenantUser::query()->findOrFail((int) $this->tenantUserId);
+        return app(CurrentTenantResolver::class)->resolve($this->actor())['tenant_user'];
     }
 }

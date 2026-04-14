@@ -84,7 +84,9 @@ final readonly class UserInvitationService
                 'invitation_expires_at' => now()->addDays(7),
             ]);
 
-            Mail::to($email)->send(new UserInvitationMail);
+            Mail::to($email)->send(new UserInvitationMail(
+                route('auth.invitations.accept', ['token' => $token]),
+            ));
 
             $this->auditRecorder->record(
                 request(),

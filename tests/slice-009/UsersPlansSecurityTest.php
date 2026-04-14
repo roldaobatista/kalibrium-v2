@@ -2,13 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Livewire\Pages\Settings\UsersPage;
+use App\Support\Settings\PlanSummaryService;
 use App\Support\Settings\PlanUpgradeRequestService;
 use App\Support\Settings\UserDeactivationService;
 use App\Support\Settings\UserInvitationService;
 use App\Support\Settings\UserRoleService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 
 require_once __DIR__.'/TestHelpers.php';
 
@@ -77,8 +81,49 @@ test('AC-013: parametros de outro tenant em convite, usuario ou plano sao rejeit
     $plansResponse->assertSee('2 de 10');
     $plansResponse->assertSee('20 de 100');
     $plansResponse->assertDontSee($externalPlanName);
-    $plansResponse->assertDontSee('999');
-    $plansResponse->assertDontSee('777');
+
+    $summary = app(PlanSummaryService::class)->summaryFor($context['tenant']);
+    expect($summary['limits']['users'])->toBe(10);
+    expect($summary['limits']['monthly_os'])->toBe(100);
+    expect($summary['usage']['users'])->toBe(2);
+    expect($summary['usage']['monthly_os'])->toBe(20);
+})->group('slice-009', 'ac-013');
+
+test('AC-013: tela de usuarios nao diferencia id inexistente de usuario existente em outro tenant', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $external = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $externalMember = slice009_create_tenant_member($external, ['role' => 'tecnico']);
+    $unknownTenantUserId = (int) $externalMember['tenant_user']->id + 100000;
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(UsersPage::class)
+        ->call('updateRole', $externalMember['tenant_user']->id, 'gerente'))
+        ->toThrow(ModelNotFoundException::class);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(UsersPage::class)
+        ->call('updateRole', $unknownTenantUserId, 'gerente'))
+        ->toThrow(ModelNotFoundException::class);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(UsersPage::class)
+        ->call('deactivateUser', $externalMember['tenant_user']->id))
+        ->toThrow(ModelNotFoundException::class);
+
+    expect(fn () => Livewire::actingAs($context['user'])
+        ->test(UsersPage::class)
+        ->call('deactivateUser', $unknownTenantUserId))
+        ->toThrow(ModelNotFoundException::class);
+
+    $externalTenantUser = $externalMember['tenant_user']->fresh();
+    expect($externalTenantUser->role)->toBe('tecnico');
+    expect($externalTenantUser->status)->toBe('active');
 })->group('slice-009', 'ac-013');
 
 test('AC-SEC-001: HTML, JavaScript e SQL em nome, e-mail, busca ou justificativa sao tratados como dado e nao refletem sem escape', function (): void {

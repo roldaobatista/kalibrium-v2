@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 final readonly class PlanSummaryService
 {
     public function __construct(
-        private TenantPlanMetricsUpdater $metricsUpdater,
+        private TenantPlanMetricsReader $metricsReader,
     ) {}
 
     /**
@@ -19,7 +19,7 @@ final readonly class PlanSummaryService
      */
     public function summaryFor(Tenant $tenant): array
     {
-        $metric = $this->metricsUpdater->refreshForTenant($tenant);
+        $metric = $this->metricsReader->snapshotForTenant($tenant);
         $subscription = $this->subscription($tenant->id);
         $planId = (int) ($subscription['plan_id'] ?? 0);
         $planName = $this->planName($planId);

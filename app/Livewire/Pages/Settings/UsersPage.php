@@ -33,10 +33,6 @@ final class UsersPage extends Component
 
     public bool $readOnly = false;
 
-    private ?int $tenantId = null;
-
-    private ?int $tenantUserId = null;
-
     public function mount(CurrentTenantResolver $resolver): void
     {
         $user = Auth::user();
@@ -51,8 +47,6 @@ final class UsersPage extends Component
             abort(403, 'Conclua a verificação em duas etapas.');
         }
 
-        $this->tenantId = $context['tenant']->id;
-        $this->tenantUserId = $context['tenant_user']->id;
         $this->readOnly = $context['access_mode'] === 'read-only' || session('tenant.access_mode') === 'read-only';
         $this->form['company_id'] = $context['tenant_user']->company_id;
         $this->form['branch_id'] = $context['tenant_user']->branch_id;
@@ -68,7 +62,7 @@ final class UsersPage extends Component
     public function updateRole(UserRoleService $service, int $tenantUserId, string $role): void
     {
         $this->assertWritable();
-        $target = TenantUser::query()->findOrFail($tenantUserId);
+        $target = $this->targetTenantUser($tenantUserId);
         $service->updateRole($this->actor(), $this->actorTenantUser(), $target, $role);
         session()->flash('status', 'Papel atualizado.');
     }
@@ -76,7 +70,7 @@ final class UsersPage extends Component
     public function deactivateUser(UserDeactivationService $service, int $tenantUserId): void
     {
         $this->assertWritable();
-        $target = TenantUser::query()->findOrFail($tenantUserId);
+        $target = $this->targetTenantUser($tenantUserId);
         $service->deactivate($this->actor(), $this->actorTenantUser(), $target);
         session()->flash('status', 'Usuario removido.');
     }
@@ -94,7 +88,7 @@ final class UsersPage extends Component
     private function users(UsersDirectoryQuery $query): Collection
     {
         return $query->forTenant(
-            (int) $this->tenantId,
+            (int) $this->actorTenantUser()->tenant_id,
             $this->search,
             $this->role === '' ? null : $this->role,
         );
@@ -112,7 +106,15 @@ final class UsersPage extends Component
 
     private function actorTenantUser(): TenantUser
     {
-        return TenantUser::query()->findOrFail((int) $this->tenantUserId);
+        return app(CurrentTenantResolver::class)->resolve($this->actor())['tenant_user'];
+    }
+
+    private function targetTenantUser(int $tenantUserId): TenantUser
+    {
+        return TenantUser::query()
+            ->where('tenant_id', $this->actorTenantUser()->tenant_id)
+            ->whereKey($tenantUserId)
+            ->firstOrFail();
     }
 
     private function assertWritable(): void

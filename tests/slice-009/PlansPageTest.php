@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Support\Settings\PlanUpgradeRequestService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -63,6 +64,36 @@ test('AC-014: tenant suspended pode ler /settings/plans, mas pedido de upgrade e
     if (Schema::hasTable('plan_upgrade_requests')) {
         expect(DB::table('plan_upgrade_requests')->where('tenant_id', $context['tenant']->id)->count())->toBe($before);
     }
+})->group('slice-009', 'ac-014');
+
+test('AC-014: leitura de /settings/plans nao atualiza metricas em tenant suspended somente leitura', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'suspended',
+        'role' => 'gerente',
+    ]);
+    slice009_seed_plan_fixture($context['tenant']);
+    $sampledAt = Carbon::parse('2026-04-14 10:00:00');
+
+    DB::table('tenant_plan_metrics')
+        ->where('tenant_id', $context['tenant']->id)
+        ->update([
+            'users_used' => 123,
+            'monthly_os_used' => 45,
+            'storage_used_bytes' => 67,
+            'sampled_at' => $sampledAt,
+        ]);
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->withSession(['tenant.access_mode' => 'read-only'])
+        ->get(slice009_routes()['plans']);
+
+    $response->assertStatus(200);
+    $metric = DB::table('tenant_plan_metrics')->where('tenant_id', $context['tenant']->id)->first();
+    expect((int) $metric->users_used)->toBe(123);
+    expect((int) $metric->monthly_os_used)->toBe(45);
+    expect((int) $metric->storage_used_bytes)->toBe(67);
+    expect(Carbon::parse((string) $metric->sampled_at)->toDateTimeString())->toBe($sampledAt->toDateTimeString());
 })->group('slice-009', 'ac-014');
 
 test('AC-017: consumo acima de 80 e 95 por cento exibe alertas leve e forte em /settings/plans', function (array $fixtureOverrides, array $expectedTexts): void {

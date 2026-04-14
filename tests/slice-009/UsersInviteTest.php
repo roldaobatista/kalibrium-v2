@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Mail\UserInvitationMail;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\UserInvitationService;
@@ -54,6 +55,9 @@ test('AC-002: gerente convida usuario, vinculo pendente fica no tenant atual, 2F
     $privilegedAccess->assertRedirect('/auth/two-factor-challenge');
 
     Mail::assertSentCount(1);
+    Mail::assertSent(UserInvitationMail::class, static function (UserInvitationMail $mail): bool {
+        return str_contains($mail->invitationUrl, '/auth/invitations/');
+    });
     slice009_assert_audit_does_not_leak($context['tenant']->id, [
         'SenhaSegura123!',
         'invitation_token_hash',
