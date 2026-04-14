@@ -114,3 +114,22 @@ test('AC-017: POST /auth/reset-password com token invalido ou expirado retorna 4
         'token-invalido',
     ]);
 })->group('slice-007', 'ac-017');
+
+test('AC-017: formulario HTML de reset com token invalido redireciona com erro de sessao', function (): void {
+    $user = slice007_persisted_user([
+        'email' => slice007_unique_email(),
+        'password' => Hash::make('SenhaAtual123!'),
+    ]);
+
+    $response = $this
+        ->from('/auth/reset-password/token-invalido')
+        ->post(slice007_routes()['reset_password'], slice007_reset_password_payload(
+            'token-invalido',
+            $user->email
+        ));
+
+    $response->assertStatus(302);
+    $response->assertRedirect('/auth/reset-password/token-invalido');
+    $response->assertSessionHasErrors('token');
+    expect(Hash::check('SenhaAtual123!', $user->fresh()->password))->toBeTrue();
+})->group('slice-007', 'ac-017');

@@ -6,6 +6,7 @@ use App\Http\Controllers\HealthCheckController;
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\HealthCheckRateLimit;
+use App\Http\Responses\Auth\AuthFailureResponse;
 use App\Http\Responses\Auth\LoginResponse;
 use App\Http\Responses\Auth\PasswordResetLinkSentResponse;
 use App\Http\Responses\Auth\PasswordResetResponse;
@@ -59,9 +60,7 @@ Route::middleware('guest')->group(function (): void {
                 'email' => (string) $credentials['email'],
             ]);
 
-            return response()->json([
-                'message' => 'Muitas tentativas. Tente novamente mais tarde.',
-            ], 429);
+            return AuthFailureResponse::make($request, 'Muitas tentativas. Tente novamente mais tarde.', 429);
         }
 
         /** @var User|null $user */
@@ -97,13 +96,12 @@ Route::middleware('guest')->group(function (): void {
                 ['email' => $credentials['email']]
             );
 
-            return response()->json([
-                'message' => 'Acesso indisponivel para esta conta.',
-            ], 403);
+            return AuthFailureResponse::make($request, 'Acesso indisponivel para esta conta.', 403);
         }
 
         if ($decision['requires_two_factor']) {
             RateLimiter::clear($rateKey);
+            $request->session()->regenerate();
             $request->session()->put([
                 'auth.two_factor_pending' => true,
                 'auth.two_factor_user_id' => $user->id,
@@ -167,9 +165,7 @@ Route::middleware('guest')->group(function (): void {
         );
 
         if ($status !== Password::PASSWORD_RESET) {
-            return response()->json([
-                'message' => 'Token invalido ou expirado. Solicite novo link.',
-            ], 422);
+            return AuthFailureResponse::make($request, 'Token invalido ou expirado. Solicite novo link.', 422, 'token');
         }
 
         return (new PasswordResetResponse)->toResponse($request);
@@ -198,9 +194,7 @@ Route::post('/auth/two-factor-challenge', function (
     if ($request->session()->get('auth.two_factor_pending') !== true) {
         $recordFailedAttempt();
 
-        return response()->json([
-            'message' => 'Desafio de dois fatores nao encontrado.',
-        ], 422);
+        return AuthFailureResponse::make($request, 'Desafio de dois fatores nao encontrado.', 422, 'code');
     }
 
     $request->validate([
@@ -212,9 +206,7 @@ Route::post('/auth/two-factor-challenge', function (
     if (RateLimiter::tooManyAttempts($rateKey, 5)) {
         $recordFailedAttempt();
 
-        return response()->json([
-            'message' => 'Muitas tentativas. Tente novamente mais tarde.',
-        ], 429);
+        return AuthFailureResponse::make($request, 'Muitas tentativas. Tente novamente mais tarde.', 429, 'code');
     }
 
     $userId = (int) $request->session()->get('auth.two_factor_user_id');
@@ -225,9 +217,7 @@ Route::post('/auth/two-factor-challenge', function (
         RateLimiter::hit($rateKey, 60);
         $recordFailedAttempt();
 
-        return response()->json([
-            'message' => 'Codigo invalido.',
-        ], 422);
+        return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
 
     $recoveryCode = (string) $request->input('recovery_code', '');
@@ -237,9 +227,7 @@ Route::post('/auth/two-factor-challenge', function (
             RateLimiter::hit($rateKey, 60);
             $recordFailedAttempt($user);
 
-            return response()->json([
-                'message' => 'Codigo invalido.',
-            ], 422);
+            return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'recovery_code');
         }
 
         $user->forceFill([
@@ -270,9 +258,7 @@ Route::post('/auth/two-factor-challenge', function (
         RateLimiter::hit($rateKey, 60);
         $recordFailedAttempt($user);
 
-        return response()->json([
-            'message' => 'Codigo invalido.',
-        ], 422);
+        return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
 
     $encryptedSecret = $user->two_factor_secret;
@@ -280,9 +266,7 @@ Route::post('/auth/two-factor-challenge', function (
         RateLimiter::hit($rateKey, 60);
         $recordFailedAttempt($user);
 
-        return response()->json([
-            'message' => 'Codigo invalido.',
-        ], 422);
+        return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
 
     try {
@@ -291,18 +275,14 @@ Route::post('/auth/two-factor-challenge', function (
         RateLimiter::hit($rateKey, 60);
         $recordFailedAttempt($user);
 
-        return response()->json([
-            'message' => 'Codigo invalido.',
-        ], 422);
+        return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
 
     if (! $twoFactorProvider->verify((string) $secret, $code)) {
         RateLimiter::hit($rateKey, 60);
         $recordFailedAttempt($user);
 
-        return response()->json([
-            'message' => 'Codigo invalido.',
-        ], 422);
+        return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
 
     RateLimiter::clear($rateKey);

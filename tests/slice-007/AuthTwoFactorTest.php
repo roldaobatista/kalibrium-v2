@@ -66,6 +66,25 @@ test('AC-014: POST /auth/two-factor-challenge com codigo TOTP invalido retorna 4
     ]);
 })->group('slice-007', 'ac-014');
 
+test('AC-014: formulario HTML de 2FA invalido redireciona com erro e mantem desafio pendente', function (): void {
+    $context = slice007_user_with_access_context([
+        'role' => 'gerente',
+        'requires_2fa' => true,
+    ]);
+
+    $response = $this
+        ->from(slice007_routes()['two_factor_challenge'])
+        ->withSession(slice007_two_factor_pending_session($context))
+        ->post(slice007_routes()['two_factor_challenge'], [
+            'code' => slice007_invalid_totp_code($context['two_factor_secret']),
+        ]);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(slice007_routes()['two_factor_challenge']);
+    $response->assertSessionHas('auth.two_factor_pending', true);
+    $response->assertSessionHasErrors('code');
+})->group('slice-007', 'ac-014');
+
 test('AC-015: POST /auth/two-factor-challenge com recovery_code usado ou inexistente retorna 422 e nao cria sessao', function (): void {
     $context = slice007_user_with_access_context([
         'role' => 'gerente',

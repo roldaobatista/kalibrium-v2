@@ -47,6 +47,28 @@ test('AC-002: POST /auth/login com 2FA exigido redireciona para /auth/two-factor
     $this->assertGuest();
 })->group('slice-007', 'ac-002');
 
+test('AC-002: POST /auth/login com 2FA exigido renova a sessao antes do desafio pendente', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => 'gerente',
+        'requires_2fa' => true,
+    ]);
+    $this->startSession();
+    $previousSessionId = $this->app['session.store']->getId();
+
+    $response = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(slice007_routes()['two_factor_challenge']);
+    $response->assertSessionHas('auth.two_factor_pending', true);
+    expect($this->app['session.store']->getId())->not->toBe($previousSessionId);
+})->group('slice-007', 'ac-002', 'security');
+
 test('AC-008: POST /auth/login com credenciais incorretas retorna 422 neutro sem enumerar usuario', function (): void {
     $context = slice007_user_with_access_context([
         'email' => slice007_unique_email(),
@@ -180,6 +202,28 @@ test('AC-012: POST /auth/login bloqueia tenant cancelled com 403 sem redireciona
         'user_id' => $context['user']->id,
         'tenant_id' => $context['tenant']->id,
     ]);
+})->group('slice-007', 'ac-012');
+
+test('AC-012: formulario HTML de login bloqueado redireciona com erro de sessao', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'cancelled',
+        'binding_status' => 'active',
+        'role' => 'tecnico',
+        'requires_2fa' => false,
+    ]);
+
+    $response = $this
+        ->from(slice007_routes()['login'])
+        ->post(slice007_routes()['login'], [
+            'email' => $context['user']->email,
+            'password' => $context['password'],
+            'remember' => false,
+        ]);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(slice007_routes()['login']);
+    $response->assertSessionHasErrors('email');
+    expect((string) $response->headers->get('content-type'))->not->toContain('application/json');
 })->group('slice-007', 'ac-012');
 
 test('AC-013: POST /auth/login bloqueia vínculo suspended, invited ou removed com 403', function (string $bindingStatus): void {
