@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\Auth\RecoveryCodeHasher;
 use Illuminate\Support\Facades\Hash;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -72,6 +73,9 @@ test('AC-004: POST /auth/two-factor-challenge com recovery_code valido conclui a
         'user_id' => $context['user']->id,
         'tenant_id' => $context['tenant']->id,
     ]);
+    $remainingRecoveryCodes = $context['user']->fresh()->two_factor_recovery_codes;
+    expect($remainingRecoveryCodes)->toBeArray();
+    expect(RecoveryCodeHasher::matchingHash('recovery-code-1', $remainingRecoveryCodes))->toBeNull();
 })->group('slice-007', 'ac-004');
 
 test('AC-014: POST /auth/two-factor-challenge bloqueia se o acesso mudou antes do codigo valido', function (string $target, string $status, string $event): void {
@@ -175,6 +179,10 @@ test('AC-014: formulario HTML de 2FA invalido redireciona com erro e mantem desa
     $response->assertRedirect(slice007_routes()['two_factor_challenge']);
     $response->assertSessionHas('auth.two_factor_pending', true);
     $response->assertSessionHasErrors('code');
+    $page = $this->get(slice007_routes()['two_factor_challenge']);
+
+    $page->assertStatus(200);
+    $page->assertSee('Codigo invalido.');
 })->group('slice-007', 'ac-014');
 
 test('AC-015: POST /auth/two-factor-challenge com recovery_code usado ou inexistente retorna 422 e nao cria sessao', function (): void {
@@ -198,6 +206,34 @@ test('AC-015: POST /auth/two-factor-challenge com recovery_code usado ou inexist
         'tenant_id' => $context['tenant']->id,
     ]);
 })->group('slice-007', 'ac-015');
+
+test('AC-015: recovery_code valido consumido nao pode ser reutilizado', function (): void {
+    $context = slice007_user_with_access_context([
+        'role' => 'gerente',
+        'requires_2fa' => true,
+        'recovery_codes' => ['recovery-code-1'],
+    ]);
+
+    $firstUse = $this
+        ->withSession(slice007_two_factor_pending_session($context))
+        ->postJson(slice007_routes()['two_factor_challenge'], [
+            'recovery_code' => 'recovery-code-1',
+        ]);
+
+    $firstUse->assertStatus(302);
+    $firstUse->assertRedirect(slice007_routes()['app']);
+
+    auth()->logout();
+    $this->withSession(slice007_two_factor_pending_session($context));
+
+    $reuse = $this->postJson(slice007_routes()['two_factor_challenge'], [
+        'recovery_code' => 'recovery-code-1',
+    ]);
+
+    $reuse->assertStatus(422);
+    $reuse->assertSessionHas('auth.two_factor_pending', true);
+    $this->assertGuest();
+})->group('slice-007', 'ac-015', 'security');
 
 test('AC-020: GET /app com 2FA pendente bloqueia a rota e devolve para /auth/two-factor-challenge', function (): void {
     $context = slice007_user_with_access_context([

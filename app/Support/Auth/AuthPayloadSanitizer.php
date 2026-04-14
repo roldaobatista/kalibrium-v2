@@ -12,6 +12,8 @@ final class AuthPayloadSanitizer
      */
     public function sanitize(array $payload): array
     {
+        unset($payload['email']);
+
         foreach ([
             'password',
             'token',

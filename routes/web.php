@@ -20,6 +20,7 @@ use App\Livewire\Ping;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\Auth\LoginAuditRecorder;
+use App\Support\Auth\PostgresAuthContext;
 use App\Support\Auth\RecoveryCodeHasher;
 use App\Support\Auth\TenantAccessResolver;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -30,7 +31,6 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
 
 Route::get('/', function () {
@@ -48,6 +48,7 @@ Route::middleware('guest')->group(function (): void {
         Request $request,
         TenantAccessResolver $resolver,
         LoginAuditRecorder $auditRecorder,
+        PostgresAuthContext $postgresAuthContext,
     ) {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -55,11 +56,11 @@ Route::middleware('guest')->group(function (): void {
             'remember' => ['nullable', 'boolean'],
         ]);
 
-        $rateKey = 'auth:login:'.mb_strtolower((string) $credentials['email']).'|'.$request->ip();
-        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
-            $auditRecorder->record($request, 'auth.login.locked_out', null, null, [
-                'email' => (string) $credentials['email'],
-            ]);
+        $loginKey = mb_strtolower((string) $credentials['email']).'|'.$request->ip();
+        $rateKey = 'auth:login:window:'.$loginKey;
+        $lockoutKey = 'auth:login:lockout:'.$loginKey;
+        if (RateLimiter::tooManyAttempts($lockoutKey, 10) || RateLimiter::tooManyAttempts($rateKey, 5)) {
+            $auditRecorder->record($request, 'auth.login.locked_out');
 
             return AuthFailureResponse::make($request, 'Muitas tentativas. Tente novamente mais tarde.', 429);
         }
@@ -67,34 +68,44 @@ Route::middleware('guest')->group(function (): void {
         /** @var User|null $user */
         $user = User::query()
             ->where('email', (string) $credentials['email'])
-            ->with('primaryTenantUser')
             ->first();
+        static $dummyPasswordHash = null;
+        $passwordHash = $user?->password;
+        if (! is_string($passwordHash) || $passwordHash === '') {
+            $dummyPasswordHash ??= Hash::make(Str::random(32));
+            $passwordHash = $dummyPasswordHash;
+        }
 
-        if ($user === null || ! Hash::check((string) $credentials['password'], (string) $user->password)) {
-            RateLimiter::hit($rateKey, 60);
+        if (! Hash::check((string) $credentials['password'], $passwordHash) || $user === null) {
+            if ($user !== null) {
+                $postgresAuthContext->forUser($user->id);
+                $user->loadMissing('primaryTenantUser');
+            }
+
+            RateLimiter::hit($rateKey, 900);
+            RateLimiter::hit($lockoutKey, 3600);
             $auditRecorder->record(
                 $request,
                 'auth.login.failed',
                 $user?->id,
                 $user?->primaryTenantUser?->tenant_id,
-                ['email' => (string) $credentials['email']]
             );
 
-            throw ValidationException::withMessages([
-                'email' => 'Credenciais invalidas.',
-            ]);
+            return AuthFailureResponse::make($request, 'Credenciais invalidas.', 422);
         }
 
+        $postgresAuthContext->forUser($user->id);
         $decision = $resolver->resolve($user);
+        $postgresAuthContext->forTenant($decision['tenant_id']);
 
         if (! $decision['allowed']) {
             RateLimiter::clear($rateKey);
+            RateLimiter::clear($lockoutKey);
             $auditRecorder->record(
                 $request,
                 $decision['event'],
                 $user->id,
                 $decision['tenant_id'],
-                ['email' => $credentials['email']]
             );
 
             return AuthFailureResponse::make($request, 'Acesso indisponivel para esta conta.', 403);
@@ -102,6 +113,7 @@ Route::middleware('guest')->group(function (): void {
 
         if ($decision['requires_two_factor']) {
             RateLimiter::clear($rateKey);
+            RateLimiter::clear($lockoutKey);
             Auth::login($user);
             $request->session()->regenerate();
             $request->session()->put([
@@ -116,6 +128,7 @@ Route::middleware('guest')->group(function (): void {
         }
 
         RateLimiter::clear($rateKey);
+        RateLimiter::clear($lockoutKey);
         Auth::login($user, (bool) ($credentials['remember'] ?? false));
         $request->session()->regenerate();
         $request->session()->put('tenant.access_mode', $decision['access_mode']);
@@ -125,7 +138,6 @@ Route::middleware('guest')->group(function (): void {
             $decision['event'],
             $user->id,
             $decision['tenant_id'],
-            ['email' => $credentials['email']]
         );
 
         return (new LoginResponse)->toResponse($request);
@@ -143,21 +155,34 @@ Route::middleware('guest')->group(function (): void {
         return (new PasswordResetLinkSentResponse)->toResponse($request);
     })->name('auth.password.email');
 
-    Route::get('/auth/reset-password/{token}', ResetPasswordPage::class)->name('auth.password.reset');
+    Route::get('/auth/reset-password/{token}', function (Request $request, string $token) {
+        $request->session()->put('auth.password_reset_token', $token);
+
+        return redirect('/auth/reset-password');
+    })->name('auth.password.reset');
+
+    Route::get('/auth/reset-password', ResetPasswordPage::class)->name('auth.password.reset.form');
 
     Route::post('/auth/reset-password', function (Request $request) {
         $data = $request->validate([
-            'token' => ['required', 'string'],
             'email' => ['required', 'email'],
             'password' => ['required', 'string', 'min:12', 'confirmed'],
         ]);
+        $token = (string) $request->session()->get(
+            'auth.password_reset_token',
+            (string) $request->input('token', ''),
+        );
+
+        if ($token === '') {
+            return AuthFailureResponse::make($request, 'Token invalido ou expirado. Solicite novo link.', 422, 'token');
+        }
 
         $status = Password::broker()->reset(
             [
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'password_confirmation' => (string) $request->input('password_confirmation'),
-                'token' => $data['token'],
+                'token' => $token,
             ],
             static function (User $user, string $password): void {
                 $user->forceFill([
@@ -171,6 +196,8 @@ Route::middleware('guest')->group(function (): void {
             return AuthFailureResponse::make($request, 'Token invalido ou expirado. Solicite novo link.', 422, 'token');
         }
 
+        $request->session()->forget('auth.password_reset_token');
+
         return (new PasswordResetResponse)->toResponse($request);
     })->name('auth.password.update');
 });
@@ -182,6 +209,7 @@ Route::post('/auth/two-factor-challenge', function (
     Request $request,
     LoginAuditRecorder $auditRecorder,
     TenantAccessResolver $resolver,
+    PostgresAuthContext $postgresAuthContext,
     TwoFactorAuthenticationProviderContract $twoFactorProvider,
 ) {
     $tenantId = $request->session()->has('auth.two_factor_tenant_id')
@@ -236,6 +264,8 @@ Route::post('/auth/two-factor-challenge', function (
         return AuthFailureResponse::make($request, 'Codigo invalido.', 422, 'code');
     }
 
+    $postgresAuthContext->forUser($user->id);
+    $postgresAuthContext->forTenant($tenantId);
     $accessDecision = $resolver->resolve($user);
     $pendingTenantUserId = $request->session()->has('auth.two_factor_tenant_user_id')
         ? (int) $request->session()->get('auth.two_factor_tenant_user_id')

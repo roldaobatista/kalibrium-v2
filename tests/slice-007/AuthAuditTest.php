@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\LoginAuditLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -93,6 +94,75 @@ test('AC-021: responses e logs dos fluxos de auth nao vazam senha, token, segred
 
         foreach (slice007_sensitive_fragments() as $secret) {
             expect($logContents)->not->toContain($secret);
+        }
+    }
+})->group('slice-007', 'ac-021', 'security');
+
+test('AC-021: contexto de login_audit_logs nao persiste e-mail nem segredos de autenticacao', function (): void {
+    $success = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+        'requires_2fa' => false,
+    ]);
+    $failed = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+        'requires_2fa' => false,
+    ]);
+    $twoFactor = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+        'role' => 'gerente',
+        'requires_2fa' => true,
+        'recovery_codes' => ['recovery-code-1'],
+    ]);
+
+    $this->postJson(slice007_routes()['login'], [
+        'email' => $success['user']->email,
+        'password' => $success['password'],
+        'remember' => false,
+    ])->assertStatus(302);
+    auth()->logout();
+
+    $this->postJson(slice007_routes()['login'], [
+        'email' => $failed['user']->email,
+        'password' => 'SenhaErrada123!',
+        'remember' => false,
+    ])->assertStatus(422);
+
+    $this
+        ->withSession(slice007_two_factor_pending_session($twoFactor))
+        ->postJson(slice007_routes()['two_factor_challenge'], [
+            'recovery_code' => 'recovery-code-1',
+        ])->assertStatus(302);
+
+    $records = LoginAuditLog::query()
+        ->whereIn('event', [
+            'auth.login.success',
+            'auth.login.failed',
+            'auth.two_factor.recovery_code_used',
+        ])
+        ->whereIn('user_id', [
+            $success['user']->id,
+            $failed['user']->id,
+            $twoFactor['user']->id,
+        ])
+        ->get();
+
+    expect($records)->toHaveCount(3);
+
+    $forbiddenFragments = [
+        $success['user']->email,
+        $failed['user']->email,
+        $twoFactor['user']->email,
+        $success['password'],
+        $failed['password'],
+        'SenhaErrada123!',
+        'recovery-code-1',
+    ];
+
+    foreach ($records as $record) {
+        $context = json_encode($record->context ?? [], JSON_THROW_ON_ERROR);
+
+        foreach ($forbiddenFragments as $fragment) {
+            expect($context)->not->toContain($fragment);
         }
     }
 })->group('slice-007', 'ac-021', 'security');

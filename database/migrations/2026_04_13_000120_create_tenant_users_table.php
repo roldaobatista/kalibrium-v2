@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -23,6 +24,19 @@ return new class extends Migration
             $table->unique(['tenant_id', 'user_id']);
             $table->index(['status', 'role']);
         });
+
+        if (DB::getDriverName() === 'pgsql') {
+            DB::unprepared(<<<'SQL'
+                ALTER TABLE tenant_users ENABLE ROW LEVEL SECURITY;
+                ALTER TABLE tenant_users FORCE ROW LEVEL SECURITY;
+                CREATE POLICY tenant_users_tenant_isolation ON tenant_users
+                    USING (
+                        tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::bigint
+                        OR user_id = NULLIF(current_setting('app.auth_user_id', true), '')::bigint
+                    )
+                    WITH CHECK (tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::bigint);
+            SQL);
+        }
     }
 
     /**

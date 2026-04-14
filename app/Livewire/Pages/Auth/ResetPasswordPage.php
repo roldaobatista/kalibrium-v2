@@ -9,13 +9,6 @@ use Livewire\Component;
 
 final class ResetPasswordPage extends Component
 {
-    public string $token = '';
-
-    public function mount(string $token): void
-    {
-        $this->token = $token;
-    }
-
     public function render(): View
     {
         return view('livewire.pages.auth.reset-password-page')

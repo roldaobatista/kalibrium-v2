@@ -1,9 +1,10 @@
 <section class="mx-auto max-w-lg space-y-4 p-6">
     <h1 class="text-2xl font-semibold">Redefinir senha</h1>
 
+    @include('livewire.pages.auth.partials.feedback')
+
     <form method="POST" action="/auth/reset-password" class="space-y-3">
         @csrf
-        <input type="hidden" name="token" value="{{ $token }}">
 
         <label class="block">
             <span class="block text-sm font-medium">E-mail</span>

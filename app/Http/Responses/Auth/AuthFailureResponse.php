@@ -18,10 +18,14 @@ final class AuthFailureResponse
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => $message,
+                'errors' => [
+                    $field => [$message],
+                ],
             ], $status);
         }
 
         return back()
+            ->with('auth_error_messages', [$message])
             ->withErrors([$field => $message])
             ->withInput($request->except([
                 'password',

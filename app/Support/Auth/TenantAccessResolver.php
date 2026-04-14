@@ -13,6 +13,9 @@ final class TenantAccessResolver
     /** @var array<int, string> */
     private const ALLOWED_TENANT_STATUSES = ['active', 'trial', 'suspended'];
 
+    /** @var array<int, string> */
+    private const TWO_FACTOR_REQUIRED_ROLES = ['gerente', 'administrativo'];
+
     /**
      * @return array{
      *   allowed: bool,
@@ -83,7 +86,12 @@ final class TenantAccessResolver
             ];
         }
 
-        $requiresTwoFactor = (bool) $tenantUser->requires_2fa;
+        $roleRequiresTwoFactor = in_array(
+            strtolower((string) $tenantUser->role),
+            self::TWO_FACTOR_REQUIRED_ROLES,
+            true,
+        );
+        $requiresTwoFactor = (bool) $tenantUser->requires_2fa || $roleRequiresTwoFactor;
         $event = $tenantStatus === 'suspended' ? 'auth.login.read_only_access' : 'auth.login.success';
         $accessMode = $tenantStatus === 'suspended' ? 'read-only' : 'full';
 

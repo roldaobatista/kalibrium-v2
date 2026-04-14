@@ -1,6 +1,8 @@
 <section class="mx-auto max-w-lg space-y-4 p-6">
     <h1 class="text-2xl font-semibold">Desafio de 2FA</h1>
 
+    @include('livewire.pages.auth.partials.feedback')
+
     <form method="POST" action="/auth/two-factor-challenge" class="space-y-3">
         @csrf
 

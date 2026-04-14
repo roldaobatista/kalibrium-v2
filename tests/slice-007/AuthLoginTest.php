@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
+use App\Models\LoginAuditLog;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -11,6 +12,25 @@ require_once __DIR__.'/TestHelpers.php';
 test('AC-001: POST /auth/login autentica usuario ativo e redireciona para /app', function (): void {
     $context = slice007_user_with_access_context([
         'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => 'tecnico',
+        'requires_2fa' => false,
+    ]);
+
+    $response = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(slice007_routes()['app']);
+    $this->assertAuthenticatedAs($context['user']);
+})->group('slice-007', 'ac-001');
+
+test('AC-001: POST /auth/login autentica usuario em tenant trial e redireciona para /app', function (): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'trial',
         'binding_status' => 'active',
         'role' => 'tecnico',
         'requires_2fa' => false,
@@ -46,6 +66,26 @@ test('AC-002: POST /auth/login com 2FA exigido redireciona para /auth/two-factor
     $response->assertSessionHas('auth.two_factor_pending', true);
     $this->assertAuthenticatedAs($context['user']);
 })->group('slice-007', 'ac-002');
+
+test('AC-002: gerente e administrativo exigem 2FA mesmo sem flag manual no vinculo', function (string $role): void {
+    $context = slice007_user_with_access_context([
+        'tenant_status' => 'active',
+        'binding_status' => 'active',
+        'role' => $role,
+        'requires_2fa' => false,
+    ]);
+
+    $response = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(slice007_routes()['two_factor_challenge']);
+    $response->assertSessionHas('auth.two_factor_pending', true);
+    $this->assertAuthenticatedAs($context['user']);
+})->with(['gerente', 'administrativo'])->group('slice-007', 'ac-002', 'security');
 
 test('AC-002: POST /auth/login com 2FA exigido renova a sessao antes do desafio pendente', function (): void {
     $context = slice007_user_with_access_context([
@@ -91,6 +131,53 @@ test('AC-008: POST /auth/login com credenciais incorretas retorna 422 neutro sem
     ]);
 })->group('slice-007', 'ac-008');
 
+test('AC-008: usuario inexistente e senha incorreta retornam formato neutro equivalente', function (): void {
+    $context = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+    ]);
+
+    $wrongPassword = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => 'SenhaErrada123!',
+        'remember' => false,
+    ]);
+
+    $missingUser = $this->postJson(slice007_routes()['login'], [
+        'email' => slice007_unique_email(),
+        'password' => 'SenhaErrada123!',
+        'remember' => false,
+    ]);
+
+    $wrongPassword->assertStatus(422);
+    $missingUser->assertStatus(422);
+    expect($missingUser->json('message'))->toBe($wrongPassword->json('message'));
+    expect(array_keys($missingUser->json('errors') ?? []))->toBe(array_keys($wrongPassword->json('errors') ?? []));
+    $this->assertGuest();
+})->group('slice-007', 'ac-008', 'security');
+
+test('AC-008: tela de login renderiza erro neutro de credenciais invalidas', function (): void {
+    $context = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+    ]);
+
+    $response = $this
+        ->from(slice007_routes()['login'])
+        ->post(slice007_routes()['login'], [
+            'email' => $context['user']->email,
+            'password' => 'SenhaErrada123!',
+            'remember' => false,
+        ]);
+
+    $response->assertStatus(302);
+    $response->assertRedirect(slice007_routes()['login']);
+    $response->assertSessionHasErrors('email');
+
+    $page = $this->get(slice007_routes()['login']);
+
+    $page->assertStatus(200);
+    $page->assertSee('Credenciais invalidas.');
+})->group('slice-007', 'ac-008');
+
 test('AC-009: POST /auth/login aplica rate limit e retorna 429 quando excede tentativas', function (): void {
     $payload = slice007_login_payload([
         'email' => slice007_unique_email(),
@@ -104,6 +191,96 @@ test('AC-009: POST /auth/login aplica rate limit e retorna 429 quando excede ten
     expect($response)->not->toBeNull();
     $response->assertStatus(429);
 })->group('slice-007', 'ac-009');
+
+test('AC-009: rate limit registra lockout sem executar nova falha de senha', function (): void {
+    $context = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+    ]);
+    $payload = [
+        'email' => $context['user']->email,
+        'password' => 'SenhaErrada123!',
+        'remember' => false,
+    ];
+
+    $response = null;
+    for ($attempt = 1; $attempt <= 6; $attempt++) {
+        $response = $this->postJson(slice007_routes()['login'], $payload);
+    }
+
+    expect($response)->not->toBeNull();
+    $response->assertStatus(429);
+    $this->assertDatabaseHas('login_audit_logs', [
+        'event' => 'auth.login.locked_out',
+        'user_id' => null,
+        'tenant_id' => null,
+    ]);
+    expect(LoginAuditLog::query()
+        ->where('event', 'auth.login.failed')
+        ->where('user_id', $context['user']->id)
+        ->count())->toBe(5);
+})->group('slice-007', 'ac-009', 'security');
+
+test('AC-009: rate limit bloqueia senha correta e retorna feedback funcional durante lockout', function (): void {
+    $context = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+    ]);
+    $wrongPayload = [
+        'email' => $context['user']->email,
+        'password' => 'SenhaErrada123!',
+        'remember' => false,
+    ];
+
+    for ($attempt = 1; $attempt <= 5; $attempt++) {
+        $this->postJson(slice007_routes()['login'], $wrongPayload)->assertStatus(422);
+    }
+
+    $failedAttempts = LoginAuditLog::query()
+        ->where('event', 'auth.login.failed')
+        ->where('user_id', $context['user']->id)
+        ->count();
+
+    $response = $this->postJson(slice007_routes()['login'], [
+        'email' => $context['user']->email,
+        'password' => $context['password'],
+        'remember' => false,
+    ]);
+
+    $response->assertStatus(429);
+    expect($response->json('message'))->toBe('Muitas tentativas. Tente novamente mais tarde.');
+    expect($response->json('errors.email.0'))->toBe('Muitas tentativas. Tente novamente mais tarde.');
+    $this->assertGuest();
+    expect(LoginAuditLog::query()
+        ->where('event', 'auth.login.failed')
+        ->where('user_id', $context['user']->id)
+        ->count())->toBe($failedAttempts);
+})->group('slice-007', 'ac-009', 'security');
+
+test('AC-009: rate limit de login mantem bloqueio por 15 minutos e bloqueio progressivo apos 10 falhas', function (): void {
+    $context = slice007_user_with_access_context([
+        'email' => slice007_unique_email(),
+    ]);
+    $payload = [
+        'email' => $context['user']->email,
+        'password' => 'SenhaErrada123!',
+        'remember' => false,
+    ];
+
+    for ($attempt = 1; $attempt <= 5; $attempt++) {
+        $this->postJson(slice007_routes()['login'], $payload)->assertStatus(422);
+    }
+
+    $this->travel(61)->seconds();
+    $this->postJson(slice007_routes()['login'], $payload)->assertStatus(429);
+
+    $this->travel(15)->minutes();
+
+    for ($attempt = 1; $attempt <= 5; $attempt++) {
+        $this->postJson(slice007_routes()['login'], $payload)->assertStatus(422);
+    }
+
+    $this->travel(15)->minutes();
+    $this->postJson(slice007_routes()['login'], $payload)->assertStatus(429);
+})->group('slice-007', 'ac-009', 'security');
 
 test('AC-011: POST /auth/login com tenant suspended autentica em modo somente leitura e redireciona para /app', function (): void {
     $context = slice007_user_with_access_context([

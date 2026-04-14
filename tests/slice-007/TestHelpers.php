@@ -98,14 +98,19 @@ function slice007_reset_password_token_for(User $user): string
     return Password::broker()->createToken($user);
 }
 
-function slice007_reset_password_payload(string $token, string $email, array $overrides = []): array
+function slice007_reset_password_payload(?string $token, string $email, array $overrides = []): array
 {
-    return array_merge([
-        'token' => $token,
+    $payload = [
         'email' => $email,
         'password' => 'NovaSenhaSegura123!',
         'password_confirmation' => 'NovaSenhaSegura123!',
-    ], $overrides);
+    ];
+
+    if ($token !== null) {
+        $payload['token'] = $token;
+    }
+
+    return array_merge($payload, $overrides);
 }
 
 function slice007_two_factor_payload(array $overrides = []): array
