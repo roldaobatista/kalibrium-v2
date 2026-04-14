@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "slice-009",
+  "audit_date": "2026-04-14",
+  "verdict": "approved",
+  "summary": "O slice 009 ficou alinhado ao roadmap E02, aos ADRs vigentes e ao pacote documental do épico. Os ACs estão observáveis, testáveis e cobrem o ponto sensível de 2FA para convites e gestão de papéis sem abrir lacunas de segurança.",
+  "checks": {
+    "scope_boundary": {
+      "status": "pass",
+      "details": "Entrega exatamente TEN-002 do roadmap, mantém cobrança real e módulos posteriores fora de escopo e não incorpora trabalho de slices seguintes."
+    },
+    "ac_quality": {
+      "status": "pass",
+      "details": "Os ACs estão numerados, descrevem entrada, comportamento e resultado esperado, e cada happy path tem contrapartida de erro ou edge case."
+    },
+    "testability": {
+      "status": "pass",
+      "details": "Cada AC pode virar teste automatizado; os fluxos usam estados, códigos de papel e validações objetivas, com mailer fake previsto para convites."
+    },
+    "security_privacy": {
+      "status": "pass",
+      "details": "O spec cobre 2FA para ações críticas, isolamento entre tenants, prevenção de vazamento de senha/token e restrição explícita de dados de outros tenants."
+    },
+    "dependencies": {
+      "status": "pass",
+      "details": "As dependências declaradas estão decididas: ADR-0001 e ADR-0004 aceitos, slice-007 e slice-008 como pré-requisitos, e o gate documental do E02 existe."
+    },
+    "product_alignment": {
+      "status": "pass",
+      "details": "A jornada do gerente para montar equipe e acompanhar plano/limites está coerente com o E02, o roadmap e os fluxos de produto aprovados."
+    },
+    "documentation_gate": {
+      "status": "pass",
+      "details": "Os documentos exigidos para o E02 citados no spec estão presentes: wireframes, API contracts, ERD, migrations e fluxos."
+    }
+  },
+  "findings": [],
+  "stats": {
+    "total_checks": 7,
+    "passed": 7,
+    "failed": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0
+  }
+}
