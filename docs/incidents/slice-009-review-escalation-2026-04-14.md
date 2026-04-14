@@ -1,7 +1,7 @@
 # Incidente — escalação R6 (reviewer): slice-009
 
-**Data:** 2026-04-14T21:55:04Z
-**Rejeições consecutivas do reviewer:** 6
+**Data:** 2026-04-14T22:25:58Z
+**Rejeições consecutivas do reviewer:** 7
 **Review.json:** review-input/review.json
 
 ## Contexto

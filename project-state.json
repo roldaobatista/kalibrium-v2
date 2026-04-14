@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T17:55:54-04:00",
+  "updated_at": "2026-04-14T18:25:58-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -40,10 +40,10 @@
     "current_story": "TEN-002",
     "current_slice": "009",
     "slice_status": "blocked_r6_reviewer_pending_pm_decision",
-    "last_green_commit": "e334077",
-    "consecutive_rejections": 6,
+    "last_green_commit": "945a098",
+    "consecutive_rejections": 7,
     "blocked": true,
-    "blocked_reason": "R6: reviewer reprovou slice-009 pela 6ª vez consecutiva; aguardando decisão PM para nova tentativa, reescopo ou pausa."
+    "blocked_reason": "R6: reviewer reprovou slice-009 novamente; desta vez o pacote isolado do reviewer expôs specs/009/verification.json, violando R11. Aguardando decisão PM para corrigir o empacotamento do review e tentar novamente."
   },
   "gates_status": {
     "spec_auditor": "approved",
@@ -141,6 +141,14 @@
       "question": "R6 do slice 009: reviewer reprovou pela 6ª vez com risco de ultimo gerente em concorrencia e auditoria de justificativa livre; continuar, reescopar ou pausar?",
       "options": ["Pedir nova tentativa focada nesses 3 findings", "Reescopar o slice 009", "Pausar para discussao"],
       "created_at": "2026-04-14T17:55:54-04:00",
+      "resolved_at": "2026-04-14T18:04:00-04:00",
+      "decision": "Pedir nova tentativa: repetir ate mais 10 rodadas ou ate passar. Correcoes aplicadas e committadas em 945a098; verifier aprovou."
+    },
+    {
+      "id": "PD-013",
+      "question": "R6 do slice 009: reviewer encontrou que o pacote de review inclui verification.json, quebrando o isolamento entre verifier e reviewer; continuar corrigindo o empacotamento do review, reescopar ou pausar?",
+      "options": ["Pedir nova tentativa focada no empacotamento do review", "Reescopar o slice 009", "Pausar para discussao"],
+      "created_at": "2026-04-14T18:25:58-04:00",
       "resolved_at": null,
       "decision": null
     }
@@ -155,8 +163,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "Slice 009 teve varias correcoes de reviewer aplicadas e committadas. Verifier esta approved, mas reviewer chegou ao limite R6 com 3 findings restantes: serializar a protecao de ultimo gerente por tenant na desativacao/troca de papel e remover justificativa livre da auditoria de upgrade.",
-    "next_action": "Aguardar decisao PM em PD-012. Recomendacao forte: pedir nova tentativa focada nesses 3 findings; se aprovado, corrigir UserDeactivationService, UserRoleService e PlanUpgradeRequestService, depois reexecutar verifier e reviewer.",
+    "last_session_summary": "Slice 009 recebeu nova tentativa autorizada pelo PM. As correcoes foram committadas em 945a098 e o verifier aprovou. O reviewer voltou a escalar R6, agora porque o pacote de review expôs specs/009/verification.json e quebrou o isolamento R11.",
+    "next_action": "Aguardar decisao PM em PD-013. Recomendacao forte: pedir nova tentativa focada no empacotamento do review; corrigir scripts/review-slice.sh para excluir outputs de verifier do review-input, rerodar review-slice e reviewer.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",

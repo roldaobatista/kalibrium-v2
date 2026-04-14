@@ -75,9 +75,7 @@ Esta entrega cobre os seguintes critérios:
 
 **Encontrados na revisão estrutural:**
 
-- **🛑 IMPEDITIVO:** parte complicada demais para manter — A regra de ultimo gerente nao e serializada por tenant: duas desativacoes concorrentes de gerentes diferentes podem bloquear apenas seus proprios registros
-- **🛑 IMPEDITIVO:** parte complicada demais para manter — A regra de ultimo gerente tambem fica sujeita a corrida na troca de papel: duas transacoes concorrentes podem rebaixar gerentes distintos depois de contar o mesmo conjunto ativo
-- **⚠ IMPORTANTE:** problema de segurança — O auditRecorder recebe justification
+- **🛑 IMPEDITIVO:** problema estrutural — O pacote isolado do reviewer inclui specs/009/verification.json. A constitution R11 determina que o reviewer nao ve verification.json; portanto o gate estrutural nao preserva isolamento entre verifier e reviewer.
 
 ## O que NÃO está neste slice (fica pra depois)
 
