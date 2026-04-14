@@ -52,6 +52,7 @@ test('AC-006: POST /auth/reset-password com token valido altera a senha, invalid
     $user = slice007_persisted_user([
         'email' => slice007_unique_email(),
         'password' => Hash::make('SenhaAtual123!'),
+        'remember_token' => 'remember-token-before-reset',
     ]);
     $token = slice007_reset_password_token_for($user);
 
@@ -66,6 +67,7 @@ test('AC-006: POST /auth/reset-password com token valido altera a senha, invalid
     expect(Hash::check('NovaSenhaSegura123!', $user->fresh()->password))->toBeTrue(
         'AC-006: a senha deve ser atualizada após reset bem-sucedido.'
     );
+    expect($user->fresh()->remember_token)->not->toBe('remember-token-before-reset');
     $this->assertDatabaseMissing('password_reset_tokens', [
         'email' => $user->email,
     ]);
