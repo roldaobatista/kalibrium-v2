@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "planning",
-  "updated_at": "2026-04-13T14:15:33-04:00",
+  "phase": "execution",
+  "updated_at": "2026-04-14T07:05:28-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -33,19 +33,22 @@
     "planning_audit_roadmap": "approved",
     "planning_audit_E01": "approved",
     "story_audit_E01": "approved",
-    "documentation_gate": "e02-auth-docs-drafted-awaiting-review-before-specs-007"
+    "documentation_gate": "e02-auth-docs-used-to-draft-specs-007"
   },
   "execution": {
     "current_epic": "E02",
     "current_story": "SEG-001",
     "current_slice": "007",
-    "slice_status": "documentation_gate_drafted",
-    "last_green_commit": "ac28e41",
+    "slice_status": "approved",
+    "last_green_commit": "3188ecd",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
+    "spec_auditor": "approved",
+    "plan": "approved",
+    "plan_review": "approved",
     "verifier": "approved",
     "reviewer": "approved",
     "security_reviewer": "approved",
@@ -66,8 +69,8 @@
       "question": "3 suposicoes pendentes de consultor de metrologia (ASS-002, ASS-012, ASS-018)",
       "options": ["Bloquear stories dependentes", "Prosseguir e validar depois"],
       "created_at": "2026-04-13T01:00:00Z",
-      "resolved_at": null,
-      "decision": null
+      "resolved_at": "2026-04-13T23:11:55-04:00",
+      "decision": "Pedir nova tentativa focada no fluxo real de /app com 2FA pendente"
     },
     {
       "id": "PD-004",
@@ -76,20 +79,76 @@
       "created_at": "2026-04-13T03:36:15Z",
       "resolved_at": "2026-04-13T00:00:33-04:00",
       "decision": "Pedir nova tentativa focada no AC-010"
+    },
+    {
+      "id": "PD-005",
+      "question": "No slice 007, tenant suspended deve entrar em modo somente leitura ou bloquear login ate uma decisao posterior de lifecycle/dunning?",
+      "options": ["Seguir PRD/E02 amplo: permitir modo somente leitura e atualizar contrato E02", "Seguir contrato API atual: bloquear login e deixar readonly para slice futuro"],
+      "created_at": "2026-04-13T17:05:48-04:00",
+      "resolved_at": "2026-04-13T17:15:28-04:00",
+      "decision": "Seguir PRD/E02 amplo: permitir modo somente leitura para tenant suspended e atualizar contrato E02"
+    },
+    {
+      "id": "PD-006",
+      "question": "R6 do slice 007: reviewer reprovou duas vezes; corrigir novos achados ou reescopar?",
+      "options": ["Pedir nova tentativa focada nos 2 findings do reviewer", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T21:07:26-04:00",
+      "resolved_at": "2026-04-13T21:18:00-04:00",
+      "decision": "Pedir nova tentativa focada nos 2 findings do reviewer"
+    },
+    {
+      "id": "PD-007",
+      "question": "R6 do slice 007: reviewer encontrou risco de sessao lembrada continuar valida apos reset de senha; corrigir ou pausar?",
+      "options": ["Pedir nova tentativa focada no remember_token", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T21:23:41-04:00",
+      "resolved_at": "2026-04-13T21:32:00-04:00",
+      "decision": "Pedir nova tentativa focada no remember_token"
+    },
+    {
+      "id": "PD-008",
+      "question": "R6 do slice 007: reviewer encontrou respostas JSON em formularios HTML e sessao 2FA pendente sem renovacao; corrigir ou pausar?",
+      "options": ["Pedir nova tentativa focada nesses 2 findings", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T21:35:27-04:00",
+      "resolved_at": "2026-04-13T21:53:03-04:00",
+      "decision": "Pedir nova tentativa focada nos formularios e na sessao 2FA usando gpt-5.4 xhigh"
+    },
+    {
+      "id": "PD-009",
+      "question": "R6 do slice 007: reviewer encontrou fail-open de status de tenant/vinculo e recovery codes 2FA reversiveis; corrigir ou pausar?",
+      "options": ["Pedir nova tentativa focada nesses 2 findings", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T21:53:03-04:00",
+      "resolved_at": "2026-04-13T22:12:19-04:00",
+      "decision": "Pedir nova tentativa focada no fail-closed de status de tenant/vinculo e nos recovery codes 2FA como segredo usando gpt-5.4 xhigh"
+    },
+    {
+      "id": "PD-010",
+      "question": "R6 do slice 007: reviewer encontrou que a conclusao do 2FA nao revalida se o acesso ainda continua permitido; corrigir ou pausar?",
+      "options": ["Pedir nova tentativa focada nesse finding", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T22:12:19-04:00",
+      "resolved_at": "2026-04-13T22:32:58-04:00",
+      "decision": "Pedir nova tentativa focada nesse finding"
+    },
+    {
+      "id": "PD-011",
+      "question": "R6 do slice 007: reviewer encontrou que /app com 2FA pendente usa auth antes do middleware de desafio e pode voltar para login no fluxo real; corrigir ou pausar?",
+      "options": ["Pedir nova tentativa focada nesse finding", "Reescopar o slice 007", "Pausar para discussao"],
+      "created_at": "2026-04-13T22:32:58-04:00",
+      "resolved_at": "2026-04-14T01:03:00-04:00",
+      "decision": "Pedir nova tentativa focada nesse finding; fix aplicado e cadeia completa de gates reexecutada ate approved com zero findings"
     }
   ],
   "harness": {
-    "agents": 21,
-    "skills": 36,
+    "agents": 22,
+    "skills": 38,
     "hooks": 17,
-    "schemas": 9,
+    "schemas": 10,
     "last_relock_commit": "a84371f",
     "codex_orchestrator_commit": "6f7d629",
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "ADR-0004 aceito com Laravel Fortify/Sanctum como estrategia de identidade e autenticacao do MVP. Documentos obrigatorios do gate E02 foram rascunhados para desbloquear specs/007 — SEG-001 Login seguro do laboratorio.",
-    "next_action": "Revisar e aprovar o gate documental do E02; depois iniciar specs/007 — SEG-001 Login seguro do laboratorio.",
+    "last_session_summary": "Slice 007 ja estava aprovado nos gates internos. Como o CI privado do PR #9 ficou bloqueado por billing/spending limit, foi usado o repositorio publico roldaobatista/kalibrium-v2-public-validation para validar um snapshot sanitizado sem docs/specs/epics/.claude. O CI publico passou no run 24395439095 no commit b029e72; o branch privado esta no commit 3188ecd.",
+    "next_action": "Usar a validacao publica verde como evidencia externa do snapshot sanitizado e seguir para decisao de merge do PR #9; o CI privado segue bloqueado por billing/spending limit.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -97,7 +156,18 @@
       "docs/documentation-requirements.md",
       "docs/handoffs/latest.md",
       "project-state.json",
-      ".claude/agents/orchestrator.md"
+      ".claude/agents/orchestrator.md",
+      "specs/007/spec.md",
+      "specs/007/spec-audit.json",
+      "specs/007/plan.md",
+      "specs/007/verification.json",
+      "specs/007/review.json",
+      "specs/007/security-review.json",
+      "specs/007/test-audit.json",
+      "specs/007/functional-review.json",
+      "docs/explanations/slice-007.md",
+      "docs/adr/0010-constitution-amendment-r6-gate-threshold.md",
+      "docs/retrospectives/constitution-r6-gate-threshold-2026-04-14.md"
     ]
   }
 }

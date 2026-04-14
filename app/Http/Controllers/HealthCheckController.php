@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Redis;
 
 final class HealthCheckController
 {
-    private const DETAIL_TRUSTED_IPS = ['127.0.0.1', '::1'];
+    private const array DETAIL_TRUSTED_IPS = ['127.0.0.1', '::1'];
 
     public function __invoke(Request $request): JsonResponse
     {

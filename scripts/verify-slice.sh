@@ -31,6 +31,7 @@ fi
 SLICE_DIR="specs/$NNN"
 INPUT_DIR="verification-input"
 TELEMETRY=".claude/telemetry/slice-${NNN}.jsonl"
+R6_REJECT_THRESHOLD=6
 
 say()  { echo "[verify-slice] $*"; }
 fail() { echo "[verify-slice FAIL] $*" >&2; exit 1; }
@@ -83,8 +84,8 @@ if [ "$MODE" = "--validate" ]; then
     --next-action="$NEXT" \
     --reject-count="$CURRENT_REJECTS" >/dev/null || fail "record-telemetry falhou"
 
-  # R6: 2 rejeições consecutivas = escalar humano
-  if [ "$VERDICT" = "rejected" ] && [ "$CURRENT_REJECTS" -ge 2 ]; then
+  # R6: 5 ciclos automáticos; 6ª rejeição consecutiva = escalar humano
+  if [ "$VERDICT" = "rejected" ] && [ "$CURRENT_REJECTS" -ge "$R6_REJECT_THRESHOLD" ]; then
     INCIDENT="docs/incidents/slice-${NNN}-escalation-$(date -u +%Y-%m-%d).md"
     mkdir -p docs/incidents
     cat > "$INCIDENT" <<EOF
@@ -97,7 +98,7 @@ if [ "$MODE" = "--validate" ]; then
 
 ## Contexto
 
-R6 da constitution: 2 reprovações consecutivas do verifier forçam escalação humana. Implementer **não pode** tentar novamente sem decisão humana (reescopar, reiniciar, ou matar o slice).
+R6 da constitution: 5 ciclos automáticos de correção; a 6ª reprovação consecutiva do verifier força escalação humana. Implementer **não pode** tentar novamente sem decisão humana (reescopar, reiniciar, ou matar o slice).
 
 ## Ação humana requerida
 
@@ -147,7 +148,7 @@ EOF
       exit 0
       ;;
     rejected)
-      say "✗ rejected ($CURRENT_REJECTS/2) — implementer deve corrigir violations e re-verificar"
+      say "✗ rejected ($CURRENT_REJECTS/$R6_REJECT_THRESHOLD) — implementer deve corrigir violations e re-verificar"
       say "  relatório PM (leia este, não o JSON): $PM_REPORT"
       exit 1
       ;;

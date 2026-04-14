@@ -53,6 +53,14 @@ if [ "$MODE" = "--check" ]; then
     echo ""; echo "[draft-plan FAIL] spec.md inválido" >&2; exit 1
   fi
 
+  # spec.md deve ter auditoria independente aprovada antes do architect
+  if [ -f "$REPO_ROOT/scripts/audit-spec.sh" ] && bash "$REPO_ROOT/scripts/audit-spec.sh" "$NNN" --approved > /dev/null 2>&1; then
+    ok "spec-audit.json aprovado"
+  else
+    fail "spec-audit.json ausente ou não aprovado — rode /audit-spec $NNN antes de /draft-plan"
+    echo ""; echo "[draft-plan FAIL] auditoria de spec pendente" >&2; exit 1
+  fi
+
   # plan.md ainda não deve existir (ou deve estar em draft)
   if [ -f "$PLAN" ]; then
     if grep -qE '^.*Status:.*approved' "$PLAN"; then

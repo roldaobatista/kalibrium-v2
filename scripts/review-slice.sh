@@ -31,6 +31,7 @@ fi
 SLICE_DIR="specs/$NNN"
 INPUT_DIR="review-input"
 TELEMETRY=".claude/telemetry/slice-${NNN}.jsonl"
+R6_REJECT_THRESHOLD=6
 
 say()  { echo "[review-slice] $*"; }
 fail() { echo "[review-slice FAIL] $*" >&2; exit 1; }
@@ -79,8 +80,8 @@ if [ "$MODE" = "--validate" ]; then
     --next-action="$NEXT" \
     --reject-count="$CURRENT_REJECTS" >/dev/null || fail "record-telemetry falhou"
 
-  # R6 estendido ao reviewer
-  if [ "$VERDICT" = "rejected" ] && [ "$CURRENT_REJECTS" -ge 2 ]; then
+  # R6 estendido ao reviewer: 5 ciclos automáticos; 6ª rejeição escala humano
+  if [ "$VERDICT" = "rejected" ] && [ "$CURRENT_REJECTS" -ge "$R6_REJECT_THRESHOLD" ]; then
     INCIDENT="docs/incidents/slice-${NNN}-review-escalation-$(date -u +%Y-%m-%d).md"
     mkdir -p docs/incidents
     cat > "$INCIDENT" <<EOF
@@ -92,7 +93,7 @@ if [ "$MODE" = "--validate" ]; then
 
 ## Contexto
 
-R6 + R11: reviewer reprovou 2x consecutivamente. Humano é PM não-técnico — decisão requer linguagem de produto.
+R6 + R11: reviewer reprovou pela 6ª vez consecutiva. Humano é PM não-técnico — decisão requer linguagem de produto.
 
 ## Ação automática
 
@@ -113,7 +114,7 @@ EOF
 
     echo ""
     echo "================================================================"
-    echo "  R6 ESCALAÇÃO — reviewer reprovou slice-${NNN} 2x"
+    echo "  R6 ESCALAÇÃO — reviewer reprovou slice-${NNN} pela 6ª vez"
     echo "================================================================"
     echo "  Incidente: $INCIDENT"
     echo "  Relatório PM (em PT-BR): docs/explanations/slice-${NNN}.md"
@@ -138,7 +139,7 @@ EOF
       exit 0
       ;;
     rejected)
-      say "✗ reviewer rejeitou ($CURRENT_REJECTS/2) — implementer deve tratar findings"
+      say "✗ reviewer rejeitou ($CURRENT_REJECTS/$R6_REJECT_THRESHOLD) — implementer deve tratar findings"
       say "  relatório PM (leia este, não o JSON): $PM_REPORT"
       exit 1
       ;;

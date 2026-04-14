@@ -189,10 +189,16 @@ if [ -d specs ]; then
           next="revisão concluída — rodar /merge-slice ${nnn}"
         elif [ -f "${s}verification.json" ]; then
           next="verificação concluída — rodar /review-pr ${nnn}"
+        elif [ -f "${s}plan.md" ] && [ -s "${s}plan.md" ] && grep -qE '^.*Status:.*approved' "${s}plan.md"; then
+          if bash "$REPO_ROOT/scripts/plan-review.sh" "$nnn" --approved > /dev/null 2>&1; then
+            next="plano pronto — próximo passo: testes (/draft-tests ${nnn})"
+          else
+            next="plano precisa de revisão independente — próximo passo: /review-plan ${nnn}"
+          fi
         elif [ -f "${s}plan.md" ] && [ -s "${s}plan.md" ]; then
-          next="plano pronto — próximo passo: testes (/draft-tests ${nnn})"
+          next="plano gerado — próximo passo: revisão independente (/review-plan ${nnn})"
         else
-          next="spec preenchido — próximo passo: plano (/draft-plan ${nnn})"
+          next="spec preenchido — próximo passo: auditoria da spec (/audit-spec ${nnn})"
         fi
         ;;
     esac

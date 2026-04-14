@@ -235,7 +235,7 @@ translate_rule() {
     R3) echo "verificação leu arquivos que não devia" ;;
     R4) echo "resultado da verificação veio fora do formato esperado" ;;
     R5) echo "um registro de mudança ficou sem autor válido" ;;
-    R6) echo "verificação falhou duas vezes seguidas — precisa da sua decisão" ;;
+    R6) echo "verificação falhou seis vezes seguidas — precisa da sua decisão" ;;
     R7) echo "arquivo de referência foi tratado como instrução" ;;
     R8) echo "custo da verificação passou do limite previsto" ;;
     R9) echo "uma trava foi contornada" ;;

@@ -70,8 +70,8 @@ loop:
   1. Spawnar fixer ou story-decomposer para corrigir findings
   2. Re-spawnar planning-auditor (contexto limpo novo)
   3. Se approved → sair do loop
-  4. Se rejected de novo → repetir (max 3 iteracoes)
-  5. Se 3 iteracoes sem aprovacao → escalar humano (R6)
+  4. Se rejected de novo → repetir (5 ciclos automáticos)
+  5. Se 6 iteracoes sem aprovacao → escalar humano (R6)
 ```
 
 ### 5. Apresentar resultado final ao PM (R12)
@@ -82,7 +82,7 @@ Sempre em linguagem de produto. Nunca mostrar JSON cru.
 | Cenario | Recuperacao |
 |---|---|
 | planning-auditor excede budget (40k tokens) | Reduzir escopo: auditar 1 epico por vez em vez de all |
-| Ciclo de correcao nao converge (3 iteracoes) | Escalar humano via R6. Apresentar findings restantes traduzidos. |
+| Ciclo de correcao nao converge (6 iteracoes) | Escalar humano via R6. Apresentar findings restantes traduzidos. |
 | Pre-condicao falha | Listar o que falta e sugerir skill adequada |
 
 ## Agentes
@@ -92,4 +92,4 @@ Sempre em linguagem de produto. Nunca mostrar JSON cru.
 ## Handoff
 - Approved → prosseguir para implementacao (`/start-story ENN-SNN`)
 - Rejected e corrigido → re-auditar automaticamente
-- Rejected 3x → escalar humano com `/explain-slice`
+- Rejected 6x → escalar humano com `/explain-slice`

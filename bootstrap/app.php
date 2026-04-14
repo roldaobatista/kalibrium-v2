@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureReadOnlyTenantMode;
+use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
+        $middleware->statefulApi();
+        $middleware->alias([
+            'auth.2fa.completed' => EnsureTwoFactorChallengeCompleted::class,
+            'tenant.read-only' => EnsureReadOnlyTenantMode::class,
+        ]);
+        $middleware->redirectGuestsTo('/auth/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

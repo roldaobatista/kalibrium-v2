@@ -29,11 +29,11 @@ Passos:
 Erros:
 - Senha inválida: mensagem neutra.
 - Muitas tentativas: bloqueio temporário com mensagem segura.
-- Tenant suspenso: acesso conforme política de status.
+- Tenant suspenso: autenticação permitida em modo somente leitura; ações de escrita ficam bloqueadas.
 - 2FA inválido: erro inline sem revelar segredo.
 
 Resultado esperado:
-- Usuário autorizado entra no sistema com tenant ativo carregado.
+- Usuário autorizado entra no sistema com tenant ativo carregado ou, se o tenant estiver suspenso, com contexto somente leitura carregado.
 - Tentativas de login ficam registradas.
 
 ---

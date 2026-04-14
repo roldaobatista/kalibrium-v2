@@ -79,7 +79,7 @@ Atualizar `project-state.json` gates_status.
 |---|---|
 | `security-review.json` não existe ou não tem `verdict: approved` | Abortar. Rodar `/security-review NNN` primeiro — pipeline de gates é sequencial. |
 | Testes do slice falham durante montagem de `test-audit-input/` | Abortar. Testes devem estar verdes antes do audit. Sugerir `/fix NNN verifier` ou corrigir manualmente. |
-| `test-audit.json` não passa na validação contra schema | Re-spawn test-auditor. Se falhar 2x, escalar humano (R6). |
+| `test-audit.json` não passa na validação contra schema | Re-spawn test-auditor. Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
 | Cobertura de ACs parcial (AC sem teste correspondente) | test-auditor emite `rejected` com finding por AC descoberto. Sugerir `/fix NNN tests` para adicionar testes faltantes. |
 
 ## Agentes

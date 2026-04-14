@@ -1,6 +1,6 @@
 ---
 name: audit-stories
-description: Audita Story Contracts de um epico. Roda story-auditor em contexto limpo. Ciclo automatico — auditoria, correcao, re-auditoria ate aprovado (max 3 iteracoes). Uso /audit-stories ENN.
+description: Audita Story Contracts de um epico. Roda story-auditor em contexto limpo. Ciclo automatico — auditoria, correcao, re-auditoria ate aprovado (5 ciclos automáticos; 6ª rejeição escala PM). Uso /audit-stories ENN.
 user_invocable: true
 ---
 
@@ -69,7 +69,7 @@ Corrigindo automaticamente...
 ### 4. Ciclo de correcao (se rejected)
 
 ```
-loop (max 3 iteracoes):
+loop (5 ciclos automáticos; 6ª rejeição escala PM):
   1. Analisar findings do story-audit-ENN.json
   2. Para cada finding critical/major:
      - Se e secao faltante → completar no Story Contract
@@ -80,7 +80,7 @@ loop (max 3 iteracoes):
   3. Re-spawnar story-auditor (contexto limpo novo)
   4. Se approved → sair do loop
   5. Se rejected de novo → repetir
-  6. Se 3 iteracoes sem aprovacao → escalar humano (R6)
+  6. Se 6 iteracoes sem aprovacao → escalar humano (R6)
 ```
 
 ### 5. Resultado final ao PM (R12)
@@ -108,7 +108,7 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
 | Cenario | Recuperacao |
 |---|---|
 | story-auditor excede budget (40k tokens) | Epico com muitas stories. Auditar em lotes de 3-4 stories. |
-| Ciclo de correcao nao converge (3 iteracoes) | Escalar humano via R6. Apresentar findings restantes traduzidos com `/explain-slice`. |
+| Ciclo de correcao nao converge (6 iteracoes) | Escalar humano via R6. Apresentar findings restantes traduzidos com `/explain-slice`. |
 | Pre-condicao falha | Listar o que falta e sugerir `/decompose-stories ENN`. |
 | Story Contract com formato inesperado | Reportar como finding critical. Fixer regenera a partir do template. |
 
@@ -119,4 +119,4 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
 ## Handoff
 - Approved → prosseguir para aprovacao do PM e `/start-story ENN-SNN`
 - Rejected e corrigido → re-auditar automaticamente
-- Rejected 3x → escalar humano com `/explain-slice`
+- Rejected 6x → escalar humano com `/explain-slice`

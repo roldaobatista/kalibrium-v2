@@ -16,7 +16,10 @@ Headers padrão:
 - `Accept: text/html` para navegação web.
 - `Accept: application/json` quando Livewire envia request assíncrono.
 - Proteção CSRF obrigatória em ações mutáveis.
-- Rotas autenticadas exigem sessão válida e tenant ativo, exceto `/admin/*`, que usa contexto interno Kalibrium.
+- Rotas autenticadas exigem sessão válida e contexto de tenant permitido, exceto `/admin/*`, que usa contexto interno Kalibrium.
+- Tenant `trial` ou `active` permite leitura e escrita conforme permissões do usuário.
+- Tenant `suspended` permite autenticação e leitura em modo somente leitura; ações mutáveis retornam erro seguro sem alterar dados.
+- Tenant `cancelled` bloqueia rotas de aplicação e exige fluxo posterior de suporte, reativação ou exportação quando aplicável.
 
 Erros padrão:
 - `401` não autenticado.
@@ -53,9 +56,11 @@ Request:
 Success:
 - `302` para `/app` quando 2FA não for exigido.
 - `302` para `/auth/two-factor-challenge` quando 2FA for exigido.
+- `302` para `/app` em modo somente leitura quando tenant estiver `suspended` e o usuário concluir os fatores exigidos.
 
 Erros:
 - `422` para credencial inválida com mensagem neutra.
+- `403` para tenant `cancelled` ou vínculo de usuário sem status ativo.
 - `429` para excesso de tentativas.
 
 ### POST /auth/forgot-password

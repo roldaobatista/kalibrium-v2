@@ -122,7 +122,7 @@ Quer seguir para /freeze-prd ou ajustar algo?
 | Erro | Recuperacao |
 |---|---|
 | PM nao responde a uma pergunta (nao sabe) | Registrar como "pendente" no intake-responses.md. Prosseguir com as demais. Revisitar antes de `/freeze-prd`. |
-| `domain-analyst` falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Se falhar 2x, escalar humano (R6). |
+| `domain-analyst` falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
 | `nfr-analyst` falha porque glossario nao existe | Garantir que `domain-analyst` completou com sucesso antes de spawnar `nfr-analyst`. Reexecutar domain-analyst se necessario. |
 | PM contradiz respostas anteriores durante a entrevista | Parar, apresentar a contradicao em linguagem R12, pedir esclarecimento antes de registrar. |
 

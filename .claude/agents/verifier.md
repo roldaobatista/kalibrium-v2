@@ -65,8 +65,8 @@ Schema obrigatório (validação por `verify-slice` skill — outputs inválidos
 2. Qualquer `violations[]` com regra P1-P9 ou R1-R10 → `verdict: rejected`.
 3. Todos os ACs `pass` + zero violations + testes foram efetivamente executados (não skipped) → `verdict: approved`.
 4. `approved` → `next_action: open_pr`.
-5. `rejected` primeira vez → `next_action: return_to_implementer`.
-6. `rejected` segunda vez (R6 — contagem no telemetry) → `next_action: escalate_human`.
+5. `rejected` da 1ª à 5ª vez consecutiva → `next_action: return_to_implementer`.
+6. `rejected` pela 6ª vez consecutiva (R6 — contagem no telemetry) → `next_action: escalate_human`.
 
 ## Proibido
 - Emitir prosa livre, comentários, markdown.

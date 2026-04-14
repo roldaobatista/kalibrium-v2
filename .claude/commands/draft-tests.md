@@ -15,11 +15,12 @@ Sem esta skill, o PM precisa saber que "agora é hora de gerar testes" e o agent
 **Resolve G-07 da auditoria de operabilidade PM 2026-04-12.**
 
 ## Quando invocar
-Depois que o PM aprovou `specs/NNN/plan.md` (via `/draft-plan NNN`) e **antes** de qualquer código de produção.
+Depois que `specs/NNN/plan.md` passou por `/review-plan NNN`, foi aprovado com `findings: []`, e o PM aprovou o plano. Rodar **antes** de qualquer código de produção.
 
 ## Pré-condições
 - `specs/NNN/spec.md` existe com ACs numerados
 - `specs/NNN/plan.md` existe com status `approved`
+- `specs/NNN/plan-review.json` existe com `verdict: approved`, todos os checks em `pass` e `findings: []`
 - Nenhum código de produção do slice foi commitado ainda
 
 ## O que faz
@@ -88,13 +89,15 @@ Próximo passo:
 | Erro | Recuperação |
 |---|---|
 | `specs/NNN/plan.md` não existe ou não está `approved` | Abortar e sugerir `/draft-plan NNN` para gerar/aprovar o plan primeiro. |
-| `ac-to-test` gera teste que nasce verde (não falha) | Rejeitar o teste via `post-edit-gate.sh`. Re-spawnar ac-to-test com instrução para garantir red. Se falhar 2x, escalar humano (R6). |
+| `specs/NNN/plan-review.json` ausente, reprovado ou com findings | Abortar e rodar `/review-plan NNN`; se houver findings, corrigir todos e reauditar. |
+| `ac-to-test` gera teste que nasce verde (não falha) | Rejeitar o teste via `post-edit-gate.sh`. Re-spawnar ac-to-test com instrução para garantir red. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
 | `draft-tests.sh --validate` detecta AC sem teste correspondente | Listar os ACs descobertos e re-spawnar ac-to-test com foco nos ACs faltantes. |
 | Stack/framework ainda não está instalado para rodar testes | Informar PM que a infraestrutura de testes precisa ser configurada primeiro. Sugerir resolução antes de prosseguir. |
 
 ## Regras
 - Todo AC do spec DEVE ter pelo menos 1 teste (P2)
+- Nunca gerar testes sem `plan-review.json` aprovado com `findings: []`
 - Todo teste DEVE falhar na primeira execução (red) — nascer verde é bug do teste
 - Não mockar o módulo sob teste (regra anti-teste-tautológico C1)
 - Não inventar testes para requisitos que não estão no spec
-- Máximo 2 tentativas de re-geração. Na 3ª falha, escalar humano (R6)
+- Até 5 ciclos automáticos de re-geração. Na 6ª falha consecutiva, escalar humano (R6)

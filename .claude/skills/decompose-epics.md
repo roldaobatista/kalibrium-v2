@@ -78,7 +78,7 @@ Atualizar `project-state.json`:
 
 | Erro | Recuperacao |
 |---|---|
-| `epic-decomposer` gera epicos sem dependencias claras | Re-spawnar com instrucao explicita para mapear dependencias. Se falhar 2x, escalar humano (R6). |
+| `epic-decomposer` gera epicos sem dependencias claras | Re-spawnar com instrucao explicita para mapear dependencias. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
 | Epicos gerados extrapolam o escopo do MVP | Comparar com `docs/product/mvp-scope.md`. Remover epicos fora do MVP e marcar como "pos-MVP" no roadmap. |
 | Pre-condicao falha (PRD ou arquitetura nao frozen) | Listar o que falta e sugerir `/freeze-prd` ou `/freeze-architecture` conforme o caso. |
 

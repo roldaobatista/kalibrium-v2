@@ -38,7 +38,7 @@ REJECTED=$(grep -E '^\| Verificações \(rejected\) \|' "$REPORT" 2>/dev/null | 
 TOTAL_TOK=$(grep -E '^\| \*\*TOTAL\*\* \|' "$REPORT" 2>/dev/null | sed -E 's/.*\*\*([0-9]+)\*\*.*/\1/' | head -1)
 
 RESULT="?"
-if [ "${REJECTED:-0}" -ge 2 ] 2>/dev/null; then
+if [ "${REJECTED:-0}" -ge 6 ] 2>/dev/null; then
   RESULT="escalated (R6)"
 elif [ "${APPROVED:-0}" -ge 1 ] 2>/dev/null; then
   RESULT="approved"

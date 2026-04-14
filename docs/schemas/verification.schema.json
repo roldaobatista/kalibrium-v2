@@ -80,7 +80,7 @@
     "next_action": {
       "type": "string",
       "enum": ["open_pr", "return_to_implementer", "escalate_human"],
-      "description": "Ação pós-verdict. approved -> open_pr. rejected 1x -> return_to_implementer. rejected 2x+ -> escalate_human (R6)."
+      "description": "Ação pós-verdict. approved -> open_pr. rejected 1x-5x -> return_to_implementer. rejected 6x+ -> escalate_human (R6)."
     }
   },
   "allOf": [

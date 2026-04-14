@@ -40,7 +40,7 @@ Após o `verifier` ter emitido `verification.json` com `verdict: approved`. **Nu
    {"event":"review","timestamp":"...","slice":"slice-NNN","verdict":"approved","reject_count":0}
    ```
 
-6. **Aplica R6** para reviewer também: 2 rejeições consecutivas → `escalate_human` + incident file
+6. **Aplica R6** para reviewer também: 5 ciclos automáticos; 6ª rejeição consecutiva → `escalate_human` + incident file
 
 7. **Copia review.json** para `specs/NNN/review.json` (persistência)
 
@@ -57,8 +57,8 @@ bash scripts/review-slice.sh "$1"
 | Cenário | Recuperação |
 |---|---|
 | `verification.json` não existe ou não tem `verdict: approved` | Abortar. Rodar `/verify-slice NNN` primeiro — reviewer nunca roda antes do verifier. |
-| `review.json` não passa na validação contra schema | Re-spawn reviewer. Se falhar 2x, escalar humano (R6). |
-| Reviewer reprova pela 2ª vez consecutiva (R6) | Criar incident file, bloquear implementer, invocar `/explain-slice NNN` para traduzir ao PM. |
+| `review.json` não passa na validação contra schema | Re-spawn reviewer. Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
+| Reviewer reprova pela 6ª vez consecutiva (R6) | Criar incident file, bloquear implementer, invocar `/explain-slice NNN` para traduzir ao PM. |
 | Worktree isolada falha ao ser criada | Verificar espaço em disco e estado do git. Tentar novamente. Se persistir, reportar erro ao PM. |
 
 ## Agentes
@@ -71,4 +71,4 @@ bash scripts/review-slice.sh "$1"
 
 - **Ambos aprovam** → merge automático via `/merge-slice NNN`
 - **Reviewer reprova** (1ª vez) → volta ao implementer com `findings` + sugestão
-- **Reviewer reprova 2ª vez** → `/explain-slice NNN` gera relatório em português pro humano decidir
+- **Reviewer reprova 6ª vez consecutiva** → `/explain-slice NNN` gera relatório em português pro humano decidir

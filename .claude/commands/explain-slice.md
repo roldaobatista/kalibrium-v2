@@ -17,7 +17,7 @@ Esta skill lê artefatos técnicos do slice (`spec.md`, `plan.md`, `verification
 
 ## Quando usar
 
-1. **Obrigatório** em escalações R6 (verifier ou reviewer reprovou 2x) — humano precisa decidir sem entender o diff.
+1. **Obrigatório** em escalações R6 (verifier, reviewer ou auditoria reprovou pela 6ª vez consecutiva no mesmo gate) — humano precisa decidir sem entender o diff.
 2. **Opcional** após merge bem-sucedido — relatório informativo do que entrou em produção.
 3. **Opcional** antes de decidir stack (ADR-0001) — usa-se para descrever trade-offs em linguagem de produto.
 
@@ -104,7 +104,7 @@ bash scripts/explain-slice.sh "$1"
 
 1. `specs/NNN/spec.md` existe (slice já foi criado).
 2. Pelo menos um artefato técnico do slice existe (`verification.json`, `review.json`, ou telemetria em `.claude/telemetry/slice-NNN.jsonl`).
-3. Em caso de escalação R6: os dois `rejected` consecutivos devem estar registrados em `verification.json` ou `review.json`.
+3. Em caso de escalação R6: os seis `rejected` consecutivos devem estar registrados em `verification.json`, `review.json` ou na telemetria do gate.
 
 ## Agentes
 
