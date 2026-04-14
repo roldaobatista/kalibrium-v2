@@ -1,6 +1,6 @@
 # Slice 008 — TEN-001 - Primeiro laboratorio isolado
 
-**Status:** draft
+**Status:** approved
 **Data de criação:** 2026-04-14
 **Autor:** roldaobatista
 **Depende de:** slice-007

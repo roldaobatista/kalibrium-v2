@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T07:40:47-04:00",
+  "updated_at": "2026-04-14T08:21:19-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -39,16 +39,16 @@
     "current_epic": "E02",
     "current_story": "TEN-001",
     "current_slice": "008",
-    "slice_status": "spec_draft",
+    "slice_status": "plan_review_approved_pending_pm",
     "last_green_commit": "81597e6",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
-    "spec_auditor": "not_started",
-    "plan": "not_started",
-    "plan_review": "not_started",
+    "spec_auditor": "approved",
+    "plan": "draft_validated",
+    "plan_review": "approved",
     "verifier": "not_started",
     "reviewer": "not_started",
     "security_reviewer": "not_started",
@@ -147,8 +147,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "PM aceitou iniciar o proximo slice recomendado pelo roadmap: TEN-001 - Primeiro laboratorio isolado. O slice 008 foi criado via new-slice, specs/.current aponta para 008, specs/008/spec.md foi preenchido com 12 ACs sequenciais e scripts/draft-spec.sh 008 --check passou.",
-    "next_action": "PM revisar e aprovar o spec do slice 008. Se aprovado, seguir para /audit-spec 008 antes de gerar o plano.",
+    "last_session_summary": "PM aprovou o spec do slice 008. A auditoria do spec foi registrada e validada como approved com findings vazio. O plano do slice 008 foi gerado, validado e revisado; plan-review.json esta approved com findings vazio. O plano ainda aguarda aceite do PM antes de marcar plan.md como approved e seguir para draft-tests.",
+    "next_action": "PM revisar o resumo do plano do slice 008 e responder aceito para aprovar o plano. Se aprovado, marcar specs/008/plan.md como approved e seguir para /draft-tests 008.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
@@ -161,6 +161,9 @@
       "docs/slice-registry.md",
       "specs/.current",
       "specs/008/spec.md",
+      "specs/008/spec-audit.json",
+      "specs/008/plan.md",
+      "specs/008/plan-review.json",
       "docs/adr/0010-constitution-amendment-r6-gate-threshold.md",
       "docs/retrospectives/constitution-r6-gate-threshold-2026-04-14.md"
     ]
