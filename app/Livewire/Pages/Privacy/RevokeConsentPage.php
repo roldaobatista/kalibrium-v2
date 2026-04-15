@@ -54,7 +54,6 @@ final class RevokeConsentPage extends Component
             return;
         }
 
-        $this->invalid = true;
         abort(404);
     }
 
