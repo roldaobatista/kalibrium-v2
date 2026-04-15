@@ -48,11 +48,12 @@ abstract class TenantIsolationTestCase extends TestCase
             'name'  => 'Usuario Alpha',
             'email' => 'alpha-iso-'.uniqid().'@tenant-isolation.test',
         ]);
-        // Associa usuário ao tenant
+        // Associa usuário ao tenant com status active (requerido por TenantAccessResolver)
         DB::table('tenant_users')->insert([
             'tenant_id'  => $tenantA->id,
             'user_id'    => $userA->id,
             'role'       => 'manager',
+            'status'     => 'active',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -69,6 +70,7 @@ abstract class TenantIsolationTestCase extends TestCase
             'tenant_id'  => $tenantB->id,
             'user_id'    => $userB->id,
             'role'       => 'manager',
+            'status'     => 'active',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -208,23 +210,33 @@ abstract class TenantIsolationTestCase extends TestCase
 
     /**
      * Resolve o ID de um recurso pertencente ao tenant B para um URI pattern.
+     *
+     * Nota: users não tem tenant_id direto — relação via tenant_users (join table).
+     * plans são globais (sem tenant_id) → retorna null para que o teste use markTestIncomplete.
      */
     protected function resolveResourceIdFromTenantB(string $uriPattern, Tenant $tenantB): ?int
     {
-        $tableMap = [
-            '/users/{id}'             => 'users',
-            '/plans/{id}'             => 'plans',
-            '/consent-subjects/{id}'  => 'consent_subjects',
-            '/DELETE /users/{id}'     => 'users',
-        ];
+        // users: relacionamento via tenant_users (join table) — busca user_id do tenant B
+        if ($uriPattern === '/users/{id}' || $uriPattern === 'DELETE /users/{id}') {
+            $row = DB::table('tenant_users')
+                ->where('tenant_id', $tenantB->id)
+                ->first();
 
-        $table = $tableMap[$uriPattern] ?? null;
-        if ($table === null) {
+            return $row?->user_id ?? null;
+        }
+
+        // plans são globais (sem tenant_id) — não é possível determinar "plano do tenant B"
+        if ($uriPattern === '/plans/{id}') {
             return null;
         }
 
-        $record = DB::table($table)->where('tenant_id', $tenantB->id)->first();
+        // consent_subjects tem tenant_id direto
+        if ($uriPattern === '/consent-subjects/{id}') {
+            $record = DB::table('consent_subjects')->where('tenant_id', $tenantB->id)->first();
 
-        return $record?->id;
+            return $record?->id ?? null;
+        }
+
+        return null;
     }
 }

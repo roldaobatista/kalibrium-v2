@@ -406,6 +406,18 @@ Route::middleware([
     EnsureReadOnlyTenantMode::class,
 ])
     ->group(function (): void {
+        // AC-010: expõe o tenant_id do contexto atual da sessão.
+        // Middleware SetCurrentTenantContext define request()->attributes['current_tenant'].
+        // Query string ?tenant=X e header X-Tenant são ignorados intencionalmente.
+        Route::get('/api/tenant-context', function (Illuminate\Http\Request $request) {
+            /** @var \App\Models\Tenant|null $tenant */
+            $tenant = $request->attributes->get('current_tenant');
+
+            return response()->json([
+                'tenant_id' => $tenant?->id,
+            ]);
+        })->name('api.tenant-context');
+
         Route::get('/app', HomePage::class)->name('app.home');
         Route::get('/settings/tenant', TenantPage::class)->name('settings.tenant');
         Route::post('/settings/tenant', TenantSettingsController::class)->name('settings.tenant.store');
