@@ -1,0 +1,190 @@
+{
+  "slice_id": "slice-009",
+  "verdict": "approved",
+  "timestamp": "2026-04-14T00:00:00Z",
+  "coverage_summary": {
+    "acs_total": 18,
+    "acs_covered": 18,
+    "acs_with_edge_cases": 18,
+    "test_count": 67,
+    "assertions": 331,
+    "line_coverage_pct": null,
+    "note": "coverage-report.json nao disponivel; contagem baseada em test-results.txt (67 passed, 331 assertions)"
+  },
+  "ac_coverage": [
+    {
+      "ac": "AC-001",
+      "tests_found": ["tests/slice-009/UsersPageTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["filtro textual", "filtro por papel", "apenas usuarios do proprio tenant"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002",
+      "tests_found": ["tests/slice-009/UsersInviteTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["2FA obrigatorio para papeis criticos", "falha no envio de e-mail nao deixa convite pendente bloqueado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003",
+      "tests_found": ["tests/slice-009/UsersInviteAcceptanceTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["usuario ja ativo em outro tenant preserva senha global", "token de outro convite nao ativa pendente de outro tenant"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004",
+      "tests_found": ["tests/slice-009/UsersRoleTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["todos os 4 papeis canonicos via dataset", "recalculo de 2FA para papel critico"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-005",
+      "tests_found": ["tests/slice-009/UsersDeactivateTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["gerente pode remover proprio acesso quando outro gerente permanece"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-006",
+      "tests_found": ["tests/slice-009/PlansPageTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["uso real vs metrica persistida", "snapshot nao suja modelo", "liberacoes especificas de tenant", "consulta em lote de features"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-007",
+      "tests_found": ["tests/slice-009/PlanUpgradeRequestTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["modulo ja liberado bloqueia pedido", "apenas modulo existente e fora do plano e aceito", "justificativa com texto tenant_id nao bloqueia"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-008",
+      "tests_found": ["tests/slice-009/UsersPageTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["usuario sem papel gerente bloqueado em acoes administrativas"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-009",
+      "tests_found": ["tests/slice-009/UsersPageTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["vinculo inconsistente ainda exige 2FA para papel gerente"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-010",
+      "tests_found": ["tests/slice-009/UsersInviteTest.php", "tests/slice-009/UsersPageTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["9 datasets cobrindo nome vazio, e-mail invalido, papel invalido, empresa/filial de outro tenant, filial fora da empresa"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-011",
+      "tests_found": ["tests/slice-009/UsersInviteTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["usuario ativo", "usuario convidado pendente", "unicidade no banco via constraint"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-012",
+      "tests_found": ["tests/slice-009/UsersDeactivateTest.php", "tests/slice-009/UsersRoleTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["ultimo gerente nao pode remover a si mesmo", "ultimo gerente nao pode ser rebaixado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-013",
+      "tests_found": ["tests/slice-009/UsersPlansSecurityTest.php", "tests/slice-009/UsersInviteTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["id inexistente indistinguivel de id de outro tenant", "busca por e-mail externo retorna zero resultados", "pedido de upgrade grava apenas no tenant atual"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-014",
+      "tests_found": ["tests/slice-009/PlansPageTest.php", "tests/slice-009/UsersPageTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["leitura permitida em suspended", "metricas nao atualizadas em modo somente leitura", "upgrade bloqueado em suspended"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-015",
+      "tests_found": ["tests/slice-009/UsersInviteAcceptanceTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["expirado", "ja usado", "outro tenant via dataset", "token de outro convite nao ativa pendente"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-016",
+      "tests_found": ["tests/slice-009/UsersInviteAcceptanceTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["senha curta", "confirmacao divergente via dataset"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-017",
+      "tests_found": ["tests/slice-009/PlansPageTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["alerta leve (80%) e forte (95%) via dataset", "cada metrica isolada (usuarios, OS mensal, armazenamento) com assertDontSee para nao-atingidos"],
+      "status": "adequate",
+      "notes": "Asserts atualizados para labels PT-BR completos (ex: 'Usuarios em 80% do limite atingido'). Assertions sao especificas e nao-tautologicas; assertDontSee valida isolamento entre metricas."
+    },
+    {
+      "ac": "AC-018",
+      "tests_found": ["tests/slice-009/PlansPageTest.php"],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": ["usuario administrativo nao ve botao de upgrade"],
+      "status": "adequate",
+      "notes": "AC-018 e um AC de restricao de UI; o 'error path' e o comportamento principal (ausencia de botao). Adequado para o escopo descrito no spec."
+    },
+    {
+      "ac": "AC-SEC-001",
+      "tests_found": ["tests/slice-009/UsersPlansSecurityTest.php", "tests/slice-009/PlansPageTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["HTML/JS/SQL em nome, e-mail, busca, justificativa", "codigo de modulo com aspas em botao de upgrade"],
+      "status": "adequate",
+      "notes": "Mudanca auditada: validacao de sanitizacao via strip_tags. O teste verifica $upgradeRequest->justification nao contendo '<img', '<script', 'onerror' — valida valor persistido, nao apenas resposta HTTP. Comportamento descrito no AC-SEC-001 coberto adequadamente."
+    },
+    {
+      "ac": "AC-SEC-002",
+      "tests_found": ["tests/slice-009/UsersPlansSecurityTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["todos os tipos de auditoria (convite, aceite, papel, desativacao, upgrade) sem senha/token/segredo"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-SEC-003",
+      "tests_found": ["tests/slice-009/UsersPlansSecurityTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["dois tenants distintos, modelos com escopo de tenant_id"],
+      "status": "adequate"
+    }
+  ],
+  "findings": [],
+  "anti_patterns": [],
+  "next_action": "approved"
+}

@@ -1,0 +1,119 @@
+{
+  "slice_id": "slice-009",
+  "verdict": "approved",
+  "timestamp": "2026-04-14T00:00:00Z",
+  "ac_assessment": [
+    {
+      "ac": "AC-001",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: gerente com 2FA acessa /settings/users, ve usuarios, papeis, status, 2FA e filtros do tenant."
+    },
+    {
+      "ac": "AC-002",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: convite cria vinculo pendente no tenant, marca requires_2fa para papeis criticos, registra auditoria sem expor senha/token."
+    },
+    {
+      "ac": "AC-003",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: convite valido permite definir senha, ativa vinculo correto e redireciona para login."
+    },
+    {
+      "ac": "AC-004",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: alteracao de papel recalcula 2FA para todos os papeis canonicos e registra auditoria."
+    },
+    {
+      "ac": "AC-005",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: desativacao registra auditoria e bloqueia acesso; protecao do ultimo gerente ativa."
+    },
+    {
+      "ac": "AC-006",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: /settings/plans exibe plano, status, uso, limites e modulos; liberacoes especificas do tenant consideradas."
+    },
+    {
+      "ac": "AC-007",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: pedido de upgrade registrado sem cobranca real; bloqueia modulo ja liberado."
+    },
+    {
+      "ac": "AC-008",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: usuario sem papel gerente nao acessa dados administrativos nem consegue convidar."
+    },
+    {
+      "ac": "AC-009",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: gerente com 2FA pendente e redirecionado antes de acoes mutaveis."
+    },
+    {
+      "ac": "AC-010",
+      "met": true,
+      "confidence": "high",
+      "notes": "Testes passam para 9 cenarios invalidos incluindo empresa/filial de outro tenant e filial fora da empresa."
+    },
+    {
+      "ac": "AC-011",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: duplicidade bloqueada para usuario ativo e convidado pendente; constraint de banco validada."
+    },
+    {
+      "ac": "AC-012",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: ultimo gerente nao pode remover a si mesmo nem ser rebaixado."
+    },
+    {
+      "ac": "AC-013",
+      "met": true,
+      "confidence": "high",
+      "notes": "Testes passam: parametros de outro tenant rejeitados sem revelar dados externos em convite, usuario e plano."
+    },
+    {
+      "ac": "AC-014",
+      "met": true,
+      "confidence": "high",
+      "notes": "Testes passam: tenant suspended permite leitura de /settings/users e /settings/plans, bloqueia acoes mutaveis."
+    },
+    {
+      "ac": "AC-015",
+      "met": true,
+      "confidence": "high",
+      "notes": "Testes passam: convite expirado, usado ou de outro tenant bloqueado; token cross-tenant nao ativa vinculo."
+    },
+    {
+      "ac": "AC-016",
+      "met": true,
+      "confidence": "high",
+      "notes": "Testes passam: senha curta e confirmacao divergente retornam validacao e mantem convite pendente."
+    },
+    {
+      "ac": "AC-017",
+      "met": true,
+      "confidence": "high",
+      "notes": "Testes passam: alertas leve (80%) e forte (95%) exibidos para usuarios, OS mensal e armazenamento."
+    },
+    {
+      "ac": "AC-018",
+      "met": true,
+      "confidence": "high",
+      "notes": "Teste passa: usuario nao gerente ve informacoes basicas do plano sem botao de upgrade."
+    }
+  ],
+  "ux_findings": [],
+  "consistency_findings": [],
+  "business_rule_findings": [],
+  "next_action": "approved"
+}

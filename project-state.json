@@ -39,8 +39,8 @@
     "current_epic": "E02",
     "current_story": "TEN-002",
     "current_slice": "009",
-    "slice_status": "reviewer_approved_pending_parallel_gates",
-    "last_green_commit": "fdbf228",
+    "slice_status": "all_gates_approved_pending_merge",
+    "last_green_commit": "92fbe2a",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -51,9 +51,9 @@
     "plan_review": "approved",
     "verifier": "approved",
     "reviewer": "approved",
-    "security_reviewer": "not_started",
-    "test_auditor": "not_started",
-    "functional_reviewer": "not_started"
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved"
   },
   "pending_decisions": [
     {
@@ -163,8 +163,8 @@
     "codex_bootstrap_commit": "1527c69"
   },
   "handoff": {
-    "last_session_summary": "PD-013 autorizada pelo PM. O pacote do reviewer foi corrigido para excluir verification.json, review.json, plan/tasks e artefatos operacionais. O reviewer foi rerodado ate a rodada 6 e aprovou com findings vazios.",
-    "next_action": "Rodar os tres gates paralelos do slice 009: security-review, test-audit e functional-review. Se todos aprovarem com findings vazios, seguir para merge-slice 009.",
+    "last_session_summary": "Rodados os 3 gates paralelos do slice 009. Primeira rodada: security=rejected (4), test-audit=approved, functional=rejected (7, inclui AC-002 falhando). Fixer aplicou correcoes em 2 commits atomicos (seguranca + UX). Segunda rodada: security=approved, test-audit=approved, functional=rejected (1, UX-008 status do plano em ingles). Fix surgico em plans-page.blade.php. Terceira rodada functional: approved. Os 3 gates paralelos aprovados com findings vazios.",
+    "next_action": "Rodar /merge-slice 009 — todos os 8 gates aprovados.",
     "context_files_to_load": [
       "CLAUDE.md",
       "docs/constitution.md",
