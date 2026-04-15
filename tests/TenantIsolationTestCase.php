@@ -177,6 +177,7 @@ abstract class TenantIsolationTestCase extends TestCase
             if (! $exists) {
                 DB::table('consent_subjects')->insert([
                     'tenant_id' => $tenant->id,
+                    'subject_type' => 'customer',
                     'email' => "fixture-{$tenant->id}@tenant-isolation.test",
                     'name' => "Fixture {$tenant->name}",
                     'created_at' => now(),

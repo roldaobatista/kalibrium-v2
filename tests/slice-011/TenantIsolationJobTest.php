@@ -46,11 +46,15 @@ dataset('tenant_aware_jobs', function () {
 test('AC-003: job despachado no contexto do tenant A não cria registros com tenant_id do tenant B', function (string $jobClass) {
     /** @ac AC-003 */
     if ($jobClass === '__missing__') {
-        $this->markTestIncomplete(
-            'AC-003: config/tenancy-jobs.php[tenant_aware_jobs] não está definido ou vazio. '.
-            'Crie o arquivo com a lista inicial de jobs tenant-aware do E02 '.
-            '(ex: ProcessConsentJob, ExportReportJob).'
-        );
+        // config/tenancy-jobs.php existe mas está vazio ou não carregado
+        $jobs = config('tenancy-jobs.tenant_aware_jobs', []);
+        expect($jobs)
+            ->not->toBeEmpty(
+                'AC-003: config/tenancy-jobs.php[tenant_aware_jobs] está vazio. '.
+                'Adicione ao menos ProcessConsentJob.'
+            );
+
+        return;
     }
 
     expect(class_exists($jobClass))
@@ -59,12 +63,13 @@ test('AC-003: job despachado no contexto do tenant A não cria registros com ten
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
 
-    tenancy()->initialize($tenantA);
+    // Usa initializeTenant() — compatível com App\Models\Tenant (não requer Stancl interface)
+    $this->initializeTenant($tenantA);
 
     try {
         Queue::fake();
 
-        dispatch(new $jobClass);
+        dispatch(new $jobClass($tenantA->id));
 
         // Verifica que o job carrega contexto de tenant (via middleware ou propriedade)
         Queue::assertPushed($jobClass, function ($job) {
@@ -92,7 +97,7 @@ test('AC-003: job despachado no contexto do tenant A não cria registros com ten
                 );
         }
     } finally {
-        tenancy()->end();
+        $this->endTenant();
     }
 })->with('tenant_aware_jobs');
 
@@ -105,7 +110,7 @@ test('AC-012: todos os jobs tenant-aware implementam JobTenancyBootstrapper para
     $jobs = config('tenancy-jobs.tenant_aware_jobs', []);
 
     if (empty($jobs)) {
-        $this->markTestIncomplete(
+        $this->fail(
             'AC-012: config/tenancy-jobs.php[tenant_aware_jobs] está vazio. '.
             'Impossível validar bootstrapper sem jobs definidos.'
         );
@@ -157,15 +162,11 @@ test('AC-012: contextos de tenants não vazam entre dispatches consecutivos de j
     /** @ac AC-012 */
     $jobs = config('tenancy-jobs.tenant_aware_jobs', []);
 
-    if (empty($jobs)) {
-        $this->markTestIncomplete('AC-012: Nenhum job definido em config/tenancy-jobs.php.');
-    }
+    expect($jobs)->not->toBeEmpty('AC-012: Nenhum job definido em config/tenancy-jobs.php.');
 
     $jobClass = reset($jobs);
 
-    if (! class_exists($jobClass)) {
-        $this->fail("Job {$jobClass} não existe.");
-    }
+    expect(class_exists($jobClass))->toBeTrue("Job {$jobClass} não existe.");
 
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
@@ -173,15 +174,16 @@ test('AC-012: contextos de tenants não vazam entre dispatches consecutivos de j
     Queue::fake();
 
     // Dispatch 1: contexto A
-    tenancy()->initialize($tenantA);
-    dispatch(new $jobClass);
-    tenancy()->end();
+    $this->initializeTenant($tenantA);
+    dispatch(new $jobClass($tenantA->id));
+    $this->endTenant();
 
     // Dispatch 2: contexto B
-    tenancy()->initialize($tenantB);
-    dispatch(new $jobClass);
+    $this->initializeTenant($tenantB);
+    dispatch(new $jobClass($tenantB->id));
 
-    $currentTenantId = tenancy()->tenant?->id ?? null;
+    // Contexto B deve estar ativo após o segundo dispatch
+    $currentTenantId = request()->attributes->get('current_tenant_id');
 
     expect($currentTenantId)
         ->toBe($tenantB->id,
@@ -189,7 +191,7 @@ test('AC-012: contextos de tenants não vazam entre dispatches consecutivos de j
             'Os contextos entre dispatches não devem vazar entre si.'
         );
 
-    tenancy()->end();
+    $this->endTenant();
 
     Queue::assertPushed($jobClass, 2);
 });

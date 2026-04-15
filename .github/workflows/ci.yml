@@ -418,14 +418,24 @@ jobs:
     timeout-minutes: 15
     needs: harness
     continue-on-error: true
-    # paths: [app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/slice-011/**]
+    # paths filter via dorny/paths-filter (step check abaixo)
+    # paths: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/slice-011/**
+    # run: php artisan test --testsuite=tenant-isolation
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check
+      - name: Check changed paths
         id: check
-        run: |
-          [ -f composer.json ] && echo "run=true" >> "$GITHUB_OUTPUT" || echo "run=false" >> "$GITHUB_OUTPUT"
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            run:
+              paths:
+                - 'app/Models/**'
+                - 'app/Http/**'
+                - 'app/Livewire/**'
+                - 'app/Jobs/**'
+                - 'tests/slice-011/**'
 
       - name: PHP
         if: steps.check.outputs.run == 'true'

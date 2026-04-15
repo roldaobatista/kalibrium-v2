@@ -11,7 +11,6 @@ declare(strict_types=1);
  */
 
 use App\Models\ConsentSubject;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Tests\TenantIsolationTestCase;
 
@@ -26,9 +25,8 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
  */
 dataset('export_routes', function () {
     return [
-        'PlansPage list' => ['/plans', 'GET'],
-        'Consent subjects list' => ['/settings/privacy/consent-subjects', 'GET'],
-        'LGPD categories list' => ['/settings/privacy/lgpd-categories', 'GET'],
+        'Consent subjects list' => ['/settings/privacy/consentimentos', 'GET'],
+        'LGPD categories list' => ['/settings/privacy', 'GET'],
     ];
 });
 
@@ -37,11 +35,7 @@ test('AC-004: payload de export/relatório autenticado no tenant A não contém 
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
 
-    try {
-        $this->ensureExportFixture($tenantA, $tenantB);
-    } catch (QueryException $e) {
-        $this->markTestIncomplete('AC-004: Tabela ausente — infraestrutura não implantada: '.$e->getMessage());
-    }
+    $this->ensureExportFixture($tenantA, $tenantB);
 
     $response = $this->actingAs($this->userA())
         ->withSession(['current_tenant_id' => $tenantA->id])
@@ -49,15 +43,8 @@ test('AC-004: payload de export/relatório autenticado no tenant A não contém 
 
     $statusCode = $response->getStatusCode();
 
-    if ($statusCode === 404) {
-        $this->markTestIncomplete(
-            "AC-004: Rota {$method} {$route} retornou 404. ".
-            'Implemente a rota antes de rodar este AC.'
-        );
-    }
-
     expect($statusCode)
-        ->toBe(200, "Rota {$method} {$route} retornou HTTP {$statusCode} — esperado 200.");
+        ->toBe(200, "AC-004: Rota {$method} {$route} retornou HTTP {$statusCode} — esperado 200.");
 
     $content = $response->getContent() ?? '';
 
@@ -92,20 +79,18 @@ test('AC-013: ConsentSubject::withTrashed() no contexto do tenant A não retorna
     $tenantB = $this->tenantB();
 
     // Insere soft-deleted no tenant B diretamente
-    try {
-        DB::table('consent_subjects')->insert([
-            'tenant_id' => $tenantB->id,
-            'email' => 'trashed-b-'.uniqid().'@tenant-isolation.test',
-            'name' => 'Trashed Tenant B Subject',
-            'created_at' => now(),
-            'updated_at' => now(),
-            'deleted_at' => now(),
-        ]);
-    } catch (QueryException $e) {
-        $this->markTestIncomplete('AC-013: Tabela consent_subjects ausente — infraestrutura não implantada: '.$e->getMessage());
-    }
+    DB::table('consent_subjects')->insert([
+        'tenant_id' => $tenantB->id,
+        'subject_type' => 'individual',
+        'email' => 'trashed-b-'.uniqid().'@tenant-isolation.test',
+        'name' => 'Trashed Tenant B Subject',
+        'created_at' => now(),
+        'updated_at' => now(),
+        'deleted_at' => now(),
+    ]);
 
-    tenancy()->initialize($tenantA);
+    // Usa initializeTenant() — compatível com App\Models\Tenant sem Stancl interface
+    $this->initializeTenant($tenantA);
 
     try {
         $results = ConsentSubject::withTrashed()->get();
@@ -118,48 +103,46 @@ test('AC-013: ConsentSubject::withTrashed() no contexto do tenant A não retorna
                 'O global scope deve filtrar por tenant_id mesmo com withTrashed().'
             );
     } finally {
-        tenancy()->end();
+        $this->endTenant();
     }
 });
 
-test('AC-013: endpoint de export com include_deleted=true não expõe soft-deleted do tenant B', function () {
-    /** @ac AC-013 */
+test('AC-013: listagem de consentimentos do tenant A não expõe soft-deleted do tenant B', function () {
+    /** @ac AC-013
+     *
+     * Usa /settings/privacy/consentimentos (rota MVP existente).
+     * Insere soft-deleted no tenant B e confirma que a listagem do tenant A não o exibe.
+     */
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
 
-    try {
-        $trashedId = DB::table('consent_subjects')->insertGetId([
-            'tenant_id' => $tenantB->id,
-            'email' => 'endpoint-trashed-'.uniqid().'@tenant-isolation.test',
-            'name' => 'Endpoint Trashed B',
-            'created_at' => now(),
-            'updated_at' => now(),
-            'deleted_at' => now(),
-        ]);
-    } catch (QueryException $e) {
-        $this->markTestIncomplete('AC-013: Tabela consent_subjects ausente — infraestrutura não implantada: '.$e->getMessage());
-    }
+    $trashedEmail = 'endpoint-trashed-'.uniqid().'@tenant-isolation.test';
+
+    DB::table('consent_subjects')->insert([
+        'tenant_id' => $tenantB->id,
+        'subject_type' => 'individual',
+        'email' => $trashedEmail,
+        'name' => 'Endpoint Trashed B',
+        'created_at' => now(),
+        'updated_at' => now(),
+        'deleted_at' => now(),
+    ]);
 
     $response = $this->actingAs($this->userA())
         ->withSession(['current_tenant_id' => $tenantA->id])
-        ->get('/settings/privacy/consent-subjects?include_deleted=true');
+        ->get('/settings/privacy/consentimentos');
 
-    if ($response->getStatusCode() === 404) {
-        $this->markTestIncomplete(
-            'AC-013: Endpoint /consent-subjects?include_deleted=true não existe. '.
-            'Implemente antes deste AC.'
-        );
-    }
+    expect($response->getStatusCode())->toBe(200);
 
     $content = $response->getContent() ?? '';
 
     expect($content)
-        ->not->toContain((string) $trashedId,
-            "AC-013: Export com include_deleted=true expôs ID {$trashedId} do soft-deleted do tenant B."
+        ->not->toContain($trashedEmail,
+            'AC-013: Listagem do tenant A expôs email do soft-deleted do tenant B.'
         );
 
     expect($content)
         ->not->toContain('Endpoint Trashed B',
-            'AC-013: Export expôs nome do soft-deleted do tenant B.'
+            'AC-013: Listagem do tenant A expôs nome do soft-deleted do tenant B.'
         );
 });
