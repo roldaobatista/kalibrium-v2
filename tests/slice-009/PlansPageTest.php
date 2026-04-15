@@ -281,6 +281,82 @@ test('AC-017: consumo acima de 80 e 95 por cento exibe alertas leve e forte em /
     ],
 ])->group('slice-009', 'ac-017');
 
+test('AC-017: cada metrica de limite exibe alerta proporcional isoladamente', function (array $fixtureOverrides, string $expectedAlert, string $unexpectedAlert, int $extraActiveUsers = 0): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    for ($i = 0; $i < $extraActiveUsers; $i++) {
+        slice009_create_tenant_member($context, [
+            'role' => 'tecnico',
+            'status' => 'active',
+        ]);
+    }
+    slice009_seed_plan_fixture($context['tenant'], $fixtureOverrides);
+
+    $response = $this
+        ->actingAs($context['user'])
+        ->get(slice009_routes()['plans']);
+
+    $response->assertStatus(200);
+    $response->assertSee($expectedAlert);
+    $response->assertDontSee($unexpectedAlert);
+})->with([
+    'usuarios alerta leve' => [
+        [
+            'plan_name' => 'Starter usuarios '.uniqid(),
+            'users_used' => 8,
+            'users_limit' => 10,
+            'monthly_os_used' => 79,
+            'monthly_os_limit' => 100,
+            'storage_used_bytes' => 79,
+            'storage_limit_bytes' => 100,
+        ],
+        'users em 80%',
+        'storage em 80%',
+        7,
+    ],
+    'os mensal alerta forte' => [
+        [
+            'plan_name' => 'Starter os '.uniqid(),
+            'users_used' => 7,
+            'users_limit' => 10,
+            'monthly_os_used' => 95,
+            'monthly_os_limit' => 100,
+            'storage_used_bytes' => 70,
+            'storage_limit_bytes' => 100,
+        ],
+        'monthly_os em 95%',
+        'storage em 95%',
+    ],
+    'armazenamento alerta leve' => [
+        [
+            'plan_name' => 'Starter storage leve '.uniqid(),
+            'users_used' => 7,
+            'users_limit' => 10,
+            'monthly_os_used' => 79,
+            'monthly_os_limit' => 100,
+            'storage_used_bytes' => 80,
+            'storage_limit_bytes' => 100,
+        ],
+        'storage em 80%',
+        'monthly_os em 80%',
+    ],
+    'armazenamento alerta forte' => [
+        [
+            'plan_name' => 'Starter storage forte '.uniqid(),
+            'users_used' => 7,
+            'users_limit' => 10,
+            'monthly_os_used' => 79,
+            'monthly_os_limit' => 100,
+            'storage_used_bytes' => 95,
+            'storage_limit_bytes' => 100,
+        ],
+        'storage em 95%',
+        'monthly_os em 95%',
+    ],
+])->group('slice-009', 'ac-017');
+
 test('AC-018: usuario nao gerente autorizado ve informacoes basicas do plano sem botao de upgrade', function (): void {
     $context = slice009_user_with_tenant_context([
         'tenant_status' => 'active',

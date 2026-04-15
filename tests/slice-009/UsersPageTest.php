@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Livewire\Pages\Settings\UsersPage;
 use App\Models\TenantUser;
 use App\Support\Settings\UserDeactivationService;
 use App\Support\Settings\UserInvitationService;
@@ -9,6 +10,7 @@ use App\Support\Settings\UserRoleService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
 
 require_once __DIR__.'/TestHelpers.php';
 
@@ -48,6 +50,37 @@ test('AC-001: gerente com 2FA concluido acessa /settings/users e ve usuarios, pa
         $otherTenant['tenant']->name,
         $otherTenant['user']->email,
     ]);
+})->group('slice-009', 'ac-001');
+
+test('AC-001: filtros de usuarios por busca textual e papel retornam apenas usuarios correspondentes', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $tecnico = slice009_create_tenant_member($context, [
+        'role' => 'tecnico',
+        'user_name' => 'Tecnico Calibracao',
+        'email' => 'tecnico.calibracao+'.Str::uuid().'@example.com',
+    ]);
+    $visualizador = slice009_create_tenant_member($context, [
+        'role' => 'visualizador',
+        'user_name' => 'Visualizador Financeiro',
+        'email' => 'visualizador.financeiro+'.Str::uuid().'@example.com',
+    ]);
+
+    Livewire::actingAs($context['user'])
+        ->test(UsersPage::class)
+        ->set('search', 'calibracao')
+        ->set('role', 'tecnico')
+        ->assertSee($tecnico['user']->email)
+        ->assertDontSee($visualizador['user']->email);
+
+    Livewire::actingAs($context['user'])
+        ->test(UsersPage::class)
+        ->set('search', 'financeiro')
+        ->set('role', 'visualizador')
+        ->assertSee($visualizador['user']->email)
+        ->assertDontSee($tecnico['user']->email);
 })->group('slice-009', 'ac-001');
 
 test('AC-008: usuario sem papel gerente nao acessa dados administrativos nem consegue convidar usuario', function (): void {
@@ -157,5 +190,28 @@ test('AC-014: tenant suspended pode ler /settings/users em modo somente leitura,
         ->updateRole($context['user'], $context['tenant_user'], $member['tenant_user'], 'administrativo'))
         ->toThrow(AuthorizationException::class);
 
+    expect(fn () => app(UserDeactivationService::class)
+        ->deactivate($context['user'], $context['tenant_user'], $member['tenant_user']))
+        ->toThrow(AuthorizationException::class);
+
     expect(TenantUser::query()->where('tenant_id', $context['tenant']->id)->count())->toBe($before);
+    expect($member['tenant_user']->fresh()->status)->toBe('active');
 })->group('slice-009', 'ac-014');
+
+test('AC-010: formulario de convite mostra mensagens de validacao para campos invalidos', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+
+    Livewire::actingAs($context['user'])
+        ->test(UsersPage::class)
+        ->set('form.name', '')
+        ->set('form.email', 'email-invalido')
+        ->set('form.role', 'papel-invalido')
+        ->call('inviteUser')
+        ->assertHasErrors(['form.name', 'form.email', 'form.role'])
+        ->assertSee('Informe o nome do usuario.')
+        ->assertSee('Informe um e-mail valido.')
+        ->assertSee('Selecione um papel valido.');
+})->group('slice-009', 'ac-010');

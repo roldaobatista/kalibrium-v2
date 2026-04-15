@@ -86,14 +86,40 @@
         <div class="space-y-3 border-t border-slate-300 pt-4">
             <h2 class="text-lg font-semibold">Convidar usuario</h2>
             <div class="grid gap-3 md:grid-cols-2">
-                <input wire:model="form.name" placeholder="Nome" class="rounded border border-slate-300 px-3 py-2">
-                <input wire:model="form.email" placeholder="E-mail" class="rounded border border-slate-300 px-3 py-2">
-                <select wire:model="form.role" class="rounded border border-slate-300 px-3 py-2">
-                    <option value="gerente">gerente</option>
-                    <option value="tecnico">tecnico</option>
-                    <option value="administrativo">administrativo</option>
-                    <option value="visualizador">visualizador</option>
-                </select>
+                <label class="space-y-1 text-sm font-medium">
+                    <span>Nome</span>
+                    <input wire:model="form.name" placeholder="Nome" class="w-full rounded border border-slate-300 px-3 py-2">
+                    @error('form.name')
+                        <span class="block text-xs text-red-700">{{ $message }}</span>
+                    @enderror
+                </label>
+                <label class="space-y-1 text-sm font-medium">
+                    <span>E-mail</span>
+                    <input wire:model="form.email" placeholder="E-mail" class="w-full rounded border border-slate-300 px-3 py-2">
+                    @error('form.email')
+                        <span class="block text-xs text-red-700">{{ $message }}</span>
+                    @enderror
+                </label>
+                <label class="space-y-1 text-sm font-medium">
+                    <span>Papel</span>
+                    <select wire:model="form.role" class="w-full rounded border border-slate-300 px-3 py-2">
+                        <option value="gerente">gerente</option>
+                        <option value="tecnico">tecnico</option>
+                        <option value="administrativo">administrativo</option>
+                        <option value="visualizador">visualizador</option>
+                    </select>
+                    @error('form.role')
+                        <span class="block text-xs text-red-700">{{ $message }}</span>
+                    @enderror
+                </label>
+                <div class="space-y-1 text-sm">
+                    @error('form.company_id')
+                        <span class="block text-xs text-red-700">{{ $message }}</span>
+                    @enderror
+                    @error('form.branch_id')
+                        <span class="block text-xs text-red-700">{{ $message }}</span>
+                    @enderror
+                </div>
                 <button wire:click="inviteUser" class="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white">
                     Enviar convite
                 </button>

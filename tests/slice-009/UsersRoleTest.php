@@ -30,6 +30,33 @@ test('AC-004: gerente altera papel de usuario do mesmo tenant, recalcula 2FA par
     slice009_assert_audit_does_not_leak($context['tenant']->id);
 })->group('slice-009', 'ac-004');
 
+test('AC-004: gerente altera usuario para todos os papeis canonicos e recalcula 2FA', function (string $initialRole, string $newRole, bool $requiresTwoFactor): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $member = slice009_create_tenant_member($context, [
+        'role' => $initialRole,
+        'status' => 'active',
+    ]);
+
+    app(UserRoleService::class)->updateRole(
+        $context['user'],
+        $context['tenant_user'],
+        $member['tenant_user'],
+        $newRole,
+    );
+
+    $member['tenant_user']->refresh();
+    expect($member['tenant_user']->role)->toBe($newRole);
+    expect((bool) $member['tenant_user']->requires_2fa)->toBe($requiresTwoFactor);
+})->with([
+    'para gerente' => ['tecnico', 'gerente', true],
+    'para tecnico' => ['administrativo', 'tecnico', false],
+    'para administrativo' => ['visualizador', 'administrativo', true],
+    'para visualizador' => ['gerente', 'visualizador', false],
+])->group('slice-009', 'ac-004');
+
 test('AC-012: ultimo gerente ativo nao pode ser rebaixado para outro papel', function (): void {
     $context = slice009_user_with_tenant_context([
         'tenant_status' => 'active',

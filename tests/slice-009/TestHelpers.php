@@ -378,6 +378,14 @@ function slice009_seed_plan_fixture(Tenant $tenant, array $overrides = []): arra
         'limit_value' => $monthlyOsLimit,
         'enabled' => true,
     ]);
+    slice009_insert_filtered('plan_entitlements', [
+        'plan_id' => $planId,
+        'feature_id' => null,
+        'feature_code' => 'storage',
+        'limit_key' => 'storage',
+        'limit_value' => $storageLimitBytes,
+        'enabled' => true,
+    ]);
     slice009_insert_filtered('tenant_plan_metrics', [
         'tenant_id' => $tenant->id,
         'users_used' => $usersUsed,

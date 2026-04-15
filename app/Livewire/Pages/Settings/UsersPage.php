@@ -15,12 +15,22 @@ use App\Support\Tenancy\CurrentTenantResolver;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Component;
 
 final class UsersPage extends Component
 {
     use ResolvesTenantSettingsContext;
+
+    /** @var array<string, string> */
+    private const array INVITE_ERROR_MESSAGES = [
+        'name' => 'Informe o nome do usuario.',
+        'email' => 'Informe um e-mail valido.',
+        'role' => 'Selecione um papel valido.',
+        'company_id' => 'Empresa invalida para este laboratorio.',
+        'branch_id' => 'Filial invalida para este laboratorio.',
+    ];
 
     public string $search = '';
 
@@ -59,7 +69,17 @@ final class UsersPage extends Component
     public function inviteUser(UserInvitationService $service): void
     {
         $this->assertWritable();
-        $service->invite($this->actor(), $this->actorTenantUser(), $this->form);
+        try {
+            $service->invite($this->actor(), $this->actorTenantUser(), $this->form);
+        } catch (ValidationException $exception) {
+            foreach ($exception->errors() as $field => $messages) {
+                $message = self::INVITE_ERROR_MESSAGES[$field] ?? (string) ($messages[0] ?? 'Revise os dados do convite.');
+                $this->addError('form.'.$field, $message);
+            }
+
+            return;
+        }
+
         session()->flash('status', 'Convite enviado.');
     }
 

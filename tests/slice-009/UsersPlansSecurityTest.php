@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Livewire\Pages\Settings\PlansPage;
 use App\Livewire\Pages\Settings\UsersPage;
 use App\Models\PlanUpgradeRequest;
 use App\Models\TenantPlanMetric;
@@ -149,6 +150,49 @@ test('AC-013: busca por e-mail de outro tenant nao retorna usuarios do tenant at
     );
 
     expect($results)->toHaveCount(0);
+})->group('slice-009', 'ac-013');
+
+test('AC-013: pedido de upgrade ignora plano e limite de outro tenant e grava somente no tenant atual', function (): void {
+    $context = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $external = slice009_user_with_tenant_context([
+        'tenant_status' => 'active',
+        'role' => 'gerente',
+    ]);
+    $featureCode = 'modulo-isolado-'.Str::lower(Str::random(8));
+    slice009_seed_plan_fixture($context['tenant'], [
+        'feature_code' => $featureCode,
+        'users_limit' => 10,
+        'monthly_os_limit' => 100,
+    ]);
+    slice009_seed_plan_fixture($external['tenant'], [
+        'feature_code' => $featureCode,
+        'users_limit' => 999,
+        'monthly_os_limit' => 999,
+    ]);
+    $featureId = DB::table('features')->where('code', $featureCode)->value('id');
+    slice009_insert_filtered('tenant_entitlements', [
+        'tenant_id' => $external['tenant']->id,
+        'feature_id' => $featureId,
+        'feature_code' => $featureCode,
+        'limit_value' => 999,
+        'enabled' => true,
+    ], ['tenant_id']);
+
+    Livewire::actingAs($context['user'])
+        ->test(PlansPage::class)
+        ->call('requestUpgrade', $featureCode, 'Solicitar modulo do tenant atual.');
+
+    expect(PlanUpgradeRequest::query()
+        ->where('tenant_id', $context['tenant']->id)
+        ->where('feature_code', $featureCode)
+        ->count())->toBe(1);
+    expect(PlanUpgradeRequest::query()
+        ->where('tenant_id', $external['tenant']->id)
+        ->where('feature_code', $featureCode)
+        ->count())->toBe(0);
 })->group('slice-009', 'ac-013');
 
 test('AC-SEC-001: HTML, JavaScript e SQL em nome, e-mail, busca ou justificativa sao tratados como dado e nao refletem sem escape', function (): void {

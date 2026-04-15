@@ -130,6 +130,32 @@ test('AC-015: convite expirado, usado ou de outro tenant bloqueia aceite sem alt
     'token inexistente' => [['request_token' => 'invitation-token-invalido'], 'invited'],
 ])->group('slice-009', 'ac-015');
 
+test('AC-015: token de outro convite nao ativa convite pendente de outro tenant', function (): void {
+    $currentInvitation = slice009_invitation_context([
+        'role' => 'tecnico',
+        'status' => 'invited',
+    ]);
+    $otherInvitation = slice009_invitation_context([
+        'role' => 'visualizador',
+        'status' => 'invited',
+    ]);
+
+    $response = $this->post(
+        slice009_routes()['invitation']($otherInvitation['token']),
+        slice009_accept_payload(),
+    );
+
+    $response->assertRedirect('/auth/login');
+
+    $currentTenantUser = TenantUser::query()->find($currentInvitation['invited_tenant_user']->id);
+    $otherTenantUser = TenantUser::query()->find($otherInvitation['invited_tenant_user']->id);
+
+    expect($currentTenantUser->status)->toBe('invited');
+    expect($currentTenantUser->accepted_at)->toBeNull();
+    expect($otherTenantUser->status)->toBe('active');
+    expect($otherTenantUser->tenant_id)->toBe($otherInvitation['tenant']->id);
+})->group('slice-009', 'ac-015');
+
 test('AC-016: senha curta ou confirmacao divergente retorna validacao e mantem convite pendente', function (array $payloadOverrides): void {
     $context = slice009_invitation_context([
         'role' => 'tecnico',

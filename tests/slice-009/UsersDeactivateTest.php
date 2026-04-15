@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\Auth\TenantAccessResolver;
 use App\Support\Settings\UserDeactivationService;
 use Illuminate\Auth\Access\AuthorizationException;
 
@@ -26,11 +27,10 @@ test('AC-005: gerente desativa usuario do mesmo tenant sem remover o ultimo gere
     $member['tenant_user']->refresh();
     expect(in_array($member['tenant_user']->status, ['removed', 'suspended'], true))->toBeTrue();
 
-    $login = $this->post('/auth/login', [
-        'email' => $member['user']->email,
-        'password' => 'SenhaSegura123!',
-    ]);
-    expect(in_array($login->status(), [302, 403, 422], true))->toBeTrue();
+    $decision = app(TenantAccessResolver::class)->resolve($member['user']->fresh());
+    expect($decision['allowed'])->toBeFalse();
+    expect($decision['event'])->toBe('auth.login.blocked_binding_status');
+    expect($decision['tenant_user_id'])->toBe($member['tenant_user']->id);
     slice009_assert_audit_does_not_leak($context['tenant']->id);
 })->group('slice-009', 'ac-005');
 
