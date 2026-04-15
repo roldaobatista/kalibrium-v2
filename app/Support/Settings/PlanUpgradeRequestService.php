@@ -40,11 +40,6 @@ final readonly class PlanUpgradeRequestService
             'feature_code' => ['required', 'string', 'max:80', 'regex:/^[a-z0-9_.-]+$/'],
             'justification' => ['nullable', 'string', 'max:1000'],
         ])->validate();
-        if (isset($data['justification']) && preg_match('/<[^>]*>|drop\s+table|or\s+1\s*=\s*1/i', (string) $data['justification']) === 1) {
-            throw ValidationException::withMessages([
-                'justification' => 'Justificativa invalida.',
-            ]);
-        }
         $this->assertRequestableFeature((int) $tenant->id, strtolower((string) $data['feature_code']));
 
         return DB::transaction(function () use ($actor, $tenant, $data): PlanUpgradeRequest {

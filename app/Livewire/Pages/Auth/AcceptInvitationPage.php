@@ -10,7 +10,7 @@ use Livewire\Component;
 
 final class AcceptInvitationPage extends Component
 {
-    public string $token = '';
+    protected string $token = '';
 
     public function mount(string $token, UserInvitationService $service): void
     {
@@ -23,7 +23,8 @@ final class AcceptInvitationPage extends Component
 
     public function render(): View
     {
-        return view('livewire.pages.auth.accept-invitation-page')
-            ->layout('layouts.app');
+        return view('livewire.pages.auth.accept-invitation-page', [
+            'token' => $this->token,
+        ])->layout('layouts.app');
     }
 }

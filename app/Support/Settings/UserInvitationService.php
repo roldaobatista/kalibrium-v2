@@ -98,7 +98,12 @@ final readonly class UserInvitationService
         });
 
         try {
-            Mail::to($invitation['email'])->send(new UserInvitationMail($invitation['invitation_url']));
+            Mail::to($invitation['email'])->send(new UserInvitationMail(
+                invitationUrl: $invitation['invitation_url'],
+                tenantName: (string) ($tenant->name ?? ''),
+                role: (string) ($invitation['tenant_user']->role ?? ''),
+                inviterName: (string) ($actor->name ?? ''),
+            ));
         } catch (Throwable $exception) {
             $this->rollbackUndeliveredInvitation((int) $invitation['tenant_user']->id);
 
@@ -110,7 +115,7 @@ final readonly class UserInvitationService
             (int) $tenant->id,
             $actor->id,
             'tenant.user.invited',
-            ['name', 'email', 'role', 'company_id', 'branch_id', 'requires_2fa'],
+            ['role', 'company_id', 'branch_id', 'requires_2fa'],
         );
 
         return $invitation['tenant_user'];

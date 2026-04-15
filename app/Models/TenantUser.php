@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToCurrentTenant;
 use Database\Factories\TenantUserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,8 @@ class TenantUser extends Model
 {
     /** @use HasFactory<TenantUserFactory> */
     use HasFactory;
+
+    use ScopesToCurrentTenant;
 
     #[\Override]
     protected function casts(): array

@@ -212,12 +212,16 @@ test('AC-SEC-001: HTML, JavaScript e SQL em nome, e-mail, busca ou justificativa
     expect(in_array($response->status(), [200, 403, 404], true))->toBeTrue();
     slice009_assert_body_does_not_leak($response);
 
-    expect(fn () => app(PlanUpgradeRequestService::class)->requestUpgrade(
+    // SEC-002: justificativa com HTML/JS e sanitizada por strip_tags e salva sem tags executaveis
+    $upgradeRequest = app(PlanUpgradeRequestService::class)->requestUpgrade(
         $context['user'],
         $context['tenant_user'],
         'fiscal',
         (string) $payload['justification'],
-    ))->toThrow(ValidationException::class);
+    );
+    expect($upgradeRequest->justification)->not->toContain('<img');
+    expect($upgradeRequest->justification)->not->toContain('<script');
+    expect($upgradeRequest->justification)->not->toContain('onerror');
 })->group('slice-009', 'ac-sec-001', 'security');
 
 test('AC-SEC-002: auditorias de convite, aceite, papel, desativacao e upgrade nao gravam senha, token nem segredos', function (): void {
