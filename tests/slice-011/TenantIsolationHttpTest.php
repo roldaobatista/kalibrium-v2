@@ -183,17 +183,7 @@ test('AC-011: nenhuma rota MVP aceita batch de IDs misturados cross-tenant — e
 /**
  * @ac AC-016
  */
-dataset('sql_injection_payloads', function () {
-    return [
-        'OR 1=1 clássico' => ['1 OR 1=1'],
-        'UNION SELECT' => ['1 UNION SELECT id,name FROM tenants--'],
-        'Aspas simples' => ["1' OR '1'='1"],
-        'Ponto e vírgula DROP' => ['1; DROP TABLE users; --'],
-        'Subquery tenant_id' => ['0 OR (SELECT tenant_id FROM users LIMIT 1) IS NOT NULL'],
-        'OR negação de tenant' => ['1 OR tenant_id != 999'],
-        'Comentário SQL inline' => ['1/* comment */OR/* */1=1'],
-    ];
-});
+dataset('sql_injection_payloads', fn () => require __DIR__.'/Datasets/SqlInjectionPayloads.php');
 
 test('AC-016: SQL injection em query string não vaza dados do tenant B via /api/tenant-context', function (string $payload) {
     /** @ac AC-016

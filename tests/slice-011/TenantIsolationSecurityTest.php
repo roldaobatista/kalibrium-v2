@@ -21,20 +21,7 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
 /**
  * @ac AC-016
  */
-dataset('extended_sql_injection_vectors', function () {
-    return [
-        'OR 1=1 com espaços' => ['1 OR 1=1'],
-        'UNION SELECT multi-coluna' => ['1 UNION SELECT id,name,email,tenant_id FROM users--'],
-        'Aspas simples escape' => ["1' OR '1'='1"],
-        'DROP TABLE' => ['1; DROP TABLE tenants; --'],
-        'Subquery tenant_id IS NOT NULL' => ['0 OR (SELECT tenant_id FROM users LIMIT 1) IS NOT NULL'],
-        'OR tenant_id qualquer' => ['1 OR tenant_id != 999'],
-        'Slug LIKE wildcard' => ["' OR slug LIKE '%"],
-        'Comentário inline MySQL' => ['1/* comment */OR/* */1=1'],
-        'Hex encoding' => ['1 OR 0x31=0x31'],
-        'Double dash comment' => ["1'--"],
-    ];
-});
+dataset('extended_sql_injection_vectors', fn () => require __DIR__.'/Datasets/SqlInjectionPayloads.php');
 
 test('AC-016: vetor SQL injection em query string não vaza dados do tenant B', function (string $payload) {
     /** @ac AC-016
