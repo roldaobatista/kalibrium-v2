@@ -410,14 +410,13 @@ jobs:
   # Roda apenas quando código sensível de isolamento é alterado.
   # paths filter: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**,
   #               tests/slice-011/**.
-  # continue-on-error: true — testsuite ainda em construção (E02-S11).
+  # Falha bloqueia merge (AC-005).
   # =========================================================================
   tenant-isolation:
     name: Tenant isolation tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: harness
-    continue-on-error: true
     # paths filter via dorny/paths-filter (step check abaixo)
     # paths: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/slice-011/**
     # run: php artisan test --testsuite=tenant-isolation

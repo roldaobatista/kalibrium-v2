@@ -36,7 +36,7 @@ final class ProcessConsentJob implements ShouldQueue
      */
     public function middleware(): array
     {
-        return [new JobTenancyBootstrapper];
+        return [new JobTenancyBootstrapper($this->tenantId)];
     }
 
     public function handle(): void

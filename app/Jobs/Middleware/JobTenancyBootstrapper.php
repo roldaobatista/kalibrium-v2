@@ -5,33 +5,28 @@ declare(strict_types=1);
 namespace App\Jobs\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 
 /**
  * Middleware de job que garante restauração do contexto de tenant em retries.
  *
- * Para jobs que armazenam tenantId como propriedade, restaura o contexto
- * antes de cada tentativa de execução (incluindo retries automáticos).
- *
- * Lê tenantId da propriedade $job->tenantId (convenção dos jobs tenant-aware)
- * e o injeta em request()->attributes usando a chave current_tenant_id, que é
- * a mesma consumida por ScopesToCurrentTenant::currentTenantIdForGlobalScope().
+ * Recebe tenantId via constructor para ser seguro em queue workers, onde
+ * app(Request::class) não é singleton confiável. Injeta o tenant_id em
+ * request()->attributes usando a chave current_tenant_id, que é a mesma
+ * consumida por ScopesToCurrentTenant::currentTenantIdForGlobalScope().
  */
 final class JobTenancyBootstrapper
 {
+    public function __construct(private readonly ?int $tenantId = null) {}
+
     public function handle(object $job, Closure $next): void
     {
-        /** @var string|int|null $tenantId */
-        $tenantId = property_exists($job, 'tenantId') ? $job->tenantId : null;
-
-        /** @var Request $request */
-        $request = app(Request::class);
+        $request = request();
 
         $previousTenantId = $request->attributes->get('current_tenant_id');
         $previousTenant = $request->attributes->get('current_tenant');
 
-        if ($tenantId !== null) {
-            $request->attributes->set('current_tenant_id', $tenantId);
+        if ($this->tenantId !== null) {
+            $request->attributes->set('current_tenant_id', $this->tenantId);
         }
 
         try {
