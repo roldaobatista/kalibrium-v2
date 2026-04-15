@@ -1,0 +1,164 @@
+{
+  "slice_id": "slice-011",
+  "verdict": "rejected",
+  "timestamp": "2026-04-15T23:30:00Z",
+  "coverage_summary": {
+    "acs_total": 16,
+    "acs_covered": 16,
+    "acs_with_edge_cases": 16,
+    "test_count": 35,
+    "line_coverage_pct": null
+  },
+  "ac_coverage": [
+    {
+      "ac": "AC-001",
+      "tests_found": ["tests/slice-011/TenantIsolationModelTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["all()", "where()", "count()", "find_cross_tenant()"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002",
+      "tests_found": ["tests/slice-011/TenantIsolationHttpTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["consentimentos listing", "lgpd_categories listing"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003",
+      "tests_found": ["tests/slice-011/TenantIsolationJobTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["dispatch com Queue::fake", "verificacao de middleware tenancy"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004",
+      "tests_found": ["tests/slice-011/TenantIsolationExportTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["payload sem ID de B", "payload sem nome de B", "payload sem email de B"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-005",
+      "tests_found": ["tests/slice-011/TenantIsolationCiTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["job declarado", "referencia --testsuite=tenant-isolation", "needs: declarado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-006",
+      "tests_found": ["tests/slice-011/TenantIsolationPerformanceTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["fixture < 5s", "phpunit.xml registra testsuite", "sensitive_models array nao vazio"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-007",
+      "tests_found": ["tests/slice-011/TenantIsolationReadmeTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["README existe", "bloco de codigo presente", "menciona sensitive_models e tenant-isolation", "codigo aparece em <= 2 paragrafos"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-008",
+      "tests_found": ["tests/slice-011/TenantIsolationModelTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["classe inexistente", "trait ausente", "mensagem explicita com nome do model"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-009",
+      "tests_found": ["tests/slice-011/TenantIsolationModelTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["sum Eloquent < sum raw-all", "falha explicita se nenhum model numerico encontrado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-010",
+      "tests_found": ["tests/slice-011/TenantIsolationHttpTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["query string ?tenant=B ignorada", "header X-Tenant: B ignorado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-011",
+      "tests_found": ["tests/slice-011/TenantIsolationHttpTest.php"],
+      "happy_path": false,
+      "error_path": false,
+      "edge_cases": [],
+      "status": "insufficient"
+    },
+    {
+      "ac": "AC-012",
+      "tests_found": ["tests/slice-011/TenantIsolationJobTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["bootstrapper presente", "contextos nao vazam entre dispatches consecutivos"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-013",
+      "tests_found": ["tests/slice-011/TenantIsolationExportTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["withTrashed() filtra por tenant", "listagem HTTP nao expoe soft-deleted de B"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-014",
+      "tests_found": ["tests/slice-011/TenantIsolationCiTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["paths filter cobre app/Models, app/Http, app/Jobs", "filter declarado explicitamente"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-015",
+      "tests_found": ["tests/slice-011/TenantIsolationModelTest.php", "tests/slice-011/TenantIsolationPerformanceTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["delta fixo de 4 casos por model", "sensitive_models nao vazio"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-016",
+      "tests_found": ["tests/slice-011/TenantIsolationHttpTest.php", "tests/slice-011/TenantIsolationSecurityTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["query string injection", "path param injection", "POST form injection", "log auditoria tenant_context=A", "payload resposta sem literais de B"],
+      "status": "adequate"
+    }
+  ],
+  "findings": [
+    {
+      "id": "TEST-001",
+      "severity": "medium",
+      "category": "tests_implementation_not_behavior",
+      "ac": "AC-011",
+      "file": "tests/slice-011/TenantIsolationHttpTest.php",
+      "description": "O teste de AC-011 verifica ausencia de rota batch no MVP (assertiva estrutural), mas nao valida o comportamento descrito no AC: 'operacao rejeitada inteira com 403, nenhum ID do batch processado'. O teste passa trivialmente porque a rota nao existe — nao prova que a implementacao futura rejeitara com 403. O AC especifica comportamento ativo ('rejeitada inteira com 403'), nao ausencia de feature.",
+      "recommendation": "Adicionar teste que (1) crie ConsentSubject em ambos os tenants, (2) faca DELETE /settings/privacy/consentimentos com lista de IDs misturados (IDs do tenant A e IDs do tenant B), (3) asserte HTTP 403 na resposta, (4) asserte que nenhum registro foi deletado (nem do tenant A, nem do tenant B). Se a rota nao existe no MVP, o teste deve ser marcado como pending/todo com justificativa explicita — nao como um teste que passa por ausencia de superficie."
+    },
+    {
+      "id": "TEST-002",
+      "severity": "low",
+      "category": "tests_implementation_not_behavior",
+      "ac": "AC-012",
+      "file": "tests/slice-011/TenantIsolationJobTest.php",
+      "description": "O terceiro teste de AC-012 ('contextos de tenants nao vazam entre dispatches consecutivos') testa TenantContext::setTenantId/getTenantId diretamente — um artefato estatico interno. Nao dispara job real nem simula retry. Testa implementacao (classe estatica) em vez de comportamento observavel (job roda com tenant correto apos retry). O assert principal verifica que TenantContext::getTenantId() retorna o valor que foi setado logo antes — um assert quase tautologico.",
+      "recommendation": "Substituir por teste que dispatcha um job real (sincrono via config(['queue.default' => 'sync'])), forca falha simulada na primeira tentativa, verifica que na segunda tentativa o job le o tenant_id correto. Alternativamente, documentar explicitamente que o teste e unitario de TenantContext e mover para tests/Unit/Support/TenantContextTest.php, adicionando um teste de integracao de retry no TenantIsolationJobTest."
+    }
+  ],
+  "anti_patterns": [],
+  "next_action": "return_to_fixer"
+}

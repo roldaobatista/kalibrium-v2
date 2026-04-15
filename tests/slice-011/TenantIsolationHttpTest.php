@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Tests\TenantIsolationTestCase;
 
@@ -134,46 +133,60 @@ test('AC-010: header X-Tenant forjado não altera contexto — contexto permanec
 // AC-011: Batch de IDs com qualquer ID do tenant B → rejeitado inteiro (403)
 // ---------------------------------------------------------------------------
 
-test('AC-011: nenhuma rota MVP aceita batch de IDs misturados cross-tenant — estrutural', function () {
+test('AC-011: DELETE /_test/batch com IDs misturados cross-tenant retorna 403 e não deleta nenhum registro', function () {
     /** @ac AC-011
      *
-     * O módulo de calibrações (batch DELETE /api/calibrations) não existe no MVP atual.
-     * Este teste estrutural valida que NENHUMA rota registrada aceita parâmetro `ids`
-     * com método DELETE, garantindo ausência de superfície de ataque cross-tenant em batch.
-     * Quando o módulo for implementado, este teste será substituído por um funcional.
+     * Teste funcional via rota /_test/batch (disponível em local/testing, protegida por RestrictToLocalEnv).
+     * Cenário: 2 consent_subjects do tenant A + 1 do tenant B.
+     * Autenticado como userA, envia DELETE com os 3 IDs misturados.
+     * Esperado: 403, nenhum registro deletado (inclusive os do tenant A).
      */
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
 
-    // Coleta todas as rotas DELETE registradas
-    $routes = collect(Route::getRoutes()->getRoutes())
-        ->filter(fn ($r) => in_array('DELETE', $r->methods(), true))
-        ->map(fn ($r) => $r->uri())
-        ->values()
-        ->toArray();
+    // Cria 2 registros no tenant A
+    $idA1 = DB::table('consent_subjects')->insertGetId([
+        'tenant_id' => $tenantA->id,
+        'subject_type' => 'customer',
+        'email' => 'ac011-a1-'.uniqid().'@test.test',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $idA2 = DB::table('consent_subjects')->insertGetId([
+        'tenant_id' => $tenantA->id,
+        'subject_type' => 'customer',
+        'email' => 'ac011-a2-'.uniqid().'@test.test',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 
-    // Nenhuma rota DELETE deve aceitar parâmetro `ids` em batch no MVP atual
-    $batchRoutes = array_filter($routes, fn ($uri) => str_contains($uri, 'calibration') || str_contains($uri, 'batch'));
+    // Cria 1 registro no tenant B
+    $idB1 = DB::table('consent_subjects')->insertGetId([
+        'tenant_id' => $tenantB->id,
+        'subject_type' => 'customer',
+        'email' => 'ac011-b1-'.uniqid().'@test.test',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 
-    expect($batchRoutes)
-        ->toBeEmpty(
-            'AC-011: Rota(s) de batch encontrada(s) no MVP: '.implode(', ', $batchRoutes).'. '.
-            'Se adicionada, deve validar que batch com IDs cross-tenant retorna 403 inteiro.'
-        );
-
-    // Garantia adicional: nenhum registro do tenant A foi afetado
-    $sensitiveTable = $this->firstSensitiveTable();
-    $countBefore = DB::table($sensitiveTable)->where('tenant_id', $tenantA->id)->count();
-
-    // Tenta um DELETE genérico com ids misturados em rotas existentes — deve ser 404/405
+    // DELETE com IDs misturados (A1, A2, B1)
     $response = $this->actingAs($this->userA())
         ->withSession(['current_tenant_id' => $tenantA->id])
-        ->delete('/api/batch-delete?ids=1,2,3');
+        ->delete("/_test/batch?ids={$idA1},{$idA2},{$idB1}");
 
-    expect($response->getStatusCode())->toBeIn([404, 405, 403]);
+    // Deve rejeitar o batch inteiro com 403
+    expect($response->getStatusCode())
+        ->toBe(403,
+            'AC-011: DELETE /_test/batch com IDs cross-tenant deveria retornar 403, '.
+            'mas retornou '.$response->getStatusCode().'.'
+        );
 
-    $countAfter = DB::table($sensitiveTable)->where('tenant_id', $tenantA->id)->count();
-    expect($countAfter)->toBe($countBefore);
+    // Nenhum registro foi deletado — nem os do tenant A
+    expect(DB::table('consent_subjects')->whereIn('id', [$idA1, $idA2])->count())
+        ->toBe(2, 'AC-011: Registros do tenant A foram deletados mesmo com 403. Batch não é atômico.');
+
+    expect(DB::table('consent_subjects')->where('id', $idB1)->count())
+        ->toBe(1, 'AC-011: Registro do tenant B foi deletado pelo batch cross-tenant.');
 });
 
 // ---------------------------------------------------------------------------

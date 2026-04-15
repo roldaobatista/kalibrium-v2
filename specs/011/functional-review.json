@@ -1,0 +1,114 @@
+{
+  "slice_id": "slice-011",
+  "verdict": "rejected",
+  "timestamp": "2026-04-15T21:30:00Z",
+  "ac_assessment": [
+    {
+      "ac": "AC-001",
+      "met": false,
+      "confidence": "high",
+      "notes": "Data provider cobre apenas os metodos all/where/count/find_cross_tenant. O spec exige cobertura de whereHas, with (eager loading), avg e relacionamentos Eloquent. Os cenarios faltantes representam surface de ataque real de vazamento cross-tenant que nao esta coberta."
+    },
+    {
+      "ac": "AC-002",
+      "met": true,
+      "confidence": "high",
+      "notes": "Scope global TenantScope injetado via booting/boot do trait. Comportamento verificado nos testes de escopo."
+    },
+    {
+      "ac": "AC-003",
+      "met": true,
+      "confidence": "high",
+      "notes": "Middleware SetActiveTenant resolve tenant via header X-Tenant-ID e injeta no contexto. Testes cobrem resolucao e ausencia de header."
+    },
+    {
+      "ac": "AC-004",
+      "met": true,
+      "confidence": "high",
+      "notes": "Isolamento por tenant_id verificado em insercao e consulta. Registros de tenant B nao retornam para tenant A."
+    },
+    {
+      "ac": "AC-005",
+      "met": true,
+      "confidence": "medium",
+      "notes": "tenant_id preenchido automaticamente no creating. Cobertura presente, mas sem teste para update tentando alterar tenant_id — edge case de produto presente no spec."
+    },
+    {
+      "ac": "AC-006",
+      "met": true,
+      "confidence": "high",
+      "notes": "Excecao TenantNotSetException lancada quando contexto nao tem tenant ativo. Teste cobre o caminho feliz e o ausente."
+    },
+    {
+      "ac": "AC-007",
+      "met": true,
+      "confidence": "high",
+      "notes": "Super-admin com flag ignore_tenant_scope bypasseia o scope corretamente. Comportamento testado."
+    },
+    {
+      "ac": "AC-008",
+      "met": true,
+      "confidence": "high",
+      "notes": "Logs de auditoria registram tenant_id em operacoes CRUD. Formato e campos conferem com spec."
+    },
+    {
+      "ac": "AC-009",
+      "met": true,
+      "confidence": "medium",
+      "notes": "Cache segmentado por tenant_id no prefixo da chave. Sem teste de colisao de cache entre tenants distintos — edge case nao coberto mas AC literal atendido."
+    },
+    {
+      "ac": "AC-010",
+      "met": true,
+      "confidence": "high",
+      "notes": "Migrations incluem tenant_id como coluna indexada. Schema verificado no arquivo de migration."
+    },
+    {
+      "ac": "AC-011",
+      "met": false,
+      "confidence": "high",
+      "notes": "Teste verifica apenas que a rota nao existe (404) para tenant errado, nao que uma requisicao autenticada com tenant_id incorreto recebe 403 com corpo de erro adequado. O AC descreve rejeicao ativa com 403; o teste cobre ausencia de rota, que e comportamento trivialmente diferente e nao prova o mecanismo de autorizacao cross-tenant."
+    },
+    {
+      "ac": "AC-012",
+      "met": true,
+      "confidence": "high",
+      "notes": "Seeders e factories respeitam tenant_id. Verificado nos arquivos de source."
+    }
+  ],
+  "ux_findings": [
+    {
+      "id": "UX-001",
+      "severity": "medium",
+      "area": "error_messages",
+      "description": "Quando tenant_id ausente ou invalido, a resposta retorna excecao tecnica (TenantNotSetException com stack trace em modo debug). Para um usuario final ou integracao de API, a mensagem deveria ser um JSON estruturado com codigo de erro e descricao amigavel.",
+      "recommendation": "Adicionar handler no Handler.php para TenantNotSetException retornando JSON {error: 'tenant_required', message: 'Tenant nao identificado'} com HTTP 400."
+    }
+  ],
+  "consistency_findings": [
+    {
+      "id": "CON-001",
+      "severity": "low",
+      "area": "terminology",
+      "description": "O codigo usa 'tenant_id' e 'organization_id' de forma intercambiavel em comentarios e nomes de variaveis auxiliares. O glossario de produto define 'tenant' como termo canonico.",
+      "recommendation": "Padronizar todos os comentarios e variaveis auxiliares para 'tenant_id' conforme glossary-pm.md."
+    }
+  ],
+  "business_rule_findings": [
+    {
+      "id": "BR-001",
+      "severity": "high",
+      "area": "cross_tenant_isolation",
+      "description": "AC-001 nao cobre whereHas e with (eager loading). Relacionamentos Eloquent carregados via with() podem vazar dados de outros tenants se o model relacionado nao tiver TenantScope aplicado. Esta e uma regra de negocio critica de isolamento de dados.",
+      "recommendation": "Ampliar data provider para incluir whereHas, with, avg e relacionamentos. Garantir que models relacionados tambem aplicam o scope ou que o scope pai propaga o filtro de tenant."
+    },
+    {
+      "id": "BR-002",
+      "severity": "high",
+      "area": "authorization",
+      "description": "AC-011 descreve que acesso cross-tenant deve ser rejeitado com HTTP 403. O teste atual valida 404 por ausencia de rota, nao 403 por autorizacao negada. Sao mecanismos distintos: 404 pode ser contornado se a rota for descoberta; 403 e o controle de acesso real.",
+      "recommendation": "Reescrever teste do AC-011 para autenticar usuario do tenant A, tentar acessar recurso do tenant B via rota valida e verificar resposta 403 com corpo JSON de erro."
+    }
+  ],
+  "next_action": "return_to_fixer"
+}

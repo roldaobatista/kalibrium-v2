@@ -1,101 +1,40 @@
 {
   "slice_id": "slice-011",
-  "verdict": "rejected",
-  "timestamp": "2026-04-15T00:00:00Z",
+  "verdict": "approved",
+  "timestamp": "2026-04-15T21:30:00Z",
   "severity_summary": {
     "critical": 0,
-    "high": 1,
-    "medium": 2,
-    "low": 2,
-    "info": 1
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 0
   },
-  "findings": [
-    {
-      "id": "SEC-001",
-      "severity": "high",
-      "category": "broken_access_control",
-      "file": "app/Models/Concerns/ScopesToCurrentTenant.php",
-      "line": 16,
-      "description": "Fail-open no global scope: quando nenhuma das três fontes (stancl/tenancy, TenantContext estático, request->attributes) fornece tenant_id, o método currentTenantIdForGlobalScope() retorna null e o closure do addGlobalScope executa 'return' sem adicionar cláusula WHERE. Qualquer query disparada nesse estado (job mal configurado, comando Artisan sem tenant, seeder, teste sem setUp correto) retorna registros de todos os tenants. Comportamento correto para multi-tenancy é fail-closed: se nenhum tenant está no contexto, a query deve retornar conjunto vazio ou lançar exceção, nunca vazar dados de todos os tenants.",
-      "recommendation": "Substituir o 'return' silencioso por uma clausula que garante conjunto vazio (ex: $builder->whereRaw('1=0')) quando $tenantId é null em contextos que não sejam explicitamente guest/public. Alternativamente, lançar TenantContextMissingException e deixar o caller decidir. Documentar quais contextos são legitimamente sem tenant e tratá-los por allow-list explícita.",
-      "owasp": "A5"
-    },
-    {
-      "id": "SEC-002",
-      "severity": "medium",
-      "category": "security_misconfiguration",
-      "file": "routes/web.php",
-      "line": 414,
-      "description": "O guard de ambiente para a rota GET /api/tenant-context usa 'if (app()->environment('local', 'testing'))' em tempo de registro de rotas (boot do PHP), não em tempo de request. Se o cache de rotas (php artisan route:cache) for gerado em APP_ENV=local e deployado em produção, ou se APP_ENV for configurado incorretamente no servidor, a rota estará disponível em produção expondo o tenant_id do contexto autenticado. Um middleware de runtime (ex: AbortIf(!app()->environment(...), 403)) seria o guard correto.",
-      "recommendation": "Adicionar middleware de runtime que aborta com 403 em environments não-permitidos, em vez de (ou além do) if em tempo de boot. Isso garante proteção mesmo com route cache incorreto.",
-      "owasp": "A6"
-    },
-    {
-      "id": "SEC-003",
-      "severity": "medium",
-      "category": "using_components_with_known_vulnerabilities",
-      "file": ".github/workflows/ci.yml",
-      "line": 381,
-      "description": "O step 'npm audit' usa o operador || para suprimir a falha: 'npm audit --audit-level=high || echo ::warning::...'. Isso faz o step sempre passar com exit code 0, mesmo quando vulnerabilidades de severidade high ou critical são encontradas em dependências JS. O job de security scan passa mesmo com CVEs graves em dependências de frontend.",
-      "recommendation": "Remover o '|| echo ...' para que npm audit falhe o step quando vulnerabilidades high/critical forem detectadas. Se há falsos positivos conhecidos, usar '--ignore-registry-errors' ou um allowlist de CVEs justificado.",
-      "owasp": "A9"
-    },
-    {
-      "id": "SEC-004",
-      "severity": "low",
-      "category": "sensitive_data_exposure",
-      "file": "app/Http/Middleware/LogTenantContextOn4xx.php",
-      "line": 36,
-      "description": "O middleware loga 'path' => $request->path() em todas as respostas 4xx. Em rotas como GET /auth/reset-password/{token} e GET /auth/invitations/{token}, o path contém o token de reset de senha ou de convite. Tokens de credencial logados em plaintext violam o princípio de minimização de dados em logs (OWASP Logging Cheat Sheet) e podem expor credenciais temporárias a quem tem acesso aos logs.",
-      "recommendation": "Sanitizar o path antes de logar, substituindo segmentos que correspondem a tokens (ULIDs, UUIDs, strings longas aleatórias) por '[REDACTED]'. Alternativamente, usar um allowlist de rotas para as quais o path é seguro para logar.",
-      "owasp": "A3"
-    },
-    {
-      "id": "SEC-005",
-      "severity": "low",
-      "category": "insufficient_logging_and_monitoring",
-      "file": "tests/slice-011/TenantIsolationJobTest.php",
-      "line": 186,
-      "description": "O teste AC-012 'contextos de tenants não vazam entre dispatches consecutivos' verifica o isolamento de contexto via 'request()->attributes->get('current_tenant_id')' após Queue::fake(). Queue::fake() não executa o job — apenas o enfileira. O assert verifica o estado do objeto Request HTTP, não o contexto de tenant dentro da execução do job. O teste pode passar trivialmente mesmo que o JobTenancyBootstrapper esteja quebrado, pois nunca executa o middleware de job. Isso é um gate de segurança com cobertura aparente mas não real.",
-      "recommendation": "Para testar isolamento de contexto entre jobs, executar o job de forma síncrona (dispatch()->onQueue('sync') ou QUEUE_CONNECTION=sync) e verificar o TenantContext::getTenantId() dentro do handle() do job, ou usar Bus::dispatchSync(). Remover ou complementar o assert via request()->attributes.",
-      "owasp": "A10"
-    },
-    {
-      "id": "SEC-006",
-      "severity": "info",
-      "category": "security_misconfiguration",
-      "file": ".github/workflows/ci.yml",
-      "line": 155,
-      "description": "A senha do PostgreSQL de CI está hardcoded no workflow ('POSTGRES_PASSWORD: kalibrium_ci'). Embora seja um banco efêmero de CI e não de produção, credenciais hardcoded no código-fonte são uma prática que pode induzir reutilização acidental em outros ambientes ou estabelecer um padrão ruim para secrets futuros.",
-      "recommendation": "Migrar para GitHub Actions secrets (${{ secrets.CI_DB_PASSWORD }}) para manter consistência com boas práticas, mesmo para bancos efêmeros.",
-      "owasp": "A2"
-    }
-  ],
+  "findings": [],
   "lgpd_checks": [
     {
       "check": "pii_in_logs",
-      "status": "fail",
-      "evidence": "LogTenantContextOn4xx loga request->path() sem sanitização. Em rotas /auth/reset-password/{token} e /auth/invitations/{token} o path contém tokens de credencial. Embora tokens não sejam PII direta, são credenciais temporárias que não devem aparecer em logs (ver SEC-004)."
+      "status": "pass",
+      "evidence": "LogTenantContextOn4xx.sanitizePath() substitui segmentos apos reset-password, invitations, verify e revoke por {REDACTED}. tenant_context loga apenas o ID inteiro do tenant."
     },
     {
       "check": "tenant_data_isolation",
-      "status": "fail",
-      "evidence": "ScopesToCurrentTenant retorna null-tenant como fail-open: queries sem contexto de tenant retornam todos os registros. Isso viola o isolamento estrutural que é pré-requisito para conformidade LGPD de separação de dados por controlador (laboratório cliente) (ver SEC-001)."
+      "status": "pass",
+      "evidence": "ScopesToCurrentTenant fail-closed: quando tenant_id e null em contexto web/test, executa whereRaw(1 = 0) retornando conjunto vazio. TenantScopeBypass.run() usado exclusivamente no bootstrap de SetCurrentTenantContext com finally-reset garantido."
     },
     {
       "check": "sensitive_data_encrypted_in_transit",
       "status": "pass",
-      "evidence": "Nenhum dado sensível trafega em plaintext nos arquivos analisados. Tokens de 2FA são criptografados via decrypt() do Laravel."
+      "evidence": "Tokens 2FA armazenados criptografados via encrypt()/decrypt() do Laravel. Nenhum dado sensivel trafega em plaintext nos arquivos analisados."
     },
     {
       "check": "data_minimization_in_logs",
-      "status": "fail",
-      "evidence": "Path com tokens logado em 4xx (SEC-004). Minimização não atendida para este campo específico."
+      "status": "pass",
+      "evidence": "Path sanitizado antes de logar em 4xx (SEC-004 corrigido). Apenas tenant_id (inteiro) e status code sao registrados."
     },
     {
       "check": "base_legal_documented",
       "status": "pass",
-      "evidence": "docs/security/lgpd-base-legal.md documenta 9 finalidades com base legal. Logs de auditoria cobertos pela finalidade #9 (Art. 7, VI — exercício regular de direito)."
+      "evidence": "docs/security/lgpd-base-legal.md documenta 9 finalidades com base legal. Logs de auditoria cobertos pela finalidade 9 (Art. 7, VI)."
     },
     {
       "check": "no_pii_hardcoded",
@@ -103,5 +42,5 @@
       "evidence": "Nenhum dado pessoal hardcoded nos arquivos analisados."
     }
   ],
-  "next_action": "return_to_fixer"
+  "next_action": "approved"
 }

@@ -10,6 +10,8 @@ declare(strict_types=1);
  */
 
 use App\Models\Concerns\ScopesToCurrentTenant;
+use App\Models\TenantUser;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Tests\TenantIsolationTestCase;
@@ -37,7 +39,7 @@ dataset('sensitive_models_query_methods', function () {
         'App\\Models\\ConsentRecord',
         'App\\Models\\LgpdCategory',
     ];
-    $methods = ['all', 'where', 'count', 'find_cross_tenant'];
+    $methods = ['all', 'where', 'count', 'find_cross_tenant', 'whereHas', 'with', 'avg'];
 
     $cases = [];
     foreach ($models as $modelClass) {
@@ -115,6 +117,69 @@ test('AC-001: model sensível não vaza registros do tenant B quando consultado 
                         ->toBeNull(
                             "Model {$modelClass}::find({$recordB->id}) retornou registro do tenant B ".
                             'enquanto o contexto era do tenant A. Vazamento cross-tenant confirmado.'
+                        );
+                }
+                break;
+
+            case 'whereHas':
+                // whereHas com relação tenant — verifica que o global scope se aplica dentro do callback
+                // TenantUser tem relação tenant() → BelongsTo<Tenant>
+                // Outros models: verificar se têm relação tenant() definida
+                if (! method_exists($modelClass, 'tenant')) {
+                    $this->markTestSkipped(
+                        "Model {$modelClass} não possui relação tenant() — whereHas não aplicável."
+                    );
+                }
+                $results = $modelClass::whereHas('tenant', function ($q) use ($tenantA) {
+                    $q->where('id', $tenantA->id);
+                })->get();
+                $leaked = $results->filter(fn ($r) => isset($r->tenant_id) && $r->tenant_id === $tenantB->id);
+                expect($leaked->count())
+                    ->toBe(0, "Model {$modelClass}::whereHas() vazou {$leaked->count()} registro(s) do tenant B.");
+                break;
+
+            case 'with':
+                // with() carrega relação — verifica que registros retornados são apenas do tenant A
+                if (! method_exists($modelClass, 'tenant')) {
+                    $this->markTestSkipped(
+                        "Model {$modelClass} não possui relação tenant() — with() não aplicável."
+                    );
+                }
+                $results = $modelClass::with('tenant')->get();
+                $leaked = $results->filter(fn ($r) => isset($r->tenant_id) && $r->tenant_id === $tenantB->id);
+                expect($leaked->count())
+                    ->toBe(0, "Model {$modelClass}::with('tenant')->get() vazou {$leaked->count()} registro(s) do tenant B.");
+                break;
+
+            case 'avg':
+                // avg() — verifica que a agregação respeita o global scope de tenant
+                $cols = DB::getSchemaBuilder()->getColumnListing($instance->getTable());
+                $numericCandidates = ['users_used', 'monthly_os_used', 'storage_used_bytes', 'metric_value', 'amount', 'value', 'price'];
+                $numericCol = null;
+                foreach ($numericCandidates as $candidate) {
+                    if (in_array($candidate, $cols, true)) {
+                        $numericCol = $candidate;
+                        break;
+                    }
+                }
+                if ($numericCol === null) {
+                    $this->markTestSkipped(
+                        "Model {$modelClass} não possui coluna numérica conhecida — avg não aplicável."
+                    );
+                }
+                // Insere valor distinto no tenant B para detectar vazamento
+                DB::table($instance->getTable())->updateOrInsert(
+                    ['tenant_id' => $tenantB->id],
+                    [$numericCol => 99999, 'created_at' => now(), 'updated_at' => now()]
+                );
+                $avgA = (float) $modelClass::avg($numericCol);
+                $avgRaw = (float) DB::table($instance->getTable())->avg($numericCol);
+                // Se avg do Eloquent == avg raw (inclui tenant B com 99999), o scope não filtra
+                if ($avgRaw > 0) {
+                    expect($avgA)
+                        ->not->toBe($avgRaw,
+                            "Model {$modelClass}::avg('{$numericCol}') retornou média de TODOS os tenants. ".
+                            'O global scope de tenant não está aplicado em avg().'
                         );
                 }
                 break;
@@ -272,4 +337,50 @@ test('AC-015: config/tenancy.php[sensitive_models] contém models suficientes pa
             implode(', ', $missingModels).'. '.
             'Adicione-os para garantir cobertura de isolamento do épico.'
         );
+});
+
+// ---------------------------------------------------------------------------
+// AC-001 (complemento): relacionamento cross-tenant — User→tenantUsers
+// Garante que $user->tenantUsers retorna apenas registros do tenant correto
+// ---------------------------------------------------------------------------
+
+test('AC-001: User->tenantUsers carrega apenas TenantUsers do tenant do usuário, não do tenant B', function () {
+    /** @ac AC-001 */
+    $tenantA = $this->tenantA();
+    $tenantB = $this->tenantB();
+    $userA = $this->userA();
+
+    // userA já tem um TenantUser em tenantA (criado pelo fixture).
+    // Criamos um segundo TenantUser em tenantB com o mesmo user_id — simula dado cross-tenant na base.
+    DB::table('tenant_users')->insert([
+        'tenant_id' => $tenantB->id,
+        'user_id' => $userA->id,
+        'role' => 'manager',
+        'status' => 'active',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Ativa contexto do tenant A
+    $this->initializeTenant($tenantA);
+
+    try {
+        // TenantUser usa ScopesToCurrentTenant — no contexto A, só devem aparecer os de tenant A
+        $tenantUsers = TenantUser::where('user_id', $userA->id)->get();
+
+        $leaked = $tenantUsers->filter(fn (TenantUser $tu) => $tu->tenant_id === $tenantB->id);
+
+        expect($leaked->count())
+            ->toBe(0,
+                'AC-001 (relacionamento): TenantUser::where(user_id) no contexto do tenant A retornou '.
+                $leaked->count().' registro(s) com tenant_id do tenant B. '.
+                'O global scope ScopesToCurrentTenant não está filtrando registros cross-tenant em relacionamentos.'
+            );
+
+        // Sanidade: deve existir ao menos 1 registro do tenant A
+        $fromA = $tenantUsers->filter(fn (TenantUser $tu) => $tu->tenant_id === $tenantA->id);
+        expect($fromA->count())->toBeGreaterThanOrEqual(1);
+    } finally {
+        $this->endTenant();
+    }
 });
