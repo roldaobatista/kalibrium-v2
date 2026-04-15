@@ -8,6 +8,20 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-023] Guardrail para impedir slice de produto iniciado diretamente em `main`
+
+- **Origem:** retrospectiva do slice-008 e incidente `docs/incidents/slice-008-mainline-integration-2026-04-14.md`.
+- **Evidência:** slices 006 e 008 chegaram ao encerramento com todos os gates aprovados, mas ja estavam em `main`. O `merge-slice.sh` bloqueia corretamente em `main`, porem tarde demais para evitar a excecao operacional.
+- **Ação:** adicionar verificacao preventiva em `/start-story`, `/new-slice` ou script equivalente: se a branch atual for `main`, bloquear inicio de slice de produto e orientar criar feature branch ou git worktree.
+- **Status:** aberto. Prioridade alta antes do proximo slice de produto.
+
+### [B-024] `slice-report.sh` deve contabilizar todos os gates atuais
+
+- **Origem:** retrospectiva do slice-008.
+- **Evidência:** `docs/retrospectives/slice-008-report.md` mostra `Verificações (approved) = 1` porque o script conta apenas eventos `verify`, enquanto o fluxo atual inclui review, security-review, test-audit, functional-review e merge.
+- **Ação:** atualizar `scripts/slice-report.sh` para listar contagem por evento/gate, incluindo rejeicoes de review e gates finais, e diferenciar commits/tokens indisponiveis de valor real zero.
+- **Status:** aberto. Prioridade media; nao bloqueia produto, mas melhora leitura de encerramento.
+
 ### [B-022] Melhorar legibilidade de commits no slice-report com telemetria parcial
 
 - **Origem:** retrospectiva do slice-005 gerada em 2026-04-13.

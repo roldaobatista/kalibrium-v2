@@ -66,7 +66,7 @@ except Exception as exc:
     print(f"  ✗ JSON inválido: {exc}", file=sys.stderr)
     sys.exit(1)
 
-required = ["schema_version", "slice_id", "review_date", "verdict", "summary", "checks", "findings", "stats"]
+required = ["schema_version", "slice_id", "review_date", "provenance", "verdict", "summary", "checks", "findings", "stats"]
 for key in required:
     if key not in data:
         errors.append(f"campo obrigatório ausente: {key}")
@@ -78,6 +78,15 @@ if data.get("slice_id") != expected_slice:
     errors.append(f"slice_id deve ser {expected_slice}")
 if data.get("verdict") not in {"approved", "rejected"}:
     errors.append("verdict deve ser approved ou rejected")
+
+provenance = data.get("provenance")
+if not isinstance(provenance, dict):
+    errors.append("provenance deve ser objeto")
+else:
+    if provenance.get("agent") != "plan-reviewer":
+        errors.append("provenance.agent deve ser plan-reviewer")
+    if provenance.get("context") != "isolated":
+        errors.append("provenance.context deve ser isolated")
 
 expected_checks = [
     "ac_coverage",
@@ -148,6 +157,7 @@ if errors:
     sys.exit(1)
 
 print("  ✓ plan-review.json válido")
+print("  ✓ provenance do plan-reviewer em contexto isolado")
 if require_approved:
     print("  ✓ plan-review aprovado com findings []")
 PY

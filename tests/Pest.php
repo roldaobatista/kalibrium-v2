@@ -15,3 +15,5 @@ uses(TestCase::class)->in('slice-004');
 uses(TestCase::class)->in('slice-005');
 uses(TestCase::class)->in('slice-006');
 uses(TestCase::class)->in('slice-007');
+uses(TestCase::class)->in('slice-008');
+uses(TestCase::class)->in('slice-009');

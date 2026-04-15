@@ -2,6 +2,10 @@
   "schema_version": "1.0.0",
   "slice_id": "slice-007",
   "review_date": "2026-04-13",
+  "provenance": {
+    "agent": "plan-reviewer",
+    "context": "isolated"
+  },
   "verdict": "approved",
   "summary": "Plano alinhado à spec, constitution e ADRs vigentes. A cobertura de ACs, riscos, segurança e simplicidade está completa e coerente com o escopo do slice.",
   "checks": {

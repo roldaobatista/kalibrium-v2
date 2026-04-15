@@ -1,0 +1,99 @@
+{
+  "slice_id": "slice-009",
+  "verdict": "approved",
+  "timestamp": "2026-04-14T00:00:00-04:00",
+  "ac_checks": [
+    {
+      "ac": "AC-001",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersPageTest passou AC-001; GET /settings/users exibe usuarios, papeis, status, 2FA e filtros do tenant; suite exit_code=0."
+    },
+    {
+      "ac": "AC-002",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersInviteTest passou AC-002 e edge de falha no envio de e-mail; convite cria vinculo pendente, 2FA obrigatoria para papeis criticos, envia convite e audita sem segredo; suite exit_code=0."
+    },
+    {
+      "ac": "AC-003",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersInviteAcceptanceTest passou AC-003 em aceite de convite valido e preservacao de senha global para conta ativa em outro tenant; suite exit_code=0."
+    },
+    {
+      "ac": "AC-004",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersRoleTest passou AC-004; altera papel no mesmo tenant, recalcula 2FA para papel critico e registra auditoria; suite exit_code=0."
+    },
+    {
+      "ac": "AC-005",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersDeactivateTest passou AC-005; gerente desativa usuario sem remover ultimo gerente e registra auditoria; suite exit_code=0."
+    },
+    {
+      "ac": "AC-006",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\PlansPageTest passou cinco cenarios AC-006 cobrindo plano, status, usos, limites, percentuais, modulos, liberacoes e metricas sem persistencia indevida; suite exit_code=0."
+    },
+    {
+      "ac": "AC-007",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\PlanUpgradeRequestTest passou quatro cenarios AC-007; registra pedido de upgrade para modulo fora do plano, sem cobranca real, e bloqueia modulo invalido ou ja liberado; suite exit_code=0."
+    },
+    {
+      "ac": "AC-008",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersPageTest passou AC-008; usuario sem papel gerente nao acessa dados administrativos nem consegue convidar usuario; suite exit_code=0."
+    },
+    {
+      "ac": "AC-009",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersPageTest passou AC-009; gerente com 2FA pendente e redirecionado antes de convidar, alterar papel ou desativar usuario; suite exit_code=0."
+    },
+    {
+      "ac": "AC-010",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersInviteTest passou sete cenarios AC-010 cobrindo campos invalidos, empresa/filial de outro tenant e filial fora da empresa informada; suite exit_code=0."
+    },
+    {
+      "ac": "AC-011",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersInviteTest passou tres cenarios AC-011 cobrindo e-mail ativo, convite pendente e restricao de duplicidade no banco; suite exit_code=0."
+    },
+    {
+      "ac": "AC-012",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersDeactivateTest e Tests\\slice009\\UsersRoleTest passaram AC-012; bloqueiam remover a si mesmo, remover ultimo gerente e rebaixar ultimo gerente; suite exit_code=0."
+    },
+    {
+      "ac": "AC-013",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersPlansSecurityTest passou AC-013 para parametros de outro tenant sem revelar dados; Tests\\slice009\\UsersInviteTest tambem passou cenario de usuario existente em outro tenant; suite exit_code=0."
+    },
+    {
+      "ac": "AC-014",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersPageTest e Tests\\slice009\\PlansPageTest passaram AC-014; tenant suspended pode ler users/plans e bloqueia acoes mutaveis e upgrade em modo somente leitura; suite exit_code=0."
+    },
+    {
+      "ac": "AC-015",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersInviteAcceptanceTest passou tres cenarios AC-015 para convite expirado, usado ou de outro tenant sem alterar senha nem ativar vinculo; suite exit_code=0."
+    },
+    {
+      "ac": "AC-016",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\UsersInviteAcceptanceTest passou dois cenarios AC-016 para senha curta e confirmacao divergente mantendo convite pendente; suite exit_code=0."
+    },
+    {
+      "ac": "AC-017",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\PlansPageTest passou datasets AC-017 para alertas leve e forte em consumos de usuarios, OS mensal e armazenamento; suite exit_code=0."
+    },
+    {
+      "ac": "AC-018",
+      "status": "pass",
+      "evidence": "verification-input/test-results.txt: Tests\\slice009\\PlansPageTest passou AC-018; usuario nao gerente autorizado ve informacoes basicas do plano sem botao de upgrade; suite exit_code=0."
+    }
+  ],
+  "violations": [],
+  "next_action": "open_pr"
+}

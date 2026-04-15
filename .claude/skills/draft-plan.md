@@ -89,7 +89,7 @@ Próximo passo:
 **NUNCA** mostrar o plan.md cru, nomes de arquivo, código, ou jargão técnico ao PM.
 
 ## Handoff
-- **plan-review aprovado com `findings: []` + PM aceita** → marcar status do plan.md como `approved` e sugerir `/draft-tests NNN`
+- **plan-review aprovado com proveniencia do `plan-reviewer` e `findings: []` + PM aceita** → marcar status do plan.md como `approved` e sugerir `/draft-tests NNN`
 - **PM pede ajuste** → re-disparar architect com instruções adicionais
 - **PM quer pausar** → registrar estado e encerrar sem bloquear
 
@@ -110,6 +110,6 @@ Próximo passo:
 
 ## Regras
 - Não inventar requisitos além do spec
-- Não apresentar plan ao PM nem seguir para testes sem `plan-review.json` aprovado com `findings: []`
+- Não apresentar plan ao PM nem seguir para testes sem `plan-review.json` aprovado, com proveniencia do `plan-reviewer` em contexto `isolated` e `findings: []`
 - Se o architect gerar ADR, mencionar ao PM: "surgiu uma decisão que afeta o projeto todo — rode /decide-stack ou peça mais detalhes"
 - Até 5 ciclos automáticos de re-geração do plan. Na 6ª falha consecutiva, escalar humano (R6)

@@ -21,6 +21,13 @@ class TenantFactory extends Factory
     {
         return [
             'name' => fake()->company(),
+            'legal_name' => null,
+            'document_number' => null,
+            'trade_name' => null,
+            'main_email' => null,
+            'phone' => null,
+            'operational_profile' => null,
+            'emits_metrological_certificate' => false,
             'status' => 'active',
         ];
     }

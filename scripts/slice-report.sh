@@ -67,7 +67,7 @@ budget_for_agent() {
   local agent="$1"
   local f=".claude/agents/${agent}.md"
   if [ -f "$f" ]; then
-    grep '^max_tokens_per_invocation:' "$f" 2>/dev/null | head -1 | awk '{print $2}' || echo "?"
+    grep '^max_tokens_per_invocation:' "$f" 2>/dev/null | head -1 | awk '{print $2}' | tr -d '\r' || echo "?"
   else
     echo "?"
   fi

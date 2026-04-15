@@ -14,6 +14,11 @@ return new class extends Migration
         }
 
         $sql = file_get_contents($path);
+        if ($sql === false) {
+            throw new RuntimeException("RLS setup script could not be read: {$path}");
+        }
+
+        /** @phpstan-ignore argument.type */
         DB::unprepared($sql);
     }
 

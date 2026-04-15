@@ -39,6 +39,29 @@ extract_title() {
   fi
 }
 
+json_verdict() {
+  local file="$1"
+  grep -o '"verdict"[[:space:]]*:[[:space:]]*"[^"]*"' "$file" 2>/dev/null | head -1 | sed -E 's/.*"([^"]*)".*/\1/'
+}
+
+gate_is_approved() {
+  local file="$1"
+  [ -f "$file" ] && [ "$(json_verdict "$file")" = "approved" ]
+}
+
+final_gates_next_step() {
+  local nnn="$1" spec_dir="$2"
+  if ! gate_is_approved "${spec_dir}security-review.json"; then
+    echo "rodar revisão de segurança (/security-review ${nnn})"
+  elif ! gate_is_approved "${spec_dir}test-audit.json"; then
+    echo "rodar auditoria de testes (/test-audit ${nnn})"
+  elif ! gate_is_approved "${spec_dir}functional-review.json"; then
+    echo "rodar revisão funcional (/functional-review ${nnn})"
+  else
+    echo "pronto para merge (/merge-slice ${nnn})"
+  fi
+}
+
 # Mapeia estado do slice → próximo passo em PT-BR
 next_step_for_slice() {
   local nnn="$1" last_event="$2" last_verdict="$3" spec_dir="$4"
@@ -50,7 +73,7 @@ next_step_for_slice() {
       echo "aguardando correção pelo implementer (rejeição 1x — tentativa nova)"
       ;;
     review:approved)
-      echo "pronto para merge (/merge-slice ${nnn})"
+      final_gates_next_step "$nnn" "$spec_dir"
       ;;
     review:rejected)
       echo "aguardando correção pelo implementer (rejeição 1x — revisor estrutural)"
@@ -67,7 +90,7 @@ next_step_for_slice() {
     *)
       # Sem telemetria clara — infere por artefatos estruturais
       if [ -f "${spec_dir}review.json" ]; then
-        echo "revisão concluída — rodar /merge-slice ${nnn}"
+        final_gates_next_step "$nnn" "$spec_dir"
       elif [ -f "${spec_dir}verification.json" ]; then
         echo "verificação concluída — rodar /review-pr ${nnn}"
       elif [ -f "${spec_dir}plan.md" ] && grep -qE '^.*Status:.*approved' "${spec_dir}plan.md"; then
@@ -106,6 +129,12 @@ format_event() {
     verify:rejected) descr="verificação automática rejeitou" ;;
     review:approved) descr="revisão estrutural aprovou" ;;
     review:rejected) descr="revisão estrutural rejeitou" ;;
+    security-review:approved) descr="revisão de segurança aprovou" ;;
+    security-review:rejected) descr="revisão de segurança rejeitou" ;;
+    test-audit:approved) descr="auditoria de testes aprovou" ;;
+    test-audit:rejected) descr="auditoria de testes rejeitou" ;;
+    functional-review:approved) descr="revisão funcional aprovou" ;;
+    functional-review:rejected) descr="revisão funcional rejeitou" ;;
     merge:*)         descr="slice mergeado" ;;
     *)               descr="${event}${verdict:+ ($verdict)}" ;;
   esac
@@ -138,6 +167,9 @@ print_slice() {
   [ -f "${spec_dir}plan.md" ] && artifacts="${artifacts}plano "
   [ -f "${spec_dir}verification.json" ] && artifacts="${artifacts}verificação "
   [ -f "${spec_dir}review.json" ] && artifacts="${artifacts}revisão "
+  [ -f "${spec_dir}security-review.json" ] && artifacts="${artifacts}segurança "
+  [ -f "${spec_dir}test-audit.json" ] && artifacts="${artifacts}testes "
+  [ -f "${spec_dir}functional-review.json" ] && artifacts="${artifacts}funcional "
   artifacts="${artifacts% }"
 
   # Últimos eventos (até 3)

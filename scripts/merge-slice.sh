@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# merge-slice.sh — dupla-aprovação R11 + preparo/execução do PR do slice.
-# Fecha a cadeia verify→review→merge identificada como blocker P0-1
-# no meta-audit #2 (2026-04-11).
+# merge-slice.sh — valida os gates obrigatórios + prepara/executa PR do slice.
+# Fecha a cadeia verify→review→security→test-audit→functional→merge.
 #
 # Uso: bash scripts/merge-slice.sh NNN
 #
 # Exit codes:
 #   0  merge preparado (PR criado OU, se permissão selada, roteiro PM impresso)
-#   1  falha de pré-condição (verdict divergente, harness drift, branch errado)
+#   1  falha de pré-condição (gate divergente, harness drift, branch errado)
 #   2  bypass detectado (reservado para futuras checagens)
 #   3  permissão de push selada — PM deve executar em terminal externo
 
@@ -38,22 +37,115 @@ TELEMETRY=".claude/telemetry/slice-${NNN}.jsonl"
 
 VJSON="$SLICE_DIR/verification.json"
 RJSON="$SLICE_DIR/review.json"
+SJSON="$SLICE_DIR/security-review.json"
+TJSON="$SLICE_DIR/test-audit.json"
+FJSON="$SLICE_DIR/functional-review.json"
 
 [ ! -f "$VJSON" ] && fail "verification.json ausente — rode /verify-slice $NNN primeiro"
 [ ! -f "$RJSON" ] && fail "review.json ausente — rode /review-pr $NNN primeiro (R11)"
+[ ! -f "$SJSON" ] && fail "security-review.json ausente — rode /security-review $NNN primeiro"
+[ ! -f "$TJSON" ] && fail "test-audit.json ausente — rode /test-audit $NNN primeiro"
+[ ! -f "$FJSON" ] && fail "functional-review.json ausente — rode /functional-review $NNN primeiro"
 
-# Extrai verdicts (regex simples, mesmo padrão dos outros scripts)
-VVER="$(grep -o '"verdict"[[:space:]]*:[[:space:]]*"[^"]*"' "$VJSON" | head -1 | sed -E 's/.*"([^"]*)".*/\1/')"
-RVER="$(grep -o '"verdict"[[:space:]]*:[[:space:]]*"[^"]*"' "$RJSON" | head -1 | sed -E 's/.*"([^"]*)".*/\1/')"
+# Valida os cinco gates, não só a dupla R11. Zero tolerance: qualquer finding,
+# violation, anti-pattern ou AC funcional não atendido bloqueia o merge.
+if ! GATE_CHECK_OUTPUT="$(SLICE_NNN="$NNN" python3 <<'PY' 2>&1
+import json
+import os
+import sys
+from pathlib import Path
 
-say "verifier=$VVER  reviewer=$RVER"
+nnn = os.environ["SLICE_NNN"]
+slice_id = f"slice-{nnn}"
+slice_dir = Path("specs") / nnn
 
-if [ "$VVER" != "approved" ]; then
-  fail "verifier verdict=$VVER — merge só com approved (R11)"
+gates = [
+    ("verifier", "verification.json", ["violations"]),
+    ("reviewer", "review.json", ["findings"]),
+    ("security-reviewer", "security-review.json", ["findings"]),
+    ("test-auditor", "test-audit.json", ["findings", "anti_patterns"]),
+    (
+        "functional-reviewer",
+        "functional-review.json",
+        ["ux_findings", "consistency_findings", "business_rule_findings"],
+    ),
+]
+
+errors = []
+for gate, filename, zero_array_keys in gates:
+    path = slice_dir / filename
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        errors.append(f"{gate}: {filename} ausente")
+        continue
+    except json.JSONDecodeError as exc:
+        errors.append(f"{gate}: {filename} JSON invalido ({exc})")
+        continue
+
+    if data.get("slice_id") != slice_id:
+        errors.append(f"{gate}: slice_id={data.get('slice_id')!r}, esperado {slice_id!r}")
+
+    verdict = data.get("verdict")
+    if verdict != "approved":
+        errors.append(f"{gate}: verdict={verdict!r}, esperado 'approved'")
+
+    for key in zero_array_keys:
+        value = data.get(key)
+        if value != []:
+            count = len(value) if isinstance(value, list) else "campo ausente/invalido"
+            errors.append(f"{gate}: {key} precisa estar vazio ({count})")
+
+    if filename == "security-review.json":
+        severity_summary = data.get("severity_summary", {})
+        for severity in ("critical", "high", "medium", "low", "info"):
+            if severity_summary.get(severity) != 0:
+                errors.append(f"{gate}: severity_summary.{severity}={severity_summary.get(severity)!r}")
+        failed_lgpd = [
+            check.get("check", "<sem nome>")
+            for check in data.get("lgpd_checks", [])
+            if check.get("status") == "fail"
+        ]
+        if failed_lgpd:
+            errors.append(f"{gate}: LGPD falhou em {', '.join(failed_lgpd)}")
+
+    if filename == "test-audit.json":
+        coverage = data.get("coverage_summary", {})
+        total = coverage.get("acs_total")
+        covered = coverage.get("acs_covered")
+        if isinstance(total, int) and isinstance(covered, int) and covered != total:
+            errors.append(f"{gate}: acs_covered={covered}, acs_total={total}")
+        insufficient = [
+            item.get("ac", "<sem AC>")
+            for item in data.get("ac_coverage", [])
+            if item.get("status") != "adequate"
+        ]
+        if insufficient:
+            errors.append(f"{gate}: ACs sem cobertura adequada: {', '.join(insufficient)}")
+
+    if filename == "functional-review.json":
+        not_met = [
+            item.get("ac", "<sem AC>")
+            for item in data.get("ac_assessment", [])
+            if item.get("met") is not True
+        ]
+        if not_met:
+            errors.append(f"{gate}: ACs funcionais nao atendidos: {', '.join(not_met)}")
+
+if errors:
+    print("\n".join(errors))
+    sys.exit(1)
+
+for gate, filename, _ in gates:
+    print(f"{gate}=approved ({slice_dir / filename})")
+PY
+)"; then
+  echo "$GATE_CHECK_OUTPUT" >&2
+  fail "gates obrigatorios incompletos ou rejeitados — merge abortado"
 fi
-if [ "$RVER" != "approved" ]; then
-  fail "reviewer verdict=$RVER — merge só com dupla aprovação (R11)"
-fi
+while IFS= read -r line; do
+  [ -n "$line" ] && say "$line"
+done <<< "$GATE_CHECK_OUTPUT"
 
 # Integridade do harness (itens 1.1 e 1.8 meta-audit)
 say "validando integridade do harness..."
@@ -92,12 +184,15 @@ AC_COUNT="$(grep -cE '^\s*-\s*\*?\*?AC-[0-9]+' "$SLICE_DIR/spec.md" 2>/dev/null 
   echo ""
   echo "Slice **$NNN** — pronto para aceitação do PM."
   echo ""
-  echo "## Dupla-aprovação (R11)"
+  echo "## Gates obrigatórios aprovados"
   echo ""
   echo "- Verifier (mecânico): **approved** → \`$VJSON\`"
   echo "- Reviewer (estrutural): **approved** → \`$RJSON\`"
+  echo "- Security-reviewer (segurança/LGPD): **approved** → \`$SJSON\`"
+  echo "- Test-auditor (cobertura/qualidade dos testes): **approved** → \`$TJSON\`"
+  echo "- Functional-reviewer (produto/UX/ACs): **approved** → \`$FJSON\`"
   echo ""
-  echo "Os dois sub-agents rodaram em contextos isolados independentes. Nenhum viu o output do outro."
+  echo "Os gates obrigatórios foram concluídos com verdict approved e sem findings bloqueantes."
   echo ""
   echo "## Acceptance Criteria verificados"
   echo ""
@@ -152,7 +247,7 @@ if [ "$PUSH_ALLOWED" -eq 0 ]; then
   MERGE BLOQUEADO — permissão de push ainda selada
 ======================================================================
 
-  verifier e reviewer aprovaram, mas `.claude/settings.json` ainda
+  verifier, reviewer e gates finais aprovaram, mas `.claude/settings.json` ainda
   não libera `git push origin*` nem `gh pr create*`. Isso é o item
   P0-2 do meta-audit #2 (selado — só PM resolve).
 
@@ -189,6 +284,9 @@ cat <<DONE
 ======================================================================
   Verifier: approved
   Reviewer: approved
+  Security: approved
+  Test audit: approved
+  Functional: approved
   PR:       $PR_URL
   Branch:   $BRANCH
 

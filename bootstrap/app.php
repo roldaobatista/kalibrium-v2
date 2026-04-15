@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetCurrentTenantContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->alias([
             'auth.2fa.completed' => EnsureTwoFactorChallengeCompleted::class,
+            'tenant.context' => SetCurrentTenantContext::class,
             'tenant.read-only' => EnsureReadOnlyTenantMode::class,
         ]);
         $middleware->redirectGuestsTo('/auth/login');
