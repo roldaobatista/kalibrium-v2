@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Suite de isolamento — README (AC-007)
  *
- * Valida que tests/tenant-isolation/README.md existe e contém:
+ * Valida que tests/slice-011/README.md existe e contém:
  * - Instrução acessível (≤ 2 parágrafos antes do exemplo)
  * - 1 exemplo de código copiável mostrando como adicionar model sensível
  * - Referência ao comando de execução local
@@ -19,20 +19,20 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
 // AC-007: README existe
 // ---------------------------------------------------------------------------
 
-test('AC-007: tests/tenant-isolation/README.md existe', function () {
+test('AC-007: tests/slice-011/README.md existe', function () {
     /** @ac AC-007 */
-    $readmePath = base_path('tests/tenant-isolation/README.md');
+    $readmePath = base_path('tests/slice-011/README.md');
 
     expect(file_exists($readmePath))
         ->toBeTrue(
-            'AC-007: tests/tenant-isolation/README.md não existe. '.
+            'AC-007: tests/slice-011/README.md não existe. '.
             'Crie o README com instrução para dev júnior e exemplo de código copiável.'
         );
 });
 
 test('AC-007: README contém exemplo de código com bloco de código markdown', function () {
     /** @ac AC-007 */
-    $readmePath = base_path('tests/tenant-isolation/README.md');
+    $readmePath = base_path('tests/slice-011/README.md');
 
     if (! file_exists($readmePath)) {
         $this->fail('AC-007: README.md não existe — execute o teste anterior primeiro.');
@@ -53,7 +53,7 @@ test('AC-007: README contém exemplo de código com bloco de código markdown', 
 
 test('AC-007: README menciona sensitive_models e o comando de execução local', function () {
     /** @ac AC-007 */
-    $readmePath = base_path('tests/tenant-isolation/README.md');
+    $readmePath = base_path('tests/slice-011/README.md');
 
     if (! file_exists($readmePath)) {
         $this->fail('AC-007: README.md não existe.');
@@ -67,7 +67,7 @@ test('AC-007: README menciona sensitive_models e o comando de execução local',
 
 test('AC-007: exemplo de código aparece logo após 1-2 parágrafos de introdução — acessível para dev júnior', function () {
     /** @ac AC-007 */
-    $readmePath = base_path('tests/tenant-isolation/README.md');
+    $readmePath = base_path('tests/slice-011/README.md');
 
     if (! file_exists($readmePath)) {
         $this->fail('AC-007: README.md não existe.');
@@ -94,6 +94,7 @@ test('AC-007: exemplo de código aparece logo após 1-2 parágrafos de introduç
         $line = trim($lines[$i]);
         if ($line === '') {
             $inParagraph = false;
+
             continue;
         }
         if (str_starts_with($line, '#')) {

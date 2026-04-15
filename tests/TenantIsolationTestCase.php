@@ -45,15 +45,15 @@ abstract class TenantIsolationTestCase extends TestCase
             'name' => 'Tenant Alpha Isolation',
         ]);
         $userA = User::factory()->create([
-            'name'  => 'Usuario Alpha',
+            'name' => 'Usuario Alpha',
             'email' => 'alpha-iso-'.uniqid().'@tenant-isolation.test',
         ]);
         // Associa usuário ao tenant com status active (requerido por TenantAccessResolver)
         DB::table('tenant_users')->insert([
-            'tenant_id'  => $tenantA->id,
-            'user_id'    => $userA->id,
-            'role'       => 'manager',
-            'status'     => 'active',
+            'tenant_id' => $tenantA->id,
+            'user_id' => $userA->id,
+            'role' => 'manager',
+            'status' => 'active',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -63,14 +63,14 @@ abstract class TenantIsolationTestCase extends TestCase
             'name' => 'Tenant Beta Isolation',
         ]);
         $userB = User::factory()->create([
-            'name'  => 'Usuario Beta',
+            'name' => 'Usuario Beta',
             'email' => 'beta-iso-'.uniqid().'@tenant-isolation.test',
         ]);
         DB::table('tenant_users')->insert([
-            'tenant_id'  => $tenantB->id,
-            'user_id'    => $userB->id,
-            'role'       => 'manager',
-            'status'     => 'active',
+            'tenant_id' => $tenantB->id,
+            'user_id' => $userB->id,
+            'role' => 'manager',
+            'status' => 'active',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -151,7 +151,7 @@ abstract class TenantIsolationTestCase extends TestCase
 
         $firstModel = reset($models);
 
-        return (new $firstModel())->getTable();
+        return (new $firstModel)->getTable();
     }
 
     /**
@@ -162,7 +162,7 @@ abstract class TenantIsolationTestCase extends TestCase
         $models = config('tenancy.sensitive_models', []);
 
         return array_map(
-            fn ($m) => (new $m())->getTable(),
+            fn ($m) => (new $m)->getTable(),
             array_filter($models, 'class_exists')
         );
     }
@@ -176,9 +176,9 @@ abstract class TenantIsolationTestCase extends TestCase
             $exists = DB::table('consent_subjects')->where('tenant_id', $tenant->id)->exists();
             if (! $exists) {
                 DB::table('consent_subjects')->insert([
-                    'tenant_id'  => $tenant->id,
-                    'email'      => "fixture-{$tenant->id}@tenant-isolation.test",
-                    'name'       => "Fixture {$tenant->name}",
+                    'tenant_id' => $tenant->id,
+                    'email' => "fixture-{$tenant->id}@tenant-isolation.test",
+                    'name' => "Fixture {$tenant->name}",
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

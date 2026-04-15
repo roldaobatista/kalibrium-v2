@@ -37,7 +37,7 @@ test('AC-006: fixture de 2 tenants é acessível em menos de 5 segundos', functi
         );
 });
 
-test('AC-006: phpunit.xml registra testsuite tenant-isolation apontando para tests/tenant-isolation/', function () {
+test('AC-006: phpunit.xml registra testsuite tenant-isolation apontando para tests/slice-011/', function () {
     /** @ac AC-006 */
     $phpunitPath = base_path('phpunit.xml');
 
@@ -47,7 +47,7 @@ test('AC-006: phpunit.xml registra testsuite tenant-isolation apontando para tes
     $content = (string) file_get_contents($phpunitPath);
 
     expect($content)->toContain('tenant-isolation');
-    expect($content)->toContain('tests/tenant-isolation');
+    expect($content)->toContain('tests/slice-011');
 });
 
 // ---------------------------------------------------------------------------
@@ -92,6 +92,6 @@ test('AC-015: adicionar 1 model ao data provider adiciona exatamente 4 casos —
 
     expect($expectedCases)
         ->toBeGreaterThan(0,
-            "AC-015: Dataset teria 0 casos com ".count($models)." models × {$methodsPerModel} métodos."
+            'AC-015: Dataset teria 0 casos com '.count($models)." models × {$methodsPerModel} métodos."
         );
 });

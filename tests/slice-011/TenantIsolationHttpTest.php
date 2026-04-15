@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Tests\TenantIsolationTestCase;
 
 uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
@@ -25,10 +26,10 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
  */
 dataset('authenticated_routes_with_resource_ids', function () {
     return [
-        'GET /users/{id} cross-tenant'           => ['GET', '/users/{id}'],
-        'GET /plans/{id} cross-tenant'            => ['GET', '/plans/{id}'],
+        'GET /users/{id} cross-tenant' => ['GET', '/users/{id}'],
+        'GET /plans/{id} cross-tenant' => ['GET', '/plans/{id}'],
         'GET /consent-subjects/{id} cross-tenant' => ['GET', '/consent-subjects/{id}'],
-        'DELETE /users/{id} cross-tenant'         => ['DELETE', '/users/{id}'],
+        'DELETE /users/{id} cross-tenant' => ['DELETE', '/users/{id}'],
     ];
 });
 
@@ -180,13 +181,13 @@ test('AC-011: batch DELETE com IDs misturados (A + B) é rejeitado inteiro com 4
  */
 dataset('sql_injection_payloads', function () {
     return [
-        'OR 1=1 clássico'          => ['1 OR 1=1'],
-        'UNION SELECT'              => ['1 UNION SELECT id,name FROM tenants--'],
-        'Aspas simples'             => ["1' OR '1'='1"],
-        'Ponto e vírgula DROP'      => ['1; DROP TABLE users; --'],
-        'Subquery tenant_id'        => ['0 OR (SELECT tenant_id FROM users LIMIT 1) IS NOT NULL'],
-        'OR negação de tenant'      => ['1 OR tenant_id != 999'],
-        'Comentário SQL inline'     => ['1/* comment */OR/* */1=1'],
+        'OR 1=1 clássico' => ['1 OR 1=1'],
+        'UNION SELECT' => ['1 UNION SELECT id,name FROM tenants--'],
+        'Aspas simples' => ["1' OR '1'='1"],
+        'Ponto e vírgula DROP' => ['1; DROP TABLE users; --'],
+        'Subquery tenant_id' => ['0 OR (SELECT tenant_id FROM users LIMIT 1) IS NOT NULL'],
+        'OR negação de tenant' => ['1 OR tenant_id != 999'],
+        'Comentário SQL inline' => ['1/* comment */OR/* */1=1'],
     ];
 });
 
@@ -198,8 +199,8 @@ test('AC-016: SQL injection em parâmetro de rota retorna 404 ou 403 sem expor d
     // Pre-condicao: a rota /instrumentos/{id} deve estar registrada.
     // Tabelas instruments/calibrations não existem no MVP atual — módulo de instrumentos
     // será implementado em slice futuro. Marcar incompleto.
-    $instrumentsTableExists = \Illuminate\Support\Facades\Schema::hasTable('instruments');
-    $calibrationsTableExists = \Illuminate\Support\Facades\Schema::hasTable('calibrations');
+    $instrumentsTableExists = Schema::hasTable('instruments');
+    $calibrationsTableExists = Schema::hasTable('calibrations');
 
     if (! $instrumentsTableExists && ! $calibrationsTableExists) {
         $this->markTestIncomplete(
@@ -260,8 +261,8 @@ test('AC-016: tentativa de SQL injection registra log com tenant_context do tena
     $tenantA = $this->tenantA();
 
     // Rota /instrumentos/{id} depende do módulo de instrumentos — não implementado no MVP.
-    if (! \Illuminate\Support\Facades\Schema::hasTable('instruments')
-        && ! \Illuminate\Support\Facades\Schema::hasTable('calibrations')) {
+    if (! Schema::hasTable('instruments')
+        && ! Schema::hasTable('calibrations')) {
         $this->markTestIncomplete(
             'AC-016: Rota /instrumentos/{id} não implementada no MVP atual. '.
             'Implemente quando o módulo de instrumentos for adicionado.'
@@ -271,7 +272,7 @@ test('AC-016: tentativa de SQL injection registra log com tenant_context do tena
     $capturedLogs = [];
     Log::listen(function ($log) use (&$capturedLogs) {
         $capturedLogs[] = [
-            'level'   => $log->level,
+            'level' => $log->level,
             'message' => $log->message,
             'context' => $log->context,
         ];

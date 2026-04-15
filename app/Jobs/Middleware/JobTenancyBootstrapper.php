@@ -14,10 +14,6 @@ use Closure;
  */
 final class JobTenancyBootstrapper
 {
-    /**
-     * @param  object   $job
-     * @param  Closure  $next
-     */
     public function handle(object $job, Closure $next): void
     {
         $next($job);

@@ -409,7 +409,7 @@ jobs:
   #
   # Roda apenas quando código sensível de isolamento é alterado.
   # paths filter: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**,
-  #               tests/tenant-isolation/**.
+  #               tests/slice-011/**.
   # continue-on-error: true — testsuite ainda em construção (E02-S11).
   # =========================================================================
   tenant-isolation:
@@ -418,7 +418,7 @@ jobs:
     timeout-minutes: 15
     needs: harness
     continue-on-error: true
-    # paths: [app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/tenant-isolation/**]
+    # paths: [app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/slice-011/**]
     steps:
       - uses: actions/checkout@v4
 

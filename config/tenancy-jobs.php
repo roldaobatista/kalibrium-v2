@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Jobs\ProcessConsentJob;
 
 /**
  * Lista de jobs tenant-aware do projeto Kalibrium.
@@ -10,6 +11,6 @@ declare(strict_types=1);
  */
 return [
     'tenant_aware_jobs' => [
-        \App\Jobs\ProcessConsentJob::class,
+        ProcessConsentJob::class,
     ],
 ];

@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 use App\Models\ConsentSubject;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Tests\TenantIsolationTestCase;
 
@@ -25,9 +26,9 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
  */
 dataset('export_routes', function () {
     return [
-        'PlansPage list'           => ['/plans', 'GET'],
-        'Consent subjects list'    => ['/settings/privacy/consent-subjects', 'GET'],
-        'LGPD categories list'     => ['/settings/privacy/lgpd-categories', 'GET'],
+        'PlansPage list' => ['/plans', 'GET'],
+        'Consent subjects list' => ['/settings/privacy/consent-subjects', 'GET'],
+        'LGPD categories list' => ['/settings/privacy/lgpd-categories', 'GET'],
     ];
 });
 
@@ -38,7 +39,7 @@ test('AC-004: payload de export/relatório autenticado no tenant A não contém 
 
     try {
         $this->ensureExportFixture($tenantA, $tenantB);
-    } catch (\Illuminate\Database\QueryException $e) {
+    } catch (QueryException $e) {
         $this->markTestIncomplete('AC-004: Tabela ausente — infraestrutura não implantada: '.$e->getMessage());
     }
 
@@ -93,14 +94,14 @@ test('AC-013: ConsentSubject::withTrashed() no contexto do tenant A não retorna
     // Insere soft-deleted no tenant B diretamente
     try {
         DB::table('consent_subjects')->insert([
-            'tenant_id'  => $tenantB->id,
-            'email'      => 'trashed-b-'.uniqid().'@tenant-isolation.test',
-            'name'       => 'Trashed Tenant B Subject',
+            'tenant_id' => $tenantB->id,
+            'email' => 'trashed-b-'.uniqid().'@tenant-isolation.test',
+            'name' => 'Trashed Tenant B Subject',
             'created_at' => now(),
             'updated_at' => now(),
             'deleted_at' => now(),
         ]);
-    } catch (\Illuminate\Database\QueryException $e) {
+    } catch (QueryException $e) {
         $this->markTestIncomplete('AC-013: Tabela consent_subjects ausente — infraestrutura não implantada: '.$e->getMessage());
     }
 
@@ -128,14 +129,14 @@ test('AC-013: endpoint de export com include_deleted=true não expõe soft-delet
 
     try {
         $trashedId = DB::table('consent_subjects')->insertGetId([
-            'tenant_id'  => $tenantB->id,
-            'email'      => 'endpoint-trashed-'.uniqid().'@tenant-isolation.test',
-            'name'       => 'Endpoint Trashed B',
+            'tenant_id' => $tenantB->id,
+            'email' => 'endpoint-trashed-'.uniqid().'@tenant-isolation.test',
+            'name' => 'Endpoint Trashed B',
             'created_at' => now(),
             'updated_at' => now(),
             'deleted_at' => now(),
         ]);
-    } catch (\Illuminate\Database\QueryException $e) {
+    } catch (QueryException $e) {
         $this->markTestIncomplete('AC-013: Tabela consent_subjects ausente — infraestrutura não implantada: '.$e->getMessage());
     }
 

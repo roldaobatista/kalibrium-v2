@@ -1,6 +1,17 @@
 <?php
 
 declare(strict_types=1);
+use App\Models\Branch;
+use App\Models\Company;
+use App\Models\ConsentRecord;
+use App\Models\ConsentSubject;
+use App\Models\LgpdCategory;
+use App\Models\LoginAuditLog;
+use App\Models\PlanUpgradeRequest;
+use App\Models\RevocationToken;
+use App\Models\TenantAuditLog;
+use App\Models\TenantPlanMetric;
+use App\Models\TenantUser;
 
 return [
     /*
@@ -15,16 +26,16 @@ return [
     |
     */
     'sensitive_models' => [
-        \App\Models\TenantUser::class,
-        \App\Models\ConsentSubject::class,
-        \App\Models\ConsentRecord::class,
-        \App\Models\LgpdCategory::class,
-        \App\Models\TenantPlanMetric::class,
-        \App\Models\TenantAuditLog::class,
-        \App\Models\PlanUpgradeRequest::class,
-        \App\Models\RevocationToken::class,
-        \App\Models\LoginAuditLog::class,
-        \App\Models\Branch::class,
-        \App\Models\Company::class,
+        TenantUser::class,
+        ConsentSubject::class,
+        ConsentRecord::class,
+        LgpdCategory::class,
+        TenantPlanMetric::class,
+        TenantAuditLog::class,
+        PlanUpgradeRequest::class,
+        RevocationToken::class,
+        LoginAuditLog::class,
+        Branch::class,
+        Company::class,
     ],
 ];

@@ -9,6 +9,7 @@ declare(strict_types=1);
  * e verificação completa: payload limpo + log com tenant_context.
  */
 
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Tests\TenantIsolationTestCase;
@@ -24,16 +25,16 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
  */
 dataset('extended_sql_injection_vectors', function () {
     return [
-        'OR 1=1 com espaços'            => ['1 OR 1=1'],
-        'UNION SELECT multi-coluna'     => ['1 UNION SELECT id,name,email,tenant_id FROM users--'],
-        'Aspas simples escape'          => ["1' OR '1'='1"],
-        'DROP TABLE'                    => ['1; DROP TABLE tenants; --'],
-        'Subquery tenant_id IS NOT NULL'=> ['0 OR (SELECT tenant_id FROM users LIMIT 1) IS NOT NULL'],
-        'OR tenant_id qualquer'         => ['1 OR tenant_id != 999'],
-        'Slug LIKE wildcard'            => ["' OR slug LIKE '%"],
-        'Comentário inline MySQL'       => ['1/* comment */OR/* */1=1'],
-        'Hex encoding'                  => ['1 OR 0x31=0x31'],
-        'Double dash comment'           => ["1'--"],
+        'OR 1=1 com espaços' => ['1 OR 1=1'],
+        'UNION SELECT multi-coluna' => ['1 UNION SELECT id,name,email,tenant_id FROM users--'],
+        'Aspas simples escape' => ["1' OR '1'='1"],
+        'DROP TABLE' => ['1; DROP TABLE tenants; --'],
+        'Subquery tenant_id IS NOT NULL' => ['0 OR (SELECT tenant_id FROM users LIMIT 1) IS NOT NULL'],
+        'OR tenant_id qualquer' => ['1 OR tenant_id != 999'],
+        'Slug LIKE wildcard' => ["' OR slug LIKE '%"],
+        'Comentário inline MySQL' => ['1/* comment */OR/* */1=1'],
+        'Hex encoding' => ['1 OR 0x31=0x31'],
+        'Double dash comment' => ["1'--"],
     ];
 });
 
@@ -47,7 +48,7 @@ test('AC-016: vetor SQL injection retorna 4xx e não expõe dados do tenant B', 
     try {
         $recordA = DB::table('instruments')->where('tenant_id', $tenantA->id)->first()
             ?? DB::table('calibrations')->where('tenant_id', $tenantA->id)->first();
-    } catch (\Illuminate\Database\QueryException $e) {
+    } catch (QueryException $e) {
         $this->markTestIncomplete('AC-016: Tabela instruments/calibrations ausente — infraestrutura não implantada.');
     }
 
@@ -116,7 +117,7 @@ test('AC-016: payload de resposta após SQL injection não contém literais de r
     try {
         $recordA = DB::table('instruments')->where('tenant_id', $tenantA->id)->first()
             ?? DB::table('calibrations')->where('tenant_id', $tenantA->id)->first();
-    } catch (\Illuminate\Database\QueryException $e) {
+    } catch (QueryException $e) {
         $this->markTestIncomplete('AC-016: Tabela instruments/calibrations ausente — infraestrutura não implantada.');
     }
 
@@ -169,7 +170,7 @@ test('AC-016: request com SQL injection registra log identificando tenant_contex
     $capturedLogs = [];
     Log::listen(function ($log) use (&$capturedLogs) {
         $capturedLogs[] = [
-            'level'   => $log->level,
+            'level' => $log->level,
             'message' => $log->message,
             'context' => $log->context,
         ];

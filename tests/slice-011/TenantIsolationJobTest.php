@@ -27,7 +27,7 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
 dataset('tenant_aware_jobs', function () {
     try {
         $jobs = config('tenancy-jobs.tenant_aware_jobs', []);
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         return ['[config/tenancy-jobs.php não encontrado]' => ['__missing__']];
     }
 
@@ -64,10 +64,10 @@ test('AC-003: job despachado no contexto do tenant A não cria registros com ten
     try {
         Queue::fake();
 
-        dispatch(new $jobClass());
+        dispatch(new $jobClass);
 
         // Verifica que o job carrega contexto de tenant (via middleware ou propriedade)
-        Queue::assertPushed($jobClass, function ($job) use ($tenantA) {
+        Queue::assertPushed($jobClass, function ($job) {
             $middlewares = method_exists($job, 'middleware') ? $job->middleware() : [];
             $hasTenancyMiddleware = collect($middlewares)->contains(
                 fn ($m) => str_contains(get_class($m), 'Tenancy') || str_contains(get_class($m), 'Tenant')
@@ -116,10 +116,11 @@ test('AC-012: todos os jobs tenant-aware implementam JobTenancyBootstrapper para
     foreach ($jobs as $jobClass) {
         if (! class_exists($jobClass)) {
             $jobsWithoutBootstrapper[] = "{$jobClass} (classe não existe)";
+
             continue;
         }
 
-        $job = new $jobClass();
+        $job = new $jobClass;
         $middlewares = method_exists($job, 'middleware') ? $job->middleware() : [];
 
         $hasTenancyBootstrapper = collect($middlewares)->contains(function ($m) {
@@ -173,12 +174,12 @@ test('AC-012: contextos de tenants não vazam entre dispatches consecutivos de j
 
     // Dispatch 1: contexto A
     tenancy()->initialize($tenantA);
-    dispatch(new $jobClass());
+    dispatch(new $jobClass);
     tenancy()->end();
 
     // Dispatch 2: contexto B
     tenancy()->initialize($tenantB);
-    dispatch(new $jobClass());
+    dispatch(new $jobClass);
 
     $currentTenantId = tenancy()->tenant?->id ?? null;
 

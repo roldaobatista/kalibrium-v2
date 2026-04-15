@@ -36,7 +36,7 @@
             <directory>tests/slice-010</directory>
         </testsuite>
         <testsuite name="tenant-isolation">
-            <directory>tests/tenant-isolation</directory>
+            <directory>tests/slice-011</directory>
         </testsuite>
     </testsuites>
     <source>

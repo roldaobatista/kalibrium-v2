@@ -409,8 +409,8 @@ Route::middleware([
         // AC-010: expõe o tenant_id do contexto atual da sessão.
         // Middleware SetCurrentTenantContext define request()->attributes['current_tenant'].
         // Query string ?tenant=X e header X-Tenant são ignorados intencionalmente.
-        Route::get('/api/tenant-context', function (Illuminate\Http\Request $request) {
-            /** @var \App\Models\Tenant|null $tenant */
+        Route::get('/api/tenant-context', function (Request $request) {
+            /** @var Tenant|null $tenant */
             $tenant = $request->attributes->get('current_tenant');
 
             return response()->json([

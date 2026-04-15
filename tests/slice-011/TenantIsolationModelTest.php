@@ -9,7 +9,9 @@ declare(strict_types=1);
  * Cada combinação (model, método) é um caso de teste nomeado e independente.
  */
 
+use App\Models\Concerns\ScopesToCurrentTenant;
 use Illuminate\Support\Facades\DB;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Tests\TenantIsolationTestCase;
 
 uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
@@ -60,15 +62,15 @@ test('AC-001: model sensível não vaza registros do tenant B quando consultado 
         ->toBeTrue("Model {$modelClass} não existe.");
 
     $traits = class_uses_recursive($modelClass);
-    $hasTenantScope = isset($traits[\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class])
-        || isset($traits[\App\Models\Concerns\ScopesToCurrentTenant::class]);
+    $hasTenantScope = isset($traits[BelongsToTenant::class])
+        || isset($traits[ScopesToCurrentTenant::class]);
     expect($hasTenantScope)
         ->toBeTrue("Model {$modelClass} não usa BelongsToTenant nem ScopesToCurrentTenant trait — escopo de isolamento ausente.");
 
     $this->initializeTenant($tenantA);
 
     try {
-        $instance = new $modelClass();
+        $instance = new $modelClass;
 
         switch ($method) {
             case 'all':
@@ -131,12 +133,13 @@ test('AC-008: model em sensitive_models sem BelongsToTenant trait causa falha ex
     foreach ($models as $modelClass) {
         if (! class_exists($modelClass)) {
             $modelsWithoutTrait[] = "{$modelClass} (classe não existe)";
+
             continue;
         }
 
         $traits = class_uses_recursive($modelClass);
-        $hasTenantScope = isset($traits[\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class])
-            || isset($traits[\App\Models\Concerns\ScopesToCurrentTenant::class]);
+        $hasTenantScope = isset($traits[BelongsToTenant::class])
+            || isset($traits[ScopesToCurrentTenant::class]);
         if (! $hasTenantScope) {
             $modelsWithoutTrait[] = $modelClass;
         }
@@ -168,7 +171,7 @@ test('AC-009: DB::raw SUM em model sensível retorna apenas soma do tenant A sem
             continue;
         }
 
-        $instance = new $modelClass();
+        $instance = new $modelClass;
         if (in_array($instance->getTable(), $numericCandidates, true)) {
             $found = ['class' => $modelClass, 'table' => $instance->getTable()];
             break;
