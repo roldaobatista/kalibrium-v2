@@ -1,10 +1,11 @@
 # Constituição do Kalibrium V2
 
-**Versão:** 1.4.0 — 2026-04-15 (R13 + R14: ordem Story × Epic enforced)
+**Versão:** 1.5.0 — 2026-04-15 (ADR-0012: autonomia do agente + dual-LLM + retrospectiva + harness-learner)
 **Status:** vigente
 **Alteração:** permitida **apenas** via ADR + retrospectiva documentada (§5)
 
 ## Histórico de versões
+- **1.5.0** (2026-04-15) — emenda §3.1 (PM não-técnico: opera via `relock.bat` e GitHub UI, não terminal direto) e R11 (dual-verifier humano+agent vira dual-LLM Claude Opus 4.6 + GPT-5 via Codex CLI, consolidado pelo `master-auditor`). Adiciona R15 (retrospectiva automatizada pós-épico com loop corretivo 10x) e R16 (harness-learner com auto-aplicação limitada por guardrails E4). PM é chamado apenas em bloqueio real (E5 da ADR) ou fim de épico. Ver `docs/adr/0012-constitution-amendment-autonomy-dual-llm.md`.
 - **1.4.0** (2026-04-15) — adiciona R13 (ordem intra-epico de stories) e R14 (ordem inter-epico MVP) para impedir pular stories ou iniciar epico N sem fechar N-1. Origem: retrospectiva 2026-04-15 apos recomendacao indevida de TEN-003 (E03) com E02 ainda aberto. Ver `docs/adr/0011-constitution-amendment-story-epic-sequencing.md`.
 - **1.3.0** (2026-04-14) — altera R6 para permitir 5 ciclos automáticos de correção nos loops de review/auditoria e escalar ao PM na 6ª rejeição consecutiva. Ver `docs/adr/0010-constitution-amendment-r6-gate-threshold.md`.
 - **1.2.1** (2026-04-12) — explicita que Codex CLI deve carregar `CLAUDE.md` via `project_doc_fallback_filenames`, sem criar `AGENTS.md` no repositório. Ver `docs/adr/0008-codex-cli-orchestrator.md`.
