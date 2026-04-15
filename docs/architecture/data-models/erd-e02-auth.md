@@ -185,6 +185,7 @@ erDiagram
         string name
         string legal_basis
         string retention_policy
+        uuid created_by_user_id FK
         timestamps timestamps
     }
 
