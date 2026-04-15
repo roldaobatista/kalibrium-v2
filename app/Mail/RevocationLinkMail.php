@@ -17,7 +17,7 @@ final class RevocationLinkMail extends Mailable
     public function __construct(
         public readonly ConsentSubject $consentSubject,
         public readonly string $channel,
-        public readonly string $rawToken,
+        private readonly string $rawToken,
     ) {}
 
     public function envelope(): Envelope

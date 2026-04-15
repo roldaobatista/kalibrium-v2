@@ -514,26 +514,23 @@ Route::post('/privacy/revoke/{token}', function (
     RevocationTokenService $tokenService,
     ConsentRecordService $consentService,
 ) {
-    $validToken = $tokenService->findValidToken($token);
+    $outcome = $tokenService->processRevocationAttempt($token);
 
-    if ($validToken === null) {
-        // Verifica se é expirado
-        $anyToken = $tokenService->findByRaw($token);
-        if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at->isPast()) {
-            $renewed = $tokenService->handleExpiredToken($anyToken);
-            if ($renewed !== null) {
-                Mail::send(new RevocationLinkMail(
-                    $renewed['subject'],
-                    $anyToken->channel,
-                    $renewed['rawToken']
-                ));
-            }
+    if ($outcome['status'] === 'renewed') {
+        Mail::send(new RevocationLinkMail(
+            $outcome['subject'],
+            $outcome['channel'],
+            $outcome['rawToken']
+        ));
 
-            return response('Link expirado. Solicite um novo link de revogação.', 200);
-        }
+        return response('Link expirado. Solicite um novo link de revogação.', 200);
+    }
+
+    if ($outcome['status'] === 'not_found') {
         abort(404);
     }
 
+    $validToken = $outcome['token'];
     $subject = $validToken->consentSubject;
     $channel = $validToken->channel;
     $reason = (string) $request->input('revocation_reason', 'other_without_details');

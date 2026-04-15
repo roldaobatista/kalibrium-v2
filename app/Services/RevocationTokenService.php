@@ -34,18 +34,24 @@ final class RevocationTokenService
 
     /**
      * Busca token válido pelo raw token.
-     * Comparação ocorre via WHERE no banco (constant-time pelo índice).
-     * hash_equals seria defesa em profundidade se a comparação fosse string-a-string em PHP.
+     * Após o lookup, valida via hash_equals para garantir comparação constant-time
+     * em profundidade (AC-SEC-005), mesmo que WHERE do banco já seja constant-time pelo índice.
      */
     public function findValidToken(string $rawToken): ?RevocationToken
     {
         $hash = hash('sha256', $rawToken);
 
-        return RevocationToken::withoutGlobalScopes()
+        $token = RevocationToken::withoutGlobalScopes()
             ->where('token_hash', $hash)
             ->whereNull('used_at')
             ->where('expires_at', '>', now())
             ->first();
+
+        if ($token === null) {
+            return null;
+        }
+
+        return hash_equals($token->token_hash, $hash) ? $token : null;
     }
 
     /**
@@ -69,15 +75,6 @@ final class RevocationTokenService
     }
 
     /**
-     * Gera novo token (para AC-004a: token expirado).
-     * Retorna o novo raw token.
-     */
-    public function regenerate(int $tenantId, int $subjectId, string $channel): string
-    {
-        return $this->generate($tenantId, $subjectId, $channel);
-    }
-
-    /**
      * Lida com token expirado não usado: gera novo token e retorna o raw token.
      * O envio de e-mail fica a cargo do caller (contextos GET/POST distintos).
      *
@@ -91,12 +88,42 @@ final class RevocationTokenService
             return null;
         }
 
-        $rawToken = $this->regenerate(
+        $rawToken = $this->generate(
             (int) $expiredToken->tenant_id,
             (int) $expiredToken->consent_subject_id,
             $expiredToken->channel
         );
 
         return ['rawToken' => $rawToken, 'subject' => $subject];
+    }
+
+    /**
+     * Processa tentativa de revogação: retorna token válido, ou (se expirado) dispara renovação.
+     * Encapsula a sequência findValidToken → findByRaw → handleExpiredToken usada nos
+     * handlers GET (Livewire mount) e POST (rota).
+     *
+     * @return array{status: 'valid', token: RevocationToken}|array{status: 'renewed', rawToken: string, subject: ConsentSubject, channel: string}|array{status: 'not_found'}
+     */
+    public function processRevocationAttempt(string $rawToken): array
+    {
+        $valid = $this->findValidToken($rawToken);
+        if ($valid !== null) {
+            return ['status' => 'valid', 'token' => $valid];
+        }
+
+        $any = $this->findByRaw($rawToken);
+        if ($any !== null && $any->used_at === null && $any->expires_at !== null && $any->expires_at->isPast()) {
+            $renewed = $this->handleExpiredToken($any);
+            if ($renewed !== null) {
+                return [
+                    'status' => 'renewed',
+                    'rawToken' => $renewed['rawToken'],
+                    'subject' => $renewed['subject'],
+                    'channel' => $any->channel,
+                ];
+            }
+        }
+
+        return ['status' => 'not_found'];
     }
 }

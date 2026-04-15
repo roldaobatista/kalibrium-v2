@@ -38,37 +38,27 @@ final class RevokeConsentPage extends Component
     {
         $this->rawToken = $token;
 
-        // Primeiro tenta encontrar token válido
-        $validToken = $service->findValidToken($token);
+        $outcome = $service->processRevocationAttempt($token);
 
-        if ($validToken !== null) {
-            $this->tokenModel = $validToken;
-            $this->subjectModel = $validToken->consentSubject;
+        if ($outcome['status'] === 'valid') {
+            $this->tokenModel = $outcome['token'];
+            $this->subjectModel = $outcome['token']->consentSubject;
 
             return;
         }
 
-        // Tenta encontrar token expirado (não usado)
-        $anyToken = $service->findByRaw($token);
-
-        if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at !== null && $anyToken->expires_at->isPast()) {
+        if ($outcome['status'] === 'renewed') {
             $this->expired = true;
-
-            // Gera novo token e reenvia link de revogação
-            $renewed = $service->handleExpiredToken($anyToken);
-            if ($renewed !== null) {
-                $this->subjectModel = $renewed['subject'];
-                Mail::send(new RevocationLinkMail(
-                    $renewed['subject'],
-                    $anyToken->channel,
-                    $renewed['rawToken']
-                ));
-            }
+            $this->subjectModel = $outcome['subject'];
+            Mail::send(new RevocationLinkMail(
+                $outcome['subject'],
+                $outcome['channel'],
+                $outcome['rawToken']
+            ));
 
             return;
         }
 
-        // Token inválido — 404
         $this->invalid = true;
         abort(404);
     }

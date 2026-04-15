@@ -48,6 +48,10 @@
         <env name="DB_HOST" value="127.0.0.1"/>
         <env name="DB_PORT" value="5433"/>
         <env name="DB_DATABASE" value="kalibrium_testing"/>
+        <!-- Credenciais DE DEV LOCAL apenas: banco PostgreSQL isolado em 127.0.0.1:5433 -->
+        <!-- usado somente pela suite de testes (kalibrium_testing). Produção usa secrets -->
+        <!-- manager por ADR-0004 — estes valores nunca tocam produção. -->
+        <!-- DB_PASSWORD é o default do container/scoop postgres local; não é secret. -->
         <env name="DB_USERNAME" value="postgres" force="false"/>
         <env name="DB_PASSWORD" value="postgres" force="false"/>
         <env name="SESSION_DRIVER" value="array"/>
