@@ -17,10 +17,19 @@
     @endif
 
     <div class="grid gap-4 md:grid-cols-3">
+        @php
+            $planStatusLabels = [
+                'active' => 'Ativo',
+                'trial' => 'Em avaliacao',
+                'suspended' => 'Suspenso',
+                'cancelled' => 'Cancelado',
+                'past_due' => 'Inadimplente',
+            ];
+        @endphp
         <div class="rounded border border-slate-300 p-4">
             <p class="text-sm text-slate-600">Plano atual</p>
             <p class="text-xl font-semibold">{{ $summary['plan_name'] }}</p>
-            <p class="text-sm">Status: {{ $summary['status'] }}</p>
+            <p class="text-sm">Status: {{ $planStatusLabels[$summary['status']] ?? ucfirst((string) $summary['status']) }}</p>
         </div>
         <div class="rounded border border-slate-300 p-4">
             <p class="text-sm text-slate-600">Usuarios</p>
