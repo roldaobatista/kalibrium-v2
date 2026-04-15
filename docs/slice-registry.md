@@ -9,3 +9,4 @@
 | 007 | SEG-001 - Login seguro do laboratorio | merged | 2026-04-13 | 2026-04-14 |
 | 008 | TEN-001 - Primeiro laboratorio isolado | merged | 2026-04-14 | 2026-04-14 |
 | 009 | TEN-002 - Usuarios, papeis e plano do laboratorio | draft | 2026-04-14 | — |
+| 010 | E02-S07: Base legal LGPD e consentimentos de contato | draft | 2026-04-15 | — |
