@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-14T19:36:25-04:00",
+  "updated_at": "2026-04-15T01:15:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -59,7 +59,10 @@
     {
       "id": "PD-002",
       "question": "ADRs 0003-0007 pendentes devem ser criadas sob demanda conforme o epico exigir?",
-      "options": ["Criar sob demanda por epico", "Criar todas antes de retomar produto"],
+      "options": [
+        "Criar sob demanda por epico",
+        "Criar todas antes de retomar produto"
+      ],
       "created_at": "2026-04-12T23:00:00Z",
       "resolved_at": "2026-04-13T12:58:00-04:00",
       "decision": "Criar ADRs sob demanda por epico; primeira execucao: ADR-0004 aceito para desbloquear SEG-001"
@@ -67,7 +70,10 @@
     {
       "id": "PD-003",
       "question": "3 suposicoes pendentes de consultor de metrologia (ASS-002, ASS-012, ASS-018)",
-      "options": ["Bloquear stories dependentes", "Prosseguir e validar depois"],
+      "options": [
+        "Bloquear stories dependentes",
+        "Prosseguir e validar depois"
+      ],
       "created_at": "2026-04-13T01:00:00Z",
       "resolved_at": "2026-04-13T23:11:55-04:00",
       "decision": "Pedir nova tentativa focada no fluxo real de /app com 2FA pendente"
@@ -75,7 +81,11 @@
     {
       "id": "PD-004",
       "question": "R6 do slice 006: reviewer reprovou duas vezes por teste AC-010 tautologico",
-      "options": ["Pedir nova tentativa focada no AC-010", "Reescopar o slice 006", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada no AC-010",
+        "Reescopar o slice 006",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-13T03:36:15Z",
       "resolved_at": "2026-04-13T00:00:33-04:00",
       "decision": "Pedir nova tentativa focada no AC-010"
@@ -83,7 +93,10 @@
     {
       "id": "PD-005",
       "question": "No slice 007, tenant suspended deve entrar em modo somente leitura ou bloquear login ate uma decisao posterior de lifecycle/dunning?",
-      "options": ["Seguir PRD/E02 amplo: permitir modo somente leitura e atualizar contrato E02", "Seguir contrato API atual: bloquear login e deixar readonly para slice futuro"],
+      "options": [
+        "Seguir PRD/E02 amplo: permitir modo somente leitura e atualizar contrato E02",
+        "Seguir contrato API atual: bloquear login e deixar readonly para slice futuro"
+      ],
       "created_at": "2026-04-13T17:05:48-04:00",
       "resolved_at": "2026-04-13T17:15:28-04:00",
       "decision": "Seguir PRD/E02 amplo: permitir modo somente leitura para tenant suspended e atualizar contrato E02"
@@ -91,7 +104,11 @@
     {
       "id": "PD-006",
       "question": "R6 do slice 007: reviewer reprovou duas vezes; corrigir novos achados ou reescopar?",
-      "options": ["Pedir nova tentativa focada nos 2 findings do reviewer", "Reescopar o slice 007", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada nos 2 findings do reviewer",
+        "Reescopar o slice 007",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-13T21:07:26-04:00",
       "resolved_at": "2026-04-13T21:18:00-04:00",
       "decision": "Pedir nova tentativa focada nos 2 findings do reviewer"
@@ -99,7 +116,11 @@
     {
       "id": "PD-007",
       "question": "R6 do slice 007: reviewer encontrou risco de sessao lembrada continuar valida apos reset de senha; corrigir ou pausar?",
-      "options": ["Pedir nova tentativa focada no remember_token", "Reescopar o slice 007", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada no remember_token",
+        "Reescopar o slice 007",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-13T21:23:41-04:00",
       "resolved_at": "2026-04-13T21:32:00-04:00",
       "decision": "Pedir nova tentativa focada no remember_token"
@@ -107,7 +128,11 @@
     {
       "id": "PD-008",
       "question": "R6 do slice 007: reviewer encontrou respostas JSON em formularios HTML e sessao 2FA pendente sem renovacao; corrigir ou pausar?",
-      "options": ["Pedir nova tentativa focada nesses 2 findings", "Reescopar o slice 007", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada nesses 2 findings",
+        "Reescopar o slice 007",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-13T21:35:27-04:00",
       "resolved_at": "2026-04-13T21:53:03-04:00",
       "decision": "Pedir nova tentativa focada nos formularios e na sessao 2FA usando gpt-5.4 xhigh"
@@ -115,7 +140,11 @@
     {
       "id": "PD-009",
       "question": "R6 do slice 007: reviewer encontrou fail-open de status de tenant/vinculo e recovery codes 2FA reversiveis; corrigir ou pausar?",
-      "options": ["Pedir nova tentativa focada nesses 2 findings", "Reescopar o slice 007", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada nesses 2 findings",
+        "Reescopar o slice 007",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-13T21:53:03-04:00",
       "resolved_at": "2026-04-13T22:12:19-04:00",
       "decision": "Pedir nova tentativa focada no fail-closed de status de tenant/vinculo e nos recovery codes 2FA como segredo usando gpt-5.4 xhigh"
@@ -123,7 +152,11 @@
     {
       "id": "PD-010",
       "question": "R6 do slice 007: reviewer encontrou que a conclusao do 2FA nao revalida se o acesso ainda continua permitido; corrigir ou pausar?",
-      "options": ["Pedir nova tentativa focada nesse finding", "Reescopar o slice 007", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada nesse finding",
+        "Reescopar o slice 007",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-13T22:12:19-04:00",
       "resolved_at": "2026-04-13T22:32:58-04:00",
       "decision": "Pedir nova tentativa focada nesse finding"
@@ -131,7 +164,11 @@
     {
       "id": "PD-011",
       "question": "R6 do slice 007: reviewer encontrou que /app com 2FA pendente usa auth antes do middleware de desafio e pode voltar para login no fluxo real; corrigir ou pausar?",
-      "options": ["Pedir nova tentativa focada nesse finding", "Reescopar o slice 007", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada nesse finding",
+        "Reescopar o slice 007",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-13T22:32:58-04:00",
       "resolved_at": "2026-04-14T01:03:00-04:00",
       "decision": "Pedir nova tentativa focada nesse finding; fix aplicado e cadeia completa de gates reexecutada ate approved com zero findings"
@@ -139,7 +176,11 @@
     {
       "id": "PD-012",
       "question": "R6 do slice 009: reviewer reprovou pela 6ª vez com risco de ultimo gerente em concorrencia e auditoria de justificativa livre; continuar, reescopar ou pausar?",
-      "options": ["Pedir nova tentativa focada nesses 3 findings", "Reescopar o slice 009", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada nesses 3 findings",
+        "Reescopar o slice 009",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-14T17:55:54-04:00",
       "resolved_at": "2026-04-14T18:04:00-04:00",
       "decision": "Pedir nova tentativa: repetir ate mais 10 rodadas ou ate passar. Correcoes aplicadas e committadas em 945a098; verifier aprovou."
@@ -147,7 +188,11 @@
     {
       "id": "PD-013",
       "question": "R6 do slice 009: reviewer encontrou que o pacote de review inclui verification.json, quebrando o isolamento entre verifier e reviewer; continuar corrigindo o empacotamento do review, reescopar ou pausar?",
-      "options": ["Pedir nova tentativa focada no empacotamento do review", "Reescopar o slice 009", "Pausar para discussao"],
+      "options": [
+        "Pedir nova tentativa focada no empacotamento do review",
+        "Reescopar o slice 009",
+        "Pausar para discussao"
+      ],
       "created_at": "2026-04-14T18:25:58-04:00",
       "resolved_at": "2026-04-14T18:57:27-04:00",
       "decision": "Pedir nova tentativa focada no empacotamento do review; corrigir o pacote para nao expor verification.json ou artefatos operacionais ao reviewer e rerodar ate 10 rodadas ou ate passar."
@@ -222,5 +267,31 @@
       "docs/architecture/data-models/migrations-e02-auth.md",
       "docs/product/flows/flows-e02-auth.md"
     ]
+  },
+  "epics_status": {
+    "E01": {
+      "status": "merged",
+      "stories": {
+        "E01-S01": "merged",
+        "E01-S02": "merged",
+        "E01-S03": "merged",
+        "E01-S04": "merged",
+        "E01-S05": "merged",
+        "E01-S06": "merged"
+      }
+    },
+    "E02": {
+      "status": "in_progress",
+      "stories": {
+        "E02-S01": "merged",
+        "E02-S02": "merged",
+        "E02-S03": "merged",
+        "E02-S04": "merged",
+        "E02-S05": "merged",
+        "E02-S06": "merged",
+        "E02-S07": "pending",
+        "E02-S08": "pending"
+      }
+    }
   }
 }

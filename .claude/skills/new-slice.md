@@ -17,11 +17,12 @@ Exemplo:
 ## O que faz
 
 1. Valida que `NNN` é 3 dígitos (001-999) e que `specs/NNN/` **não** existe.
-2. Cria `specs/NNN/`.
-3. Copia `docs/templates/spec.md`, `docs/templates/plan.md` e `docs/templates/tasks.md` para `specs/NNN/`.
-4. Preenche título, data, status `draft` no cabeçalho de cada um.
-5. Adiciona linha em `docs/slice-registry.md`: `| NNN | título | draft | <data> |`.
-6. **Não commita.** O humano revisa `spec.md` manualmente antes.
+2. Valida gate R13/R14 (ADR-0011): se o título começar com `ENN-SNN:` (ex.: `E02-S07: LGPD + consentimentos`), executa `scripts/sequencing-check.sh --story ENN-SNN` e bloqueia se stories/épicos anteriores não estão `merged` em `project-state.json[epics_status]`. Slices standalone (sem prefixo de story) não passam pelo gate. Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` registra incidente.
+3. Cria `specs/NNN/`.
+4. Copia `docs/templates/spec.md`, `docs/templates/plan.md` e `docs/templates/tasks.md` para `specs/NNN/`.
+5. Preenche título, data, status `draft` no cabeçalho de cada um.
+6. Adiciona linha em `docs/slice-registry.md`: `| NNN | título | draft | <data> |`.
+7. **Não commita.** O humano revisa `spec.md` manualmente antes.
 
 ## Implementação
 

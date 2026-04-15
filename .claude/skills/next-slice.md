@@ -38,6 +38,14 @@ Esse script:
 
 O agente principal lê a saída do script e executa a lógica apropriada para o modo detectado.
 
+> **IMPORTANTE (R13/R14 — ADR-0011):** No modo CONSULTA, antes de recomendar o próximo slice, o agente **deve** cruzar 3 fontes:
+>
+> 1. `docs/product/roadmap.md` (próximo da fila)
+> 2. `epics/ENN/epic.md` do épico corrente (todas as stories previstas)
+> 3. `project-state.json[epics_status][ENN].stories` (status real de cada story)
+>
+> Se o épico atual tem stories previstas não-mergeadas, recomendar uma dessas **antes** de pular para o próximo épico. Se o roadmap ignorar stories previstas, sinalizar a inconsistência ao PM (não seguir o roadmap cegamente). O gate mecânico `scripts/sequencing-check.sh` vai bloquear qualquer pulo indevido, mas a skill deve evitar a recomendação errada desde o início.
+
 ---
 
 ## Modo WIZARD (primeira execução)

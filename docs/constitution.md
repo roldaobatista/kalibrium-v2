@@ -1,10 +1,11 @@
 # Constituição do Kalibrium V2
 
-**Versão:** 1.3.0 — 2026-04-14 (R6: 5 ciclos automáticos, escalação na 6ª rejeição)
+**Versão:** 1.4.0 — 2026-04-15 (R13 + R14: ordem Story × Epic enforced)
 **Status:** vigente
 **Alteração:** permitida **apenas** via ADR + retrospectiva documentada (§5)
 
 ## Histórico de versões
+- **1.4.0** (2026-04-15) — adiciona R13 (ordem intra-epico de stories) e R14 (ordem inter-epico MVP) para impedir pular stories ou iniciar epico N sem fechar N-1. Origem: retrospectiva 2026-04-15 apos recomendacao indevida de TEN-003 (E03) com E02 ainda aberto. Ver `docs/adr/0011-constitution-amendment-story-epic-sequencing.md`.
 - **1.3.0** (2026-04-14) — altera R6 para permitir 5 ciclos automáticos de correção nos loops de review/auditoria e escalar ao PM na 6ª rejeição consecutiva. Ver `docs/adr/0010-constitution-amendment-r6-gate-threshold.md`.
 - **1.2.1** (2026-04-12) — explicita que Codex CLI deve carregar `CLAUDE.md` via `project_doc_fallback_filenames`, sem criar `AGENTS.md` no repositório. Ver `docs/adr/0008-codex-cli-orchestrator.md`.
 - **1.2.0** (2026-04-12) — altera R2 para permitir Claude Code ou Codex CLI como orquestrador ativo, desde que apenas um deles toque a branch ativa por vez. Ver `docs/adr/0008-codex-cli-orchestrator.md`.
@@ -202,11 +203,32 @@ Toda saída do harness destinada ao humano (PM) deve ser em **linguagem de produ
 
 **Enforcement:** cultural + `guide-auditor` pode adicionar check futuro que faz grep de vocabulário proibido em `docs/explanations/` e `docs/adr/0001-stack-choice.md`.
 
+### R13. Ordem intra-epico de stories
+Nenhuma story nova pode iniciar se stories anteriores do mesmo epico nao estao com status `merged` em `project-state.json[epics_status]`.
+
+**Paralelismo permitido:** uma story pode declarar `dependencies: []` (array vazio) no frontmatter do Story Contract para indicar que nao depende de stories anteriores e pode rodar em paralelo. Nesse caso, apenas as pre-condicoes declaradas precisam estar satisfeitas — a numeracao sequencial deixa de valer.
+
+**Enforcement:**
+- `scripts/sequencing-check.sh --story ENN-SNN` valida `dependencies:` do contrato. Se ausente, assume todas as stories numericamente anteriores como dependencia hard.
+- `scripts/start-story.sh` bloqueia antes de criar slice.
+- `scripts/new-slice.sh` bloqueia se titulo inicia com `ENN-SNN:` e o gate falhar.
+- Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` grava incidente em `docs/incidents/sequence-bypass-*.md` e autoriza.
+
+### R14. Ordem inter-epico (MVP)
+O primeiro slice de um epico MVP (E01..E12) so pode iniciar se o epico anterior tem **todas** as stories com status `merged` em `project-state.json[epics_status]`.
+
+**Escopo:** aplica aos 12 epicos MVP listados em `docs/product/mvp-scope.md`. Epicos post-MVP (E13, E14) sao isentos — sua ordem e recomendacao de produto, nao regra mecanica.
+
+**Enforcement:**
+- `scripts/sequencing-check.sh --epic ENN` antes de `/decompose-stories`.
+- Validacao tambem rodada no `--story` quando a story alvo e a S01 do novo epico.
+- Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` grava incidente.
+
 ---
 
 ## 5. Processo de alteração da constituição
 
-Qualquer mudança em P1-P9 ou R1-R12 exige:
+Qualquer mudança em P1-P9 ou R1-R14 exige:
 
 1. **ADR novo** (`docs/adr/NNNN-constitution-amendment-<slug>.md`) contendo:
    - Regra afetada (ID + redação atual)
