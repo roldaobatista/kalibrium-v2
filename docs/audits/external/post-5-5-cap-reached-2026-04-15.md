@@ -39,6 +39,20 @@ Incident dedicado: `docs/incidents/slice-010-merge-during-paused-state-2026-04-1
 
 ---
 
+## 2.5 Catch-22 descoberto na execução desta R.1 — bypasses técnicos pós-5/5
+
+Durante a preparação deste próprio dossiê (autorizada pela política), o push do commit `ae26463` para main disparou admin bypass inevitavelmente porque o ruleset continua com `current_user_can_bypass: always` (Bloco 5 item 5.3 nunca implementado). Idem o push deste update.
+
+PM decidiu em 2026-04-15 via opção **X.1**: bypasses técnicos por execução de atividade explicitamente autorizada **não consomem slot adicional** do contador 5/5, são logados como categoria separada.
+
+Incidents:
+- `docs/incidents/bypass-6-audit-prep-push-2026-04-15.md`
+- `docs/incidents/bloco1-admin-bypass-2026-04-10.md §Nota de exceção`
+
+**Auditor deve validar:** (a) essa classificação é legítima? (b) não havendo como pushar sem bypass, o catch-22 obriga Bloco 5 item 5.3 como pré-requisito de retomada? (c) a whitelist de paths proposta (§Mitigações em `bypass-6-audit-prep-push`) é suficiente?
+
+---
+
 ## 3. Histórico completo dos 5 bypasses
 
 Copiado verbatim de `docs/incidents/bloco1-admin-bypass-2026-04-10.md §Contador oficial`:

@@ -78,6 +78,17 @@ A contagem inclui todo push direto a `main` feito pelo PM (owner) que dispare `c
 
 **Qualquer bypass adicional** sem re-auditoria externa concluída = **violação crítica** de política. Incidente de violação dispararia retrospectiva obrigatória e possível suspensão da própria política.
 
+### Nota de exceção — bypasses técnicos pós-5/5
+
+Após o teto 5/5, pushes de material explicitamente autorizado (preparação de re-auditoria externa, correções cirúrgicas de gaps técnicos) continuam disparando admin bypass pelo ruleset inalterado (`current_user_can_bypass: always`). Catch-22 identificado e documentado em `docs/incidents/bypass-6-audit-prep-push-2026-04-15.md`.
+
+**Decisão PM 2026-04-15 (opção X.1):** bypasses técnicos nessa categoria **não consomem slot adicional** do contador 5/5. São logados individualmente em `docs/incidents/bypass-<N>-audit-prep-push-<date>.md`. Contador oficial permanece em 5/5 atingido até decisão do auditor externo.
+
+Lista encadeada de bypasses técnicos pós-5/5:
+
+- Bypass técnico #6 (2026-04-15): push commit `ae26463` (dossiê + gaps 3-4) — ver incident dedicado.
+- Bypass técnico #7 (2026-04-15): push deste próprio update + incident #6 + dossiê atualizado (auto-referência honesta, mesmo padrão do bypass #3).
+
 ---
 
 ## Auto-referência honesta
