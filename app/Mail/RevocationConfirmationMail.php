@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Carbon;
+use InvalidArgumentException;
 
 final class RevocationConfirmationMail extends Mailable
 {
@@ -16,12 +17,16 @@ final class RevocationConfirmationMail extends Mailable
         public readonly ConsentSubject $consentSubject,
         public readonly string $channel,
         public readonly Carbon $revokedAt,
-    ) {}
+    ) {
+        if ($consentSubject->email === null || $consentSubject->email === '') {
+            throw new InvalidArgumentException('ConsentSubject sem e-mail não pode receber confirmação de revogação.');
+        }
+    }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            to: [$this->consentSubject->email ?? ''],
+            to: [(string) $this->consentSubject->email],
             subject: 'Confirmação de revogação de consentimento',
         );
     }

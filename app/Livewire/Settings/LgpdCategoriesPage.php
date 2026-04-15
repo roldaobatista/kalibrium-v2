@@ -6,9 +6,7 @@ namespace App\Livewire\Settings;
 
 use App\Livewire\Concerns\ResolvesTenantAndActor;
 use App\Models\LgpdCategory;
-use App\Models\Tenant;
 use App\Support\Lgpd\LgpdCategoryService;
-use App\Support\Tenancy\CurrentTenantResolver;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -27,26 +25,9 @@ final class LgpdCategoriesPage extends Component
 
     public string $comment = '';
 
-    public bool $readOnly = false;
-
-    public function mount(CurrentTenantResolver $resolver): void
+    public function mount(): void
     {
-        $user = $this->actor();
-        $context = $resolver->resolve($user);
-        $this->tenant = $context['tenant'];
-        $this->readOnly = $context['access_mode'] === 'read-only';
-    }
-
-    private function resolveTenant(): Tenant
-    {
-        if ($this->tenant === null) {
-            $resolver = app(CurrentTenantResolver::class);
-            $context = $resolver->resolve($this->actor());
-            $this->tenant = $context['tenant'];
-            $this->readOnly = $context['access_mode'] === 'read-only';
-        }
-
-        return $this->tenant;
+        $this->resolveTenant();
     }
 
     public function save(LgpdCategoryService $service): void

@@ -8,6 +8,7 @@ use App\Models\ConsentSubject;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use InvalidArgumentException;
 
 final class RevocationLinkMail extends Mailable
 {
@@ -15,12 +16,16 @@ final class RevocationLinkMail extends Mailable
         public readonly ConsentSubject $consentSubject,
         public readonly string $channel,
         private readonly string $rawToken,
-    ) {}
+    ) {
+        if ($consentSubject->email === null || $consentSubject->email === '') {
+            throw new InvalidArgumentException('ConsentSubject sem e-mail não pode receber link de revogação.');
+        }
+    }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            to: [$this->consentSubject->email ?? ''],
+            to: [(string) $this->consentSubject->email],
             subject: 'Link de revogação de consentimento',
         );
     }

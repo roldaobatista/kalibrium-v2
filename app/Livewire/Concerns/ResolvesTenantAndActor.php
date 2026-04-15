@@ -13,12 +13,15 @@ trait ResolvesTenantAndActor
 {
     private ?Tenant $tenant = null;
 
+    public bool $readOnly = false;
+
     private function resolveTenant(): Tenant
     {
         if ($this->tenant === null) {
             $resolver = app(CurrentTenantResolver::class);
             $context = $resolver->resolve($this->actor());
             $this->tenant = $context['tenant'];
+            $this->readOnly = $context['access_mode'] === 'read-only';
         }
 
         return $this->tenant;

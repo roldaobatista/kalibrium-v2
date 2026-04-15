@@ -21,11 +21,12 @@
         </thead>
         <tbody>
             @foreach ($subjects as $subject)
+                @php($latest = $latestRecords['id:'.$subject->id] ?? null)
                 <tr>
                     <td>{{ substr((string) $subject->id, 0, 8) }}</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>{{ $subject->updated_at }}</td>
+                    <td>{{ $latest['channel'] ?? '-' }}</td>
+                    <td>{{ $latest['status'] ?? '-' }}</td>
+                    <td>{{ $latest['updated_at'] ?? '-' }}</td>
                 </tr>
             @endforeach
         </tbody>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
 use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
+use App\Http\Controllers\Privacy\RevocationSubmitController;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
@@ -29,12 +30,8 @@ use App\Livewire\Pages\Settings\UsersPage;
 use App\Livewire\Ping;
 use App\Livewire\Settings\ConsentSubjectsPage;
 use App\Livewire\Settings\LgpdCategoriesPage;
-use App\Mail\RevocationConfirmationMail;
-use App\Mail\RevocationLinkMail;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Services\ConsentRecordService;
-use App\Services\RevocationTokenService;
 use App\Support\Auth\LoginAuditRecorder;
 use App\Support\Auth\PostgresAuthContext;
 use App\Support\Auth\RecoveryCodeHasher;
@@ -44,7 +41,6 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -458,57 +454,9 @@ Route::get('/privacy/revoke/{token}', RevokeConsentPage::class)
     ->middleware('web')
     ->name('lgpd.revoke');
 
-Route::post('/privacy/revoke/{token}', function (
-    Request $request,
-    string $token,
-    RevocationTokenService $tokenService,
-    ConsentRecordService $consentService,
-) {
-    $outcome = $tokenService->processRevocationAttempt($token);
-
-    if ($outcome['status'] === 'renewed') {
-        Mail::send(new RevocationLinkMail(
-            $outcome['subject'],
-            $outcome['channel'],
-            $outcome['rawToken']
-        ));
-
-        return response('Link expirado. Solicite um novo link de revogação.', 200);
-    }
-
-    if ($outcome['status'] === 'not_found') {
-        abort(404);
-    }
-
-    $validToken = $outcome['token'];
-    $subject = $validToken->consentSubject;
-    $channel = $validToken->channel;
-    $reason = (string) $request->input('revocation_reason', 'other_without_details');
-
-    $record = $consentService->revokeConsent(
-        (int) $validToken->tenant_id,
-        (int) $validToken->consent_subject_id,
-        $channel,
-        $reason,
-        ['ip_address' => $request->ip(), 'user_agent' => $request->userAgent() ?? '']
-    );
-
-    if ($record === null) {
-        return response('Voce nao tem consentimento ativo para este canal', 200);
-    }
-
-    $tokenService->consume($validToken);
-
-    if ($subject !== null) {
-        Mail::send(new RevocationConfirmationMail(
-            $subject,
-            $channel,
-            now()
-        ));
-    }
-
-    return response('Consentimento revogado com sucesso.', 200);
-})->middleware('web')->name('lgpd.revoke.post');
+Route::post('/privacy/revoke/{token}', RevocationSubmitController::class)
+    ->middleware('web')
+    ->name('lgpd.revoke.post');
 
 Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);

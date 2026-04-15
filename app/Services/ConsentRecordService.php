@@ -71,7 +71,6 @@ final class ConsentRecordService
             'user_agent_hash' => hash('sha256', $rawUserAgent),
             'revocation_reason' => null,
             'created_at' => now(),
-            'updated_at' => now(),
         ]);
     }
 
@@ -125,7 +124,6 @@ final class ConsentRecordService
             'user_agent_hash' => hash('sha256', $rawUserAgent),
             'revocation_reason' => $reason,
             'created_at' => now(),
-            'updated_at' => now(),
         ]);
     }
 

@@ -24,7 +24,11 @@ final class ConsentRecord extends Model
      */
     public $timestamps = false;
 
-    /** @var list<string> */
+    /**
+     * Log append-only: sem updated_at. Trigger PostgreSQL bloqueia UPDATE/DELETE.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
         'tenant_id',
         'consent_subject_id',
@@ -37,7 +41,6 @@ final class ConsentRecord extends Model
         'user_agent_hash',
         'revocation_reason',
         'created_at',
-        'updated_at',
     ];
 
     /** @var list<string> */

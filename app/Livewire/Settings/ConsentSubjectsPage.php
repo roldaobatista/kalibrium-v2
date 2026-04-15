@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Settings;
 
 use App\Livewire\Concerns\ResolvesTenantAndActor;
+use App\Models\ConsentRecord;
 use App\Models\ConsentSubject;
-use App\Support\Tenancy\CurrentTenantResolver;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -24,11 +24,9 @@ final class ConsentSubjectsPage extends Component
 
     public int $perPage = 50;
 
-    public function mount(CurrentTenantResolver $resolver): void
+    public function mount(): void
     {
-        $user = $this->actor();
-        $context = $resolver->resolve($user);
-        $this->tenant = $context['tenant'];
+        $this->resolveTenant();
     }
 
     public function updatedStatusFilter(): void
@@ -53,10 +51,50 @@ final class ConsentSubjectsPage extends Component
         return $query->paginate($this->perPage);
     }
 
+    /**
+     * Resumo do último consent_record por subject: canal, status, data.
+     *
+     * @param  LengthAwarePaginator<int, ConsentSubject>  $subjects
+     * @return array<string, array{channel: string, status: string, updated_at: string}>
+     */
+    private function latestRecordsFor(LengthAwarePaginator $subjects): array
+    {
+        $subjectIds = collect($subjects->items())->pluck('id')->all();
+        if ($subjectIds === []) {
+            return [];
+        }
+
+        $records = ConsentRecord::withoutGlobalScopes()
+            ->whereIn('consent_subject_id', $subjectIds)
+            ->orderByDesc('created_at')
+            ->get(['consent_subject_id', 'channel', 'status', 'created_at']);
+
+        $summary = [];
+        foreach ($records as $record) {
+            $key = 'id:'.$record->consent_subject_id;
+            if (isset($summary[$key])) {
+                continue;
+            }
+            $createdAt = $record->getAttribute('created_at');
+            $summary[$key] = [
+                'channel' => (string) $record->channel,
+                'status' => (string) $record->status,
+                'updated_at' => $createdAt instanceof \DateTimeInterface
+                    ? $createdAt->format('d/m/Y H:i')
+                    : '-',
+            ];
+        }
+
+        return $summary;
+    }
+
     public function render(): View
     {
+        $subjects = $this->subjects();
+
         return view('livewire.settings.consent-subjects-page', [
-            'subjects' => $this->subjects(),
+            'subjects' => $subjects,
+            'latestRecords' => $this->latestRecordsFor($subjects),
         ])->layout('layouts.app');
     }
 }
