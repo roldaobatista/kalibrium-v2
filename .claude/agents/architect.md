@@ -1,7 +1,7 @@
 ---
 name: architect
 description: Gera plan.md a partir de spec.md aprovado. Lê apenas constitution + ADRs + spec + plans similares. Não lê código de produção fora do escopo do slice. Invocar após spec.md ser aprovado pelo humano e antes de qualquer teste ou código.
-model: sonnet
+model: opus
 tools: Read, Grep, Glob, Write
 max_tokens_per_invocation: 30000
 ---

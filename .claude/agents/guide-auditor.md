@@ -1,7 +1,7 @@
 ---
 name: guide-auditor
 description: Auditor periódico do harness. Detecta drift silencioso (arquivos proibidos órfãos, hooks desabilitados, commits suspeitos, blow-up de tokens). Roda semanalmente ou via skill /guide-check. Não corrige — apenas reporta.
-model: haiku
+model: sonnet
 tools: Read, Grep, Glob, Bash
 max_tokens_per_invocation: 15000
 ---

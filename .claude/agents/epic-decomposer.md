@@ -1,7 +1,7 @@
 ---
 name: epic-decomposer
 description: Decompoe PRD aprovado em epicos com dependencias, prioridade e estimativa de complexidade. Cada epico tem objetivo, escopo, criterios de entrada/saida e stories previstas. Invocar via /decompose-epics.
-model: sonnet
+model: opus
 tools: Read, Grep, Glob, Write
 max_tokens_per_invocation: 30000
 ---

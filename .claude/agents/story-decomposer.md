@@ -1,7 +1,7 @@
 ---
 name: story-decomposer
 description: Decompoe um epico aprovado em stories com Story Contract completo (objetivo, escopo, ACs, riscos, dependencias, rollback). Cada story tem contrato validavel antes da implementacao. Invocar via /decompose-stories ENN.
-model: sonnet
+model: opus
 tools: Read, Grep, Glob, Write
 max_tokens_per_invocation: 30000
 ---

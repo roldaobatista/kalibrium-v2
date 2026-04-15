@@ -1,7 +1,7 @@
 ---
 name: ac-to-test
 description: Converte ACs numerados em testes red. Testes nascem vermelhos — se nascerem verdes são rejeitados por hook. Invocar após plan.md ser aprovado e antes de qualquer código de produção.
-model: sonnet
+model: opus
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 40000
 ---
