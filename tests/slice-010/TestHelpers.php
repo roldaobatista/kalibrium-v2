@@ -56,38 +56,34 @@ function slice010_require_table(string $table): void
 /**
  * Insere um registro em lgpd_categories via DB::table (ignora Model).
  * Lança se a tabela não existir.
+ * Retorna o ID (bigInt) do registro inserido.
  */
-function slice010_seed_lgpd_category(Tenant $tenant, User $createdBy, array $overrides = []): string
+function slice010_seed_lgpd_category(Tenant $tenant, User $createdBy, array $overrides = []): int
 {
     slice010_require_table('lgpd_categories');
 
-    $id = (string) Str::uuid();
-    DB::table('lgpd_categories')->insert([
-        'id'                => $id,
-        'tenant_id'         => $tenant->id,
-        'code'              => $overrides['code'] ?? 'contato',
-        'name'              => $overrides['name'] ?? 'Dados de Contato',
-        'legal_basis'       => $overrides['legal_basis'] ?? 'execucao_contrato',
-        'comment'           => $overrides['comment'] ?? null,
-        'created_by_user_id'=> $createdBy->id,
-        'created_at'        => now(),
-        'updated_at'        => now(),
+    return DB::table('lgpd_categories')->insertGetId([
+        'tenant_id'          => $tenant->id,
+        'code'               => $overrides['code'] ?? 'contato',
+        'name'               => $overrides['name'] ?? 'Dados de Contato',
+        'legal_basis'        => $overrides['legal_basis'] ?? 'execucao_contrato',
+        'comment'            => $overrides['comment'] ?? null,
+        'created_by_user_id' => $createdBy->id,
+        'created_at'         => now(),
+        'updated_at'         => now(),
     ]);
-
-    return $id;
 }
 
 /**
  * Insere um consent_subject via DB::table.
  * Lança se a tabela não existir.
+ * Retorna o ID (bigInt) do registro inserido.
  */
-function slice010_seed_consent_subject(Tenant $tenant, array $overrides = []): string
+function slice010_seed_consent_subject(Tenant $tenant, array $overrides = []): int
 {
     slice010_require_table('consent_subjects');
 
-    $id = (string) Str::uuid();
-    DB::table('consent_subjects')->insert([
-        'id'           => $id,
+    return DB::table('consent_subjects')->insertGetId([
         'tenant_id'    => $tenant->id,
         'subject_type' => $overrides['subject_type'] ?? 'external_user',
         'subject_id'   => $overrides['subject_id'] ?? null,
@@ -96,22 +92,20 @@ function slice010_seed_consent_subject(Tenant $tenant, array $overrides = []): s
         'created_at'   => now(),
         'updated_at'   => now(),
     ]);
-
-    return $id;
 }
 
 /**
  * Insere um consent_record (status ativo) via DB::table.
  * Lança se a tabela não existir.
+ * Retorna o ID (bigInt) do registro inserido.
  */
-function slice010_seed_consent_record(Tenant $tenant, string $subjectId, array $overrides = []): string
+function slice010_seed_consent_record(Tenant $tenant, int $subjectId, array $overrides = []): int
 {
     slice010_require_table('consent_records');
 
-    $id = (string) Str::uuid();
     $rawUserAgent = $overrides['user_agent'] ?? 'Mozilla/5.0 (test)';
-    DB::table('consent_records')->insert([
-        'id'                 => $id,
+
+    return DB::table('consent_records')->insertGetId([
         'tenant_id'          => $tenant->id,
         'consent_subject_id' => $subjectId,
         'lgpd_category_id'   => $overrides['lgpd_category_id'] ?? null,
@@ -125,24 +119,20 @@ function slice010_seed_consent_record(Tenant $tenant, string $subjectId, array $
         'created_at'         => now(),
         'updated_at'         => now(),
     ]);
-
-    return $id;
 }
 
 /**
  * Gera token raw de revogação e insere revocation_token.
- * Retorna ['id' => uuid, 'raw_token' => string, 'token_hash' => string].
+ * Retorna ['id' => int, 'raw_token' => string, 'token_hash' => string].
  */
-function slice010_seed_revocation_token(Tenant $tenant, string $subjectId, array $overrides = []): array
+function slice010_seed_revocation_token(Tenant $tenant, int $subjectId, array $overrides = []): array
 {
     slice010_require_table('revocation_tokens');
 
     $rawToken  = bin2hex(random_bytes(32));
     $tokenHash = hash('sha256', $rawToken);
-    $id        = (string) Str::uuid();
 
-    DB::table('revocation_tokens')->insert([
-        'id'                 => $id,
+    $id = DB::table('revocation_tokens')->insertGetId([
         'tenant_id'          => $tenant->id,
         'consent_subject_id' => $subjectId,
         'channel'            => $overrides['channel'] ?? 'whatsapp',
@@ -155,8 +145,8 @@ function slice010_seed_revocation_token(Tenant $tenant, string $subjectId, array
     ]);
 
     return [
-        'id'          => $id,
-        'raw_token'   => $rawToken,
-        'token_hash'  => $tokenHash,
+        'id'         => $id,
+        'raw_token'  => $rawToken,
+        'token_hash' => $tokenHash,
     ];
 }
