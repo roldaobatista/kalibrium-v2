@@ -184,4 +184,84 @@ Para maximizar a independência:
 
 ## § Conclusões do auditor
 
-_(Auditor externo preenche esta seção em sessão nova. NÃO preencher com antecedência.)_
+**Modelo de auditoria:** dual-LLM paralelo, contextos isolados, cada trilha em arquivo próprio.
+
+- Trilha A — Claude Opus 4.6: `docs/audits/external/audit-trail-opus-2026-04-15.md`
+- Trilha B — GPT-5 (gpt-5.4 via Codex CLI): `docs/audits/external/audit-trail-gpt5-2026-04-15.md`
+
+Cada trilha respondeu Q1-Q6 de forma independente, sem acesso ao output da outra. Consolidação abaixo por ordem de convergência → divergência → reconciliação.
+
+### Convergências entre as duas trilhas
+
+1. **ADR-0012 é defensável em mérito** — dual-LLM é superior a PM não-técnico como revisor; R15/R16 são sólidas.
+2. **ADR-0012 é questionável em forma** — mergeada com `Status: Proposta`, sob pressão de billing, sem dry-run, sem checklist de aprovação marcado.
+3. **4 dos 5 bypasses têm causa-raiz comum** — Bloco 5 item 5.3 (`current_user_can_bypass: always` no ruleset) nunca foi implementado desde 2026-04-10. Bypass virou fluxo padrão, não exceção.
+4. **Slice-010 mergeado durante pausa não é 6º bypass** (não usou `--admin`, auto-merge já armado), mas é **violação P1 de enforcement** — a política de pausa era puramente declarativa.
+5. **Não reverter o slice-010** — reversão introduz mais instabilidade; conteúdo é legítimo.
+6. **Gaps 1-2 bloqueiam retomada** — CLAUDE.md e orchestrator.md não mencionam master-auditor. ADR-0012 seria letra morta sem essas correções.
+7. **Política de bypass precisa de nova ADR** — distinção entre bypass governança/produto e bypass técnico autorizado, com whitelist de paths. Não aceitar decisão X.1 ad-hoc do PM sem ADR formal.
+8. **Decisão PM assinada é pré-requisito** de qualquer retomada.
+
+### Divergências
+
+| Dimensão | Opus 4.6 | GPT-5.4 |
+|---|---|---|
+| Verdict rótulo | **BLOCKED** | **CONDITIONAL_RESUME** |
+| Número de condições | 7 (ordem rígida 1→7) | 7 (sem ordem explícita) |
+| Retrospectiva humana | Exigida como condição 7 | Não menciona |
+| Master-auditor | Dry-run documentado obrigatório | Smoke-test obrigatório |
+| Riscos residuais levantados | 7 (incl. P0 inflation, rollback ADR-0012, harness-learner como arma) | 6 (incl. `Status: Proposta`, ZERO TOLERANCE vs findings minor aceitáveis) |
+
+**Operacionalmente os dois verdicts são equivalentes:** ambos bloqueiam retomada de slices até condições objetivas idênticas. A diferença é só rótulo.
+
+### Reconciliação (verdict consolidado)
+
+**CONDITIONAL_RESUME com 8 pré-requisitos objetivos** (superset das duas trilhas, sem contradição):
+
+| # | Pré-requisito | Origem | Ordem |
+|---|---|---|---|
+| 1 | **Bloco 5 item 5.3** implementado — ruleset `main` sem `current_user_can_bypass: always`; GitHub App auto-reviewer ativo; CI obrigatório. Evidência: `gh api /repos/.../rulesets/14936750` + PR dummy passando sem admin. | Ambas | P0 (1º — quebra o catch-22) |
+| 2 | **Hook de enforcement da pausa** — `pre-commit`/`pre-push` lê estado pausado em `project-state.json.paused` (ou arquivo selado) e bloqueia mutação em `main` exceto whitelist (`docs/audits/external/**`, `docs/incidents/bypass-*.md`, `docs/decisions/**`). Selado via `hooks-lock.sh`. | Ambas | P0 (2º — selado após 1) |
+| 3 | **Gaps 1-2 corrigidos** — CLAUDE.md §6 Fase E e orchestrator.md incluem master-auditor no fluxo. Exige relock (terminal externo). | Ambas | P0 (3º) |
+| 4 | **Gap 3 validado** — master-auditor.md com tool names corretos (`mcp__codex__codex` + `mcp__codex__codex-reply`) **e** smoke-test/dry-run documentado contra artefato real (ex: plan.md do slice-010 retroativo), anexando `master-audit.json`. | Ambas | P0 (4º) |
+| 5 | **Gap 4 confirmado** — renumeração ADR 0012 resolvida. Hoje: `0012-additional-mcps` → `0013` e autonomy permanece em `0012-constitution-amendment-autonomy-dual-llm.md`. PM valida ou renumera. | Ambas | P1 |
+| 6 | **Nova ADR de política de bypass técnico** — formaliza categoria técnica autorizada, whitelist de paths, contador separado, validade limitada a estados de pausa/auditoria. Numeração a decidir pelo PM junto com item 5. Não reclassificar retroativamente bypasses 2-4. | Ambas | P0 |
+| 7 | **ADR-0012 forma corrigida** — `Status: Proposta` → `Accepted` com evidência de decisão PM; checklist de aprovação completo; R15/R16 codificadas no corpo da constitution §4 (hoje o corpo só lista R1-R14 mesmo com versão 1.5.0 no cabeçalho). | GPT-5 (principalmente) | P1 |
+| 8 | **Retrospectiva humana dos 5 bypasses** — documento escrito pelo PM (não pelo harness-learner automatizado) explicando por que 4 dos 5 bypasses vieram da mesma causa-raiz e por que foi permitido. Não substitui epic-retrospective (que está bloqueada porque E02 não está "fechado"). | Opus (principalmente) | P1 |
+
+**Operações permitidas durante CONDITIONAL_RESUME:**
+- Implementação dos pré-requisitos 1-8.
+- Nova ADR (item 6 e eventualmente 5/7).
+- Trabalho nos relocks via terminal externo.
+- Correções cirúrgicas P0/P1 com incidente dedicado.
+
+**Operações proibidas durante CONDITIONAL_RESUME:**
+- Novo slice (incluindo E02-S08).
+- Retrospectiva/slice-report automática do slice-010 (epic-retrospective bloqueada porque E02 está travado, não fechado).
+- `/next-slice`.
+- Qualquer auto-aplicação do `harness-learner`.
+- Nova decisão de produto não-emergencial.
+
+### Próximo passo do PM
+
+Ler as duas trilhas completas (paths acima) e assinar decisão em `docs/decisions/pm-decision-post-5-5-audit-2026-04-15.md`. O template está criado com opções de assinatura alinhadas aos 8 pré-requisitos. Somente após a assinatura do PM e implementação dos 8 pré-requisitos o estado pausado termina.
+
+### Riscos residuais reconciliados (não cobertos pelo dossiê original)
+
+Compilação não-duplicada das duas trilhas:
+
+1. **Harness-learner como arma:** critério "afrouxar vs endurecer" é subjetivo; precisa lista enumerativa de ações bloqueadas. (Opus)
+2. **Master-auditor consolidando pareceres que ele próprio gerou:** se a trilha Claude do master-auditor é executada pelo próprio agente master-auditor, só GPT-5 seria realmente externo. (Opus)
+3. **Custos e latência do master-auditor não dimensionados:** 7 × 80k tokens por slice em produção. (Opus)
+4. **`relock.bat` não verificado no dossiê** — ADR-0012 E1 promete PM opera via `.bat`, mas não há teste documentado. (Opus)
+5. **P0 inflation** — "inviabilidade operacional" virou critério aberto; precisa lista fechada. (Opus)
+6. **Ausência de rollback plan para ADR-0012** — sem critério de sunset/reversão. (Opus)
+7. **R15/R16 invisíveis no corpo da constitution** — cabeçalho diz 1.5.0 mas §4 lista só R1-R14. (GPT-5)
+8. **`Status: Proposta` vs uso como vigente** — contradição formal. (GPT-5)
+9. **ZERO TOLERANCE vs master-auditor permitir findings minor** — política conflitante. (GPT-5)
+10. **Relock programático no harness-learner** tensiona CLAUDE.md §9 e `harness-limitations.md`. (GPT-5)
+11. **Independência dual-LLM sem schema de input idêntico** — nada garante que as duas trilhas recebem o mesmo pacote. (GPT-5)
+
+Esses 11 riscos residuais devem ser endereçados nos itens 6, 7 e 8 dos pré-requisitos acima, ou em ADRs subsequentes.
+
+**Verdict consolidado: CONDITIONAL_RESUME. Retomada autorizada somente após 8 pré-requisitos satisfeitos e decisão PM assinada.**
