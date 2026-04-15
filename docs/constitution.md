@@ -86,7 +86,7 @@ Qualquer item falho = não done. Sem exceção. Sem "aprovação humana bypassan
 
 ---
 
-## 4. Regras não-negociáveis (R1-R12)
+## 4. Regras não-negociáveis (R1-R16)
 
 ### R1. Fonte única de instrução
 **Permitido:** `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md`, `.claude/skills/*.md`.
@@ -225,11 +225,53 @@ O primeiro slice de um epico MVP (E01..E12) so pode iniciar se o epico anterior 
 - Validacao tambem rodada no `--story` quando a story alvo e a S01 do novo epico.
 - Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` grava incidente.
 
+### R15. Retrospectiva automatizada pós-épico (ADR-0012 E3)
+Ao fim de cada épico (todas as stories do épico com status `merged` em `project-state.json[epics_status]`), invocar automaticamente o sub-agent `epic-retrospective`. Ele faz scan completo do sistema buscando inconsistências, drift, débitos técnicos e ACs cobertos parcialmente. Findings disparam loop corretivo de até **10 iterações** (fixer → re-audit → retrospective).
+
+**Critério de convergência:**
+- Cada iteração reduz número de findings (ou mantém zero).
+- Se número de findings subir entre iterações, aborta e escala.
+- Deadline: 2h por iteração; total máximo 20h antes de escalar ao PM.
+
+**Saída obrigatória:** `docs/retrospectives/epic-ENN.md` com findings, iterações, resolução final.
+
+**Enforcement:**
+- Orquestrador verifica `project-state.json[epics_status][ENN].done == true` ao detectar merge do último slice.
+- Invoca `epic-retrospective` antes de permitir avanço para E(N+1).
+- `scripts/sequencing-check.sh --epic E(N+1)` bloqueia se `docs/retrospectives/epic-ENN.md` não existir ou tiver `verdict: rejected`.
+
+### R16. Harness-learner com auto-aplicação limitada (ADR-0012 E4)
+Após `epic-retrospective` aprovar um épico, invocar automaticamente o sub-agent `harness-learner`. Ele estuda os findings e pergunta "por que o harness deixou passar?". Gera propostas de melhoria.
+
+**Auto-aplicação permitida (sem consulta ao PM):**
+- Adicionar nova regra R-NN (incremental, nunca sobrescreve existente).
+- Adicionar novo hook em `scripts/hooks/`.
+- Tornar regra existente mais estrita (ex: estender deny list).
+- Adicionar nova skill operacional (não altera P/R).
+
+**Auto-aplicação PROIBIDA (escala obrigatoriamente ao PM):**
+- Revogar regra existente.
+- Afrouxar regra existente (reduzir cooldown, aumentar teto).
+- Remover hook existente.
+- Alterar §1-§4 desta constituição (princípios P1-P9, regras R1-R14).
+- Modificar `allowed-git-identities.txt` ou `git-identity-baseline`.
+
+**Limites operacionais:**
+- Máximo 3 mudanças auto-aplicadas por ciclo retrospectivo.
+- Toda mudança auto gera arquivo `docs/incidents/auto-learn-YYYYMMDD-<slug>.md` com diff completo + justificativa.
+- Toda mudança auto dispara relock via script (incidente dedicado obrigatório).
+- Logs em `.claude/telemetry/harness-learner.jsonl`.
+
+**Enforcement:**
+- `harness-learner` lê telemetria do épico antes de propor.
+- Hook `harness-learner-guardrail.sh` valida que a proposta cabe na whitelist de auto-aplicação; rejeita e escala ao PM caso contrário.
+- Auditoria trimestral externa revisa todas as mudanças auto-aplicadas.
+
 ---
 
 ## 5. Processo de alteração da constituição
 
-Qualquer mudança em P1-P9 ou R1-R14 exige:
+Qualquer mudança em P1-P9 ou R1-R16 exige:
 
 1. **ADR novo** (`docs/adr/NNNN-constitution-amendment-<slug>.md`) contendo:
    - Regra afetada (ID + redação atual)

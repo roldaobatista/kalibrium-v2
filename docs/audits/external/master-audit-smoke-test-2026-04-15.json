@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0.0",
+  "audit_type": "master-auditor-smoke-test",
+  "target": {
+    "type": "governance_decision_package",
+    "artifacts": [
+      "docs/audits/external/post-5-5-cap-reached-2026-04-15.md",
+      "docs/adr/0012-constitution-amendment-autonomy-dual-llm.md",
+      "CLAUDE.md",
+      "docs/constitution.md",
+      ".claude/agents/orchestrator.md",
+      ".claude/agents/master-auditor.md",
+      ".claude/agents/harness-learner.md",
+      ".claude/agents/epic-retrospective.md",
+      "docs/incidents/bloco1-admin-bypass-2026-04-10.md",
+      "docs/incidents/pr-14-bypass-p0-billing-governance-2026-04-15.md",
+      "docs/incidents/slice-010-merge-during-paused-state-2026-04-15.md",
+      "docs/incidents/bypass-6-audit-prep-push-2026-04-15.md",
+      "docs/harness-limitations.md"
+    ]
+  },
+  "date": "2026-04-15",
+  "smoke_test_purpose": "Prova empírica de que o fluxo dual-LLM do master-auditor funciona fim-a-fim (Claude Opus 4.6 em Agent spawn isolado + GPT-5.4 via Codex CLI exec). Cumpre pré-requisito 4 da decisão pós-auditoria.",
+  "trails": [
+    {
+      "llm_id": "claude-opus-4-6",
+      "provider": "anthropic",
+      "invocation_method": "Agent tool, subagent_type=general-purpose, contexto limpo",
+      "output_file": "docs/audits/external/audit-trail-opus-2026-04-15.md",
+      "verdict": "BLOCKED",
+      "conditions_count": 7,
+      "independent_from_other_trail": true,
+      "duration_ms": 165697,
+      "tokens_used": 83491,
+      "succeeded": true
+    },
+    {
+      "llm_id": "gpt-5.4",
+      "provider": "openai",
+      "invocation_method": "Codex CLI exec (--model gpt-5.4 --sandbox workspace-write --approval-policy never)",
+      "output_file": "docs/audits/external/audit-trail-gpt5-2026-04-15.md",
+      "verdict": "CONDITIONAL_RESUME",
+      "conditions_count": 7,
+      "independent_from_other_trail": true,
+      "duration_ms": null,
+      "tokens_used": 108692,
+      "succeeded": true
+    }
+  ],
+  "consolidation": {
+    "consolidator": "claude-opus-4-6 (orquestrador principal desta sessão)",
+    "method": "superset das duas trilhas por convergência > divergência > reconciliação",
+    "output_file": "docs/audits/external/post-5-5-cap-reached-2026-04-15.md §Conclusões do auditor",
+    "consolidated_verdict": "CONDITIONAL_RESUME",
+    "prerequisites_count": 8,
+    "divergence_points": [
+      {
+        "dimension": "verdict_label",
+        "opus": "BLOCKED",
+        "gpt5": "CONDITIONAL_RESUME",
+        "resolution": "rótulos equivalentes operacionalmente — ambos bloqueiam retomada até 8 pré-requisitos objetivos"
+      },
+      {
+        "dimension": "ordering_rigidity",
+        "opus": "ordem rígida 1→7",
+        "gpt5": "ordem flexível com paralelismo permitido",
+        "resolution": "PM escolheu ordem rígida Opus na decisão §4 (mais conservadora)"
+      },
+      {
+        "dimension": "retrospectiva_humana",
+        "opus": "obrigatória como condição 7",
+        "gpt5": "não menciona",
+        "resolution": "incluída como pré-requisito 8 do consolidado"
+      }
+    ]
+  },
+  "reconciliation_attempts": 0,
+  "reconciliation_needed": false,
+  "escalated_to_pm": true,
+  "pm_decision_file": "docs/decisions/pm-decision-post-5-5-audit-2026-04-15.md",
+  "pm_decision_commit": "f70f376",
+  "ac_checks": [
+    {
+      "ac": "master-auditor-AC1",
+      "description": "Duas trilhas rodam independentemente sem ler output uma da outra",
+      "status": "pass",
+      "evidence": "Prompt da Agent Opus instruiu NÃO adivinhar GPT-5; prompt do Codex GPT-5 instruiu NÃO ler audit-trail-opus. Ambos outputs salvos em arquivos separados antes do consolidador ler os dois."
+    },
+    {
+      "ac": "master-auditor-AC2",
+      "description": "Cada trilha produz entregável estruturado",
+      "status": "pass",
+      "evidence": "docs/audits/external/audit-trail-opus-2026-04-15.md e audit-trail-gpt5-2026-04-15.md seguem o mesmo template Markdown definido no prompt."
+    },
+    {
+      "ac": "master-auditor-AC3",
+      "description": "Consolidação separa convergências, divergências e reconciliação",
+      "status": "pass",
+      "evidence": "docs/audits/external/post-5-5-cap-reached-2026-04-15.md §Conclusões do auditor tem 8 convergências, 5 divergências tabuladas, reconciliação explícita."
+    },
+    {
+      "ac": "master-auditor-AC4",
+      "description": "Verdict consensual ou escalação documentada",
+      "status": "pass",
+      "evidence": "Verdict consolidado CONDITIONAL_RESUME entregue ao PM; PM assinou decisão explícita em docs/decisions/pm-decision-post-5-5-audit-2026-04-15.md."
+    },
+    {
+      "ac": "master-auditor-AC5",
+      "description": "Tool names corretos para invocar LLMs",
+      "status": "pass_with_note",
+      "evidence": "mcp__codex__codex funcionou com model=gpt-5.4. Tentativa inicial com model=gpt-5.2-codex falhou (modelo inexistente na conta ChatGPT). Resolução: usar gpt-5.4 (default da Codex config). Nota: a ADR-0012 ao dizer 'GPT-5 via Codex' deve ser lida como família (gpt-5.x), não sufixo específico. Master-auditor.md foi corrigido em gap 3 para `mcp__codex__codex`."
+    }
+  ],
+  "smoke_test_result": "pass",
+  "notes": [
+    "Este é o primeiro uso registrado do fluxo dual-LLM consolidado em uma decisão real do projeto. Antes de ADR-0012 ser mergeada, o fluxo nunca havia sido exercitado.",
+    "O artefato auditado (dossiê de governança + 12 arquivos) é maior e mais denso que qualquer plan.md de slice típico — portanto o smoke-test cobre o caso difícil, não o caso fácil.",
+    "Próxima iteração do master-auditor (em produção, sobre slice real) deve usar este arquivo como template de output structure."
+  ],
+  "next_action": "ratify_pm_decision_and_implement_prerequisites"
+}
