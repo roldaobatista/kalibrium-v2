@@ -1,0 +1,32 @@
+{
+  "slice_id": "slice-010",
+  "verdict": "rejected",
+  "timestamp": "2026-04-15T12:00:00Z",
+  "ac_assessment": [],
+  "ux_findings": [
+    {
+      "id": "UX-005",
+      "severity": "low",
+      "area": "a11y",
+      "description": "consent-subjects-page.blade.php linha 5: <select wire:model.live=\"statusFilter\"> não tem <label> associado (nem for= nem aria-label). Usuário de leitor de tela não sabe o que o select filtra.",
+      "recommendation": "Adicionar <label for=\"status-filter\">Filtrar por status</label> e id=\"status-filter\" no select."
+    },
+    {
+      "id": "UX-006",
+      "severity": "low",
+      "area": "copy",
+      "description": "consent-subjects-page.blade.php linha 26: coluna Status exibe valor raw do banco (ativo, revogado, nao_informado). O filtro na linha 7-9 usa labels legíveis (Ativo, Revogado, Não informado), mas a tabela não. Inconsistência de apresentação para o usuário.",
+      "recommendation": "Usar map ou helper para exibir label legível: 'ativo' → 'Ativo', 'revogado' → 'Revogado', 'nao_informado' → 'Não informado'."
+    },
+    {
+      "id": "UX-007",
+      "severity": "low",
+      "area": "empty_state",
+      "description": "consent-subjects-page.blade.php: nenhum estado vazio tratado. Quando $subjects está vazio (primeiro uso ou filtro sem resultados), a tabela renderiza sem linhas e sem mensagem, deixando o usuário sem feedback.",
+      "recommendation": "Adicionar @forelse com @empty exibindo mensagem como 'Nenhum consentimento encontrado.' dentro do <tbody>."
+    }
+  ],
+  "consistency_findings": [],
+  "business_rule_findings": [],
+  "next_action": "return_to_implementer"
+}
