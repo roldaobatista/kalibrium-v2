@@ -1,5 +1,5 @@
 ---
-description: Revisa plan.md com plan-reviewer em contexto limpo antes de aprovacao do PM e antes de gerar testes. Uso: /review-plan NNN.
+description: Revisa plan.md com plan-reviewer em contexto limpo. Quando approved, libera fluxo automatico para draft-tests sem aguardar PM (CLAUDE.md §6 Fase D step 17). Uso: /review-plan NNN.
 ---
 
 # /review-plan
@@ -10,7 +10,7 @@ description: Revisa plan.md com plan-reviewer em contexto limpo antes de aprovac
 ```
 
 ## Quando invocar
-Depois de `/draft-plan NNN` gerar `specs/NNN/plan.md` e antes de apresentar o plano para aprovacao do PM ou rodar `/draft-tests NNN`.
+Depois de `/draft-plan NNN` gerar `specs/NNN/plan.md`. Quando o plan-reviewer retorna `approved` com findings vazios E o `spec-auditor` ja aprovou (rodada anterior), o orquestrador segue automaticamente para `/draft-tests NNN` sem aguardar aprovacao manual do PM (CLAUDE.md 2.7.0 §6 Fase D step 17).
 
 ## Pré-condições
 - `specs/NNN/spec.md` existe
