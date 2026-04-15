@@ -260,14 +260,7 @@ test('AC-016: log de autenticação não vaza dados cross-tenant em requests com
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
 
-    $capturedLogs = [];
-    Log::listen(function ($log) use (&$capturedLogs) {
-        $capturedLogs[] = [
-            'level' => $log->level,
-            'message' => $log->message,
-            'context' => $log->context,
-        ];
-    });
+    $logSpy = Log::spy();
 
     $injectionPayload = urlencode('1 OR 1=1');
 
@@ -275,33 +268,17 @@ test('AC-016: log de autenticação não vaza dados cross-tenant em requests com
         ->withSession(['current_tenant_id' => $tenantA->id])
         ->get("/api/tenant-context?tenant={$injectionPayload}");
 
-    // Assert POSITIVO: log com tenant_context=A deve ter sido emitido (AC-016 §2)
-    $hasLogWithTenantA = collect($capturedLogs)->contains(function ($log) use ($tenantA) {
-        $contextStr = json_encode($log['context'] ?? []);
+    // Assert POSITIVO: log emitido com tenant_context=A
+    $logSpy->shouldHaveReceived('info')
+        ->withArgs(fn ($message, $context = []) => isset($context['tenant_context'])
+            && (string) $context['tenant_context'] === (string) $tenantA->id)
+        ->atLeast()->once();
 
-        return str_contains($contextStr, '"tenant_context"')
-            && str_contains($contextStr, (string) $tenantA->id);
+    // Assert NEGATIVO: nenhum log emitido com dados do tenant B
+    $logSpy->shouldNotHaveReceived('info', function ($message, $context = []) use ($tenantB) {
+        $str = json_encode($context).$message;
+
+        return str_contains($str, (string) $tenantB->id)
+            || (! empty($tenantB->name) && str_contains($str, (string) $tenantB->name));
     });
-
-    expect($capturedLogs)
-        ->not->toBeEmpty('AC-016: Nenhum log foi emitido durante o request — o log de tenant_context não está funcionando.');
-
-    expect($hasLogWithTenantA)
-        ->toBeTrue(
-            'AC-016: Log não registrou tenant_context='.((string) $tenantA->id).'. '.
-            'O spec exige que o log de auditoria registre a tentativa com tenant_context=A.'
-        );
-
-    // Assert NEGATIVO: nenhum log deve conter dados do tenant B
-    $leaked = collect($capturedLogs)->contains(function ($log) use ($tenantB) {
-        $contextStr = json_encode($log['context'] ?? []).$log['message'];
-
-        return str_contains($contextStr, (string) $tenantB->id)
-            || (! empty($tenantB->name) && str_contains($contextStr, (string) $tenantB->name));
-    });
-
-    expect($leaked)
-        ->toBeFalse(
-            'AC-016: Log registrou dados do tenant B durante request com SQL injection. Vazamento no logger.'
-        );
 });
