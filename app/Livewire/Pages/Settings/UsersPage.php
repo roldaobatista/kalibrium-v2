@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Settings;
 
 use App\Livewire\Pages\Settings\Concerns\ResolvesTenantSettingsContext;
+use App\Models\Branch;
+use App\Models\Company;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Settings\UserDeactivationService;
@@ -101,8 +103,12 @@ final class UsersPage extends Component
 
     public function render(UsersDirectoryQuery $query): View
     {
+        $tenantId = (int) $this->actorTenantUser()->tenant_id;
+
         return view('livewire.pages.settings.users-page', [
             'users' => $this->users($query),
+            'companies' => Company::query()->where('tenant_id', $tenantId)->orderBy('legal_name')->get(),
+            'branches' => Branch::query()->where('tenant_id', $tenantId)->orderBy('name')->get(),
         ])->layout('layouts.app');
     }
 

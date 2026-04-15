@@ -49,12 +49,15 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($users as $tenantUser)
+                @forelse ($users as $tenantUser)
+                    @php
+                        $statusLabels = ['active' => 'Ativo', 'pending' => 'Pendente', 'invited' => 'Convite pendente', 'removed' => 'Removido', 'suspended' => 'Suspenso'];
+                    @endphp
                     <tr class="border-b border-slate-200">
                         <td class="py-2">{{ $tenantUser->user?->name }}</td>
                         <td class="py-2">{{ $tenantUser->user?->email }}</td>
                         <td class="py-2">{{ $tenantUser->role }}</td>
-                        <td class="py-2">{{ $tenantUser->status }}</td>
+                        <td class="py-2">{{ $statusLabels[$tenantUser->status] ?? $tenantUser->status }}</td>
                         <td class="py-2">{{ $tenantUser->requires_2fa ? 'obrigatoria' : 'opcional' }}</td>
                         @unless ($readOnly)
                             <td class="space-y-2 py-2">
@@ -72,12 +75,18 @@
                                         Remover acesso
                                     </button>
                                 @else
-                                    <span class="text-xs text-slate-600">Sem acoes para convite pendente.</span>
+                                    <span class="text-xs text-slate-600">Aguardando aceite do convite. Voce pode reenviar ou revogar.</span>
                                 @endif
                             </td>
                         @endunless
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="{{ $readOnly ? 5 : 6 }}" class="py-4 text-center text-sm text-slate-600">
+                            Nenhum usuario encontrado para "{{ $search }}". Ajuste os termos de busca.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -112,14 +121,30 @@
                         <span class="block text-xs text-red-700">{{ $message }}</span>
                     @enderror
                 </label>
-                <div class="space-y-1 text-sm">
+                <label class="space-y-1 text-sm font-medium">
+                    <span>Empresa</span>
+                    <select wire:model="form.company_id" class="w-full rounded border border-slate-300 px-3 py-2">
+                        <option value="">Selecione a empresa</option>
+                        @foreach ($companies as $company)
+                            <option value="{{ $company->id }}">{{ $company->legal_name }}</option>
+                        @endforeach
+                    </select>
                     @error('form.company_id')
                         <span class="block text-xs text-red-700">{{ $message }}</span>
                     @enderror
+                </label>
+                <label class="space-y-1 text-sm font-medium">
+                    <span>Filial</span>
+                    <select wire:model="form.branch_id" class="w-full rounded border border-slate-300 px-3 py-2">
+                        <option value="">Selecione a filial</option>
+                        @foreach ($branches as $branch)
+                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                        @endforeach
+                    </select>
                     @error('form.branch_id')
                         <span class="block text-xs text-red-700">{{ $message }}</span>
                     @enderror
-                </div>
+                </label>
                 <button wire:click="inviteUser" class="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white">
                     Enviar convite
                 </button>

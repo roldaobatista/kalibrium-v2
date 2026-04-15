@@ -273,11 +273,11 @@ test('AC-017: consumo acima de 80 e 95 por cento exibe alertas leve e forte em /
 })->with([
     'alerta leve' => [
         ['users_used' => 8, 'users_limit' => 10, 'monthly_os_used' => 80, 'monthly_os_limit' => 100],
-        ['80%', 'alerta leve'],
+        ['80%', 'Alerta leve'],
     ],
     'alerta forte' => [
         ['users_used' => 10, 'users_limit' => 10, 'monthly_os_used' => 95, 'monthly_os_limit' => 100],
-        ['95%', 'alerta forte'],
+        ['95%', 'Alerta forte'],
     ],
 ])->group('slice-009', 'ac-017');
 
@@ -312,8 +312,8 @@ test('AC-017: cada metrica de limite exibe alerta proporcional isoladamente', fu
             'storage_used_bytes' => 79,
             'storage_limit_bytes' => 100,
         ],
-        'users em 80%',
-        'storage em 80%',
+        'Usuarios em 80% do limite atingido',
+        'Armazenamento em 80% do limite atingido',
         7,
     ],
     'os mensal alerta forte' => [
@@ -326,8 +326,8 @@ test('AC-017: cada metrica de limite exibe alerta proporcional isoladamente', fu
             'storage_used_bytes' => 70,
             'storage_limit_bytes' => 100,
         ],
-        'monthly_os em 95%',
-        'storage em 95%',
+        'Ordens de servico no mes em 95% do limite atingido',
+        'Armazenamento em 95% do limite atingido',
     ],
     'armazenamento alerta leve' => [
         [
@@ -339,8 +339,8 @@ test('AC-017: cada metrica de limite exibe alerta proporcional isoladamente', fu
             'storage_used_bytes' => 80,
             'storage_limit_bytes' => 100,
         ],
-        'storage em 80%',
-        'monthly_os em 80%',
+        'Armazenamento em 80% do limite atingido',
+        'Ordens de servico no mes em 80% do limite atingido',
     ],
     'armazenamento alerta forte' => [
         [
@@ -352,8 +352,8 @@ test('AC-017: cada metrica de limite exibe alerta proporcional isoladamente', fu
             'storage_used_bytes' => 95,
             'storage_limit_bytes' => 100,
         ],
-        'storage em 95%',
-        'monthly_os em 95%',
+        'Armazenamento em 95% do limite atingido',
+        'Ordens de servico no mes em 95% do limite atingido',
     ],
 ])->group('slice-009', 'ac-017');
 

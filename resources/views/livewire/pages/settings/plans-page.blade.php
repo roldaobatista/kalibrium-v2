@@ -39,9 +39,13 @@
         </div>
     </div>
 
+    @php
+        $severityLabels = ['warning' => 'Atencao', 'critical' => 'Critico'];
+        $metricLabels = ['monthly_os' => 'Ordens de servico no mes', 'storage_gb' => 'Armazenamento', 'storage' => 'Armazenamento', 'users' => 'Usuarios'];
+    @endphp
     @foreach ($summary['alerts'] as $alert)
         <p class="rounded border border-amber-400 bg-amber-50 p-3 text-sm">
-            {{ $alert['severity'] }}: {{ $alert['key'] }} em {{ $alert['percent'] }}%
+            {{ $severityLabels[$alert['severity']] ?? ucfirst((string) $alert['severity']) }}: {{ $metricLabels[$alert['key']] ?? $alert['key'] }} em {{ $alert['percent'] }}% do limite atingido
         </p>
     @endforeach
 
