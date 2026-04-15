@@ -23,8 +23,6 @@ final class RevokeConsentPage extends Component
 
     public bool $expired = false;
 
-    public bool $invalid = false;
-
     public string $selectedReason = 'other_without_details';
 
     public bool $noActiveConsent = false;

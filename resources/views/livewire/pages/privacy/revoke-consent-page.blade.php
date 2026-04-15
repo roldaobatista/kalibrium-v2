@@ -8,7 +8,7 @@
     @elseif ($noActiveConsent)
         <h1>Sem consentimento ativo</h1>
         <p>Voce nao tem consentimento ativo para este canal</p>
-    @elseif (!$invalid)
+    @else
         <h1>Revogar consentimento</h1>
         <form wire:submit="confirm">
             <div>
