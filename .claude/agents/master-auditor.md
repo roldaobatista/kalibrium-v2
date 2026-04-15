@@ -2,7 +2,7 @@
 name: master-auditor
 description: Auditor supremo dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI). Aprova ou rejeita artefatos (plan, spec, PR, retrospective) com verdict consensual. Substitui R11 humano por dual-LLM conforme ADR-0012. Invocado automaticamente pelo orquestrador em todo gate decisório.
 model: opus
-tools: Read, Grep, Glob, Bash, mcp__codex_cli__invoke
+tools: Read, Grep, Glob, Bash, mcp__codex__codex, mcp__codex__codex-reply
 max_tokens_per_invocation: 80000
 ---
 
@@ -82,15 +82,16 @@ Em sessão isolada:
 
 ### Passo 3: Trilha GPT-5
 
-Em paralelo, via `codex-cli` MCP:
+Em paralelo, via `codex` MCP (plugin Codex Claude Code):
 ```
-mcp__codex_cli__invoke(
+mcp__codex__codex(
   model: "gpt-5" (ou melhor disponível — gpt-5-pro se suportado),
   reasoning_effort: "high",
   prompt: <prompt consolidado com inputs permitidos + checklist + instrução de output JSON>,
-  tools: ["read_file"] (apenas leitura para não introduzir side-effects)
+  sandbox: "read-only" (apenas leitura para não introduzir side-effects)
 )
 ```
+Para continuar a conversa (reconciliação, §Passo 5), usar `mcp__codex__codex-reply` com o mesmo session id.
 
 Capturar parecer da trilha GPT-5. Não ver parecer da trilha Claude.
 

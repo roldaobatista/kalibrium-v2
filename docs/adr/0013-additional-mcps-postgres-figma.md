@@ -1,4 +1,4 @@
-# ADR-0012 — Adicionar MCPs de PostgreSQL e Figma à allowlist
+# ADR-0013 — Adicionar MCPs de PostgreSQL e Figma à allowlist
 
 **Status:** accepted
 **Data:** 2026-04-15
@@ -142,9 +142,9 @@ Após aceitação do PM:
 
 2. **Atualizar harness (PM, ainda em terminal externo):**
    - Editar `.claude/allowed-mcps.txt` adicionando a entrada.
-   - Bumpar `Versão` de `docs/adr/0002-mcp-policy.md` de 2 → 3 + adicionar linha à tabela citando ADR-0012.
+   - Bumpar `Versão` de `docs/adr/0002-mcp-policy.md` de 2 → 3 + adicionar linha à tabela citando ADR-0013.
    - `KALIB_RELOCK_AUTHORIZED=1 bash scripts/relock-harness.sh` (se settings.json foi tocado).
-   - Commit: `chore(harness): adiciona MCP postgres (ref: ADR-0012)`.
+   - Commit: `chore(harness): adiciona MCP postgres (ref: ADR-0013)`.
 
 3. **Validar em sessão Claude Code:**
    - Rodar `/mcp-check` — deve retornar limpo.
