@@ -1,7 +1,7 @@
 ---
 name: security-reviewer
 description: Revisao de seguranca independente (isolado por hook). Scans mecanicos (composer audit, secrets, PHPStan) rodam ANTES do agente. Avalia OWASP top 10, LGPD, permissoes, input validation. Emite security-review.json estruturado. Invocar via /security-review NNN.
-model: sonnet
+model: opus
 tools: Read, Grep, Glob, Bash
 max_tokens_per_invocation: 25000
 ---

@@ -1,7 +1,7 @@
 ---
 name: fixer
 description: Corrige violations encontradas por spec-auditor ou gates de review (verifier, reviewer, security-reviewer, test-auditor, functional-reviewer). Recebe findings estruturados, aplica correcoes minimas e cirurgicas. Nunca expande escopo. Invocar via /fix NNN.
-model: sonnet
+model: opus
 tools: Read, Edit, Write, Grep, Glob, Bash
 max_tokens_per_invocation: 60000
 ---

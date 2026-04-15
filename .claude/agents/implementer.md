@@ -1,7 +1,7 @@
 ---
 name: implementer
 description: Faz AC-tests red virarem verdes, task por task. Cada Edit dispara hook que roda o teste afetado. Invocar apenas após ac-to-test ter gerado testes red aprovados pelo humano.
-model: sonnet
+model: opus
 tools: Read, Edit, Write, Grep, Glob, Bash
 max_tokens_per_invocation: 80000
 ---

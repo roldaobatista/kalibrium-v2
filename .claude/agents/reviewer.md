@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Review estrutural de slice em contexto isolado INDEPENDENTE do verifier. Foca em duplicação, simplicidade, segurança, nomes, aderência ao glossary e às ADRs. Emite review.json contra review.schema.json. Invocado automaticamente via /review-pr após o verifier ter aprovado. Parte do modelo humano=PM (R11).
-model: sonnet
+model: opus
 tools: Read, Grep, Glob, Bash
 max_tokens_per_invocation: 30000
 ---
