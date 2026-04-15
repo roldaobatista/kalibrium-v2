@@ -153,20 +153,20 @@ final class RevocationTokenService
      * dois callers (Livewire confirm + controller POST). Retorna null
      * se nao havia consentimento ativo para o canal.
      *
-     * @param  array{ip_address: ?string, user_agent: string}  $request
+     * @param  array{ip_address: ?string, user_agent: string}  $context
      */
     public function finalizeRevocation(
         ConsentRecordService $consentService,
         RevocationToken $token,
         string $reason,
-        array $request,
+        array $context,
     ): ?ConsentRecord {
         $record = $consentService->revokeConsent(
             (int) $token->tenant_id,
             (int) $token->consent_subject_id,
             $token->channel,
             $reason,
-            $request,
+            $context,
         );
 
         if ($record === null) {

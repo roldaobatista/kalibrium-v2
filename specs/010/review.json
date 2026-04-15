@@ -1,0 +1,90 @@
+{
+  "slice_id": "slice-010",
+  "verdict": "rejected",
+  "timestamp": "2026-04-15T00:00:00Z",
+  "quality_checks": [
+    {
+      "category": "duplication",
+      "status": "fail",
+      "evidence": "routes/web.php empilha EnsureTwoFactorChallengeCompleted e RequireTwoFactorSession na mesma rota /settings/privacy sem justificativa documentada da diferença semântica. Os dois middlewares realizam checagens sobrepostas de 2FA. Adicionalmente, RevokeConsentPage::mount() e RevocationSubmitController::__invoke() duplicam a mesma lógica de ramificação 'renewed'/'not_found' (~15 linhas cada) que processRevocationAttempt() já encapsulou — a abstração não eliminou a duplicação nos callers."
+    },
+    {
+      "category": "complexity",
+      "status": "pass",
+      "evidence": "Nenhuma função excede 50 linhas nem 3 níveis de nesting de forma problemática. RevocationTokenService tem métodos coesos. ConsentRecordService::guardTenantAndLgpd() extrai responsabilidade corretamente."
+    },
+    {
+      "category": "naming",
+      "status": "fail",
+      "evidence": "RevocationTokenService::finalizeRevocation() recebe parâmetro array chamado '$request' (app/Services/RevocationTokenService.php linha ~1475). O nome 'request' implica Illuminate\Http\Request mas é array{ip_address, user_agent}. Nome enganoso para leitores do código. Sugestão: '$context' ou '$requestData'."
+    },
+    {
+      "category": "security",
+      "status": "pass",
+      "evidence": "hash_equals usado corretamente em findValidToken() para constant-time comparison (AC-SEC-005). token_hash armazena apenas SHA-256, raw nunca persiste (AC-SEC-004). strip_tags() aplicado em LgpdCategoryService::declare() e ConsentRecordService::createForSubject() para email/phone/name/comment (AC-SEC-001). Blade escapa output por padrão. Isolamento por tenant via ScopesToCurrentTenant em todos os modelos."
+    },
+    {
+      "category": "simplicity",
+      "status": "fail",
+      "evidence": "ConsentSubjectsPage::subjects() (app/Livewire/Settings/ConsentSubjectsPage.php linha ~556) usa withoutGlobalScopes()->where('tenant_id', $tenant->id) diretamente, bypassando o trait ScopesToCurrentTenant que o modelo já declara e que é a abstração canônica do projeto. Padrão inconsistente — outros componentes confiam no scope global; este o contorna manualmente sem comentário justificando o bypass."
+    },
+    {
+      "category": "glossary",
+      "status": "pass",
+      "evidence": "Termos canônicos do glossário LGPD usados corretamente: Titular (ConsentSubject), Consentimento explícito (consent_records), Log imutável (trigger append-only), LGPD. Nenhum alias proibido detectado."
+    },
+    {
+      "category": "adr_compliance",
+      "status": "pass",
+      "evidence": "Stack Laravel 13 + Livewire + PostgreSQL conforme ADR-0001. Autenticação via Fortify conforme ADR-0004. ADR-0012 adicionado corretamente via processo documentado (3 opções, decisão justificada). Nenhuma contradição com ADR aceito detectada."
+    },
+    {
+      "category": "dead_code",
+      "status": "fail",
+      "evidence": "Migration create_consent_records_table.php (linha ~1873) cria coluna 'updated_at' (timestamp nullable) na tabela consent_records, mas ConsentRecord::$timestamps = false e o trigger PostgreSQL bloqueia qualquer UPDATE. A coluna nunca será populada pelo modelo e contradiz semanticamente o propósito append-only da tabela. Deve ser removida da migration para evitar confusão futura e manter schema consistente com o invariante do modelo."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "category": "duplication",
+      "severity": "major",
+      "file": "routes/web.php",
+      "line": "2469-2475",
+      "description": "EnsureTwoFactorChallengeCompleted e RequireTwoFactorSession empilhados na mesma rota /settings/privacy sem documentar a diferença semântica entre os dois. Responsabilidade sobreposta de checagem de 2FA em dois middlewares distintos aplicados à mesma rota. Se a distinção for legítima, ela deve ser documentada em comentário inline ou no middleware. Se não for, um dos dois deve ser removido."
+    },
+    {
+      "id": "F-002",
+      "category": "duplication",
+      "severity": "major",
+      "file": "app/Livewire/Pages/Privacy/RevokeConsentPage.php e app/Http/Controllers/Privacy/RevocationSubmitController.php",
+      "line": "456-475 e 301-331",
+      "description": "Lógica de ramificação 'renewed'/'not_found' duplicada nos dois callers de processRevocationAttempt(). O método foi criado exatamente para encapsular essa lógica, mas ambos os callers ainda repetem o mesmo padrão de if/switch após a chamada. A duplicação não é textual mas é estrutural e >10 linhas em cada caller."
+    },
+    {
+      "id": "F-003",
+      "category": "naming",
+      "severity": "minor",
+      "file": "app/Services/RevocationTokenService.php",
+      "line": "~1475",
+      "description": "Parâmetro '$request' em finalizeRevocation() é array{ip_address, user_agent}, não Illuminate\Http\Request. Nome enganoso. Renomear para '$context' ou '$requestData'."
+    },
+    {
+      "id": "F-004",
+      "category": "simplicity",
+      "severity": "minor",
+      "file": "app/Livewire/Settings/ConsentSubjectsPage.php",
+      "line": "~556",
+      "description": "withoutGlobalScopes()->where('tenant_id', $tenant->id) bypassa o trait ScopesToCurrentTenant sem justificativa. Padrão inconsistente com o resto do projeto. Se o bypass é necessário (ex: para garantir que o scope não interfira com a paginação em contexto Livewire), adicionar comentário explicando o motivo."
+    },
+    {
+      "id": "F-005",
+      "category": "dead_code",
+      "severity": "minor",
+      "file": "database/migrations/2026_04_15_000420_create_consent_records_table.php",
+      "line": "~1873",
+      "description": "Coluna 'updated_at' criada na migration de consent_records mas nunca populada (ConsentRecord::$timestamps = false; trigger bloqueia UPDATE). Coluna morta que contradiz semanticamente o invariante append-only. Remover da migration."
+    }
+  ],
+  "next_action": "return_to_implementer"
+}

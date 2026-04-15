@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Mail\RevocationConfirmationMail;
+use App\Mail\RevocationLinkMail;
 use App\Services\RevocationTokenService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -108,8 +109,8 @@ test('AC-004a: token expirado exibe mensagem e gera novo revocation_token envian
 
     expect($countAfter)->toBeGreaterThan($countBefore);
 
-    // Deve ter disparado e-mail
-    Mail::assertSent(RevocationConfirmationMail::class);
+    // Deve ter disparado novo link de revogação (não confirmação)
+    Mail::assertSent(RevocationLinkMail::class);
 });
 
 // ---------------------------------------------------------------------------

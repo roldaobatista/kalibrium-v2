@@ -417,7 +417,14 @@ Route::middleware([
 // Slice 010 — LGPD: rotas autenticadas + 2FA
 // ---------------------------------------------------------------------------
 
-// GET /settings/privacy requer 2FA completado na sessão corrente
+// GET /settings/privacy requer 2FA completado na sessão corrente.
+// Stack intencional (responsabilidades distintas):
+//   - EnsureTwoFactorChallengeCompleted: bloqueia acesso se há um challenge
+//     pendente iniciado mas não concluído (flag auth.two_factor_pending).
+//   - RequireTwoFactorSession: para rotas sensíveis (como LGPD), exige que o
+//     usuário com 2FA habilitado tenha completado o challenge nesta sessão
+//     (flag auth.two_factor_confirmed). Cobre o caso de usuários que nunca
+//     dispararam o challenge e conseguiram sessão sem passar por ele.
 Route::middleware([
     'auth',
     EnsureTwoFactorChallengeCompleted::class,

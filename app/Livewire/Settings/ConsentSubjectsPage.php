@@ -41,6 +41,9 @@ final class ConsentSubjectsPage extends Component
     public function subjects(): LengthAwarePaginator
     {
         $tenant = $this->resolveTenant();
+        // Contexto PostgresAuthContext do middleware já garante RLS por tenant.
+        // withoutGlobalScopes() + where tenant_id explícito mantém a query
+        // compatível com ambientes de teste que não fazem RLS via trigger.
         $query = ConsentSubject::withoutGlobalScopes()
             ->where('tenant_id', $tenant->id);
 
