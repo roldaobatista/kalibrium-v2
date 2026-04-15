@@ -119,8 +119,9 @@ test('AC-016: payload de resposta após SQL injection não contém literais de r
 test('AC-016: request com SQL injection via /api/tenant-context não vaza tenant B nos logs', function () {
     /** @ac AC-016
      *
-     * Garante que logs gerados durante request com SQL injection não expõem
-     * dados do tenant B. A rota /api/tenant-context existe no MVP.
+     * Garante que logs gerados durante request com SQL injection registram tenant_context=A
+     * (assert positivo) e não expõem dados do tenant B (assert negativo).
+     * A rota /api/tenant-context existe no MVP em ambientes local/testing.
      */
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
@@ -140,7 +141,24 @@ test('AC-016: request com SQL injection via /api/tenant-context não vaza tenant
         ->withSession(['current_tenant_id' => $tenantA->id])
         ->get("/api/tenant-context?tenant={$injectionPayload}");
 
-    // Nenhum log deve revelar dados do tenant B
+    // Assert POSITIVO: log com tenant_context=A deve ter sido emitido (AC-016 §2)
+    $hasLogWithTenantA = collect($capturedLogs)->contains(function ($log) use ($tenantA) {
+        $contextStr = json_encode($log['context'] ?? []);
+
+        return str_contains($contextStr, '"tenant_context"')
+            && str_contains($contextStr, (string) $tenantA->id);
+    });
+
+    expect($capturedLogs)
+        ->not->toBeEmpty('AC-016: Nenhum log foi emitido durante o request — o log de tenant_context não está funcionando.');
+
+    expect($hasLogWithTenantA)
+        ->toBeTrue(
+            'AC-016: Log não registrou tenant_context='.((string) $tenantA->id).'. '.
+            'O spec exige que o log de auditoria registre a tentativa com tenant_context=A.'
+        );
+
+    // Assert NEGATIVO: nenhum log deve revelar dados do tenant B
     $leaked = collect($capturedLogs)->contains(function ($log) use ($tenantB) {
         $str = json_encode($log['context'] ?? []).$log['message'];
 

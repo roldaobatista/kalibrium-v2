@@ -26,9 +26,12 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
  * @ac AC-015
  */
 dataset('sensitive_models_query_methods', function () {
-    // Hardcoded para evitar config() antes do boot Laravel (Pest 4 datasets rodam antes do container).
-    // AC-015 valida de forma independente que config('tenancy.sensitive_models') contém esses models.
-    $models = [
+    // Dataset Pest 4 é avaliado ANTES do container Laravel, então config() não está disponível.
+    // Carrega o array de config/tenancy.php diretamente via require — novos models adicionados
+    // ao arquivo entram automaticamente na cobertura sem precisar editar o teste.
+    $configPath = __DIR__.'/../../config/tenancy.php';
+    $config = is_file($configPath) ? require $configPath : [];
+    $models = $config['sensitive_models'] ?? [
         'App\\Models\\TenantUser',
         'App\\Models\\ConsentSubject',
         'App\\Models\\ConsentRecord',

@@ -41,6 +41,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -407,16 +408,24 @@ Route::middleware([
 ])
     ->group(function (): void {
         // AC-010: expõe o tenant_id do contexto atual da sessão.
+        // Disponível apenas em ambientes local/testing (guard de ambiente — blocker SEC-002).
         // Middleware SetCurrentTenantContext define request()->attributes['current_tenant'].
         // Query string ?tenant=X e header X-Tenant são ignorados intencionalmente.
-        Route::get('/api/tenant-context', function (Request $request) {
-            /** @var Tenant|null $tenant */
-            $tenant = $request->attributes->get('current_tenant');
+        if (app()->environment('local', 'testing')) {
+            Route::get('/api/tenant-context', function (Request $request) {
+                /** @var Tenant|null $tenant */
+                $tenant = $request->attributes->get('current_tenant');
 
-            return response()->json([
-                'tenant_id' => $tenant?->id,
-            ]);
-        })->name('api.tenant-context');
+                Log::info('tenant_context_request', [
+                    'tenant_context' => $tenant?->id,
+                    'path' => $request->path(),
+                ]);
+
+                return response()->json([
+                    'tenant_id' => $tenant?->id,
+                ]);
+            })->name('api.tenant-context');
+        }
 
         Route::get('/app', HomePage::class)->name('app.home');
         Route::get('/settings/tenant', TenantPage::class)->name('settings.tenant');
