@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\LgpdBaseLegalAusenteException;
 use App\Services\ConsentRecordService;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -21,12 +22,12 @@ test('AC-002: tenant sem base legal registrada bloqueia criacao de consent_subje
     // (tenant recém-criado — lgpd_categories vazio)
 
     $this->actingAs($user)
-         ->withSession(['current_tenant_id' => $tenant->id]);
+        ->withSession(['current_tenant_id' => $tenant->id]);
 
     // Tenta criar consent_subject via rota/controller/service — deve retornar 422
     $response = $this->post('/settings/privacy/consentimentos', [
         'subject_type' => 'external_user',
-        'email'        => slice010_unique_email(),
+        'email' => slice010_unique_email(),
     ]);
 
     $response->assertStatus(422);
@@ -47,9 +48,9 @@ test('AC-002: ConsentRecordService lanca excecao quando tenant nao tem base lega
 
     expect(fn () => $service->createForSubject($tenant->id, [
         'subject_type' => 'external_user',
-        'email'        => slice010_unique_email(),
-        'channel'      => 'email',
-    ]))->toThrow(\App\Exceptions\LgpdBaseLegalAusenteException::class);
+        'email' => slice010_unique_email(),
+        'channel' => 'email',
+    ]))->toThrow(LgpdBaseLegalAusenteException::class);
 });
 
 // ---------------------------------------------------------------------------
@@ -61,11 +62,11 @@ test('AC-002a: tenant suspenso bloqueia criacao de consent_subject antes da vali
     $tenant = $ctx['tenant'];
 
     $this->actingAs($user)
-         ->withSession(['current_tenant_id' => $tenant->id]);
+        ->withSession(['current_tenant_id' => $tenant->id]);
 
     $response = $this->post('/settings/privacy/consentimentos', [
         'subject_type' => 'external_user',
-        'email'        => slice010_unique_email(),
+        'email' => slice010_unique_email(),
     ]);
 
     // Deve retornar mensagem de suspensão, NÃO a mensagem de base legal ausente

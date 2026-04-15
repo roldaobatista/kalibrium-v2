@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Livewire\Settings\ConsentSubjectsPage;
-use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -15,7 +14,7 @@ uses()->group('slice-010');
 // AC-006: Gerente vê tabela paginada de consent_subjects (50/página, filtro status)
 // ---------------------------------------------------------------------------
 test('AC-006: pagina consentimentos exibe tabela paginada com 50 linhas por pagina', function (): void {
-    $ctx  = slice010_manager_context();
+    $ctx = slice010_manager_context();
     $user = $ctx['user'];
     $tenant = $ctx['tenant'];
 
@@ -26,7 +25,7 @@ test('AC-006: pagina consentimentos exibe tabela paginada com 50 linhas por pagi
         ]);
         slice010_seed_consent_record($tenant, $subjectId, [
             'channel' => 'email',
-            'status'  => $i % 2 === 0 ? 'ativo' : 'revogado',
+            'status' => $i % 2 === 0 ? 'ativo' : 'revogado',
         ]);
     }
 
@@ -39,7 +38,7 @@ test('AC-006: pagina consentimentos exibe tabela paginada com 50 linhas por pagi
 });
 
 test('AC-006: filtro por status=ativo exibe apenas subjects com consentimento ativo', function (): void {
-    $ctx  = slice010_manager_context();
+    $ctx = slice010_manager_context();
     $user = $ctx['user'];
     $tenant = $ctx['tenant'];
 
@@ -50,7 +49,7 @@ test('AC-006: filtro por status=ativo exibe apenas subjects com consentimento at
         ]);
         slice010_seed_consent_record($tenant, $subjectId, [
             'channel' => 'email',
-            'status'  => 'ativo',
+            'status' => 'ativo',
         ]);
     }
 
@@ -61,7 +60,7 @@ test('AC-006: filtro por status=ativo exibe apenas subjects com consentimento at
         ]);
         slice010_seed_consent_record($tenant, $subjectId, [
             'channel' => 'email',
-            'status'  => 'revogado',
+            'status' => 'revogado',
         ]);
     }
 
@@ -74,15 +73,15 @@ test('AC-006: filtro por status=ativo exibe apenas subjects com consentimento at
 });
 
 test('AC-006: listagem nao exibe PII raw — apenas identificador opaco, canal, status e data', function (): void {
-    $ctx  = slice010_manager_context();
+    $ctx = slice010_manager_context();
     $user = $ctx['user'];
     $tenant = $ctx['tenant'];
 
-    $email     = 'pii-subject@example.com';
+    $email = 'pii-subject@example.com';
     $subjectId = slice010_seed_consent_subject($tenant, ['email' => $email]);
     slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'email',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     $this->actingAs($user)->withSession(['current_tenant_id' => $tenant->id]);
@@ -96,5 +95,5 @@ test('AC-006: listagem nao exibe PII raw — apenas identificador opaco, canal, 
     // E-mail raw não deve aparecer na listagem (apenas identificador opaco)
     expect($body)->not->toContain($email);
     // UUID opaco deve aparecer (truncado ou completo — qualquer representação sem e-mail)
-    expect($body)->toContain(substr($subjectId, 0, 8));
+    expect($body)->toContain(substr((string) $subjectId, 0, 8));
 });

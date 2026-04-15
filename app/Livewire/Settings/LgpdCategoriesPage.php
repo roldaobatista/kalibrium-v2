@@ -6,11 +6,9 @@ namespace App\Livewire\Settings;
 
 use App\Models\LgpdCategory;
 use App\Models\Tenant;
-use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Lgpd\LgpdCategoryService;
 use App\Support\Tenancy\CurrentTenantResolver;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -30,17 +28,26 @@ final class LgpdCategoriesPage extends Component
 
     public bool $readOnly = false;
 
-    private Tenant $tenant;
-
-    private TenantUser $tenantUser;
+    private ?Tenant $tenant = null;
 
     public function mount(CurrentTenantResolver $resolver): void
     {
         $user = $this->actor();
         $context = $resolver->resolve($user);
         $this->tenant = $context['tenant'];
-        $this->tenantUser = $context['tenant_user'];
         $this->readOnly = $context['access_mode'] === 'read-only';
+    }
+
+    private function resolveTenant(): Tenant
+    {
+        if ($this->tenant === null) {
+            $resolver = app(CurrentTenantResolver::class);
+            $context = $resolver->resolve($this->actor());
+            $this->tenant = $context['tenant'];
+            $this->readOnly = $context['access_mode'] === 'read-only';
+        }
+
+        return $this->tenant;
     }
 
     public function save(LgpdCategoryService $service): void
@@ -50,12 +57,12 @@ final class LgpdCategoriesPage extends Component
         }
 
         try {
-            $service->declare($this->tenant, $this->actor(), [
-                'code'             => $this->code,
-                'name'             => $this->name,
-                'legal_basis'      => $this->legal_basis,
+            $service->declare($this->resolveTenant(), $this->actor(), [
+                'code' => $this->code,
+                'name' => $this->name,
+                'legal_basis' => $this->legal_basis,
                 'retention_policy' => $this->retention_policy,
-                'comment'          => $this->comment,
+                'comment' => $this->comment,
             ]);
         } catch (ValidationException $e) {
             foreach ($e->errors() as $field => $messages) {
@@ -75,13 +82,14 @@ final class LgpdCategoriesPage extends Component
             abort(403, 'Conta em modo somente leitura.');
         }
 
+        $tenant = $this->resolveTenant();
         $category = LgpdCategory::withoutGlobalScopes()
-            ->where('tenant_id', $this->tenant->id)
+            ->where('tenant_id', $tenant->id)
             ->where('id', $id)
             ->firstOrFail();
 
         try {
-            $service->delete($this->tenant, $category);
+            $service->delete($tenant, $category);
         } catch (ValidationException $e) {
             foreach ($e->errors() as $field => $messages) {
                 $this->addError($field, (string) ($messages[0] ?? 'Erro.'));
@@ -91,11 +99,11 @@ final class LgpdCategoriesPage extends Component
 
     public function render(LgpdCategoryService $service): View
     {
-        $categories = $service->listForTenant($this->tenant);
+        $categories = $service->listForTenant($this->resolveTenant());
 
         return view('livewire.settings.lgpd-categories-page', [
             'categories' => $categories,
-            'codes'      => LgpdCategory::CODES,
+            'codes' => LgpdCategory::CODES,
             'legalBases' => LgpdCategory::LEGAL_BASES,
         ])->layout('layouts.app');
     }

@@ -20,7 +20,7 @@ final class RevocationLinkMail extends Mailable implements ShouldQueue
     public int $tries = 3;
 
     public function __construct(
-        public readonly ConsentSubject $subject,
+        public readonly ConsentSubject $consentSubject,
         public readonly string $channel,
         public readonly string $rawToken,
     ) {}
@@ -28,7 +28,7 @@ final class RevocationLinkMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            to: $this->subject->email ?? '',
+            to: [$this->consentSubject->email ?? ''],
             subject: 'Link de revogação de consentimento',
         );
     }
@@ -39,7 +39,7 @@ final class RevocationLinkMail extends Mailable implements ShouldQueue
             view: 'emails.revocation-link',
             with: [
                 'revokeUrl' => route('lgpd.revoke', ['token' => $this->rawToken]),
-                'channel'   => $this->channel,
+                'channel' => $this->channel,
             ],
         );
     }

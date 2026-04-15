@@ -15,13 +15,12 @@ use Illuminate\Support\Str;
  * revocation_tokens) ainda NÃO existem — helpers lançam RuntimeException
  * se a tabela não existir, garantindo falha RED.
  */
-
 function slice010_routes(): array
 {
     return [
-        'privacy'       => '/settings/privacy',
-        'subjects'      => '/settings/privacy/consentimentos',
-        'revoke'        => static fn (string $token): string => '/privacy/revoke/'.$token,
+        'privacy' => '/settings/privacy',
+        'subjects' => '/settings/privacy/consentimentos',
+        'revoke' => static fn (string $token): string => '/privacy/revoke/'.$token,
     ];
 }
 
@@ -36,7 +35,7 @@ function slice010_unique_email(): string
 function slice010_manager_context(array $overrides = []): array
 {
     return slice009_user_with_tenant_context(array_merge([
-        'role'                 => 'gerente',
+        'role' => 'gerente',
         'two_factor_confirmed' => true,
     ], $overrides));
 }
@@ -63,14 +62,14 @@ function slice010_seed_lgpd_category(Tenant $tenant, User $createdBy, array $ove
     slice010_require_table('lgpd_categories');
 
     return DB::table('lgpd_categories')->insertGetId([
-        'tenant_id'          => $tenant->id,
-        'code'               => $overrides['code'] ?? 'contato',
-        'name'               => $overrides['name'] ?? 'Dados de Contato',
-        'legal_basis'        => $overrides['legal_basis'] ?? 'execucao_contrato',
-        'comment'            => $overrides['comment'] ?? null,
+        'tenant_id' => $tenant->id,
+        'code' => $overrides['code'] ?? 'contato',
+        'name' => $overrides['name'] ?? 'Dados de Contato',
+        'legal_basis' => $overrides['legal_basis'] ?? 'execucao_contrato',
+        'comment' => $overrides['comment'] ?? null,
         'created_by_user_id' => $createdBy->id,
-        'created_at'         => now(),
-        'updated_at'         => now(),
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 }
 
@@ -84,13 +83,13 @@ function slice010_seed_consent_subject(Tenant $tenant, array $overrides = []): i
     slice010_require_table('consent_subjects');
 
     return DB::table('consent_subjects')->insertGetId([
-        'tenant_id'    => $tenant->id,
+        'tenant_id' => $tenant->id,
         'subject_type' => $overrides['subject_type'] ?? 'external_user',
-        'subject_id'   => $overrides['subject_id'] ?? null,
-        'email'        => $overrides['email'] ?? slice010_unique_email(),
-        'phone'        => $overrides['phone'] ?? null,
-        'created_at'   => now(),
-        'updated_at'   => now(),
+        'subject_id' => $overrides['subject_id'] ?? null,
+        'email' => $overrides['email'] ?? slice010_unique_email(),
+        'phone' => $overrides['phone'] ?? null,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 }
 
@@ -106,18 +105,18 @@ function slice010_seed_consent_record(Tenant $tenant, int $subjectId, array $ove
     $rawUserAgent = $overrides['user_agent'] ?? 'Mozilla/5.0 (test)';
 
     return DB::table('consent_records')->insertGetId([
-        'tenant_id'          => $tenant->id,
+        'tenant_id' => $tenant->id,
         'consent_subject_id' => $subjectId,
-        'lgpd_category_id'   => $overrides['lgpd_category_id'] ?? null,
-        'channel'            => $overrides['channel'] ?? 'email',
-        'status'             => $overrides['status'] ?? 'ativo',
-        'granted_at'         => $overrides['granted_at'] ?? now(),
-        'revoked_at'         => $overrides['revoked_at'] ?? null,
-        'ip_address'         => $overrides['ip_address'] ?? '127.0.0.1',
-        'user_agent_hash'    => hash('sha256', $rawUserAgent),
-        'revocation_reason'  => $overrides['revocation_reason'] ?? null,
-        'created_at'         => now(),
-        'updated_at'         => now(),
+        'lgpd_category_id' => $overrides['lgpd_category_id'] ?? null,
+        'channel' => $overrides['channel'] ?? 'email',
+        'status' => $overrides['status'] ?? 'ativo',
+        'granted_at' => $overrides['granted_at'] ?? now(),
+        'revoked_at' => $overrides['revoked_at'] ?? null,
+        'ip_address' => $overrides['ip_address'] ?? '127.0.0.1',
+        'user_agent_hash' => hash('sha256', $rawUserAgent),
+        'revocation_reason' => $overrides['revocation_reason'] ?? null,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 }
 
@@ -129,24 +128,24 @@ function slice010_seed_revocation_token(Tenant $tenant, int $subjectId, array $o
 {
     slice010_require_table('revocation_tokens');
 
-    $rawToken  = bin2hex(random_bytes(32));
+    $rawToken = bin2hex(random_bytes(32));
     $tokenHash = hash('sha256', $rawToken);
 
     $id = DB::table('revocation_tokens')->insertGetId([
-        'tenant_id'          => $tenant->id,
+        'tenant_id' => $tenant->id,
         'consent_subject_id' => $subjectId,
-        'channel'            => $overrides['channel'] ?? 'whatsapp',
-        'token_hash'         => $tokenHash,
-        'expires_at'         => $overrides['expires_at'] ?? now()->addDays(30),
-        'granted_at'         => $overrides['granted_at'] ?? now(),
-        'used_at'            => $overrides['used_at'] ?? null,
-        'created_at'         => now(),
-        'updated_at'         => now(),
+        'channel' => $overrides['channel'] ?? 'whatsapp',
+        'token_hash' => $tokenHash,
+        'expires_at' => $overrides['expires_at'] ?? now()->addDays(30),
+        'granted_at' => $overrides['granted_at'] ?? now(),
+        'used_at' => $overrides['used_at'] ?? null,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     return [
-        'id'         => $id,
-        'raw_token'  => $rawToken,
+        'id' => $id,
+        'raw_token' => $rawToken,
         'token_hash' => $tokenHash,
     ];
 }

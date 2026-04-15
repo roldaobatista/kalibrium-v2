@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 require_once __DIR__.'/TestHelpers.php';
@@ -15,23 +16,23 @@ uses()->group('slice-010');
 test('AC-008: UPDATE em consent_records e recusado pelo trigger append-only', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
     $subjectId = slice010_seed_consent_subject($tenant);
-    $recordId  = slice010_seed_consent_record($tenant, $subjectId, [
+    $recordId = slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'email',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     expect(fn () => DB::table('consent_records')
         ->where('id', $recordId)
         ->update(['status' => 'revogado'])
-    )->toThrow(\Illuminate\Database\QueryException::class, 'audit append-only');
+    )->toThrow(QueryException::class, 'audit append-only');
 });
 
 // ---------------------------------------------------------------------------
@@ -40,23 +41,23 @@ test('AC-008: UPDATE em consent_records e recusado pelo trigger append-only', fu
 test('AC-008: DELETE em consent_records e recusado pelo trigger append-only', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
     $subjectId = slice010_seed_consent_subject($tenant);
-    $recordId  = slice010_seed_consent_record($tenant, $subjectId, [
+    $recordId = slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'email',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     expect(fn () => DB::table('consent_records')
         ->where('id', $recordId)
         ->delete()
-    )->toThrow(\Illuminate\Database\QueryException::class, 'audit append-only');
+    )->toThrow(QueryException::class, 'audit append-only');
 });
 
 // ---------------------------------------------------------------------------
@@ -65,21 +66,21 @@ test('AC-008: DELETE em consent_records e recusado pelo trigger append-only', fu
 test('AC-008a: TRUNCATE em consent_records e recusado pelo trigger append-only', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
     $subjectId = slice010_seed_consent_subject($tenant);
     slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'email',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     expect(fn () => DB::statement('TRUNCATE TABLE consent_records'))
-        ->toThrow(\Illuminate\Database\QueryException::class, 'audit append-only');
+        ->toThrow(QueryException::class, 'audit append-only');
 });
 
 // ---------------------------------------------------------------------------
@@ -88,17 +89,17 @@ test('AC-008a: TRUNCATE em consent_records e recusado pelo trigger append-only',
 test('AC-008: apos rejeicao do trigger o registro original permanece intacto', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
     $subjectId = slice010_seed_consent_subject($tenant);
-    $recordId  = slice010_seed_consent_record($tenant, $subjectId, [
+    $recordId = slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'email',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     // Tenta UPDATE — vai falhar
@@ -106,7 +107,7 @@ test('AC-008: apos rejeicao do trigger o registro original permanece intacto', f
         DB::table('consent_records')
             ->where('id', $recordId)
             ->update(['status' => 'revogado']);
-    } catch (\Illuminate\Database\QueryException) {
+    } catch (QueryException) {
         // Esperado — agora verifica que o registro não foi alterado
     }
 

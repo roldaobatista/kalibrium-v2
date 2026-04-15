@@ -16,6 +16,7 @@ final class ConsentRecordService
      * Cria um consent_subject e grava opt-in no canal especificado.
      *
      * @param  array<string, mixed>  $data
+     *
      * @throws LgpdBaseLegalAusenteException
      * @throws \RuntimeException
      */
@@ -25,16 +26,16 @@ final class ConsentRecordService
         $this->guardTenantAndLgpd($tenant);
 
         $subject = ConsentSubject::create([
-            'tenant_id'    => $tenantId,
+            'tenant_id' => $tenantId,
             'subject_type' => $data['subject_type'] ?? 'external_user',
-            'subject_id'   => $data['subject_id'] ?? null,
-            'email'        => isset($data['email']) ? strip_tags((string) $data['email']) : null,
-            'phone'        => isset($data['phone']) ? strip_tags((string) $data['phone']) : null,
+            'subject_id' => $data['subject_id'] ?? null,
+            'email' => isset($data['email']) ? strip_tags((string) $data['email']) : null,
+            'phone' => isset($data['phone']) ? strip_tags((string) $data['phone']) : null,
         ]);
 
         $channel = (string) ($data['channel'] ?? 'email');
         $this->grantConsent($tenantId, $subject->id, [
-            'channel'    => $channel,
+            'channel' => $channel,
             'ip_address' => $data['ip_address'] ?? null,
             'user_agent' => $data['user_agent'] ?? '',
         ]);
@@ -46,6 +47,7 @@ final class ConsentRecordService
      * Grava opt-in explícito para subject/canal.
      *
      * @param  array<string, mixed>  $data
+     *
      * @throws LgpdBaseLegalAusenteException
      */
     public function grantConsent(int $tenantId, int $subjectId, array $data): ConsentRecord
@@ -58,18 +60,18 @@ final class ConsentRecordService
         $ipAddress = isset($data['ip_address']) ? (string) $data['ip_address'] : null;
 
         return ConsentRecord::create([
-            'tenant_id'          => $tenantId,
+            'tenant_id' => $tenantId,
             'consent_subject_id' => $subjectId,
-            'lgpd_category_id'   => $data['lgpd_category_id'] ?? null,
-            'channel'            => $channel,
-            'status'             => 'ativo',
-            'granted_at'         => now(),
-            'revoked_at'         => null,
-            'ip_address'         => $ipAddress,
-            'user_agent_hash'    => hash('sha256', $rawUserAgent),
-            'revocation_reason'  => null,
-            'created_at'         => now(),
-            'updated_at'         => now(),
+            'lgpd_category_id' => $data['lgpd_category_id'] ?? null,
+            'channel' => $channel,
+            'status' => 'ativo',
+            'granted_at' => now(),
+            'revoked_at' => null,
+            'ip_address' => $ipAddress,
+            'user_agent_hash' => hash('sha256', $rawUserAgent),
+            'revocation_reason' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
@@ -112,18 +114,18 @@ final class ConsentRecordService
         $ipAddress = isset($data['ip_address']) ? (string) $data['ip_address'] : null;
 
         return ConsentRecord::create([
-            'tenant_id'          => $tenantId,
+            'tenant_id' => $tenantId,
             'consent_subject_id' => $subjectId,
-            'lgpd_category_id'   => null,
-            'channel'            => $channel,
-            'status'             => 'revogado',
-            'granted_at'         => null,
-            'revoked_at'         => now(),
-            'ip_address'         => $ipAddress,
-            'user_agent_hash'    => hash('sha256', $rawUserAgent),
-            'revocation_reason'  => $reason,
-            'created_at'         => now(),
-            'updated_at'         => now(),
+            'lgpd_category_id' => null,
+            'channel' => $channel,
+            'status' => 'revogado',
+            'granted_at' => null,
+            'revoked_at' => now(),
+            'ip_address' => $ipAddress,
+            'user_agent_hash' => hash('sha256', $rawUserAgent),
+            'revocation_reason' => $reason,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 

@@ -22,7 +22,7 @@
         <tbody>
             @foreach ($subjects as $subject)
                 <tr>
-                    <td>{{ substr($subject->id, 0, 8) }}</td>
+                    <td>{{ substr((string) $subject->id, 0, 8) }}</td>
                     <td>-</td>
                     <td>-</td>
                     <td>{{ $subject->updated_at }}</td>

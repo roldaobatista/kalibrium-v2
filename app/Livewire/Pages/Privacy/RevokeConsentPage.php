@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Privacy;
 
 use App\Mail\RevocationConfirmationMail;
-use App\Mail\RevocationLinkMail;
 use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 use App\Services\ConsentRecordService;
@@ -51,7 +50,7 @@ final class RevokeConsentPage extends Component
         // Tenta encontrar token expirado (não usado)
         $anyToken = $service->findByRaw($token);
 
-        if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at->isPast()) {
+        if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at !== null && $anyToken->expires_at->isPast()) {
             $this->expired = true;
             $this->subjectModel = $anyToken->consentSubject;
 

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Mail\RevocationConfirmationMail;
 use App\Services\RevocationTokenService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -20,10 +22,10 @@ test('AC-004: titular clica em link valido e revogacao grava consent_record com 
 
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -32,7 +34,7 @@ test('AC-004: titular clica em link valido e revogacao grava consent_record com 
     // Registro ativo no canal whatsapp
     slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'whatsapp',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     $tokenData = slice010_seed_revocation_token($tenant, $subjectId, [
@@ -67,10 +69,10 @@ test('AC-004a: token expirado exibe mensagem e gera novo revocation_token envian
 
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -78,12 +80,12 @@ test('AC-004a: token expirado exibe mensagem e gera novo revocation_token envian
 
     slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'whatsapp',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     // Token já expirado (criado 31 dias atrás)
     $tokenData = slice010_seed_revocation_token($tenant, $subjectId, [
-        'channel'    => 'whatsapp',
+        'channel' => 'whatsapp',
         'expires_at' => now()->subDays(31),
         'granted_at' => now()->subDays(31),
     ]);
@@ -107,7 +109,7 @@ test('AC-004a: token expirado exibe mensagem e gera novo revocation_token envian
     expect($countAfter)->toBeGreaterThan($countBefore);
 
     // Deve ter disparado e-mail
-    Mail::assertSent(\App\Mail\RevocationConfirmationMail::class);
+    Mail::assertSent(RevocationConfirmationMail::class);
 });
 
 // ---------------------------------------------------------------------------
@@ -116,10 +118,10 @@ test('AC-004a: token expirado exibe mensagem e gera novo revocation_token envian
 test('AC-004b: revogar canal sem consentimento ativo exibe mensagem e nao grava registro', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -153,19 +155,19 @@ test('AC-007: revogacao bem-sucedida exibe confirmacao na tela e envia email ao 
 
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
-    $email     = 'titular-revoke@example.com';
+    $email = 'titular-revoke@example.com';
     $subjectId = slice010_seed_consent_subject($tenant, ['email' => $email]);
 
     slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'whatsapp',
-        'status'  => 'ativo',
+        'status' => 'ativo',
     ]);
 
     $tokenData = slice010_seed_revocation_token($tenant, $subjectId, [
@@ -179,7 +181,7 @@ test('AC-007: revogacao bem-sucedida exibe confirmacao na tela e envia email ao 
     $response->assertSuccessful();
     $response->assertSee('revogado'); // tela de confirmação
 
-    Mail::assertSent(\App\Mail\RevocationConfirmationMail::class, function ($mail) use ($email): bool {
+    Mail::assertSent(RevocationConfirmationMail::class, function ($mail) use ($email): bool {
         return $mail->hasTo($email);
     });
 });
@@ -215,10 +217,10 @@ test('AC-007a: token invalido retorna HTTP 404 sem revelar existencia do subject
 test('AC-SEC-004: revocation_tokens armazena apenas hash SHA-256 do token raw', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -238,9 +240,10 @@ test('AC-SEC-004: revocation_tokens armazena apenas hash SHA-256 do token raw', 
     // O valor raw NUNCA deve estar armazenado
     expect($tokenRecord->token_hash)->not->toBe($rawToken);
     // expires_at deve ser granted_at + 30 dias
-    $grantedAt  = \Illuminate\Support\Carbon::parse($tokenRecord->granted_at);
-    $expiresAt  = \Illuminate\Support\Carbon::parse($tokenRecord->expires_at);
-    expect($expiresAt->diffInDays($grantedAt))->toBe(30);
+    $grantedAt = Carbon::parse($tokenRecord->granted_at);
+    $expiresAt = Carbon::parse($tokenRecord->expires_at);
+    // Carbon 3 retorna float em diffInDays — usar toEqual para aceitar 30 ou 30.0
+    expect(abs((int) $expiresAt->diffInDays($grantedAt)))->toBe(30);
 });
 
 // ---------------------------------------------------------------------------
@@ -249,10 +252,10 @@ test('AC-SEC-004: revocation_tokens armazena apenas hash SHA-256 do token raw', 
 test('AC-SEC-005: validacao de token usa hash_equals para comparacao constant-time', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 

@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\LgpdBaseLegalAusenteException;
 use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\HealthCheckRateLimit;
+use App\Http\Middleware\RequireTwoFactorSession;
 use App\Http\Middleware\SetCurrentTenantContext;
 use App\Http\Responses\Auth\AuthFailureResponse;
 use App\Http\Responses\Auth\LoginResponse;
@@ -26,18 +28,24 @@ use App\Livewire\Pages\Settings\UsersPage;
 use App\Livewire\Ping;
 use App\Livewire\Settings\ConsentSubjectsPage;
 use App\Livewire\Settings\LgpdCategoriesPage;
-use App\Services\ConsentRecordService;
+use App\Mail\RevocationConfirmationMail;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\ConsentRecordService;
+use App\Services\RevocationTokenService;
 use App\Support\Auth\LoginAuditRecorder;
 use App\Support\Auth\PostgresAuthContext;
 use App\Support\Auth\RecoveryCodeHasher;
 use App\Support\Auth\TenantAccessResolver;
+use App\Support\Lgpd\LgpdCategoryService;
 use App\Support\Settings\UserInvitationService;
+use App\Support\Tenancy\CurrentTenantResolver;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -413,6 +421,19 @@ Route::middleware([
 // ---------------------------------------------------------------------------
 // Slice 010 — LGPD: rotas autenticadas + 2FA
 // ---------------------------------------------------------------------------
+
+// GET /settings/privacy requer 2FA completado na sessão corrente
+Route::middleware([
+    'auth',
+    EnsureTwoFactorChallengeCompleted::class,
+    RequireTwoFactorSession::class,
+    SetCurrentTenantContext::class,
+    EnsureReadOnlyTenantMode::class,
+])
+    ->group(function (): void {
+        Route::get('/settings/privacy', LgpdCategoriesPage::class)->name('settings.privacy');
+    });
+
 Route::middleware([
     'auth',
     EnsureTwoFactorChallengeCompleted::class,
@@ -420,54 +441,64 @@ Route::middleware([
     EnsureReadOnlyTenantMode::class,
 ])
     ->group(function (): void {
-        Route::get('/settings/privacy', LgpdCategoriesPage::class)->name('settings.privacy');
         Route::post('/settings/privacy/lgpd-categories', function (
             Request $request,
-            \App\Support\Tenancy\CurrentTenantResolver $resolver,
-            \App\Support\Lgpd\LgpdCategoryService $service,
+            CurrentTenantResolver $resolver,
+            LgpdCategoryService $service,
         ) {
             $user = $request->user();
-            if (! $user instanceof \App\Models\User) {
+            if (! $user instanceof User) {
                 abort(403);
             }
             $context = $resolver->resolve($user);
             try {
                 $service->declare($context['tenant'], $user, $request->all());
-            } catch (\Illuminate\Validation\ValidationException $e) {
+            } catch (ValidationException $e) {
                 return back()->withErrors($e->errors());
             }
+
             return redirect()->back()->with('status', 'Base legal registrada.');
         })->name('settings.privacy.lgpd-categories.store');
 
         Route::get('/settings/privacy/consentimentos', ConsentSubjectsPage::class)->name('settings.privacy.consents');
-
-        Route::post('/settings/privacy/consentimentos', function (
-            Request $request,
-            \App\Support\Tenancy\CurrentTenantResolver $resolver,
-            ConsentRecordService $service,
-        ) {
-            $user = $request->user();
-            if (! $user instanceof \App\Models\User) {
-                abort(403);
-            }
-            $context = $resolver->resolve($user);
-            $tenant = $context['tenant'];
-
-            try {
-                $service->createForSubject((int) $tenant->id, $request->all());
-            } catch (\App\Exceptions\LgpdBaseLegalAusenteException $e) {
-                return response()->json([
-                    'message' => 'Registre a base legal LGPD em Configuracoes > LGPD antes de capturar consentimentos',
-                ], 422);
-            } catch (\RuntimeException $e) {
-                return response()->json([
-                    'message' => $e->getMessage(),
-                ], 422);
-            }
-
-            return response()->json(['message' => 'ok'], 201);
-        })->name('settings.privacy.consents.store');
     });
+
+// POST consentimentos fora do grupo SetCurrentTenantContext para capturar tenant suspenso como 422
+Route::middleware(['auth', EnsureTwoFactorChallengeCompleted::class])
+    ->post('/settings/privacy/consentimentos', function (
+        Request $request,
+        CurrentTenantResolver $resolver,
+        ConsentRecordService $service,
+    ) {
+        $user = $request->user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        try {
+            $context = $resolver->resolve($user);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => 'Conta suspenso. Operacao nao permitida.',
+            ], 422);
+        }
+
+        $tenant = $context['tenant'];
+
+        try {
+            $service->createForSubject((int) $tenant->id, $request->all());
+        } catch (LgpdBaseLegalAusenteException $e) {
+            return response()->json([
+                'message' => 'Registre a base legal LGPD em Configuracoes > LGPD antes de capturar consentimentos',
+            ], 422);
+        } catch (RuntimeException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+
+        return response()->json(['message' => 'ok'], 201);
+    })->name('settings.privacy.consents.store');
 
 // ---------------------------------------------------------------------------
 // Slice 010 — LGPD: rota pública de revogação
@@ -479,7 +510,7 @@ Route::get('/privacy/revoke/{token}', RevokeConsentPage::class)
 Route::post('/privacy/revoke/{token}', function (
     Request $request,
     string $token,
-    \App\Services\RevocationTokenService $tokenService,
+    RevocationTokenService $tokenService,
     ConsentRecordService $consentService,
 ) {
     $validToken = $tokenService->findValidToken($token);
@@ -491,16 +522,17 @@ Route::post('/privacy/revoke/{token}', function (
             $subject = $anyToken->consentSubject;
             if ($subject !== null) {
                 $tokenService->regenerate(
-                    (string) $anyToken->tenant_id,
-                    (string) $anyToken->consent_subject_id,
+                    (int) $anyToken->tenant_id,
+                    (int) $anyToken->consent_subject_id,
                     $anyToken->channel
                 );
-                \Illuminate\Support\Facades\Mail::send(new \App\Mail\RevocationConfirmationMail(
+                Mail::send(new RevocationConfirmationMail(
                     $subject,
                     $anyToken->channel,
                     now()
                 ));
             }
+
             return response('Link expirado. Solicite um novo link de revogação.', 200);
         }
         abort(404);
@@ -508,11 +540,11 @@ Route::post('/privacy/revoke/{token}', function (
 
     $subject = $validToken->consentSubject;
     $channel = $validToken->channel;
-    $reason  = (string) $request->input('revocation_reason', 'other_without_details');
+    $reason = (string) $request->input('revocation_reason', 'other_without_details');
 
     $record = $consentService->revokeConsent(
-        (string) $validToken->tenant_id,
-        (string) $validToken->consent_subject_id,
+        (int) $validToken->tenant_id,
+        (int) $validToken->consent_subject_id,
         $channel,
         $reason,
         ['ip_address' => $request->ip(), 'user_agent' => $request->userAgent() ?? '']
@@ -525,7 +557,7 @@ Route::post('/privacy/revoke/{token}', function (
     $tokenService->consume($validToken);
 
     if ($subject !== null) {
-        \Illuminate\Support\Facades\Mail::send(new \App\Mail\RevocationConfirmationMail(
+        Mail::send(new RevocationConfirmationMail(
             $subject,
             $channel,
             now()

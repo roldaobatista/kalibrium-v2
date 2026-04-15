@@ -6,7 +6,6 @@ namespace App\Livewire\Settings;
 
 use App\Models\ConsentSubject;
 use App\Models\Tenant;
-use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Tenancy\CurrentTenantResolver;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -26,16 +25,24 @@ final class ConsentSubjectsPage extends Component
 
     public int $perPage = 50;
 
-    private Tenant $tenant;
-
-    private TenantUser $tenantUser;
+    private ?Tenant $tenant = null;
 
     public function mount(CurrentTenantResolver $resolver): void
     {
         $user = $this->actor();
         $context = $resolver->resolve($user);
         $this->tenant = $context['tenant'];
-        $this->tenantUser = $context['tenant_user'];
+    }
+
+    private function resolveTenant(): Tenant
+    {
+        if ($this->tenant === null) {
+            $resolver = app(CurrentTenantResolver::class);
+            $context = $resolver->resolve($this->actor());
+            $this->tenant = $context['tenant'];
+        }
+
+        return $this->tenant;
     }
 
     public function updatedStatusFilter(): void
@@ -44,13 +51,14 @@ final class ConsentSubjectsPage extends Component
     }
 
     /**
-     * @return LengthAwarePaginator<ConsentSubject>
+     * @return LengthAwarePaginator<int, ConsentSubject>
      */
     #[Computed]
     public function subjects(): LengthAwarePaginator
     {
+        $tenant = $this->resolveTenant();
         $query = ConsentSubject::withoutGlobalScopes()
-            ->where('tenant_id', $this->tenant->id);
+            ->where('tenant_id', $tenant->id);
 
         if ($this->statusFilter !== '') {
             $query->withConsentStatus('email', $this->statusFilter);
@@ -62,7 +70,7 @@ final class ConsentSubjectsPage extends Component
     public function render(): View
     {
         return view('livewire.settings.consent-subjects-page', [
-            'subjects' => $this->subjects,
+            'subjects' => $this->subjects(),
         ])->layout('layouts.app');
     }
 

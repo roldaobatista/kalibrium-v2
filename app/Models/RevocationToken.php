@@ -5,12 +5,19 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\ScopesToCurrentTenant;
+use Carbon\CarbonImmutable;
 use Database\Factories\RevocationTokenFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property CarbonImmutable|null $expires_at
+ * @property CarbonImmutable|null $granted_at
+ * @property Carbon|null $used_at
+ */
 class RevocationToken extends Model
 {
     /** @use HasFactory<RevocationTokenFactory> */

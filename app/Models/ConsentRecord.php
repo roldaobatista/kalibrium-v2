@@ -40,7 +40,7 @@ class ConsentRecord extends Model
         'updated_at',
     ];
 
-    /** @var array<string, string> */
+    /** @var list<string> */
     public const array REVOCATION_REASONS = [
         'automated',
         'privacy_concern',

@@ -29,10 +29,10 @@ class LgpdCategory extends Model
         'created_by_user_id',
     ];
 
-    /** @var array<string, string> */
+    /** @var list<string> */
     public const array CODES = ['identificacao', 'contato', 'financeiro', 'tecnico'];
 
-    /** @var array<string, string> */
+    /** @var list<string> */
     public const array LEGAL_BASES = ['execucao_contrato', 'obrigacao_legal', 'interesse_legitimo', 'consentimento'];
 
     #[\Override]

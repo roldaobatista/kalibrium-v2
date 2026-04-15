@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 
 final class RevocationTokenService
@@ -20,13 +19,13 @@ final class RevocationTokenService
         $now = now();
 
         RevocationToken::create([
-            'tenant_id'          => $tenantId,
+            'tenant_id' => $tenantId,
             'consent_subject_id' => $subjectId,
-            'channel'            => $channel,
-            'token_hash'         => $hash,
-            'expires_at'         => $now->copy()->addDays(30),
-            'granted_at'         => $now,
-            'used_at'            => null,
+            'channel' => $channel,
+            'token_hash' => $hash,
+            'expires_at' => $now->copy()->addDays(30),
+            'granted_at' => $now,
+            'used_at' => null,
         ]);
 
         return $raw;
