@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Jobs\Middleware;
 
+use App\Support\Tenancy\TenantContext;
 use Closure;
 
 /**
  * Middleware de job que garante restauração do contexto de tenant em retries.
  *
- * Recebe tenantId via constructor para ser seguro em queue workers, onde
- * app(Request::class) não é singleton confiável. Injeta o tenant_id em
- * request()->attributes usando a chave current_tenant_id, que é a mesma
- * consumida por ScopesToCurrentTenant::currentTenantIdForGlobalScope().
+ * Recebe tenantId via constructor para ser seguro em queue workers.
+ * Usa TenantContext (canal estático) como fonte primária — seguro em workers
+ * onde request()->attributes não carrega o ciclo HTTP original.
+ * Também mantém request()->attributes para compatibilidade com o path HTTP.
  */
 final class JobTenancyBootstrapper
 {
@@ -20,30 +21,16 @@ final class JobTenancyBootstrapper
 
     public function handle(object $job, Closure $next): void
     {
-        $request = request();
-
-        $previousTenantId = $request->attributes->get('current_tenant_id');
-        $previousTenant = $request->attributes->get('current_tenant');
+        $previousTenantId = TenantContext::getTenantId();
 
         if ($this->tenantId !== null) {
-            $request->attributes->set('current_tenant_id', $this->tenantId);
+            TenantContext::setTenantId($this->tenantId);
         }
 
         try {
             $next($job);
         } finally {
-            // Restaura o valor anterior (ou remove se não havia) após execução/retry
-            if ($previousTenantId !== null) {
-                $request->attributes->set('current_tenant_id', $previousTenantId);
-            } else {
-                $request->attributes->remove('current_tenant_id');
-            }
-
-            if ($previousTenant !== null) {
-                $request->attributes->set('current_tenant', $previousTenant);
-            } else {
-                $request->attributes->remove('current_tenant');
-            }
+            TenantContext::setTenantId($previousTenantId);
         }
     }
 }

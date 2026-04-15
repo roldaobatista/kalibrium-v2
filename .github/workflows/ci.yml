@@ -420,6 +420,29 @@ jobs:
     # paths filter via dorny/paths-filter (step check abaixo)
     # paths: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/slice-011/**
     # run: php artisan test --testsuite=tenant-isolation
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: kalibrium
+          POSTGRES_PASSWORD: kalibrium_ci
+          POSTGRES_DB: kalibrium_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 

@@ -149,7 +149,7 @@ abstract class TenantIsolationTestCase extends TestCase
             return 'users';
         }
 
-        $firstModel = reset($models);
+        $firstModel = $models[array_key_first($models)];
 
         return (new $firstModel)->getTable();
     }

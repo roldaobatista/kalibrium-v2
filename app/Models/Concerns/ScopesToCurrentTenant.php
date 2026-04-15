@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Concerns;
 
 use App\Models\Tenant;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Builder;
 
 trait ScopesToCurrentTenant
@@ -34,7 +35,13 @@ trait ScopesToCurrentTenant
             }
         }
 
-        // 2. Contexto de request HTTP (middleware SetCurrentTenantContext)
+        // 2. TenantContext estático — seguro em queue workers (sem ciclo HTTP)
+        $contextId = TenantContext::getTenantId();
+        if ($contextId !== null) {
+            return $contextId;
+        }
+
+        // 3. Contexto de request HTTP (middleware SetCurrentTenantContext) — fallback
         if (! app()->bound('request')) {
             return null;
         }
