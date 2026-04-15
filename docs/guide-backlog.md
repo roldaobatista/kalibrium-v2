@@ -183,6 +183,62 @@ Itens resolvidos movem para o histórico no final.
 - **Benefício estimado:** tempo wall-clock do slice cai ~40% em slices CRUD (que têm muita UI + muita API).
 - **Status:** baixa prioridade. Otimização tardia — só depois de 3-4 slices de produção rodando single-thread, pra ter baseline real de tempo.
 
+### [B-025] `scripts/build-gate-inputs.sh` como ferramenta oficial
+
+- **Origem:** retrospectiva do slice-009.
+- **Evidência:** o fluxo dos 3 gates paralelos (security/test-audit/functional) exige montagem de 3 pacotes de input simultâneos, mas só existia `scripts/security-scan.sh` para a parte mecânica. Durante o slice-009 foi necessário improvisar `scripts/build-gate-inputs.sh` ad-hoc para cada rodada de correção.
+- **Ação:** formalizar `scripts/build-gate-inputs.sh` (ou quebrar em 3 scripts: `build-security-input.sh`, `build-test-audit-input.sh`, `build-functional-input.sh`) com contrato estável:
+  1. Ler `specs/NNN/spec.md` + `git diff main..HEAD`
+  2. Copiar fontes alteradas em árvore preservada
+  3. Rodar `php artisan test` para `test-results.txt`
+  4. Anexar threat-model/lgpd/constitution/glossary/personas/journeys conforme gate
+  5. Falhar se arquivo proibido (R11) aparecer no pacote
+- **Status:** alta prioridade — os 3 gates paralelos já são parte do pipeline e rodam múltiplas vezes em loops de fix.
+
+### [B-026] Espelhar gates locais em GitHub Actions como `required_status_checks`
+
+- **Origem:** retrospectiva do slice-009 + decisão 2026-04-14 de ativar auto-merge.
+- **Evidência:** auto-merge foi ligado com `required_approving_review_count=0` e sem required status checks. Hoje a única garantia de qualidade é o fluxo local (`/verify-slice` → `/review-pr` → 3 gates paralelos). Se um dev futuro empurrar direto sem rodar `/merge-slice`, nada no GitHub barra.
+- **Ação:** criar `.github/workflows/gates.yml` que replique em CI:
+  - Job 1: rodar testes (`php artisan test`)
+  - Job 2: Pint + PHPStan nível 8
+  - Job 3: `composer audit` + secrets scan
+  - Job 4: validar que `specs/NNN/*.json` estão presentes com `verdict: approved` para cada slice tocado
+  - Marcar como `required` na ruleset "Protect main"
+- **Pré-requisito:** B-007 já entregou CI dormant; expandir para ser verdadeiramente exigente.
+- **Status:** alta prioridade enquanto auto-merge está ativo sem double-check de CI.
+
+### [B-027] Hook de consistência commit message ↔ estado dos gates
+
+- **Origem:** retrospectiva do slice-009.
+- **Evidência:** commit `b270cd2 fix(slice-009): corrige achados dos gates paralelos` foi criado em sessão anterior ANTES dos gates paralelos terem rodado. A sessão seguinte teve que diagnosticar inconsistência entre mensagem e estado (`specs/009/*.json` ausentes, `project-state.json` desatualizado). Mensagens enganosas poluem audit trail e quebram resume/handoff.
+- **Ação:** adicionar `scripts/hooks/commit-msg-coherence.sh` (pre-commit-gate ou commit-msg hook) que valide:
+  - Se mensagem contém "corrige achados do `<gate>`" ou "fecha findings do `<gate>`" → exigir que `specs/NNN/<gate>.json` exista e tenha verdict `rejected` com findings não-vazios
+  - Se mensagem contém "aprova" → exigir verdict `approved`
+- **Severidade proposta:** `warn` (não `fail`) para não bloquear commits legítimos em casos edge; escalar para `fail` após 2-3 slices validando a regra.
+- **Status:** média prioridade.
+
+### [B-028] SessionStart avisa drift local ↔ origin
+
+- **Origem:** retrospectiva do slice-009.
+- **Evidência:** local `main` tinha 14 commits não empurrados para origin (slice 008 integrado localmente sem push). Só descoberto quando `/merge-slice` tentou `git pull` pós PR #10 e caiu em conflito. Para salvar, foi necessário `git reset origin/main` após autorização do PM. Drift silencioso durou ~24h.
+- **Ação:** estender `scripts/hooks/session-start.sh` com bloco opcional:
+  ```
+  LOCAL_AHEAD=$(git log --oneline origin/main..main 2>/dev/null | wc -l)
+  LOCAL_BEHIND=$(git log --oneline main..origin/main 2>/dev/null | wc -l)
+  [[ $LOCAL_AHEAD -gt 0 ]] && echo "[session-start WARN] main local esta $LOCAL_AHEAD commits a frente de origin"
+  [[ $LOCAL_BEHIND -gt 0 ]] && echo "[session-start WARN] main local esta $LOCAL_BEHIND commits atras de origin"
+  ```
+- **Severidade:** `warn`, não `fail`. PM decide se push/pull é apropriado.
+- **Status:** baixa prioridade, mas barato de implementar.
+
+### [B-029] Skills de review devem instruir sub-agents a completar em 1 rodada
+
+- **Origem:** retrospectiva do slice-009.
+- **Evidência:** `functional-reviewer` pausou 2 vezes consecutivas no meio da execução, sem gravar `functional-review.json` final. Foi necessário respawnar com instrução explícita "NÃO pause, complete e grave o JSON final". Esse padrão se repete em outros agents que fazem verificações múltiplas.
+- **Ação:** atualizar prompts nos arquivos `.claude/agents/functional-reviewer.md`, `security-reviewer.md`, `test-auditor.md` com cláusula "Complete TODA a verificação e grave o JSON final em UMA rodada. Não pause para confirmar com o orquestrador — se faltar contexto, registre como finding no próprio JSON e emita rejected."
+- **Status:** média prioridade. Pausas consomem tokens extra e adicionam latência ao loop fix→re-gate.
+
 ---
 
 ## Resolvido
