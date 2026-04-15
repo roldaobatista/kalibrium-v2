@@ -36,6 +36,7 @@ WHITELIST_PATTERNS=(
   "^docs/adr/"
   "^\.github/workflows/pause-enforcement\.yml$"
   "^scripts/check-paused-state\.sh$"
+  "^scripts/pm/"
   "^\.gitignore$"
   "^MEMORY\.md$"
   "^CLAUDE\.md$"
