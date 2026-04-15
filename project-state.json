@@ -259,8 +259,12 @@
       }
     }
   },
-  "paused": true,
-  "paused_reason": "post-5/5-cap conditional_resume (see docs/decisions/pm-decision-post-5-5-audit-2026-04-15.md)",
-  "paused_at": "2026-04-15",
-  "paused_decision_commit": "f70f376"
+  "paused": false,
+  "paused_reason": null,
+  "technical_debt": [
+    "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
+    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md"
+  ],
+  "state": "active",
+  "amendment_date": "2026-04-15"
 }
