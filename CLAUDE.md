@@ -2,7 +2,7 @@
 
 **Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
-Versão: 2.5.0 — 2026-04-14 (R6: 5 ciclos automáticos, escalação na 6ª rejeição).
+Versão: 2.6.0 — 2026-04-15 (R13 + R14: ordem Story × Epic enforced mecanicamente).
 <!-- Contagem: 22 agents em .claude/agents/ (21 sub-agents + 1 orchestrator), 38 skills em .claude/skills/ -->
 
 ---
@@ -75,7 +75,7 @@ Detalhes completos em `docs/constitution.md §2`. Lista curta para consulta ráp
 
 ---
 
-## 3. Regras não-negociáveis (R1-R12 — resumo)
+## 3. Regras não-negociáveis (R1-R14 — resumo)
 
 Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 
@@ -91,6 +91,8 @@ Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 - **R10** — Stack só via ADR.
 - **R11** — Dual-verifier (verifier + reviewer independentes) quando humano não é técnico.
 - **R12** — Recomendações ao humano em linguagem de produto, não técnica.
+- **R13** — Ordem intra-épico de stories (story nova bloqueia se anteriores do mesmo épico não estão `merged`; paralelo permitido se `dependencies: []` explícito no contrato). Enforce via `scripts/sequencing-check.sh`.
+- **R14** — Ordem inter-épico MVP (primeiro slice de E-N bloqueia se E-(N-1) não está 100% `merged`). Aplica apenas aos 12 épicos MVP.
 
 ## 3.1. Modelo operacional: humano = Product Manager
 
@@ -175,6 +177,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ### Fase D — Execução (por story)
 13. `/start-story ENN-SNN` — cria slice(s) a partir do Story Contract.
+    - **Gate R13/R14 (obrigatório):** `scripts/sequencing-check.sh --story ENN-SNN` executa antes de criar slice. Bloqueia se stories anteriores do mesmo épico não estão `merged` em `project-state.json[epics_status]`, ou se é a 1ª story de um épico MVP novo e o épico anterior não está fechado. Paralelismo intra-épico permitido quando o contrato declara `dependencies: []` no frontmatter. Bypass só via `KALIB_SKIP_SEQUENCE="<motivo>"` (registra incidente).
 14. `/audit-spec NNN` → sub-agent `spec-auditor` valida spec.md; se houver findings, fixer corrige e re-audita até zero findings.
 15. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
 16. `/review-plan NNN` → sub-agent `plan-reviewer` valida plan.md em contexto limpo; se houver findings, corrige plan e re-audita até zero findings.

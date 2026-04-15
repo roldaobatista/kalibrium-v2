@@ -65,12 +65,36 @@
 - **O que entrega:** usuarios com papeis gerente, tecnico, administrativo e visualizador, alem de plano/limites basicos
 - **Por que nessa ordem:** os proximos cadastros precisam respeitar permissoes desde o primeiro dia.
 
-### 4. TEN-003 - Clientes e contatos
+### 3b. SEG-002 - Base legal LGPD + consentimentos (E02-S07)
 
 - **NNN sugerido:** 010
+- **Dominio:** SEG / CMP
+- **Epico base:** E02 - Multi-tenancy, Auth e Planos
+- **Depende de:** TEN-002
+- **ADRs bloqueantes:** nenhum
+- **Outros bloqueios:** documentacao por epico E02 ja consumida
+- **Tamanho:** medio
+- **O que entrega:** registro de base legal LGPD por categoria de dado pessoal no tenant, consentimento por canal (e-mail/WhatsApp), opt-out por contato (REQ-CMP-004, FR-SEG-03, FR-EML-04)
+- **Por que antes de E03:** sem base legal registrada, qualquer cadastro de cliente/contato em E03 ja nasce em violacao LGPD.
+
+### 3c. SEG-003 - Testes estruturais de isolamento cross-tenant (E02-S08)
+
+- **NNN sugerido:** 011
+- **Dominio:** SEG / TEN
+- **Epico base:** E02 - Multi-tenancy, Auth e Planos
+- **Depende de:** SEG-002
+- **ADRs bloqueantes:** nenhum
+- **Outros bloqueios:** nenhum
+- **Tamanho:** pequeno
+- **O que entrega:** suite de testes de seguranca estrutural que prova que dados do tenant A nunca aparecem para tenant B em qualquer query, endpoint ou job (garantia P1 do E02)
+- **Por que antes de E03:** rede de protecao antes de E03 cadastrar dados reais de clientes.
+
+### 4. TEN-003 - Clientes e contatos
+
+- **NNN sugerido:** 012
 - **Dominio:** TEN
 - **Epico base:** E03 - Cadastro Core
-- **Depende de:** TEN-002
+- **Depende de:** SEG-003 (E02 fechado)
 - **ADRs bloqueantes:** nenhum
 - **Outros bloqueios:** documentacao por epico E03 antes de implementar UI
 - **Tamanho:** medio
@@ -79,7 +103,7 @@
 
 ### 5. MET-001 - Instrumentos do cliente
 
-- **NNN sugerido:** 011
+- **NNN sugerido:** 013
 - **Dominio:** MET
 - **Epico base:** E03 - Cadastro Core
 - **Depende de:** TEN-003
@@ -91,7 +115,7 @@
 
 ### 6. MET-002 - Padroes e procedimentos
 
-- **NNN sugerido:** 012
+- **NNN sugerido:** 014
 - **Dominio:** MET
 - **Epico base:** E03 - Cadastro Core
 - **Depende de:** MET-001
@@ -103,7 +127,7 @@
 
 ### 7. FLX-001 - Nova ordem de servico
 
-- **NNN sugerido:** 013
+- **NNN sugerido:** 015
 - **Dominio:** FLX
 - **Epico base:** E04 - Ordens de Servico e Fluxo Operacional
 - **Depende de:** MET-002
@@ -115,7 +139,7 @@
 
 ### 8. FLX-002 - Agenda, fila e status da OS
 
-- **NNN sugerido:** 014
+- **NNN sugerido:** 016
 - **Dominio:** FLX
 - **Epico base:** E04 - Ordens de Servico e Fluxo Operacional
 - **Depende de:** FLX-001
@@ -127,7 +151,7 @@
 
 ### 9. MET-003 - Execucao de calibracao na bancada
 
-- **NNN sugerido:** 015
+- **NNN sugerido:** 017
 - **Dominio:** MET
 - **Epico base:** E05 - Laboratorio e Calibracao
 - **Depende de:** FLX-002
@@ -139,7 +163,7 @@
 
 ### 10. MET-004 - Incerteza, historico tecnico e lacres/selos
 
-- **NNN sugerido:** 016
+- **NNN sugerido:** 018
 - **Dominio:** MET
 - **Epico base:** E05 - Laboratorio e Calibracao
 - **Depende de:** MET-003
@@ -151,7 +175,7 @@
 
 ### 11. CMP-001 - Aprovacao, certificado e entrega ao cliente
 
-- **NNN sugerido:** 017
+- **NNN sugerido:** 019
 - **Dominio:** CMP
 - **Epico base:** E06 - Certificado de Calibracao; E09 - Portal do Cliente Final; E12 - Comunicacao
 - **Depende de:** MET-004
@@ -163,7 +187,7 @@
 
 ### 12. FIS-001 - NFS-e, contas a receber e painel minimo
 
-- **NNN sugerido:** 018
+- **NNN sugerido:** 020
 - **Dominio:** FIS
 - **Epico base:** E07 - Fiscal; E08 - Financeiro; E11 - Dashboard Operacional
 - **Depende de:** CMP-001
@@ -175,8 +199,10 @@
 
 ## Proximo slice recomendado agora
 
-O proximo slice recomendado agora e **INF-006 - Frontend base do sistema**, em `specs/006`. Ele fecha o E01 antes de iniciar as telas reais do produto.
+Slices mergeados ate 2026-04-15: 001..009 (E01 completo + E02 parcial ate S06).
 
-Depois dele, o primeiro slice de produto recomendado e **SEG-001 - Login seguro do laboratorio**, em `specs/007`, mas ele fica bloqueado ate a decisao **ADR-0004** sobre a estrategia de identidade.
+O proximo slice e **SEG-002 - Base legal LGPD + consentimentos (E02-S07)** em `specs/010`.
+Em seguida, **SEG-003 - Testes de isolamento cross-tenant (E02-S08)** em `specs/011` fecha o E02.
+So apos `epics_status.E02 = merged` e que TEN-003 (E03-S01) pode iniciar — enforce mecanico em `scripts/sequencing-check.sh`.
 
-Recomendacao forte para ADR-0004: escolher **Laravel Fortify/Sanctum** para o MVP, porque o produto precisa de login seguro, 2FA e recuperacao de senha sem carregar custo operacional de Keycloak/WorkOS antes do primeiro cliente.
+Regra de sequenciamento (ADR-0011 / R13 + R14): nenhuma story novo pode iniciar se stories anteriores do mesmo epico nao estao `merged`; primeiro slice de um epico MVP so inicia se o epico anterior tem todas as stories `merged` em `project-state.json[epics_status]`.

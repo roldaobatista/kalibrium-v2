@@ -232,6 +232,42 @@ Itens resolvidos movem para o histórico no final.
 - **Severidade:** `warn`, não `fail`. PM decide se push/pull é apropriado.
 - **Status:** baixa prioridade, mas barato de implementar.
 
+### [B-030] Automatizar atualizacao de `project-state.json[epics_status]` no `merge-slice`
+
+- **Origem:** ADR-0011 (R13/R14 — ordem Story × Epic).
+- **Evidencia:** `project-state.json[epics_status]` e a fonte canonica do gate R13/R14, mas hoje precisa ser editado manualmente apos cada merge. Risco de drift silencioso: gate pode liberar slice indevidamente se estado nao for atualizado.
+- **Acao:** estender `scripts/merge-slice.sh` para apos `gh pr merge` autorizado:
+  1. Extrair codigo da story do titulo do PR ou de `specs/NNN/spec.md` (padrao `ENN-SNN`)
+  2. Atualizar `project-state.json[epics_status][ENN].stories[ENN-SNN] = "merged"`
+  3. Se todas as stories do epico ficaram `merged`, marcar `epics_status[ENN].status = "merged"`
+  4. Commit automatico com mensagem `chore(state): marca ENN-SNN como merged`
+- **Prioridade:** alta. Sem isso, R13/R14 dependem de manutencao manual.
+
+### [B-031] `story-decomposer` deve popular `epics_status` ao decompor
+
+- **Origem:** ADR-0011.
+- **Evidencia:** quando `/decompose-stories ENN` cria stories E02-SNN..ENN-SNN, deveria ja registrar em `project-state.json[epics_status][ENN].stories` com `status: "pending"` para que R13/R14 tenham baseline de pendencias.
+- **Acao:** atualizar `.claude/agents/story-decomposer.md` com instrucao explicita + script auxiliar.
+- **Prioridade:** media. Pode ser feito lazy (primeira execucao de `/decompose-stories` apos ADR-0011).
+
+### [B-032] `epic-decomposer` deve popular `epics_status[ENN].status`
+
+- **Origem:** ADR-0011.
+- **Acao:** similar ao B-031: quando `/decompose-epics` cria `epics/ENN/epic.md`, gravar `epics_status[ENN] = { status: "planned", stories: {} }`. Permite R14 detectar epicos nao decompostos ainda.
+- **Prioridade:** media.
+
+### [B-033] `next-slice.sh` em modo CONSULTA deve cruzar roadmap × epic.md × epics_status
+
+- **Origem:** ADR-0011 + retrospectiva slice-009.
+- **Evidencia:** o script atual so lista `specs/*` para decidir "proximo slice" e delega ao agente a interpretacao do roadmap. O agente pode pular stories orfas (como aconteceu com E02-S07/S08).
+- **Acao:** tornar `scripts/next-slice.sh` uma ferramenta que retorna JSON estruturado com:
+  - `current_epic`
+  - `stories_pending_in_current_epic`
+  - `next_story_recommended`
+  - `blocked_by: [E02-S07, E02-S08]` quando faltam dependencias
+  - `violates_r13_or_r14: true/false`
+- **Prioridade:** alta. Reduz chance de repetir o erro que motivou ADR-0011.
+
 ### [B-029] Skills de review devem instruir sub-agents a completar em 1 rodada
 
 - **Origem:** retrospectiva do slice-009.

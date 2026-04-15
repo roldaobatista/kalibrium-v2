@@ -73,6 +73,25 @@ EOF
   fi
 fi
 
+# ---------------------------------------------------------------------------
+# Gate: sequenciamento R13/R14 (ordem intra-epico e inter-epico, MVP).
+#
+# Ativo quando o titulo comeca com codigo de story (ENN-SNN:). Slices
+# standalone (ex.: smoke tests, spikes) nao sao submetidos ao gate.
+#
+# Bypass legitimo: KALIB_SKIP_SEQUENCE="<motivo>" — grava incidente.
+# ---------------------------------------------------------------------------
+STORY_CODE="$(echo "$TITLE" | grep -oE '^E[0-9]{2}-S[0-9]{2}' || true)"
+if [ -n "$STORY_CODE" ]; then
+  bash "$SCRIPT_DIR/sequencing-check.sh" --story "$STORY_CODE"
+  seq_rc=$?
+  case $seq_rc in
+    0) echo "[new-slice] sequencing-check OK para $STORY_CODE";;
+    5) echo "[new-slice] sequencing-check bypass autorizado — prosseguindo";;
+    *) echo "[new-slice FAIL] sequencing-check bloqueou $STORY_CODE (rc=$seq_rc)" >&2; exit 1;;
+  esac
+fi
+
 mkdir -p "$SLICE_DIR"
 
 DATE="$(date -u +%Y-%m-%d)"
