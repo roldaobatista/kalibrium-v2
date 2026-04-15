@@ -36,7 +36,7 @@ abstract class TenantIsolationTestCase extends TestCase
 
     /**
      * Cria 2 tenants (A e B) com um usuário cada e dados homônimos.
-     * Chamado apenas na primeira execução — fixture compartilhada entre testes.
+     * Chamado em cada setUp — fixture recriada por teste (DatabaseTransactions reverte ao fim de cada um).
      */
     protected function createSharedFixture(): void
     {
@@ -150,6 +150,10 @@ abstract class TenantIsolationTestCase extends TestCase
         }
 
         $firstModel = $models[array_key_first($models)];
+
+        if (! class_exists($firstModel)) {
+            return 'users';
+        }
 
         return (new $firstModel)->getTable();
     }

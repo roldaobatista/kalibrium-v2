@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 use App\Models\Branch;
 use App\Models\Company;
 use App\Models\ConsentRecord;

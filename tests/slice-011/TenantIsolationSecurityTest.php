@@ -23,17 +23,18 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
  */
 dataset('extended_sql_injection_vectors', fn () => require __DIR__.'/Datasets/SqlInjectionPayloads.php');
 
-test('AC-016: vetor SQL injection em query string não vaza dados do tenant B', function (string $payload) {
+test('AC-016: vetor SQL injection em path param não vaza dados do tenant B', function (string $payload) {
     /** @ac AC-016
      *
-     * Usa /api/tenant-context (rota MVP existente) como alvo de SQL injection via query string.
-     * Valida que resposta nunca é 500 e não contém dados do tenant B.
+     * Ângulo diferente de TenantIsolationHttpTest: payload em path param em vez de query string.
+     * Usa /api/tenant-context/{param} como alvo — verifica que o servidor não expõe dados do tenant B
+     * nem retorna 500 mesmo com payload malicioso no segmento de URL.
      */
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
 
     $encodedPayload = urlencode($payload);
-    $uri = "/api/tenant-context?id={$encodedPayload}&tenant={$encodedPayload}";
+    $uri = "/api/tenant-context/{$encodedPayload}";
 
     $response = $this->actingAs($this->userA())
         ->withSession(['current_tenant_id' => $tenantA->id])
@@ -43,23 +44,23 @@ test('AC-016: vetor SQL injection em query string não vaza dados do tenant B', 
     $content = $response->getContent() ?? '';
 
     expect($statusCode)->not->toBe(500,
-        "AC-016: Payload '{$payload}' causou erro 500 — SQL injection não tratado."
+        "AC-016: Payload '{$payload}' em path param causou erro 500 — SQL injection não tratado."
     );
 
     expect($content)->not->toContain((string) $tenantB->id,
-        "AC-016: Payload '{$payload}' revelou ID do tenant B."
+        "AC-016: Payload '{$payload}' em path param revelou ID do tenant B."
     );
 
     if (! empty($tenantB->name)) {
         expect($content)->not->toContain((string) $tenantB->name,
-            "AC-016: Payload '{$payload}' revelou nome do tenant B."
+            "AC-016: Payload '{$payload}' em path param revelou nome do tenant B."
         );
     }
 
     $userBEmail = $this->userB()->email ?? '';
     if (! empty($userBEmail)) {
         expect($content)->not->toContain($userBEmail,
-            "AC-016: Payload '{$payload}' revelou email do usuário B."
+            "AC-016: Payload '{$payload}' em path param revelou email do usuário B."
         );
     }
 })->with('extended_sql_injection_vectors');
