@@ -34,7 +34,7 @@ Quando PM solicita adicionar novo model sensível (ex: `InstrumentoCalibrado` no
 
 - **AC-004:** Dado relatório/export gerado (ex: `PlansPage summary`, futuros `/reports/*`) autenticado no tenant A, quando inspecionado o payload final (PDF/CSV/JSON), então contém **apenas** dados do tenant A e nenhuma referência a IDs ou valores do tenant B.
 
-- **AC-005:** Dado PR que toca `app/Models/**`, `app/Http/**`, `app/Livewire/**` ou `app/Jobs/**`, quando o workflow `.github/workflows/gates.yml` roda, então job `tenant-isolation` executa obrigatoriamente e qualquer falha **bloqueia merge** (comportamento alvo definitivo; ver Riscos para dívida técnica de CI).
+- **AC-005:** Dado PR que toca `app/Models/**`, `app/Http/**`, `app/Livewire/**` ou `app/Jobs/**`, quando o workflow `.github/workflows/ci.yml` roda, então job `tenant-isolation` executa obrigatoriamente e qualquer falha **bloqueia merge** (comportamento alvo definitivo; ver Riscos para dívida técnica de CI).
 
 - **AC-006:** Dado CI padrão rodando a suite completa `tests/tenant-isolation/`, quando cronometrado, então tempo total < **60s** em runner padrão GitHub Actions (ubuntu-latest).
 
@@ -74,7 +74,7 @@ Quando PM solicita adicionar novo model sensível (ex: `InstrumentoCalibrado` no
 - **stancl/tenancy** (já instalado no slice-001) — scope global e middleware de jobs.
 - **Laravel Testing** — `RefreshDatabase` + `actingAs` + factories.
 - **Pest 4** — data providers para varrer models/rotas.
-- **GitHub Actions** — workflow `gates.yml` já existente (adicionar job novo).
+- **GitHub Actions** — workflow `ci.yml` já existente (adicionar job novo).
 - **`config/tenancy-jobs.php`** — será **criado neste slice** (não existe em slice anterior); lista inicial de jobs que propagam tenant context (ex: `ProcessConsentJob`, `ExportReportJob`).
 - ADR-0001 (stack Laravel 13 + stancl/tenancy single-database + Pest).
 - ADR-0012 (dual-LLM gates — slice precisa passar todos).
