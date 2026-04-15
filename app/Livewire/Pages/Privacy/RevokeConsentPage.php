@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Privacy;
 
-use App\Mail\RevocationConfirmationMail;
 use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 use App\Services\ConsentRecordService;
 use App\Services\RevocationTokenService;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -63,16 +61,11 @@ final class RevokeConsentPage extends Component
             return;
         }
 
-        $channel = $this->tokenModel->channel;
-        $tenantId = (int) $this->tokenModel->tenant_id;
-        $subjectId = (int) $this->subjectModel->id;
-
-        $record = $consentService->revokeConsent(
-            $tenantId,
-            $subjectId,
-            $channel,
+        $record = $tokenService->finalizeRevocation(
+            $consentService,
+            $this->tokenModel,
             $this->selectedReason,
-            ['ip_address' => request()->ip(), 'user_agent' => request()->userAgent() ?? '']
+            ['ip_address' => request()->ip(), 'user_agent' => request()->userAgent() ?? ''],
         );
 
         if ($record === null) {
@@ -80,14 +73,6 @@ final class RevokeConsentPage extends Component
 
             return;
         }
-
-        $tokenService->consume($this->tokenModel);
-
-        Mail::send(new RevocationConfirmationMail(
-            $this->subjectModel,
-            $channel,
-            now()
-        ));
 
         $this->confirmed = true;
     }

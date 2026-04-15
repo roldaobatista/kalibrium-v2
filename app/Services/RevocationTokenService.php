@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Mail\RevocationConfirmationMail;
 use App\Mail\RevocationLinkMail;
+use App\Models\ConsentRecord;
 use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 use Illuminate\Support\Facades\Mail;
@@ -143,5 +145,41 @@ final class RevocationTokenService
             $outcome['channel'],
             $outcome['rawToken']
         ));
+    }
+
+    /**
+     * Finaliza a revogacao confirmada: grava o registro, consome o token
+     * e envia email de confirmacao. Encapsula a sequencia usada pelos
+     * dois callers (Livewire confirm + controller POST). Retorna null
+     * se nao havia consentimento ativo para o canal.
+     *
+     * @param  array{ip_address: ?string, user_agent: string}  $request
+     */
+    public function finalizeRevocation(
+        ConsentRecordService $consentService,
+        RevocationToken $token,
+        string $reason,
+        array $request,
+    ): ?ConsentRecord {
+        $record = $consentService->revokeConsent(
+            (int) $token->tenant_id,
+            (int) $token->consent_subject_id,
+            $token->channel,
+            $reason,
+            $request,
+        );
+
+        if ($record === null) {
+            return null;
+        }
+
+        $this->consume($token);
+
+        $subject = $token->consentSubject;
+        if ($subject !== null && $subject->email !== null && $subject->email !== '') {
+            Mail::send(new RevocationConfirmationMail($subject, $token->channel, now()));
+        }
+
+        return $record;
     }
 }

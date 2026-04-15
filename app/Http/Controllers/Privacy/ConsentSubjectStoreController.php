@@ -30,7 +30,7 @@ final class ConsentSubjectStoreController extends Controller
             $context = $resolver->resolve($user);
         } catch (AuthorizationException $e) {
             return response()->json([
-                'message' => 'Conta suspenso. Operacao nao permitida.',
+                'message' => 'Conta suspensa. Operacao nao permitida.',
             ], 422);
         }
 
