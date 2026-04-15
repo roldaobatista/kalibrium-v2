@@ -75,7 +75,7 @@ Detalhes completos em `docs/constitution.md §2`. Lista curta para consulta ráp
 
 ---
 
-## 3. Regras não-negociáveis (R1-R14 — resumo)
+## 3. Regras não-negociáveis (R1-R16 — resumo)
 
 Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 
@@ -93,6 +93,8 @@ Detalhes e enforcement em `docs/constitution.md §4`. Lista curta:
 - **R12** — Recomendações ao humano em linguagem de produto, não técnica.
 - **R13** — Ordem intra-épico de stories (story nova bloqueia se anteriores do mesmo épico não estão `merged`; paralelo permitido se `dependencies: []` explícito no contrato). Enforce via `scripts/sequencing-check.sh`.
 - **R14** — Ordem inter-épico MVP (primeiro slice de E-N bloqueia se E-(N-1) não está 100% `merged`). Aplica apenas aos 12 épicos MVP.
+- **R15** — Retrospectiva automatizada pós-épico (ADR-0012 E3). `epic-retrospective` roda no fim de cada épico; loop corretivo de até 10 iterações; escala PM se não converge.
+- **R16** — Harness-learner com auto-aplicação limitada (ADR-0012 E4). Pode adicionar regras/hooks/skills incrementais; não pode revogar, afrouxar ou alterar P1-P9/R1-R14. Máximo 3 mudanças por ciclo retrospectivo.
 
 ## 3.1. Modelo operacional: humano = Product Manager
 
@@ -188,16 +190,17 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ### Fase E — Pipeline de Gates (por slice)
 
-> **Ordem definida no orchestrator.md:** verifier (1º) → reviewer (2º, só se verifier aprovou) → [security + test-audit + functional] (3º, em paralelo). **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. Gate só aprova com `findings: []`. Loop: gate rejeita → fixer corrige TODOS → re-run do mesmo gate → repete até zero findings; as 5 primeiras reprovações consecutivas do mesmo gate ficam no loop automático e a 6ª escala ao PM.
+> **Ordem definida no orchestrator.md:** verifier (1º) → reviewer (2º, só se verifier aprovou) → [security + test-audit + functional] (3º, em paralelo) → **master-auditor (4º, ADR-0012: consolidação dual-LLM Claude Opus 4.6 + GPT-5 via Codex CLI)**. **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. Gate só aprova com `findings: []`. Loop: gate rejeita → fixer corrige TODOS → re-run do mesmo gate → repete até zero findings; as 5 primeiras reprovações consecutivas do mesmo gate ficam no loop automático e a 6ª escala ao PM.
 
 19. `/verify-slice NNN` → verifier em contexto isolado → `verification.json`.
 20. `/review-pr NNN` → reviewer em contexto isolado → `review.json`.
 21. `/security-review NNN` → security-reviewer em contexto isolado → `security-review.json`.
 22. `/test-audit NNN` → test-auditor em contexto isolado → `test-audit.json`.
 23. `/functional-review NNN` → functional-reviewer em contexto isolado → `functional-review.json`.
-24. Se qualquer gate emitir findings (mesmo minor/low/info) → `/fix NNN [gate]` → fixer corrige TODOS → **re-run do mesmo gate** (não pula). Repete até `findings: []`.
-25. Se 6º `rejected` consecutivo no mesmo gate (R6) → parar, escalar humano via `/explain-slice NNN`.
-26. Todos os gates `approved` com zero findings → `/merge-slice NNN`.
+24. `/master-audit NNN` → master-auditor consolida as 5 saídas anteriores em verdict dual-LLM (Opus + GPT-5) em contexto isolado → `master-audit.json`. Se as duas trilhas divergirem, master-auditor tenta reconciliar em até 3 rodadas; persistindo, escala PM via `/explain-slice NNN` (R12).
+25. Se qualquer gate emitir findings (mesmo minor/low/info) → `/fix NNN [gate]` → fixer corrige TODOS → **re-run do mesmo gate** (não pula). Repete até `findings: []`.
+26. Se 6º `rejected` consecutivo no mesmo gate (R6) → parar, escalar humano via `/explain-slice NNN`.
+27. Todos os 5 gates + master-auditor `approved` com zero findings → `/merge-slice NNN`.
 
 ### Fase F — Encerramento
 27. `/slice-report NNN` e `/retrospective NNN` obrigatórios pós-merge.

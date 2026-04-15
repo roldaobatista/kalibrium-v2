@@ -89,7 +89,7 @@ O orquestrador nunca implementa código diretamente. Ele:
 | Par | Condição | Justificativa |
 |-----|----------|---------------|
 | `domain-analyst` + `nfr-analyst` | **NÃO** — serializar | domain-analyst primeiro, nfr-analyst usa glossário como input |
-| 5 gates (verifier → reviewer → security/test/functional) | **PARCIAL** — ver Pipeline | verifier primeiro, depois os 4 restantes podem paralelizar |
+| 5 gates + master-auditor | **PARCIAL** — ver Pipeline | verifier primeiro, depois reviewer, depois 3 gates paralelos, depois master-auditor consolida dual-LLM |
 
 ### Agentes que DEVEM ser serializados
 
@@ -104,23 +104,25 @@ O orquestrador nunca implementa código diretamente. Ele:
 
 ### Ordem do Pipeline de Gates (Fase E)
 
+Desde ADR-0012 (emenda R11 → dual-LLM), o pipeline termina em `master-auditor` que consolida as 5 trilhas anteriores em verdict dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI).
+
 ```
            ┌──────────┐
-           │ verifier  │  ← PRIMEIRO (obrigatório)
+           │ verifier  │  ← 1º (obrigatório, contexto isolado A)
            └─────┬─────┘
                  │ approved?
           ┌──────┴──────┐
           │ NÃO         │ SIM
           ▼             ▼
      fixer → re-run   ┌──────────┐
-     verifier          │ reviewer  │  ← SEGUNDO (R11)
+     verifier          │ reviewer  │  ← 2º (contexto isolado B — R11 original)
                        └─────┬─────┘
                              │ approved?
                       ┌──────┴──────┐
                       │ NÃO         │ SIM
                       ▼             ▼
                  fixer → re-run   ┌─────────────────────────────┐
-                 reviewer         │ Gates paralelos (3 juntos): │
+                 reviewer         │ 3º em paralelo (3 gates):   │
                                   │ • security-reviewer          │
                                   │ • test-auditor               │
                                   │ • functional-reviewer        │
@@ -129,9 +131,27 @@ O orquestrador nunca implementa código diretamente. Ele:
                                           ┌──────┴──────┐
                                           │ NÃO         │ SIM
                                           ▼             ▼
-                                     fixer → re-run   /merge-slice
-                                     gate específico
+                                     fixer → re-run   ┌───────────────┐
+                                     gate específico  │ master-auditor │  ← 4º (ADR-0012 E2)
+                                                      │  dual-LLM      │
+                                                      │  (Opus + GPT-5)│
+                                                      └───────┬────────┘
+                                                              │ consensual?
+                                                       ┌──────┴──────┐
+                                                       │ divergente  │ approved
+                                                       ▼             ▼
+                                              reconciliação    /merge-slice
+                                              3x ou escala PM
 ```
+
+**Sequenciamento exato:**
+1. `/verify-slice NNN` → `verifier` (sandbox A)
+2. `/review-pr NNN` → `reviewer` (sandbox B, só se verifier approved)
+3. `/security-review NNN`, `/test-audit NNN`, `/functional-review NNN` — os 3 em paralelo após reviewer approved
+4. `/master-audit NNN` — consolida as 5 saídas via dual-LLM (Opus + GPT-5) em contexto isolado, emite `specs/NNN/master-audit.json` com verdict consensual
+5. `/merge-slice NNN` só dispara se `master-audit.json.verdict == approved`
+
+**Regras de divergência dual-LLM:** se Opus e GPT-5 discordam, master-auditor tenta reconciliação automática por até 3 rodadas (trocando informação mínima entre as trilhas). Se persistir, escala PM via `/explain-slice NNN` com relatório comparativo em linguagem de produto (R12).
 
 ---
 
@@ -243,7 +263,7 @@ Fluxo:
 
 ### Política de zero findings
 
-**NENHUM finding de qualquer severidade é aceito.** Um gate só aprova com `findings: []` (array vazio). Isso vale para TODOS os 5 gates (verifier, reviewer, security-reviewer, test-auditor, functional-reviewer), para os auditores de planejamento e para `plan-reviewer`.
+**NENHUM finding de qualquer severidade é aceito.** Um gate só aprova com `findings: []` (array vazio). Isso vale para TODOS os 5 gates (verifier, reviewer, security-reviewer, test-auditor, functional-reviewer), para `master-auditor` (consolidação dual-LLM), para os auditores de planejamento e para `plan-reviewer`.
 
 O loop é: gate rejeita → fixer corrige TODOS os findings → re-roda o MESMO gate → repete até `findings: []`. Não existe "aprovado com ressalvas".
 

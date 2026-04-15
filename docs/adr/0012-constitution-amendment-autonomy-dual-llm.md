@@ -1,10 +1,12 @@
 # ADR-0012 — Emenda constitucional: autonomia do agente com dual-LLM e retrospectiva
 
-**Status:** Proposta
-**Data:** 2026-04-14
-**Decisor:** PM
+**Status:** Accepted
+**Data proposta:** 2026-04-14
+**Data aceita:** 2026-04-15 (ratificada via PR #14 + decisão PM pós re-auditoria em `docs/decisions/pm-decision-post-5-5-audit-2026-04-15.md`, commit `f70f376`)
+**Decisor:** PM (roldaobatista)
 **Substitui/Emenda:** `docs/constitution.md §3.1` (definição de PM) + `§R11` (dual-verifier humano+agent)
 **Supersedida por:** —
+**Auditoria externa:** `docs/audits/external/post-5-5-cap-reached-2026-04-15.md` (dual-LLM Opus 4.6 + GPT-5.4) — verdict consolidado `CONDITIONAL_RESUME` com 8 pré-requisitos; esta ADR é o objeto central da auditoria.
 
 ## Contexto
 
@@ -140,7 +142,8 @@ Esta ADR exige relock pelo PM (clica `relock.bat`):
 
 ## Aprovação
 
-- [ ] PM assina via commit em `docs/decisions/pm-decision-adr-0002-2026-04-14.md`
-- [ ] Relock executado (evidência em `docs/incidents/harness-relock-*.md`)
-- [ ] Constitution atualizada com referência a esta ADR
-- [ ] 3 agents criados e smoke-tested
+- [x] PM assina via commit — ratificado em `docs/decisions/pm-decision-post-5-5-audit-2026-04-15.md` (commit `f70f376`) após re-auditoria dual-LLM externa.
+- [ ] Relock executado — **pendente** (pré-requisito 7 da decisão pós-auditoria; requer `relock.bat` do PM para atualizar `settings.json.sha256` com as edições em CLAUDE.md/orchestrator.md feitas no pacote post-audit-prereqs-2026-04-15).
+- [x] Constitution atualizada com referência a esta ADR — versão 1.5.0 no cabeçalho + R15/R16 codificadas em §4 no pacote post-audit-prereqs-2026-04-15.
+- [x] 3 agents criados — `master-auditor.md`, `epic-retrospective.md`, `harness-learner.md` existem em `.claude/agents/`.
+- [ ] Smoke-test do master-auditor — **pendente** (pré-requisito 4 da decisão pós-auditoria; deve produzir `master-audit.json` contra artefato real antes de uso em produção).

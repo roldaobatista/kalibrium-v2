@@ -1,0 +1,43 @@
+name: Pause Enforcement
+
+# Bloqueia PRs/pushes quando o projeto está em estado pausado
+# (project-state.json.paused == true), exceto quando TODOS os paths tocados
+# estão dentro da whitelist definida em docs/adr/0014-technical-bypass-policy.md.
+#
+# Implementa pré-requisito 2 da decisão pós re-auditoria dual-LLM
+# (docs/decisions/pm-decision-post-5-5-audit-2026-04-15.md §3).
+#
+# Quando pré-requisito 1 (ruleset + required_status_checks) estiver totalmente
+# implementado, este workflow entra na lista de required status checks e passa
+# a bloquear merges em main automaticamente. Até lá, ele roda informativo.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pause-check:
+    name: Pause state whitelist check
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run pause check
+        id: check
+        run: bash scripts/check-paused-state.sh
+
+      - name: Report verdict
+        if: always()
+        run: |
+          echo "Verdict: ${{ steps.check.outcome }}"
+          echo "Paths outside whitelist found: ${{ steps.check.outputs.violations || '0' }}"
