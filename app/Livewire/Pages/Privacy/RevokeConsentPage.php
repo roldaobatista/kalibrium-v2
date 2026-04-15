@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Privacy;
 
 use App\Mail\RevocationConfirmationMail;
+use App\Mail\RevocationLinkMail;
 use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 use App\Services\ConsentRecordService;
@@ -52,20 +53,15 @@ final class RevokeConsentPage extends Component
 
         if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at !== null && $anyToken->expires_at->isPast()) {
             $this->expired = true;
-            $this->subjectModel = $anyToken->consentSubject;
 
-            // Gera novo token e reenvia e-mail
-            if ($this->subjectModel !== null) {
-                $newRaw = $service->regenerate(
-                    (int) $anyToken->tenant_id,
-                    (int) $anyToken->consent_subject_id,
-                    $anyToken->channel
-                );
-
-                Mail::send(new RevocationConfirmationMail(
-                    $this->subjectModel,
+            // Gera novo token e reenvia link de revogação
+            $renewed = $service->handleExpiredToken($anyToken);
+            if ($renewed !== null) {
+                $this->subjectModel = $renewed['subject'];
+                Mail::send(new RevocationLinkMail(
+                    $renewed['subject'],
                     $anyToken->channel,
-                    now()
+                    $renewed['rawToken']
                 ));
             }
 

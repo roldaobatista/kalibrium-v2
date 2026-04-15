@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class LgpdCategory extends Model
+final class LgpdCategory extends Model
 {
     /** @use HasFactory<LgpdCategoryFactory> */
     use HasFactory;

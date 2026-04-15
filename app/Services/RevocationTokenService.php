@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 
 final class RevocationTokenService
@@ -74,5 +75,28 @@ final class RevocationTokenService
     public function regenerate(int $tenantId, int $subjectId, string $channel): string
     {
         return $this->generate($tenantId, $subjectId, $channel);
+    }
+
+    /**
+     * Lida com token expirado não usado: gera novo token e retorna o raw token.
+     * O envio de e-mail fica a cargo do caller (contextos GET/POST distintos).
+     *
+     * @return array{rawToken: string, subject: ConsentSubject}|null
+     *                                                               Retorna null se o token não tem ConsentSubject associado.
+     */
+    public function handleExpiredToken(RevocationToken $expiredToken): ?array
+    {
+        $subject = $expiredToken->consentSubject;
+        if ($subject === null) {
+            return null;
+        }
+
+        $rawToken = $this->regenerate(
+            (int) $expiredToken->tenant_id,
+            (int) $expiredToken->consent_subject_id,
+            $expiredToken->channel
+        );
+
+        return ['rawToken' => $rawToken, 'subject' => $subject];
     }
 }

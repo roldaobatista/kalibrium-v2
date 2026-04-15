@@ -64,7 +64,10 @@ if [[ -z "$DB_DATABASE" || -z "$DB_USERNAME" ]]; then
 fi
 ok "DB: $DB_USERNAME@$DB_HOST:$DB_PORT/$DB_DATABASE (senha oculta)"
 
-CONN_STRING="postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}"
+# Senha exposta em argumento posicional seria visível via `ps aux`.
+# Solução: passar PGPASSWORD no environment e montar conn string sem senha.
+# O driver @modelcontextprotocol/server-postgres lê PGPASSWORD automaticamente.
+CONN_STRING="postgresql://${DB_USERNAME}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}"
 
 # 3/6 — claude mcp add
 header "3/6 — Registrando MCP postgres no Claude Code"
@@ -73,7 +76,7 @@ if claude mcp list 2>/dev/null | grep -q '^postgres'; then
   warn "MCP 'postgres' já registrado. Pulando claude mcp add."
 else
   echo "Executando: claude mcp add postgres -- npx -y @modelcontextprotocol/server-postgres <conn-string-oculta>"
-  if claude mcp add postgres -- npx -y @modelcontextprotocol/server-postgres "$CONN_STRING"; then
+  if PGPASSWORD="${DB_PASSWORD}" claude mcp add postgres -- npx -y @modelcontextprotocol/server-postgres "$CONN_STRING"; then
     ok "MCP 'postgres' registrado"
   else
     fail "Falha ao registrar MCP. Verifique se 'claude mcp add' funciona manualmente."

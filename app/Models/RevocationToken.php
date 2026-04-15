@@ -18,7 +18,7 @@ use Illuminate\Support\Carbon;
  * @property CarbonImmutable|null $granted_at
  * @property Carbon|null $used_at
  */
-class RevocationToken extends Model
+final class RevocationToken extends Model
 {
     /** @use HasFactory<RevocationTokenFactory> */
     use HasFactory;

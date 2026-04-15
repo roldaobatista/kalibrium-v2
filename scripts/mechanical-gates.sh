@@ -128,7 +128,14 @@ fi
 # ============================================================
 say "Gate 4/5: composer audit..."
 
-AUDIT_OUTPUT=$(composer audit 2>&1)
+# Em Git Bash on Windows, o wrapper /c/ProgramData/ComposerSetup/bin/composer
+# chama php com path estilo unix que PHP.exe nao resolve. Preferir composer.bat
+# quando existir.
+if command -v composer.bat >/dev/null 2>&1; then
+  AUDIT_OUTPUT=$(composer.bat audit 2>&1)
+else
+  AUDIT_OUTPUT=$(composer audit 2>&1)
+fi
 AUDIT_EXIT=$?
 
 if [ $AUDIT_EXIT -ne 0 ]; then

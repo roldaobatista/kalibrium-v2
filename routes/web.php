@@ -29,6 +29,7 @@ use App\Livewire\Ping;
 use App\Livewire\Settings\ConsentSubjectsPage;
 use App\Livewire\Settings\LgpdCategoriesPage;
 use App\Mail\RevocationConfirmationMail;
+use App\Mail\RevocationLinkMail;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\ConsentRecordService;
@@ -519,17 +520,12 @@ Route::post('/privacy/revoke/{token}', function (
         // Verifica se é expirado
         $anyToken = $tokenService->findByRaw($token);
         if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at->isPast()) {
-            $subject = $anyToken->consentSubject;
-            if ($subject !== null) {
-                $tokenService->regenerate(
-                    (int) $anyToken->tenant_id,
-                    (int) $anyToken->consent_subject_id,
-                    $anyToken->channel
-                );
-                Mail::send(new RevocationConfirmationMail(
-                    $subject,
+            $renewed = $tokenService->handleExpiredToken($anyToken);
+            if ($renewed !== null) {
+                Mail::send(new RevocationLinkMail(
+                    $renewed['subject'],
                     $anyToken->channel,
-                    now()
+                    $renewed['rawToken']
                 ));
             }
 
