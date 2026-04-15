@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Privacy;
 
 use App\Mail\RevocationConfirmationMail;
-use App\Mail\RevocationLinkMail;
 use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 use App\Services\ConsentRecordService;
@@ -50,11 +49,7 @@ final class RevokeConsentPage extends Component
         if ($outcome['status'] === 'renewed') {
             $this->expired = true;
             $this->subjectModel = $outcome['subject'];
-            Mail::send(new RevocationLinkMail(
-                $outcome['subject'],
-                $outcome['channel'],
-                $outcome['rawToken']
-            ));
+            $service->dispatchRenewalLink($outcome);
 
             return;
         }

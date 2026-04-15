@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Mail\RevocationLinkMail;
 use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
+use Illuminate\Support\Facades\Mail;
 
 final class RevocationTokenService
 {
@@ -125,5 +127,21 @@ final class RevocationTokenService
         }
 
         return ['status' => 'not_found'];
+    }
+
+    /**
+     * Envia o RevocationLinkMail correspondente a um outcome de renewed.
+     * Encapsula a instanciacao + envio para eliminar duplicacao entre
+     * callers (Livewire mount + controller POST).
+     *
+     * @param  array{status: 'renewed', rawToken: string, subject: ConsentSubject, channel: string}  $outcome
+     */
+    public function dispatchRenewalLink(array $outcome): void
+    {
+        Mail::send(new RevocationLinkMail(
+            $outcome['subject'],
+            $outcome['channel'],
+            $outcome['rawToken']
+        ));
     }
 }

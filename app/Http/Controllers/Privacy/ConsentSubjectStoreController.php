@@ -36,8 +36,17 @@ final class ConsentSubjectStoreController extends Controller
 
         $tenant = $context['tenant'];
 
+        $validated = $request->validate([
+            'subject_type' => ['nullable', 'string', 'max:32'],
+            'email' => ['nullable', 'string', 'max:255', 'email'],
+            'phone' => ['nullable', 'string', 'max:32'],
+            'channel' => ['nullable', 'string', 'max:32'],
+            'opt_in' => ['nullable', 'boolean'],
+            'comment' => ['nullable', 'string', 'max:2000'],
+        ]);
+
         try {
-            $service->createForSubject((int) $tenant->id, $request->all());
+            $service->createForSubject((int) $tenant->id, $validated);
         } catch (LgpdBaseLegalAusenteException $e) {
             return response()->json([
                 'message' => 'Registre a base legal LGPD em Configuracoes > LGPD antes de capturar consentimentos',

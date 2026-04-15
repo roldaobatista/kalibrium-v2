@@ -31,7 +31,6 @@ class ConsentRecordFactory extends Factory
             'user_agent_hash' => hash('sha256', $this->faker->userAgent()),
             'revocation_reason' => null,
             'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 }

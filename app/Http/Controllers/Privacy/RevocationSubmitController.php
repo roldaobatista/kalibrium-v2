@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Privacy;
 
 use App\Mail\RevocationConfirmationMail;
-use App\Mail\RevocationLinkMail;
+use App\Models\ConsentRecord;
 use App\Services\ConsentRecordService;
 use App\Services\RevocationTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 final class RevocationSubmitController
 {
@@ -23,11 +24,7 @@ final class RevocationSubmitController
         $outcome = $tokenService->processRevocationAttempt($token);
 
         if ($outcome['status'] === 'renewed') {
-            Mail::send(new RevocationLinkMail(
-                $outcome['subject'],
-                $outcome['channel'],
-                $outcome['rawToken']
-            ));
+            $tokenService->dispatchRenewalLink($outcome);
 
             return response('Link expirado. Solicite um novo link de revogação.', 200);
         }
@@ -36,10 +33,14 @@ final class RevocationSubmitController
             abort(404);
         }
 
+        $data = $request->validate([
+            'revocation_reason' => ['nullable', Rule::in(ConsentRecord::REVOCATION_REASONS)],
+        ]);
+
         $validToken = $outcome['token'];
         $subject = $validToken->consentSubject;
         $channel = $validToken->channel;
-        $reason = (string) $request->input('revocation_reason', 'other_without_details');
+        $reason = (string) ($data['revocation_reason'] ?? 'other_without_details');
 
         $record = $consentService->revokeConsent(
             (int) $validToken->tenant_id,
