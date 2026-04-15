@@ -277,6 +277,16 @@ PR_URL="$(gh pr create \
 say "PR criado: $PR_URL"
 echo "$PR_URL" > "$SLICE_DIR/pr-url.txt"
 
+PR_NUMBER="$(basename "$PR_URL")"
+AUTO_MERGE_STATUS="nao solicitado"
+if gh pr merge "$PR_NUMBER" --auto --squash --delete-branch 2>/tmp/pr-merge-err; then
+  AUTO_MERGE_STATUS="solicitado (--auto --squash --delete-branch)"
+  say "auto-merge armado para PR #$PR_NUMBER"
+else
+  AUTO_MERGE_STATUS="falhou: $(tr -d '\n' < /tmp/pr-merge-err)"
+  say "aviso: auto-merge nao armado — $AUTO_MERGE_STATUS"
+fi
+
 cat <<DONE
 
 ======================================================================
@@ -289,11 +299,11 @@ cat <<DONE
   Functional: approved
   PR:       $PR_URL
   Branch:   $BRANCH
+  Auto-merge: $AUTO_MERGE_STATUS
 
   Próximo passo (humano PM):
-    1. Abrir o PR no navegador
-    2. Rodar testes visuais se houver UI
-    3. Aceitar (merge) ou comentar ajustes
+    1. Aguardar notificacao de merge (auto-merge armado)
+    2. Se auto-merge falhou, clicar em Merge no PR
 ======================================================================
 DONE
 
