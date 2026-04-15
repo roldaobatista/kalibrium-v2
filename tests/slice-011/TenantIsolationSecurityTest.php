@@ -10,6 +10,9 @@ declare(strict_types=1);
  */
 
 use Illuminate\Support\Facades\Log;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
+use Monolog\LogRecord;
 use Tests\TenantIsolationTestCase;
 
 uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
@@ -126,14 +129,11 @@ test('AC-016: request com SQL injection via /api/tenant-context não vaza tenant
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
 
-    $capturedLogs = [];
-    Log::listen(function ($log) use (&$capturedLogs) {
-        $capturedLogs[] = [
-            'level' => $log->level,
-            'message' => $log->message,
-            'context' => $log->context,
-        ];
-    });
+    // Injeta TestHandler no canal default para capturar logs sem I/O
+    $testHandler = new TestHandler;
+    /** @var Logger $monolog */
+    $monolog = Log::getLogger();
+    $monolog->pushHandler($testHandler);
 
     $injectionPayload = urlencode('1 OR 1=1');
 
@@ -141,9 +141,12 @@ test('AC-016: request com SQL injection via /api/tenant-context não vaza tenant
         ->withSession(['current_tenant_id' => $tenantA->id])
         ->get("/api/tenant-context?tenant={$injectionPayload}");
 
+    $capturedLogs = $testHandler->getRecords();
+
     // Assert POSITIVO: log com tenant_context=A deve ter sido emitido (AC-016 §2)
-    $hasLogWithTenantA = collect($capturedLogs)->contains(function ($log) use ($tenantA) {
-        $contextStr = json_encode($log['context'] ?? []);
+    $hasLogWithTenantA = collect($capturedLogs)->contains(function ($record) use ($tenantA) {
+        $ctx = $record instanceof LogRecord ? $record->context : ($record['context'] ?? []);
+        $contextStr = json_encode($ctx);
 
         return str_contains($contextStr, '"tenant_context"')
             && str_contains($contextStr, (string) $tenantA->id);
@@ -159,8 +162,10 @@ test('AC-016: request com SQL injection via /api/tenant-context não vaza tenant
         );
 
     // Assert NEGATIVO: nenhum log deve revelar dados do tenant B
-    $leaked = collect($capturedLogs)->contains(function ($log) use ($tenantB) {
-        $str = json_encode($log['context'] ?? []).$log['message'];
+    $leaked = collect($capturedLogs)->contains(function ($record) use ($tenantB) {
+        $ctx = $record instanceof LogRecord ? $record->context : ($record['context'] ?? []);
+        $msg = $record instanceof LogRecord ? $record->message : ($record['message'] ?? '');
+        $str = json_encode($ctx).$msg;
 
         return str_contains($str, (string) $tenantB->id)
             || (! empty($tenantB->name) && str_contains($str, (string) $tenantB->name));

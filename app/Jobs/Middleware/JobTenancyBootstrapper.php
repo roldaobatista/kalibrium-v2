@@ -10,12 +10,12 @@ use Illuminate\Http\Request;
 /**
  * Middleware de job que garante restauração do contexto de tenant em retries.
  *
- * Para jobs que armazenam tenant_id como propriedade, restaura o contexto
+ * Para jobs que armazenam tenantId como propriedade, restaura o contexto
  * antes de cada tentativa de execução (incluindo retries automáticos).
  *
- * Lê tenant_id da propriedade $job->tenantId (convenção dos jobs tenant-aware)
- * e o injeta em request()->attributes para que o contexto de tenant seja
- * idêntico ao do request HTTP original — mesmo padrão do SetCurrentTenantContext.
+ * Lê tenantId da propriedade $job->tenantId (convenção dos jobs tenant-aware)
+ * e o injeta em request()->attributes usando a chave current_tenant_id, que é
+ * a mesma consumida por ScopesToCurrentTenant::currentTenantIdForGlobalScope().
  */
 final class JobTenancyBootstrapper
 {
@@ -27,20 +27,27 @@ final class JobTenancyBootstrapper
         /** @var Request $request */
         $request = app(Request::class);
 
-        $previous = $request->attributes->get('tenant_id');
+        $previousTenantId = $request->attributes->get('current_tenant_id');
+        $previousTenant = $request->attributes->get('current_tenant');
 
         if ($tenantId !== null) {
-            $request->attributes->set('tenant_id', $tenantId);
+            $request->attributes->set('current_tenant_id', $tenantId);
         }
 
         try {
             $next($job);
         } finally {
             // Restaura o valor anterior (ou remove se não havia) após execução/retry
-            if ($previous !== null) {
-                $request->attributes->set('tenant_id', $previous);
+            if ($previousTenantId !== null) {
+                $request->attributes->set('current_tenant_id', $previousTenantId);
             } else {
-                $request->attributes->remove('tenant_id');
+                $request->attributes->remove('current_tenant_id');
+            }
+
+            if ($previousTenant !== null) {
+                $request->attributes->set('current_tenant', $previousTenant);
+            } else {
+                $request->attributes->remove('current_tenant');
             }
         }
     }
