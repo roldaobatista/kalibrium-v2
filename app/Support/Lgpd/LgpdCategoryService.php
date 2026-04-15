@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Lgpd;
 
+use App\Models\ConsentRecord;
 use App\Models\LgpdCategory;
 use App\Models\Tenant;
 use App\Models\User;
@@ -16,6 +17,7 @@ final class LgpdCategoryService
      * Declara uma base legal para o tenant.
      *
      * @param  array<string, mixed>  $data
+     *
      * @throws ValidationException
      */
     public function declare(Tenant $tenant, User $actor, array $data): LgpdCategory
@@ -87,7 +89,7 @@ final class LgpdCategoryService
      */
     public function delete(Tenant $tenant, LgpdCategory $category): void
     {
-        $hasRecords = \App\Models\ConsentRecord::withoutGlobalScopes()
+        $hasRecords = ConsentRecord::withoutGlobalScopes()
             ->where('lgpd_category_id', $category->id)
             ->exists();
 

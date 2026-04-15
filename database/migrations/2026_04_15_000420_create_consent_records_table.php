@@ -23,8 +23,9 @@ return new class extends Migration
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent_hash', 64)->nullable();
             $table->string('revocation_reason', 50)->nullable();
+            // Append-only: trigger PostgreSQL bloqueia UPDATE; Eloquent model
+            // tem timestamps=false. Apenas created_at é populado pelo service.
             $table->timestamp('created_at')->nullable();
-            $table->timestamp('updated_at')->nullable();
             $table->index(['consent_subject_id', 'channel', 'created_at']);
             $table->index(['tenant_id', 'consent_subject_id', 'channel', 'status']);
         });

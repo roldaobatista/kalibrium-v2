@@ -21,7 +21,7 @@ test('AC-001: gerente autenticado com 2FA persiste base legal em lgpd_categories
 
     // Autentica gerente com 2FA confirmado e define tenant corrente
     $this->actingAs($user)
-         ->withSession(['current_tenant_id' => $tenant->id]);
+        ->withSession(['current_tenant_id' => $tenant->id]);
 
     Livewire::actingAs($user)
         ->test(LgpdCategoriesPage::class)
@@ -76,11 +76,11 @@ test('AC-001a: sistema rejeita 5a base legal na mesma categoria com mensagem cor
 });
 
 // ---------------------------------------------------------------------------
-// AC-001b: Sem 2FA → middleware redireciona para /2fa-challenge
+// AC-001b: Sem 2FA → middleware redireciona para /auth/two-factor-challenge
 // ---------------------------------------------------------------------------
-test('AC-001b: sessao sem 2FA completado redireciona para /2fa-challenge ao acessar /settings/privacy', function (): void {
+test('AC-001b: sessao sem 2FA completado redireciona para /auth/two-factor-challenge ao acessar /settings/privacy', function (): void {
     $ctx = slice009_user_with_tenant_context([
-        'role'                 => 'gerente',
+        'role' => 'gerente',
         'two_factor_confirmed' => true,
         // Simula 2FA pendente: two_factor_confirmed_at existe mas sessão não passou pelo challenge
     ]);
@@ -90,12 +90,12 @@ test('AC-001b: sessao sem 2FA completado redireciona para /2fa-challenge ao aces
     // Autentica SEM marcar 2FA challenge na sessão
     $response = $this->actingAs($user)
         ->withSession([
-            'current_tenant_id'   => $tenant->id,
+            'current_tenant_id' => $tenant->id,
             // Intencionalmente omitimos 'two_factor_confirmed' da sessão Laravel Fortify
         ])
         ->get('/settings/privacy');
 
-    $response->assertRedirect('/2fa-challenge');
+    $response->assertRedirect('/auth/two-factor-challenge');
 });
 
 // ---------------------------------------------------------------------------
@@ -107,14 +107,14 @@ test('AC-SEC-002: tenant B nao enxerga lgpd_categories do tenant A', function ()
 
     // Semeia categoria no tenant A
     slice010_seed_lgpd_category($ctxA['tenant'], $ctxA['user'], [
-        'code'        => 'identificacao',
+        'code' => 'identificacao',
         'legal_basis' => 'obrigacao_legal',
-        'name'        => 'Dados Identificacao Tenant A',
+        'name' => 'Dados Identificacao Tenant A',
     ]);
 
     // Autentica como gerente do tenant B
     $this->actingAs($ctxB['user'])
-         ->withSession(['current_tenant_id' => $ctxB['tenant']->id]);
+        ->withSession(['current_tenant_id' => $ctxB['tenant']->id]);
 
     Livewire::actingAs($ctxB['user'])
         ->test(LgpdCategoriesPage::class)

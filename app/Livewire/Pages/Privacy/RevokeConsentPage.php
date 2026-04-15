@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Privacy;
 
-use App\Mail\RevocationConfirmationMail;
-use App\Mail\RevocationLinkMail;
 use App\Models\ConsentSubject;
 use App\Models\RevocationToken;
 use App\Services\ConsentRecordService;
 use App\Services\RevocationTokenService;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -24,8 +21,6 @@ final class RevokeConsentPage extends Component
 
     public bool $expired = false;
 
-    public bool $invalid = false;
-
     public string $selectedReason = 'other_without_details';
 
     public bool $noActiveConsent = false;
@@ -38,43 +33,23 @@ final class RevokeConsentPage extends Component
     {
         $this->rawToken = $token;
 
-        // Primeiro tenta encontrar token válido
-        $validToken = $service->findValidToken($token);
+        $outcome = $service->processRevocationAttempt($token);
 
-        if ($validToken !== null) {
-            $this->tokenModel = $validToken;
-            $this->subjectModel = $validToken->consentSubject;
+        if ($outcome['status'] === 'valid') {
+            $this->tokenModel = $outcome['token'];
+            $this->subjectModel = $outcome['token']->consentSubject;
 
             return;
         }
 
-        // Tenta encontrar token expirado (não usado)
-        $anyToken = $service->findByRaw($token);
-
-        if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at->isPast()) {
+        if ($outcome['status'] === 'renewed') {
             $this->expired = true;
-            $this->subjectModel = $anyToken->consentSubject;
-
-            // Gera novo token e reenvia e-mail
-            if ($this->subjectModel !== null) {
-                $newRaw = $service->regenerate(
-                    (int) $anyToken->tenant_id,
-                    (int) $anyToken->consent_subject_id,
-                    $anyToken->channel
-                );
-
-                Mail::send(new RevocationConfirmationMail(
-                    $this->subjectModel,
-                    $anyToken->channel,
-                    now()
-                ));
-            }
+            $this->subjectModel = $outcome['subject'];
+            $service->dispatchRenewalLink($outcome);
 
             return;
         }
 
-        // Token inválido — 404
-        $this->invalid = true;
         abort(404);
     }
 
@@ -86,16 +61,11 @@ final class RevokeConsentPage extends Component
             return;
         }
 
-        $channel = $this->tokenModel->channel;
-        $tenantId = (int) $this->tokenModel->tenant_id;
-        $subjectId = (int) $this->subjectModel->id;
-
-        $record = $consentService->revokeConsent(
-            $tenantId,
-            $subjectId,
-            $channel,
+        $record = $tokenService->finalizeRevocation(
+            $consentService,
+            $this->tokenModel,
             $this->selectedReason,
-            ['ip_address' => request()->ip(), 'user_agent' => request()->userAgent() ?? '']
+            ['ip_address' => request()->ip(), 'user_agent' => request()->userAgent() ?? ''],
         );
 
         if ($record === null) {
@@ -103,14 +73,6 @@ final class RevokeConsentPage extends Component
 
             return;
         }
-
-        $tokenService->consume($this->tokenModel);
-
-        Mail::send(new RevocationConfirmationMail(
-            $this->subjectModel,
-            $channel,
-            now()
-        ));
 
         $this->confirmed = true;
     }

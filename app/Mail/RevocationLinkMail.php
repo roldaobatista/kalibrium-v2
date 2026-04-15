@@ -5,30 +5,27 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use App\Models\ConsentSubject;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
+use InvalidArgumentException;
 
-final class RevocationLinkMail extends Mailable implements ShouldQueue
+final class RevocationLinkMail extends Mailable
 {
-    use Queueable;
-    use SerializesModels;
-
-    public int $tries = 3;
-
     public function __construct(
-        public readonly ConsentSubject $subject,
+        public readonly ConsentSubject $consentSubject,
         public readonly string $channel,
-        public readonly string $rawToken,
-    ) {}
+        private readonly string $rawToken,
+    ) {
+        if ($consentSubject->email === null || $consentSubject->email === '') {
+            throw new InvalidArgumentException('ConsentSubject sem e-mail não pode receber link de revogação.');
+        }
+    }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            to: $this->subject->email ?? '',
+            to: [(string) $this->consentSubject->email],
             subject: 'Link de revogação de consentimento',
         );
     }
@@ -39,7 +36,7 @@ final class RevocationLinkMail extends Mailable implements ShouldQueue
             view: 'emails.revocation-link',
             with: [
                 'revokeUrl' => route('lgpd.revoke', ['token' => $this->rawToken]),
-                'channel'   => $this->channel,
+                'channel' => $this->channel,
             ],
         );
     }

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ConsentRecord extends Model
+final class ConsentRecord extends Model
 {
     /** @use HasFactory<ConsentRecordFactory> */
     use HasFactory;
@@ -24,7 +24,11 @@ class ConsentRecord extends Model
      */
     public $timestamps = false;
 
-    /** @var list<string> */
+    /**
+     * Log append-only: sem updated_at. Trigger PostgreSQL bloqueia UPDATE/DELETE.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
         'tenant_id',
         'consent_subject_id',
@@ -37,10 +41,9 @@ class ConsentRecord extends Model
         'user_agent_hash',
         'revocation_reason',
         'created_at',
-        'updated_at',
     ];
 
-    /** @var array<string, string> */
+    /** @var list<string> */
     public const array REVOCATION_REASONS = [
         'automated',
         'privacy_concern',

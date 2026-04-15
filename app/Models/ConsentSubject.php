@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class ConsentSubject extends Model
+final class ConsentSubject extends Model
 {
     /** @use HasFactory<ConsentSubjectFactory> */
     use HasFactory;

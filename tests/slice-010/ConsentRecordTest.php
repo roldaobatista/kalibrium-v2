@@ -17,11 +17,11 @@ uses()->group('slice-010');
 test('AC-003: opt-in explicito grava consent_records com channel, status=ativo, ip e user_agent_hash SHA-256', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     // Pré-condição: base legal "consentimento" registrada
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -34,9 +34,9 @@ test('AC-003: opt-in explicito grava consent_records com channel, status=ativo, 
 
     $service = app(ConsentRecordService::class);
     $service->grantConsent($tenant->id, $subjectId, [
-        'channel'      => 'email',
-        'ip_address'   => '192.168.1.1',
-        'user_agent'   => $rawUserAgent,
+        'channel' => 'email',
+        'ip_address' => '192.168.1.1',
+        'user_agent' => $rawUserAgent,
     ]);
 
     $record = DB::table('consent_records')
@@ -59,10 +59,10 @@ test('AC-003: opt-in explicito grava consent_records com channel, status=ativo, 
 test('AC-003a: checkbox nao marcado nao grava consent_record e estado fica nao_informado', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -71,7 +71,7 @@ test('AC-003a: checkbox nao marcado nao grava consent_record e estado fica nao_i
     $service = app(ConsentRecordService::class);
     // opted_in = false → não deve gravar
     $service->handleOptIn($tenant->id, $subjectId, [
-        'channel'  => 'email',
+        'channel' => 'email',
         'opted_in' => false,
     ]);
 
@@ -93,10 +93,10 @@ test('AC-003a: checkbox nao marcado nao grava consent_record e estado fica nao_i
 test('AC-003b: novo opt-in em canal ja ativo cria novo registro append-only e canReceiveOn usa o mais recente', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -105,14 +105,14 @@ test('AC-003b: novo opt-in em canal ja ativo cria novo registro append-only e ca
     // Grava primeiro registro ativo
     slice010_seed_consent_record($tenant, $subjectId, [
         'channel' => 'email',
-        'status'  => 'ativo',
+        'status' => 'ativo',
         'created_at' => now()->subMinutes(5),
     ]);
 
     // Grava segundo registro (append)
     $service = app(ConsentRecordService::class);
     $service->grantConsent($tenant->id, $subjectId, [
-        'channel'    => 'email',
+        'channel' => 'email',
         'ip_address' => '10.0.0.1',
         'user_agent' => 'Agent/2.0',
     ]);
@@ -135,10 +135,10 @@ test('AC-003b: novo opt-in em canal ja ativo cria novo registro append-only e ca
 test('AC-005: ConsentSubject::canReceiveOn retorna true quando registro mais recente e ativo', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -146,8 +146,8 @@ test('AC-005: ConsentSubject::canReceiveOn retorna true quando registro mais rec
 
     // Registro ativo mais recente
     slice010_seed_consent_record($tenant, $subjectId, [
-        'channel'    => 'email',
-        'status'     => 'ativo',
+        'channel' => 'email',
+        'status' => 'ativo',
         'created_at' => now(),
     ]);
 
@@ -158,10 +158,10 @@ test('AC-005: ConsentSubject::canReceiveOn retorna true quando registro mais rec
 test('AC-005: ConsentSubject::canReceiveOn retorna false quando registro mais recente e revogado', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
@@ -169,13 +169,13 @@ test('AC-005: ConsentSubject::canReceiveOn retorna false quando registro mais re
 
     // Histórico: ativo, depois revogado
     slice010_seed_consent_record($tenant, $subjectId, [
-        'channel'    => 'email',
-        'status'     => 'ativo',
+        'channel' => 'email',
+        'status' => 'ativo',
         'created_at' => now()->subMinutes(10),
     ]);
     slice010_seed_consent_record($tenant, $subjectId, [
-        'channel'    => 'email',
-        'status'     => 'revogado',
+        'channel' => 'email',
+        'status' => 'revogado',
         'created_at' => now(),
     ]);
 
@@ -189,17 +189,17 @@ test('AC-005: ConsentSubject::canReceiveOn retorna false quando registro mais re
 test('AC-SEC-001: HTML e JS em comentario de base legal sao removidos antes de persistir', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     $this->actingAs($user)->withSession(['current_tenant_id' => $tenant->id]);
 
     $maliciousComment = '<script>alert(1)</script>Comentario legítimo<img src=x onerror=alert(1)>';
 
     $response = $this->post('/settings/privacy/lgpd-categories', [
-        'code'        => 'tecnico',
-        'name'        => 'Dados Tecnicos',
+        'code' => 'tecnico',
+        'name' => 'Dados Tecnicos',
         'legal_basis' => 'interesse_legitimo',
-        'comment'     => $maliciousComment,
+        'comment' => $maliciousComment,
     ]);
 
     $response->assertRedirect();
@@ -222,19 +222,19 @@ test('AC-SEC-001: HTML e JS em comentario de base legal sao removidos antes de p
 test('AC-SEC-003: payload de consent_records nao contem PII raw — apenas subject_id UUID e enums', function (): void {
     $ctx = slice010_manager_context();
     $tenant = $ctx['tenant'];
-    $user   = $ctx['user'];
+    $user = $ctx['user'];
 
     slice010_seed_lgpd_category($tenant, $user, [
-        'code'        => 'contato',
+        'code' => 'contato',
         'legal_basis' => 'consentimento',
     ]);
 
-    $email     = 'titular-pii@example.com';
+    $email = 'titular-pii@example.com';
     $subjectId = slice010_seed_consent_subject($tenant, ['email' => $email]);
 
     $service = app(ConsentRecordService::class);
     $service->grantConsent($tenant->id, $subjectId, [
-        'channel'    => 'email',
+        'channel' => 'email',
         'ip_address' => '127.0.0.1',
         'user_agent' => 'TestAgent/1.0',
     ]);
