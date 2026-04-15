@@ -207,6 +207,20 @@ erDiagram
         string status
         timestamp granted_at
         timestamp revoked_at
+        string ip_address
+        string user_agent_hash
+        string revocation_reason
+        timestamps timestamps
+    }
+
+    revocation_tokens {
+        uuid id PK
+        uuid tenant_id FK
+        uuid consent_subject_id FK
+        string channel
+        string token_hash
+        timestamp expires_at
+        timestamp used_at
         timestamps timestamps
     }
 
