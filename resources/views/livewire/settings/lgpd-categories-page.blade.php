@@ -7,8 +7,8 @@
 
     <form wire:submit="save">
         <div>
-            <label>Categoria</label>
-            <select wire:model="code">
+            <label for="lgpd-code">Categoria</label>
+            <select id="lgpd-code" wire:model="code">
                 <option value="">Selecione...</option>
                 @foreach ($codes as $c)
                     <option value="{{ $c }}">{{ $c }}</option>
@@ -18,14 +18,14 @@
         </div>
 
         <div>
-            <label>Nome</label>
-            <input type="text" wire:model="name" />
+            <label for="lgpd-name">Nome</label>
+            <input id="lgpd-name" type="text" wire:model="name" />
             @error('name') <span>{{ $message }}</span> @enderror
         </div>
 
         <div>
-            <label>Base Legal</label>
-            <select wire:model="legal_basis">
+            <label for="lgpd-legal-basis">Base Legal</label>
+            <select id="lgpd-legal-basis" wire:model="legal_basis">
                 <option value="">Selecione...</option>
                 @foreach ($legalBases as $lb)
                     <option value="{{ $lb }}">{{ $lb }}</option>
@@ -35,12 +35,15 @@
         </div>
 
         <div>
-            <label>Comentário</label>
-            <textarea wire:model="comment"></textarea>
+            <label for="lgpd-comment">Comentário</label>
+            <textarea id="lgpd-comment" wire:model="comment"></textarea>
             @error('comment') <span>{{ $message }}</span> @enderror
         </div>
 
-        <button type="submit">Salvar</button>
+        <button type="submit" wire:loading.attr="disabled" wire:target="save">
+            <span wire:loading.remove wire:target="save">Salvar</span>
+            <span wire:loading wire:target="save">Salvando...</span>
+        </button>
     </form>
 
     <table>

@@ -1,0 +1,193 @@
+{
+  "slice_id": "slice-010",
+  "verdict": "approved",
+  "timestamp": "2026-04-15T14:30:00Z",
+  "coverage_summary": {
+    "acs_total": 22,
+    "acs_covered": 22,
+    "acs_with_edge_cases": 22,
+    "test_count": 28,
+    "line_coverage_pct": null
+  },
+  "ac_coverage": [
+    {
+      "ac": "AC-001",
+      "tests_found": ["tests/slice-010/LgpdCategoriesPageTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["max 4 bases por categoria (AC-001a)", "sem 2FA redireciona (AC-001b)"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-001a",
+      "tests_found": ["tests/slice-010/LgpdCategoriesPageTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["5a base rejeitada, count permanece 4"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-001b",
+      "tests_found": ["tests/slice-010/LgpdCategoriesPageTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["sessao sem two_factor_confirmed na sessao Fortify"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002",
+      "tests_found": ["tests/slice-010/ConsentBlockingTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["HTTP 422 com mensagem exata via rota", "LgpdBaseLegalAusenteException via service direto"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002a",
+      "tests_found": ["tests/slice-010/ConsentBlockingTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["tenant suspenso bloqueia antes da validacao LGPD — mensagem 'suspenso' presente, mensagem LGPD ausente"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003",
+      "tests_found": ["tests/slice-010/ConsentRecordTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["user_agent_hash = SHA-256 exato", "user agent raw nunca armazenado", "checkbox false nao grava (AC-003a)", "append-only em canal ja ativo (AC-003b)"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003a",
+      "tests_found": ["tests/slice-010/ConsentRecordTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["opted_in=false: count=0, canReceiveOn=false"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003b",
+      "tests_found": ["tests/slice-010/ConsentRecordTest.php"],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": ["segundo opt-in em canal ativo: count=2, canReceiveOn usa mais recente"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004",
+      "tests_found": ["tests/slice-010/RevocationTokenTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["token expirado gera novo e envia email (AC-004a)", "canal sem consentimento ativo nao grava (AC-004b)", "revocation_reason do enum gravado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004a",
+      "tests_found": ["tests/slice-010/RevocationTokenTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["expires_at 31 dias atras: mensagem 'Link expirado', novo token criado, RevocationLinkMail disparado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-004b",
+      "tests_found": ["tests/slice-010/RevocationTokenTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["canal whatsapp sem consent_record ativo: mensagem exata, count revogados = 0"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-005",
+      "tests_found": ["tests/slice-010/ConsentRecordTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["canReceiveOn=true (mais recente ativo)", "canReceiveOn=false (mais recente revogado — historico ativo antes)"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-006",
+      "tests_found": ["tests/slice-010/ConsentSubjectsPageTest.php"],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": ["55 subjects → primeira pagina = 50", "filtro status=ativo exibe apenas 3 de 5", "PII raw ausente na listagem"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-007",
+      "tests_found": ["tests/slice-010/RevocationTokenTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["confirmacao na tela ('revogado')", "RevocationConfirmationMail enviado ao email correto do subject", "token invalido HTTP 404 sem revelar subjects (AC-007a)"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-007a",
+      "tests_found": ["tests/slice-010/RevocationTokenTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["token de 64 hex chars nunca persistido → 404", "body sem 'consent_subject', 'subject_id', 'token_hash'"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-008",
+      "tests_found": ["tests/slice-010/AuditAppendOnlyTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["UPDATE recusado com mensagem 'audit append-only'", "DELETE recusado", "registro original intacto apos rejeicao"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-008a",
+      "tests_found": ["tests/slice-010/AuditAppendOnlyTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["TRUNCATE recusado via trigger PostgreSQL"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-SEC-001",
+      "tests_found": ["tests/slice-010/ConsentRecordTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["script tag removida", "img onerror removido", "texto legitimo preservado"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-SEC-002",
+      "tests_found": ["tests/slice-010/LgpdCategoriesPageTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["tenant B nao ve dados do tenant A via Livewire", "DB query confirma count=0 para tenant B"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-SEC-003",
+      "tests_found": ["tests/slice-010/ConsentRecordTest.php"],
+      "happy_path": false,
+      "error_path": true,
+      "edge_cases": ["json_encode do registro nao contem email raw", "nao contem prefixo do email", "nao contem user agent raw"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-SEC-004",
+      "tests_found": ["tests/slice-010/RevocationTokenTest.php"],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": ["token_hash = SHA-256(raw_token)", "token_hash != raw_token", "expires_at = granted_at + 30 dias (diffInDays abs=30)"],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-SEC-005",
+      "tests_found": ["tests/slice-010/RevocationTokenTest.php"],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": ["token valido retorna registro", "token adulterado (1 char) retorna null — verifica constant-time via comportamento"],
+      "status": "adequate"
+    }
+  ],
+  "findings": [],
+  "anti_patterns": [],
+  "next_action": "approved"
+}

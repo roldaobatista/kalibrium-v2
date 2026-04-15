@@ -115,7 +115,7 @@ function slice010_seed_consent_record(Tenant $tenant, int $subjectId, array $ove
         'ip_address' => $overrides['ip_address'] ?? '127.0.0.1',
         'user_agent_hash' => hash('sha256', $rawUserAgent),
         'revocation_reason' => $overrides['revocation_reason'] ?? null,
-        'created_at' => now(),
+        'created_at' => $overrides['created_at'] ?? now(),
     ]);
 }
 

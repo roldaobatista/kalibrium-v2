@@ -7,13 +7,13 @@
         <p>Seu consentimento foi revogado com sucesso.</p>
     @elseif ($noActiveConsent)
         <h1>Sem consentimento ativo</h1>
-        <p>Voce nao tem consentimento ativo para este canal</p>
+        <p>Você não tem consentimento ativo para este canal.</p>
     @else
         <h1>Revogar consentimento</h1>
         <form wire:submit="confirm">
             <div>
-                <label>Motivo da revogação</label>
-                <select wire:model="selectedReason">
+                <label for="revocation-reason">Motivo da revogação</label>
+                <select id="revocation-reason" wire:model="selectedReason">
                     <option value="automated">Automatizado</option>
                     <option value="privacy_concern">Preocupação com privacidade</option>
                     <option value="duplicate_contact">Contato duplicado</option>
@@ -21,7 +21,10 @@
                     <option value="other_without_details">Outro</option>
                 </select>
             </div>
-            <button type="submit">Confirmar revogação</button>
+            <button type="submit" wire:loading.attr="disabled" wire:target="confirm">
+                <span wire:loading.remove wire:target="confirm">Confirmar revogação</span>
+                <span wire:loading wire:target="confirm">Processando...</span>
+            </button>
         </form>
     @endif
 </div>
