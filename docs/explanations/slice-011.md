@@ -1,6 +1,6 @@
 # Slice 011 — E02-S08: Testes estruturais de isolamento entre tenants
 
-**Status:** verificação aprovada; aguardando revisão
+**Status:** revisão aprovada; aguardando gates finais
 **Data:** 2026-04-15
 **Slice:** 011
 
@@ -83,7 +83,7 @@ AC-006** — (edge de AC-006) Dado aumento de 1 model novo na suite, quando cron
 
 ## Próximo passo
 
-Seguir para a revisão estrutural independente antes dos próximos gates.
+Seguir para as revisões de segurança, testes e funcionalidade antes de qualquer merge.
 
 ---
 
@@ -91,7 +91,7 @@ Seguir para a revisão estrutural independente antes dos próximos gates.
 <summary>Detalhes técnicos (não precisa abrir)</summary>
 
 - **Verifier verdict:** approved
-- **Reviewer verdict:** -
+- **Reviewer verdict:** approved
 - **Security verdict:** -
 - **Test audit verdict:** -
 - **Functional verdict:** -
@@ -99,6 +99,7 @@ Seguir para a revisão estrutural independente antes dos próximos gates.
 - **Artefatos:**
     - `specs/011/spec.md`
     - `specs/011/verification.json`
+    - `specs/011/review.json`
 
 Tradução gerada automaticamente por `scripts/translate-pm.sh` (B-010).
 

@@ -152,7 +152,7 @@ jobs:
         image: postgres:18
         env:
           POSTGRES_USER: kalibrium
-          POSTGRES_PASSWORD: kalibrium_ci
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           POSTGRES_DB: kalibrium_test
         ports:
           - 5432:5432
@@ -234,7 +234,7 @@ jobs:
           DB_PORT: 5432
           DB_DATABASE: kalibrium_test
           DB_USERNAME: kalibrium
-          DB_PASSWORD: kalibrium_ci
+          DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
         run: php artisan migrate --force
@@ -247,7 +247,7 @@ jobs:
           DB_PORT: 5432
           DB_DATABASE: kalibrium_test
           DB_USERNAME: kalibrium
-          DB_PASSWORD: kalibrium_ci
+          DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
           RUN_REMOTE_SMOKE: 0
@@ -378,7 +378,7 @@ jobs:
 
       - name: npm audit
         if: hashFiles('package-lock.json') != ''
-        run: npm audit --audit-level=high || echo "::warning::npm audit encontrou vulnerabilidades — revisar antes do merge"
+        run: npm audit --audit-level=high
 
       - name: Cache Composer global
         if: hashFiles('composer.lock') != ''
@@ -425,7 +425,7 @@ jobs:
         image: postgres:18
         env:
           POSTGRES_USER: kalibrium
-          POSTGRES_PASSWORD: kalibrium_ci
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           POSTGRES_DB: kalibrium_test
         ports:
           - 5432:5432
@@ -495,7 +495,7 @@ jobs:
           DB_PORT: 5432
           DB_DATABASE: kalibrium_test
           DB_USERNAME: kalibrium
-          DB_PASSWORD: kalibrium_ci
+          DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
 

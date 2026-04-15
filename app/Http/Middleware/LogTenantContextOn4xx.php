@@ -32,10 +32,27 @@ final class LogTenantContextOn4xx
             Log::warning('tenant_context_4xx', [
                 'tenant_context' => $tenant?->id,
                 'status' => $response->getStatusCode(),
-                'path' => $request->path(),
+                'path' => $this->sanitizePath($request->path()),
             ]);
         }
 
         return $response;
+    }
+
+    /**
+     * Substitui segmentos de token/paths sensíveis por {REDACTED} (SEC-004).
+     */
+    private function sanitizePath(string $path): string
+    {
+        $sensitiveSegments = [
+            'reset-password',
+            'invitations',
+            'verify',
+            'revoke',
+        ];
+
+        $pattern = '#/('.implode('|', $sensitiveSegments).')/[^/]+#';
+
+        return preg_replace($pattern, '/$1/{REDACTED}', $path) ?? $path;
     }
 }

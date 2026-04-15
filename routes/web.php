@@ -11,6 +11,7 @@ use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\HealthCheckRateLimit;
 use App\Http\Middleware\RequireTwoFactorSession;
+use App\Http\Middleware\RestrictToLocalEnv;
 use App\Http\Middleware\SetCurrentTenantContext;
 use App\Http\Responses\Auth\AuthFailureResponse;
 use App\Http\Responses\Auth\LoginResponse;
@@ -408,24 +409,22 @@ Route::middleware([
 ])
     ->group(function (): void {
         // AC-010: expõe o tenant_id do contexto atual da sessão.
-        // Disponível apenas em ambientes local/testing (guard de ambiente — blocker SEC-002).
+        // Restrito a local/testing via middleware de runtime RestrictToLocalEnv (SEC-002).
         // Middleware SetCurrentTenantContext define request()->attributes['current_tenant'].
         // Query string ?tenant=X e header X-Tenant são ignorados intencionalmente.
-        if (app()->environment('local', 'testing')) {
-            Route::get('/api/tenant-context', function (Request $request) {
-                /** @var Tenant|null $tenant */
-                $tenant = $request->attributes->get('current_tenant');
+        Route::get('/api/tenant-context', function (Request $request) {
+            /** @var Tenant|null $tenant */
+            $tenant = $request->attributes->get('current_tenant');
 
-                Log::info('tenant_context_request', [
-                    'tenant_context' => $tenant?->id,
-                    'path' => $request->path(),
-                ]);
+            Log::info('tenant_context_request', [
+                'tenant_context' => $tenant?->id,
+                'path' => $request->path(),
+            ]);
 
-                return response()->json([
-                    'tenant_id' => $tenant?->id,
-                ]);
-            })->name('api.tenant-context');
-        }
+            return response()->json([
+                'tenant_id' => $tenant?->id,
+            ]);
+        })->middleware(RestrictToLocalEnv::class)->name('api.tenant-context');
 
         Route::get('/app', HomePage::class)->name('app.home');
         Route::get('/settings/tenant', TenantPage::class)->name('settings.tenant');

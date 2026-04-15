@@ -6,7 +6,9 @@ namespace App\Models\Concerns;
 
 use App\Models\Tenant;
 use App\Support\Tenancy\TenantContext;
+use App\Support\Tenancy\TenantScopeBypass;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 trait ScopesToCurrentTenant
 {
@@ -14,7 +16,25 @@ trait ScopesToCurrentTenant
     {
         static::addGlobalScope('current_tenant', static function (Builder $builder): void {
             $tenantId = self::currentTenantIdForGlobalScope();
+
             if ($tenantId === null) {
+                // Contexto de console (seeders/migrations) — permitir sem filtro.
+                if (app()->runningInConsole() && ! app()->runningUnitTests()) {
+                    return;
+                }
+
+                // Bootstrap de contexto em andamento — permitir pass-through.
+                if (TenantScopeBypass::isActive()) {
+                    return;
+                }
+
+                // Fail-closed: sem tenant_id em contexto web/test → retorna zero linhas.
+                Log::warning('tenant_scope_missing_context', [
+                    'model' => static::class,
+                    'path' => app()->bound('request') ? request()->path() : 'n/a',
+                ]);
+                $builder->whereRaw('1 = 0');
+
                 return;
             }
 
