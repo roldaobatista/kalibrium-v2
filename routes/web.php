@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Exceptions\LgpdBaseLegalAusenteException;
 use App\Http\Controllers\HealthCheckController;
+use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
+use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
@@ -38,10 +39,7 @@ use App\Support\Auth\LoginAuditRecorder;
 use App\Support\Auth\PostgresAuthContext;
 use App\Support\Auth\RecoveryCodeHasher;
 use App\Support\Auth\TenantAccessResolver;
-use App\Support\Lgpd\LgpdCategoryService;
 use App\Support\Settings\UserInvitationService;
-use App\Support\Tenancy\CurrentTenantResolver;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -442,64 +440,16 @@ Route::middleware([
     EnsureReadOnlyTenantMode::class,
 ])
     ->group(function (): void {
-        Route::post('/settings/privacy/lgpd-categories', function (
-            Request $request,
-            CurrentTenantResolver $resolver,
-            LgpdCategoryService $service,
-        ) {
-            $user = $request->user();
-            if (! $user instanceof User) {
-                abort(403);
-            }
-            $context = $resolver->resolve($user);
-            try {
-                $service->declare($context['tenant'], $user, $request->all());
-            } catch (ValidationException $e) {
-                return back()->withErrors($e->errors());
-            }
-
-            return redirect()->back()->with('status', 'Base legal registrada.');
-        })->name('settings.privacy.lgpd-categories.store');
+        Route::post('/settings/privacy/lgpd-categories', LgpdCategoryStoreController::class)
+            ->name('settings.privacy.lgpd-categories.store');
 
         Route::get('/settings/privacy/consentimentos', ConsentSubjectsPage::class)->name('settings.privacy.consents');
     });
 
 // POST consentimentos fora do grupo SetCurrentTenantContext para capturar tenant suspenso como 422
 Route::middleware(['auth', EnsureTwoFactorChallengeCompleted::class])
-    ->post('/settings/privacy/consentimentos', function (
-        Request $request,
-        CurrentTenantResolver $resolver,
-        ConsentRecordService $service,
-    ) {
-        $user = $request->user();
-        if (! $user instanceof User) {
-            abort(403);
-        }
-
-        try {
-            $context = $resolver->resolve($user);
-        } catch (AuthorizationException $e) {
-            return response()->json([
-                'message' => 'Conta suspenso. Operacao nao permitida.',
-            ], 422);
-        }
-
-        $tenant = $context['tenant'];
-
-        try {
-            $service->createForSubject((int) $tenant->id, $request->all());
-        } catch (LgpdBaseLegalAusenteException $e) {
-            return response()->json([
-                'message' => 'Registre a base legal LGPD em Configuracoes > LGPD antes de capturar consentimentos',
-            ], 422);
-        } catch (RuntimeException $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 422);
-        }
-
-        return response()->json(['message' => 'ok'], 201);
-    })->name('settings.privacy.consents.store');
+    ->post('/settings/privacy/consentimentos', ConsentSubjectStoreController::class)
+    ->name('settings.privacy.consents.store');
 
 // ---------------------------------------------------------------------------
 // Slice 010 — LGPD: rota pública de revogação

@@ -8,12 +8,9 @@ use App\Models\ConsentSubject;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
 final class RevocationLinkMail extends Mailable
 {
-    use SerializesModels;
-
     public function __construct(
         public readonly ConsentSubject $consentSubject,
         public readonly string $channel,

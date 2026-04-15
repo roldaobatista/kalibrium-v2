@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Livewire\Settings;
 
+use App\Livewire\Concerns\ResolvesTenantAndActor;
 use App\Models\LgpdCategory;
 use App\Models\Tenant;
-use App\Models\User;
 use App\Support\Lgpd\LgpdCategoryService;
 use App\Support\Tenancy\CurrentTenantResolver;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Component;
 
 final class LgpdCategoriesPage extends Component
 {
+    use ResolvesTenantAndActor;
+
     public string $code = '';
 
     public string $name = '';
@@ -27,8 +28,6 @@ final class LgpdCategoriesPage extends Component
     public string $comment = '';
 
     public bool $readOnly = false;
-
-    private ?Tenant $tenant = null;
 
     public function mount(CurrentTenantResolver $resolver): void
     {
@@ -106,15 +105,5 @@ final class LgpdCategoriesPage extends Component
             'codes' => LgpdCategory::CODES,
             'legalBases' => LgpdCategory::LEGAL_BASES,
         ])->layout('layouts.app');
-    }
-
-    private function actor(): User
-    {
-        $user = Auth::user();
-        if (! $user instanceof User) {
-            abort(403);
-        }
-
-        return $user;
     }
 }
