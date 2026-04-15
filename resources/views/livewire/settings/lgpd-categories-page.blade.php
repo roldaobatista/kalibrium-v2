@@ -56,7 +56,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($categories as $category)
+            @forelse ($categories as $category)
                 <tr>
                     <td>{{ $category->code }}</td>
                     <td>{{ $category->name }}</td>
@@ -65,7 +65,11 @@
                         <button wire:click="deleteCategory('{{ $category->id }}')">Remover</button>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="4">Nenhuma categoria cadastrada.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </div>
