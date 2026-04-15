@@ -19,10 +19,14 @@ use App\Livewire\Pages\Auth\ForgotPasswordPage;
 use App\Livewire\Pages\Auth\LoginPage;
 use App\Livewire\Pages\Auth\ResetPasswordPage;
 use App\Livewire\Pages\Auth\TwoFactorChallengePage;
+use App\Livewire\Pages\Privacy\RevokeConsentPage;
 use App\Livewire\Pages\Settings\PlansPage;
 use App\Livewire\Pages\Settings\TenantPage;
 use App\Livewire\Pages\Settings\UsersPage;
 use App\Livewire\Ping;
+use App\Livewire\Settings\ConsentSubjectsPage;
+use App\Livewire\Settings\LgpdCategoriesPage;
+use App\Services\ConsentRecordService;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\Auth\LoginAuditRecorder;
@@ -405,6 +409,131 @@ Route::middleware([
         Route::get('/settings/users', UsersPage::class)->name('settings.users');
         Route::get('/settings/plans', PlansPage::class)->name('settings.plans');
     });
+
+// ---------------------------------------------------------------------------
+// Slice 010 — LGPD: rotas autenticadas + 2FA
+// ---------------------------------------------------------------------------
+Route::middleware([
+    'auth',
+    EnsureTwoFactorChallengeCompleted::class,
+    SetCurrentTenantContext::class,
+    EnsureReadOnlyTenantMode::class,
+])
+    ->group(function (): void {
+        Route::get('/settings/privacy', LgpdCategoriesPage::class)->name('settings.privacy');
+        Route::post('/settings/privacy/lgpd-categories', function (
+            Request $request,
+            \App\Support\Tenancy\CurrentTenantResolver $resolver,
+            \App\Support\Lgpd\LgpdCategoryService $service,
+        ) {
+            $user = $request->user();
+            if (! $user instanceof \App\Models\User) {
+                abort(403);
+            }
+            $context = $resolver->resolve($user);
+            try {
+                $service->declare($context['tenant'], $user, $request->all());
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return back()->withErrors($e->errors());
+            }
+            return redirect()->back()->with('status', 'Base legal registrada.');
+        })->name('settings.privacy.lgpd-categories.store');
+
+        Route::get('/settings/privacy/consentimentos', ConsentSubjectsPage::class)->name('settings.privacy.consents');
+
+        Route::post('/settings/privacy/consentimentos', function (
+            Request $request,
+            \App\Support\Tenancy\CurrentTenantResolver $resolver,
+            ConsentRecordService $service,
+        ) {
+            $user = $request->user();
+            if (! $user instanceof \App\Models\User) {
+                abort(403);
+            }
+            $context = $resolver->resolve($user);
+            $tenant = $context['tenant'];
+
+            try {
+                $service->createForSubject((int) $tenant->id, $request->all());
+            } catch (\App\Exceptions\LgpdBaseLegalAusenteException $e) {
+                return response()->json([
+                    'message' => 'Registre a base legal LGPD em Configuracoes > LGPD antes de capturar consentimentos',
+                ], 422);
+            } catch (\RuntimeException $e) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return response()->json(['message' => 'ok'], 201);
+        })->name('settings.privacy.consents.store');
+    });
+
+// ---------------------------------------------------------------------------
+// Slice 010 — LGPD: rota pública de revogação
+// ---------------------------------------------------------------------------
+Route::get('/privacy/revoke/{token}', RevokeConsentPage::class)
+    ->middleware('web')
+    ->name('lgpd.revoke');
+
+Route::post('/privacy/revoke/{token}', function (
+    Request $request,
+    string $token,
+    \App\Services\RevocationTokenService $tokenService,
+    ConsentRecordService $consentService,
+) {
+    $validToken = $tokenService->findValidToken($token);
+
+    if ($validToken === null) {
+        // Verifica se é expirado
+        $anyToken = $tokenService->findByRaw($token);
+        if ($anyToken !== null && $anyToken->used_at === null && $anyToken->expires_at->isPast()) {
+            $subject = $anyToken->consentSubject;
+            if ($subject !== null) {
+                $tokenService->regenerate(
+                    (string) $anyToken->tenant_id,
+                    (string) $anyToken->consent_subject_id,
+                    $anyToken->channel
+                );
+                \Illuminate\Support\Facades\Mail::send(new \App\Mail\RevocationConfirmationMail(
+                    $subject,
+                    $anyToken->channel,
+                    now()
+                ));
+            }
+            return response('Link expirado. Solicite um novo link de revogação.', 200);
+        }
+        abort(404);
+    }
+
+    $subject = $validToken->consentSubject;
+    $channel = $validToken->channel;
+    $reason  = (string) $request->input('revocation_reason', 'other_without_details');
+
+    $record = $consentService->revokeConsent(
+        (string) $validToken->tenant_id,
+        (string) $validToken->consent_subject_id,
+        $channel,
+        $reason,
+        ['ip_address' => $request->ip(), 'user_agent' => $request->userAgent() ?? '']
+    );
+
+    if ($record === null) {
+        return response('Voce nao tem consentimento ativo para este canal', 200);
+    }
+
+    $tokenService->consume($validToken);
+
+    if ($subject !== null) {
+        \Illuminate\Support\Facades\Mail::send(new \App\Mail\RevocationConfirmationMail(
+            $subject,
+            $channel,
+            now()
+        ));
+    }
+
+    return response('Consentimento revogado com sucesso.', 200);
+})->middleware('web')->name('lgpd.revoke.post');
 
 Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);

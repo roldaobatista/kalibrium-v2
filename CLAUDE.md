@@ -2,7 +2,7 @@
 
 **Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
-Versão: 2.6.0 — 2026-04-15 (R13 + R14: ordem Story × Epic enforced mecanicamente).
+Versão: 2.7.0 — 2026-04-15 (auto-approval do plano: dual-gate spec-auditor + plan-reviewer dispensa aprovação manual do PM).
 <!-- Contagem: 22 agents em .claude/agents/ (21 sub-agents + 1 orchestrator), 38 skills em .claude/skills/ -->
 
 ---
@@ -181,7 +181,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 14. `/audit-spec NNN` → sub-agent `spec-auditor` valida spec.md; se houver findings, fixer corrige e re-audita até zero findings.
 15. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
 16. `/review-plan NNN` → sub-agent `plan-reviewer` valida plan.md em contexto limpo; se houver findings, corrige plan e re-audita até zero findings.
-17. PM aprova plan.
+17. **Auto-approval do plano:** quando `spec-auditor` E `plan-reviewer` ambos retornam `verdict: approved` com `findings: []`, o orquestrador prossegue automaticamente para a próxima etapa (draft-tests) **sem pausar para o PM**. O PM só é envolvido em: (a) escalação R6 (6º rejected consecutivo), (b) decisão de produto explícita que apareça mid-flow, (c) PM solicita pausa via `/checkpoint` ou conversa direta. Esta política reduz fricção do PM mantendo R11 (dual-verifier) preservado.
 18. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
 19. Commit: `test(slice-NNN): AC tests red`.
 20. Sub-agent `implementer` faz testes virarem verdes, task por task.
