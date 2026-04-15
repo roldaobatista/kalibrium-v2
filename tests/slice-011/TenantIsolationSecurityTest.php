@@ -9,7 +9,6 @@ declare(strict_types=1);
  * e verificação completa: payload limpo + log com tenant_context.
  */
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Tests\TenantIsolationTestCase;
 

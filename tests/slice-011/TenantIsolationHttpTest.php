@@ -146,7 +146,7 @@ test('AC-011: nenhuma rota MVP aceita batch de IDs misturados cross-tenant — e
     $tenantB = $this->tenantB();
 
     // Coleta todas as rotas DELETE registradas
-    $routes = collect(\Illuminate\Support\Facades\Route::getRoutes()->getRoutes())
+    $routes = collect(Route::getRoutes()->getRoutes())
         ->filter(fn ($r) => in_array('DELETE', $r->methods(), true))
         ->map(fn ($r) => $r->uri())
         ->values()
