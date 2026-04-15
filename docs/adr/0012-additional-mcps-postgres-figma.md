@@ -1,8 +1,9 @@
 # ADR-0012 — Adicionar MCPs de PostgreSQL e Figma à allowlist
 
-**Status:** proposed
+**Status:** accepted
 **Data:** 2026-04-15
 **Autor:** Product Manager + Co-Authored-By Claude Opus 4.6
+**Aceitação:** 2026-04-15 — PM confirmou "pode fazer" em resposta à recomendação da Opção B.
 **Amenda:** ADR-0002 (MCP policy) — esta ADR adiciona duas entradas à tabela do ADR-0002 §"Allowlist inicial".
 
 ---
