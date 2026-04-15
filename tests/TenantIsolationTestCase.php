@@ -23,18 +23,15 @@ abstract class TenantIsolationTestCase extends TestCase
     use DatabaseTransactions;
 
     /** @var array{tenant: Tenant, user: User}|null */
-    protected static ?array $fixtureA = null;
+    protected ?array $fixtureA = null;
 
     /** @var array{tenant: Tenant, user: User}|null */
-    protected static ?array $fixtureB = null;
+    protected ?array $fixtureB = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        if (static::$fixtureA === null) {
-            $this->createSharedFixture();
-        }
+        $this->createSharedFixture();
     }
 
     /**
@@ -76,28 +73,47 @@ abstract class TenantIsolationTestCase extends TestCase
             'updated_at' => now(),
         ]);
 
-        static::$fixtureA = ['tenant' => $tenantA, 'user' => $userA];
-        static::$fixtureB = ['tenant' => $tenantB, 'user' => $userB];
+        $this->fixtureA = ['tenant' => $tenantA, 'user' => $userA];
+        $this->fixtureB = ['tenant' => $tenantB, 'user' => $userB];
     }
 
     protected function tenantA(): Tenant
     {
-        return static::$fixtureA['tenant'];
+        return $this->fixtureA['tenant'];
     }
 
     protected function tenantB(): Tenant
     {
-        return static::$fixtureB['tenant'];
+        return $this->fixtureB['tenant'];
     }
 
     protected function userA(): User
     {
-        return static::$fixtureA['user'];
+        return $this->fixtureA['user'];
     }
 
     protected function userB(): User
     {
-        return static::$fixtureB['user'];
+        return $this->fixtureB['user'];
+    }
+
+    /**
+     * Ativa o contexto de tenant via request attributes (caminho usado por ScopesToCurrentTenant).
+     * Substitui tenancy()->initialize() que requer interface Stancl não implementada por App\Models\Tenant.
+     */
+    protected function initializeTenant(Tenant $tenant): void
+    {
+        request()->attributes->set('current_tenant', $tenant);
+        request()->attributes->set('current_tenant_id', $tenant->id);
+    }
+
+    /**
+     * Limpa o contexto de tenant.
+     */
+    protected function endTenant(): void
+    {
+        request()->attributes->remove('current_tenant');
+        request()->attributes->remove('current_tenant_id');
     }
 
     /**

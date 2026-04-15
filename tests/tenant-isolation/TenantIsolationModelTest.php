@@ -24,7 +24,14 @@ uses(TenantIsolationTestCase::class)->group('slice-011', 'tenant-isolation');
  * @ac AC-015
  */
 dataset('sensitive_models_query_methods', function () {
-    $models = config('tenancy.sensitive_models', []);
+    // Hardcoded para evitar config() antes do boot Laravel (Pest 4 datasets rodam antes do container).
+    // AC-015 valida de forma independente que config('tenancy.sensitive_models') contém esses models.
+    $models = [
+        'App\\Models\\TenantUser',
+        'App\\Models\\ConsentSubject',
+        'App\\Models\\ConsentRecord',
+        'App\\Models\\LgpdCategory',
+    ];
     $methods = ['all', 'where', 'count', 'find_cross_tenant'];
 
     $cases = [];
@@ -32,11 +39,6 @@ dataset('sensitive_models_query_methods', function () {
         foreach ($methods as $method) {
             $cases[class_basename($modelClass).'::'.$method] = [$modelClass, $method];
         }
-    }
-
-    // Dataset nunca pode ser vazio — se estiver, o AC falha explicitamente
-    if (empty($cases)) {
-        $cases['[config_missing]'] = ['__missing__', 'all'];
     }
 
     return $cases;
@@ -58,10 +60,12 @@ test('AC-001: model sensível não vaza registros do tenant B quando consultado 
         ->toBeTrue("Model {$modelClass} não existe.");
 
     $traits = class_uses_recursive($modelClass);
-    expect(isset($traits[\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class]))
-        ->toBeTrue("Model {$modelClass} não usa BelongsToTenant trait — escopo de isolamento ausente.");
+    $hasTenantScope = isset($traits[\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class])
+        || isset($traits[\App\Models\Concerns\ScopesToCurrentTenant::class]);
+    expect($hasTenantScope)
+        ->toBeTrue("Model {$modelClass} não usa BelongsToTenant nem ScopesToCurrentTenant trait — escopo de isolamento ausente.");
 
-    tenancy()->initialize($tenantA);
+    $this->initializeTenant($tenantA);
 
     try {
         $instance = new $modelClass();
@@ -83,9 +87,9 @@ test('AC-001: model sensível não vaza registros do tenant B quando consultado 
 
             case 'count':
                 $countInContextA = $modelClass::count();
-                tenancy()->initialize($tenantB);
+                $this->initializeTenant($tenantB);
                 $countInContextB = $modelClass::count();
-                tenancy()->initialize($tenantA);
+                $this->initializeTenant($tenantA);
 
                 $totalInDB = DB::table($instance->getTable())->count();
                 // Se os counts somam mais que o total, está duplicando (lógica de sanidade)
@@ -111,7 +115,7 @@ test('AC-001: model sensível não vaza registros do tenant B quando consultado 
                 break;
         }
     } finally {
-        tenancy()->end();
+        $this->endTenant();
     }
 })->with('sensitive_models_query_methods');
 
@@ -131,7 +135,9 @@ test('AC-008: model em sensitive_models sem BelongsToTenant trait causa falha ex
         }
 
         $traits = class_uses_recursive($modelClass);
-        if (! isset($traits[\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class])) {
+        $hasTenantScope = isset($traits[\Stancl\Tenancy\Database\Concerns\BelongsToTenant::class])
+            || isset($traits[\App\Models\Concerns\ScopesToCurrentTenant::class]);
+        if (! $hasTenantScope) {
             $modelsWithoutTrait[] = $modelClass;
         }
     }
@@ -139,7 +145,7 @@ test('AC-008: model em sensitive_models sem BelongsToTenant trait causa falha ex
     expect($modelsWithoutTrait)
         ->toBeEmpty(
             'AC-008: Os seguintes models estão em config/tenancy.php[sensitive_models] mas NÃO usam '.
-            'BelongsToTenant trait: '.implode(', ', $modelsWithoutTrait).'. '.
+            'BelongsToTenant nem ScopesToCurrentTenant trait: '.implode(', ', $modelsWithoutTrait).'. '.
             'Adicione a trait ou remova o model da lista sensitive_models.'
         );
 });
@@ -182,7 +188,7 @@ test('AC-009: DB::raw SUM em model sensível retorna apenas soma do tenant A sem
     // Descobre coluna numérica
     $cols = DB::getSchemaBuilder()->getColumnListing($table);
     $numericCol = null;
-    foreach (['metric_value', 'valor', 'amount', 'value', 'price'] as $candidate) {
+    foreach (['users_used', 'monthly_os_used', 'storage_used_bytes', 'metric_value', 'valor', 'amount', 'value', 'price'] as $candidate) {
         if (in_array($candidate, $cols, true)) {
             $numericCol = $candidate;
             break;
@@ -196,10 +202,17 @@ test('AC-009: DB::raw SUM em model sensível retorna apenas soma do tenant A sem
     $valueA = 1000;
     $valueB = 9999;
 
-    DB::table($table)->insert(['tenant_id' => $tenantA->id, $numericCol => $valueA, 'created_at' => now(), 'updated_at' => now()]);
-    DB::table($table)->insert(['tenant_id' => $tenantB->id, $numericCol => $valueB, 'created_at' => now(), 'updated_at' => now()]);
+    // updateOrInsert evita violação de unique(tenant_id) se rows já existem
+    DB::table($table)->updateOrInsert(
+        ['tenant_id' => $tenantA->id],
+        [$numericCol => $valueA, 'created_at' => now(), 'updated_at' => now()]
+    );
+    DB::table($table)->updateOrInsert(
+        ['tenant_id' => $tenantB->id],
+        [$numericCol => $valueB, 'created_at' => now(), 'updated_at' => now()]
+    );
 
-    tenancy()->initialize($tenantA);
+    $this->initializeTenant($tenantA);
 
     try {
         $sumViaEloquent = (float) $modelClass::sum($numericCol);
@@ -220,7 +233,7 @@ test('AC-009: DB::raw SUM em model sensível retorna apenas soma do tenant A sem
                 'Global scope não está restringindo a agregação ao tenant A.'
             );
     } finally {
-        tenancy()->end();
+        $this->endTenant();
     }
 });
 
@@ -233,8 +246,9 @@ test('AC-015: config/tenancy.php[sensitive_models] contém models suficientes pa
     $models = $this->sensitiveModels();
 
     // Models mínimos esperados do E02
+    // User é entidade global (sem tenant_id direto) — vínculo via TenantUser (pivot).
+    // Não entra em sensitive_models pois não tem escopo de tenant próprio.
     $expectedModels = [
-        'App\\Models\\User',
         'App\\Models\\TenantUser',
         'App\\Models\\ConsentSubject',
         'App\\Models\\ConsentRecord',
