@@ -46,16 +46,8 @@ test('AC-006: phpunit.xml registra testsuite tenant-isolation apontando para tes
 
     $content = (string) file_get_contents($phpunitPath);
 
-    expect($content)
-        ->toContain('tenant-isolation',
-            'AC-006: phpunit.xml não registra testsuite "tenant-isolation". '.
-            'Adicione: <testsuite name="tenant-isolation"><directory>tests/tenant-isolation</directory></testsuite>.'
-        );
-
-    expect($content)
-        ->toContain('tests/tenant-isolation',
-            'AC-006: phpunit.xml tem testsuite mas o path tests/tenant-isolation não está correto.'
-        );
+    expect($content)->toContain('tenant-isolation');
+    expect($content)->toContain('tests/tenant-isolation');
 });
 
 // ---------------------------------------------------------------------------

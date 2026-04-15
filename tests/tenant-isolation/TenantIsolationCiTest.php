@@ -29,11 +29,7 @@ test('AC-005: workflow ci.yml contém job tenant-isolation', function () {
     $content = (string) file_get_contents($workflowPath);
 
     // O job deve estar declarado explicitamente
-    expect($content)
-        ->toContain('tenant-isolation:',
-            'AC-005: Job "tenant-isolation:" não declarado em .github/workflows/ci.yml. '.
-            'Adicione o job com paths filter para app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**.'
-        );
+    expect($content)->toContain('tenant-isolation:');
 });
 
 test('AC-005: job tenant-isolation referencia o testsuite correto do Pest', function () {
@@ -52,16 +48,8 @@ test('AC-005: job tenant-isolation referencia o testsuite correto do Pest', func
 
     $jobBlock = substr($content, $jobStart, 1500);
 
-    expect($jobBlock)
-        ->toContain('--testsuite=tenant-isolation',
-            'AC-005: Job não executa "php artisan test --testsuite=tenant-isolation". '.
-            'Adicione o comando correto no step de execução.'
-        );
-
-    expect($jobBlock)
-        ->toContain('needs:',
-            'AC-005: Job tenant-isolation deve ter "needs:" (pelo menos harness) para garantir sequência.'
-        );
+    expect($jobBlock)->toContain('--testsuite=tenant-isolation');
+    expect($jobBlock)->toContain('needs:');
 });
 
 // ---------------------------------------------------------------------------

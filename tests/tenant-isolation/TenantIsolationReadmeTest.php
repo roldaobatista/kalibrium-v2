@@ -61,17 +61,8 @@ test('AC-007: README menciona sensitive_models e o comando de execução local',
 
     $content = (string) file_get_contents($readmePath);
 
-    expect($content)
-        ->toContain('sensitive_models',
-            'AC-007: README não menciona "sensitive_models". '.
-            'O dev júnior precisa saber onde adicionar o novo model.'
-        );
-
-    expect($content)
-        ->toContain('tenant-isolation',
-            'AC-007: README não menciona como rodar a suite. '.
-            'Adicione: php artisan test --testsuite=tenant-isolation'
-        );
+    expect($content)->toContain('sensitive_models');
+    expect($content)->toContain('tenant-isolation');
 });
 
 test('AC-007: exemplo de código aparece logo após 1-2 parágrafos de introdução — acessível para dev júnior', function () {

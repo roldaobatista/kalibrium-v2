@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToCurrentTenant;
 use Database\Factories\LoginAuditLogFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LoginAuditLog extends Model
 {
     /** @use HasFactory<LoginAuditLogFactory> */
-    use HasFactory;
+    use HasFactory, ScopesToCurrentTenant;
 
     #[\Override]
     protected function casts(): array

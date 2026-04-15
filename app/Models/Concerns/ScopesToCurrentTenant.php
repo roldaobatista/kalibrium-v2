@@ -23,6 +23,18 @@ trait ScopesToCurrentTenant
 
     private static function currentTenantIdForGlobalScope(): ?int
     {
+        // 1. stancl/tenancy inicializado via tenancy()->initialize() — suporta testes e jobs
+        if (function_exists('tenancy') && tenancy()->initialized) {
+            $stanclTenant = tenant();
+            if ($stanclTenant !== null) {
+                $key = $stanclTenant->getTenantKey();
+                if (is_numeric($key)) {
+                    return (int) $key;
+                }
+            }
+        }
+
+        // 2. Contexto de request HTTP (middleware SetCurrentTenantContext)
         if (! app()->bound('request')) {
             return null;
         }

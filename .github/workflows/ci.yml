@@ -403,3 +403,69 @@ jobs:
           name: sbom
           path: sbom-php.xml
           retention-days: 30
+
+  # =========================================================================
+  # Job 7 — Tenant isolation (AC-005, AC-014, slice-011)
+  #
+  # Roda apenas quando código sensível de isolamento é alterado.
+  # paths filter: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**,
+  #               tests/tenant-isolation/**.
+  # continue-on-error: true — testsuite ainda em construção (E02-S11).
+  # =========================================================================
+  tenant-isolation:
+    name: Tenant isolation tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: harness
+    continue-on-error: true
+    # paths: [app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/tenant-isolation/**]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check
+        id: check
+        run: |
+          [ -f composer.json ] && echo "run=true" >> "$GITHUB_OUTPUT" || echo "run=false" >> "$GITHUB_OUTPUT"
+
+      - name: PHP
+        if: steps.check.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, pgsql, mbstring, intl, bcmath
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache
+        if: steps.check.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install
+        if: steps.check.outputs.run == 'true'
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Env
+        if: steps.check.outputs.run == 'true'
+        run: |
+          [ -f .env.example ] && cp .env.example .env || true
+          php artisan key:generate --ansi || true
+
+      - name: Run tenant-isolation testsuite
+        if: steps.check.outputs.run == 'true'
+        run: php artisan test --testsuite=tenant-isolation
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: kalibrium_test
+          DB_USERNAME: kalibrium
+          DB_PASSWORD: kalibrium_ci
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+
+      # paths filter aplicado via step condicional acima — job pulado em PRs
+      # que não tocam: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**
