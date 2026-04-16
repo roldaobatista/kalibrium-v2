@@ -46,7 +46,7 @@ test('AC-009: tabela clientes existe apos migration com todas as colunas do ERD'
     ];
 
     foreach ($expectedColumns as $col) {
-        expect($columns)->toContain($col, "Coluna '{$col}' ausente na tabela clientes.");
+        expect($columns)->toContain($col);
     }
 });
 

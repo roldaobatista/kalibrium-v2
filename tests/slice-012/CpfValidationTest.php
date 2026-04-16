@@ -38,16 +38,16 @@ test('AC-002: Rule Cpf aceita CPF valido somente digitos', function () {
     expect($failed)->toBeFalse('CPF 52998224725 (sem mascara) deveria ser aceito pela Rule Cpf.');
 });
 
-test('AC-002: Rule Cpf aceita outro CPF valido 347.066.120-98', function () {
+test('AC-002: Rule Cpf aceita outro CPF valido 347.066.120-04', function () {
     /** @ac AC-002 */
     $rule = new \App\Rules\Cpf;
 
     $failed = false;
-    $rule->validate('cpf', '347.066.120-98', function () use (&$failed) {
+    $rule->validate('cpf', '347.066.120-04', function () use (&$failed) {
         $failed = true;
     });
 
-    expect($failed)->toBeFalse('CPF 347.066.120-98 deveria ser aceito pela Rule Cpf.');
+    expect($failed)->toBeFalse('CPF 347.066.120-04 deveria ser aceito pela Rule Cpf.');
 });
 
 // ---------------------------------------------------------------------------

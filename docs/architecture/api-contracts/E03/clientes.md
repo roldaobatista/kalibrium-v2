@@ -39,7 +39,7 @@
 {
   "data": [
     {
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "id": 1,
       "tipo_pessoa": "PJ",
       "cnpj_cpf": "11.222.333/0001-81",
       "razao_social": "Calibra Laboratorios Ltda",
@@ -105,7 +105,7 @@
 | `cidade` | string | sim | max:100 | `"Sao Paulo"` |
 | `uf` | string | sim | `size:2`, estados brasileiros validos | `"SP"` |
 | `cep` | string | sim | formato `NNNNN-NNN` ou `NNNNNNNN`, 8 digitos | `"01310-100"` |
-| `regime_tributario` | enum | sim | `in:Simples,Lucro Presumido,Lucro Real,MEI,Isento` | `"Lucro Presumido"` |
+| `regime_tributario` | enum | sim | aceita labels (`Simples`, `Lucro Presumido`, `Lucro Real`, `MEI`, `Isento`) ou slugs (`simples`, `presumido`, `real`, `mei`, `isento`); banco armazena slugs — API expoe labels via `ClienteResource` | `"Lucro Presumido"` |
 | `limite_credito` | numeric | nao | min:0, max:9999999.99; padrao: 0 | `5000.00` |
 
 ### Response 201 Created
@@ -113,7 +113,7 @@
 ```json
 {
   "data": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "id": 1,
     "tipo_pessoa": "PJ",
     "cnpj_cpf": "11.222.333/0001-81",
     "razao_social": "Calibra Laboratorios Ltda",
@@ -169,14 +169,14 @@
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do cliente |
+| `id` | integer | ID do cliente |
 
 ### Response 200 OK
 
 ```json
 {
   "data": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "id": 1,
     "tipo_pessoa": "PJ",
     "cnpj_cpf": "11.222.333/0001-81",
     "razao_social": "Calibra Laboratorios Ltda",
@@ -219,7 +219,7 @@
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do cliente |
+| `id` | integer | ID do cliente |
 
 ### Request Body
 
@@ -234,7 +234,7 @@
 | `cidade` | string | nao | max:100 | `"Sao Paulo"` |
 | `uf` | string | nao | `size:2`, estados brasileiros validos | `"SP"` |
 | `cep` | string | nao | formato `NNNNN-NNN` ou `NNNNNNNN` | `"01310-100"` |
-| `regime_tributario` | enum | nao | `in:Simples,Lucro Presumido,Lucro Real,MEI,Isento` | `"Simples"` |
+| `regime_tributario` | enum | nao | aceita labels ou slugs (ver POST); banco armazena slugs | `"Simples"` |
 | `limite_credito` | numeric | nao | min:0, max:9999999.99 | `10000.00` |
 
 > Pelo menos um campo deve ser enviado (validacao de payload nao-vazio).
@@ -264,7 +264,7 @@ Retorna o mesmo schema de `GET /clientes/{id}` com valores atualizados.
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do cliente |
+| `id` | integer | ID do cliente |
 
 ### Response 200 OK
 
@@ -272,7 +272,7 @@ Retorna o mesmo schema de `GET /clientes/{id}` com valores atualizados.
 {
   "message": "Cliente desativado com sucesso.",
   "data": {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "id": 1,
     "ativo": false,
     "updated_at": "2026-04-15T15:30:00-03:00"
   }

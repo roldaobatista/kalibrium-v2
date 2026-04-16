@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Branch;
+use App\Models\Cliente;
 use App\Models\Company;
 use App\Models\ConsentRecord;
 use App\Models\ConsentSubject;
@@ -27,6 +28,7 @@ return [
     |
     */
     'sensitive_models' => [
+        Cliente::class,
         TenantUser::class,
         ConsentSubject::class,
         ConsentRecord::class,

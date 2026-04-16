@@ -494,6 +494,19 @@ if (! app()->environment('production')) {
 }
 
 // ---------------------------------------------------------------------------
+// Slice 012 — E03-S01a: Clientes CRUD (store + destroy)
+// ---------------------------------------------------------------------------
+Route::middleware([
+    'auth',
+    EnsureTwoFactorChallengeCompleted::class,
+    SetCurrentTenantContext::class,
+])
+    ->group(function (): void {
+        Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store');
+        Route::delete('/clientes/{id}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy');
+    });
+
+// ---------------------------------------------------------------------------
 // Slice 011 — rota de teste para AC-011 (batch cross-tenant)
 // Disponível apenas em local/testing. Demonstra comportamento esperado:
 // batch com qualquer ID de tenant diferente do contexto atual → 403 sem deletar nada.

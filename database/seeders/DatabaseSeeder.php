@@ -18,5 +18,7 @@ class DatabaseSeeder extends Seeder
         foreach (['tecnico', 'gerente', 'administrativo', 'visualizador'] as $roleName) {
             Role::query()->firstOrCreate(['name' => $roleName]);
         }
+
+        $this->call(ClienteSeeder::class);
     }
 }
