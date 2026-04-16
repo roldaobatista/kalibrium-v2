@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-16T12:30:00-04:00",
+  "updated_at": "2026-04-16T13:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -38,10 +38,10 @@
   },
   "execution": {
     "current_epic": "E03",
-    "current_story": "E03-S02a",
+    "current_story": "E03-S02b",
     "current_slice": null,
     "slice_status": "not_started",
-    "last_green_commit": "f8a9c80",
+    "last_green_commit": "c91c3d1",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
@@ -87,7 +87,7 @@
       "stories": {
         "E03-S01a": "merged",
         "E03-S01b": "merged",
-        "E03-S02a": "draft",
+        "E03-S02a": "merged",
         "E03-S02b": "draft",
         "E03-S03a": "draft",
         "E03-S03b": "draft",
@@ -130,7 +130,7 @@
   "paused": false,
   "paused_reason": null,
   "active_epic": "E03",
-  "next_recommended_action": "/start-story E03-S02a",
+  "next_recommended_action": "redesign de agentes (PM pediu reestruturação por domínio) → depois /start-story E03-S02b",
   "current_phase": "execution",
   "master_auditor_status": "active",
   "harness": {
