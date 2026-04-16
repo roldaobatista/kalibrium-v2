@@ -16,6 +16,10 @@ final class UpdateContatoRequest extends FormRequest
         'whatsapp',
         'papel',
         'principal',
+    ];
+
+    /** Campos aceitos no payload mas silenciosamente ignorados (não editáveis). */
+    private const array IGNORED_FIELDS = [
         'cliente_id',
     ];
 
@@ -33,7 +37,6 @@ final class UpdateContatoRequest extends FormRequest
             'whatsapp' => ['sometimes', 'nullable', 'string', 'regex:/^\d{10,20}$/'],
             'papel' => ['sometimes', 'string', Rule::in(['comprador', 'responsavel_tecnico', 'financeiro', 'outro'])],
             'principal' => ['sometimes', 'boolean'],
-            'cliente_id' => ['sometimes', 'integer'],
         ];
     }
 
@@ -43,15 +46,16 @@ final class UpdateContatoRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $v): void {
-            $hasEditableField = false;
-            foreach (self::EDITABLE_FIELDS as $field) {
+            $knownFields = array_merge(self::EDITABLE_FIELDS, self::IGNORED_FIELDS);
+            $hasKnownField = false;
+            foreach ($knownFields as $field) {
                 if ($this->has($field)) {
-                    $hasEditableField = true;
+                    $hasKnownField = true;
                     break;
                 }
             }
 
-            if (! $hasEditableField) {
+            if (! $hasKnownField) {
                 $v->errors()->add('fields', 'Ao menos um campo editavel deve ser enviado.');
             }
         });

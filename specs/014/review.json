@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "014",
+  "review_date": "2026-04-16",
+  "verdict": "rejected",
+  "quality_checks": [
+    {
+      "category": "duplication",
+      "status": "pass",
+      "evidence": "Blocos de busca de cliente (3 linhas cada) repetidos em index e store estao abaixo do limiar de 10 linhas. Sem duplicacao significativa encontrada."
+    },
+    {
+      "category": "complexity",
+      "status": "pass",
+      "evidence": "Maior metodo (destroy) tem 35 linhas e nesting maximo de 2 niveis. Todas as funcoes abaixo de 50 linhas e responsabilidade unica."
+    },
+    {
+      "category": "naming",
+      "status": "pass",
+      "evidence": "Nomes descritivos e consistentes: ContatoController, StoreContatoRequest, UpdateContatoRequest, ContatoResource, ContatoPolicy, canReadContatos, canWriteContatos. Convencao verbo+substantivo respeitada."
+    },
+    {
+      "category": "security",
+      "status": "pass",
+      "evidence": "Sem SQL injection (Eloquent parametrizado). Sem secrets hardcoded. Input validado via FormRequest antes de chegar ao controller. Isolamento tenant garantido por global scope ScopesToCurrentTenant (fail-closed: whereRaw 1=0 sem contexto) e por where tenant_id explicito no destroy com withTrashed. RBAC via Gate::authorize em todos os endpoints."
+    },
+    {
+      "category": "simplicity",
+      "status": "fail",
+      "evidence": "UpdateContatoRequest declara cliente_id em EDITABLE_FIELDS (linha 19) e nas rules (linha 36 como 'sometimes integer'), mas o controller faz unset(data['cliente_id']) silenciosamente (ContatoController linha 89). Consequencia: PUT com payload {cliente_id: 99} satisfaz a validacao de 'pelo menos um campo editavel' e retorna HTTP 200 sem persistir nada. O contrato do FormRequest anuncia um campo que nunca tem efeito operacional, criando comportamento enganoso para o consumidor da API. A correcao e remover cliente_id de EDITABLE_FIELDS e das rules do UpdateContatoRequest."
+    },
+    {
+      "category": "glossary",
+      "status": "pass",
+      "evidence": "Termos canonicos usados: Contato, Cliente, Tenant, TenantRole. Campo 'papel' e vocabulario de dominio local sem conflito com glossario canonico. Sem uso de alias proibidos (WorkOrder, Chamado como sinonimo, etc)."
+    },
+    {
+      "category": "adr_compliance",
+      "status": "pass",
+      "evidence": "Stack Laravel/Eloquent conforme ADR-0001. Autenticacao e isolamento via middleware de tenant conforme ADR-0004. Sem contradicoes com ADR-0008, ADR-0010, ADR-0011, ADR-0012, ADR-0014."
+    },
+    {
+      "category": "dead_code",
+      "status": "pass",
+      "evidence": "Todos os imports utilizados. ATTENDANT em TenantRole.php e referenciado em canReadContatos e canWriteContatos. Nenhuma funcao orfao detectada."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "major",
+      "category": "simplicity",
+      "file": "app/Http/Requests/UpdateContatoRequest.php",
+      "lines": "13-20, 36",
+      "description": "cliente_id declarado em EDITABLE_FIELDS e nas rules do UpdateContatoRequest mas silenciosamente descartado via unset no controller. Um PUT com payload {\"cliente_id\": 99} passa na validacao de payload minimo e retorna HTTP 200 sem persistir nada. Comportamento enganoso para consumidores da API.",
+      "fix": "Remover 'cliente_id' de EDITABLE_FIELDS e das rules() do UpdateContatoRequest. O campo nao e editavel e nao deve ser anunciado no contrato de validacao."
+    }
+  ],
+  "summary": "Slice 014 rejeitado por 1 finding major. A logica central (CRUD, RBAC, isolamento multi-tenant, SoftDeletes, validacao de WhatsApp) esta correta e bem estruturada. O unico problema e o campo cliente_id no UpdateContatoRequest: ele e declarado como campo editavel valido, conta para a regra de payload minimo, mas e silenciosamente descartado no controller — criando um contrato de API enganoso. Correcao simples: remover cliente_id de EDITABLE_FIELDS e das rules do UpdateContatoRequest.",
+  "next_action": "return_to_fixer"
+}

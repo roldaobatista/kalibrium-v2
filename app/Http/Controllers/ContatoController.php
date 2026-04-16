@@ -84,9 +84,7 @@ final class ContatoController extends Controller
         // ScopesToCurrentTenant garante 404 cross-tenant automaticamente
         $contato = Contato::findOrFail($id);
 
-        // Pega apenas campos editáveis — ignora cliente_id silenciosamente
         $data = $request->validated();
-        unset($data['cliente_id']);
 
         $contato->fill($data);
         $contato->updated_by = $tenantUser->user_id;
