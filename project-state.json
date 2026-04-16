@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-15T12:30:00-04:00",
+  "updated_at": "2026-04-16T02:45:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -20,12 +20,12 @@
   },
   "planning": {
     "epics_total": 14,
-    "epics_decomposed": 1,
+    "epics_decomposed": 2,
     "epics_mvp": 12,
     "epics_post_mvp": 2,
-    "stories_total": 6,
-    "stories_with_contract": 6,
-    "stories_audited": 6,
+    "stories_total": 22,
+    "stories_with_contract": 22,
+    "stories_audited": 22,
     "prd_gaps_resolved": true,
     "new_frs_added": 48,
     "total_frs": 200,
@@ -33,205 +33,28 @@
     "planning_audit_roadmap": "approved",
     "planning_audit_E01": "approved",
     "story_audit_E01": "approved",
-    "documentation_gate": "e02-auth-docs-used-to-draft-specs-007"
+    "story_audit_E03": "approved",
+    "documentation_gate": "e03-complete"
   },
   "execution": {
-    "current_epic": "E02",
-    "current_story": "E02-S08",
-    "current_slice": "011",
-    "slice_status": "spec_draft",
-    "last_green_commit": "dd441b6",
+    "current_epic": "E03",
+    "current_story": null,
+    "current_slice": null,
+    "slice_status": "awaiting_start_story",
+    "last_green_commit": "25e1ec2",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null
   },
   "gates_status": {
-    "spec_auditor": "approved",
-    "plan": "approved",
-    "plan_review": "approved",
-    "verifier": "approved",
-    "reviewer": "approved",
-    "security_reviewer": "approved",
-    "test_auditor": "approved",
-    "functional_reviewer": "approved"
-  },
-  "pending_decisions": [
-    {
-      "id": "PD-002",
-      "question": "ADRs 0003-0007 pendentes devem ser criadas sob demanda conforme o epico exigir?",
-      "options": [
-        "Criar sob demanda por epico",
-        "Criar todas antes de retomar produto"
-      ],
-      "created_at": "2026-04-12T23:00:00Z",
-      "resolved_at": "2026-04-13T12:58:00-04:00",
-      "decision": "Criar ADRs sob demanda por epico; primeira execucao: ADR-0004 aceito para desbloquear SEG-001"
-    },
-    {
-      "id": "PD-003",
-      "question": "3 suposicoes pendentes de consultor de metrologia (ASS-002, ASS-012, ASS-018)",
-      "options": [
-        "Bloquear stories dependentes",
-        "Prosseguir e validar depois"
-      ],
-      "created_at": "2026-04-13T01:00:00Z",
-      "resolved_at": "2026-04-13T23:11:55-04:00",
-      "decision": "Pedir nova tentativa focada no fluxo real de /app com 2FA pendente"
-    },
-    {
-      "id": "PD-004",
-      "question": "R6 do slice 006: reviewer reprovou duas vezes por teste AC-010 tautologico",
-      "options": [
-        "Pedir nova tentativa focada no AC-010",
-        "Reescopar o slice 006",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-13T03:36:15Z",
-      "resolved_at": "2026-04-13T00:00:33-04:00",
-      "decision": "Pedir nova tentativa focada no AC-010"
-    },
-    {
-      "id": "PD-005",
-      "question": "No slice 007, tenant suspended deve entrar em modo somente leitura ou bloquear login ate uma decisao posterior de lifecycle/dunning?",
-      "options": [
-        "Seguir PRD/E02 amplo: permitir modo somente leitura e atualizar contrato E02",
-        "Seguir contrato API atual: bloquear login e deixar readonly para slice futuro"
-      ],
-      "created_at": "2026-04-13T17:05:48-04:00",
-      "resolved_at": "2026-04-13T17:15:28-04:00",
-      "decision": "Seguir PRD/E02 amplo: permitir modo somente leitura para tenant suspended e atualizar contrato E02"
-    },
-    {
-      "id": "PD-006",
-      "question": "R6 do slice 007: reviewer reprovou duas vezes; corrigir novos achados ou reescopar?",
-      "options": [
-        "Pedir nova tentativa focada nos 2 findings do reviewer",
-        "Reescopar o slice 007",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-13T21:07:26-04:00",
-      "resolved_at": "2026-04-13T21:18:00-04:00",
-      "decision": "Pedir nova tentativa focada nos 2 findings do reviewer"
-    },
-    {
-      "id": "PD-007",
-      "question": "R6 do slice 007: reviewer encontrou risco de sessao lembrada continuar valida apos reset de senha; corrigir ou pausar?",
-      "options": [
-        "Pedir nova tentativa focada no remember_token",
-        "Reescopar o slice 007",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-13T21:23:41-04:00",
-      "resolved_at": "2026-04-13T21:32:00-04:00",
-      "decision": "Pedir nova tentativa focada no remember_token"
-    },
-    {
-      "id": "PD-008",
-      "question": "R6 do slice 007: reviewer encontrou respostas JSON em formularios HTML e sessao 2FA pendente sem renovacao; corrigir ou pausar?",
-      "options": [
-        "Pedir nova tentativa focada nesses 2 findings",
-        "Reescopar o slice 007",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-13T21:35:27-04:00",
-      "resolved_at": "2026-04-13T21:53:03-04:00",
-      "decision": "Pedir nova tentativa focada nos formularios e na sessao 2FA usando gpt-5.4 xhigh"
-    },
-    {
-      "id": "PD-009",
-      "question": "R6 do slice 007: reviewer encontrou fail-open de status de tenant/vinculo e recovery codes 2FA reversiveis; corrigir ou pausar?",
-      "options": [
-        "Pedir nova tentativa focada nesses 2 findings",
-        "Reescopar o slice 007",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-13T21:53:03-04:00",
-      "resolved_at": "2026-04-13T22:12:19-04:00",
-      "decision": "Pedir nova tentativa focada no fail-closed de status de tenant/vinculo e nos recovery codes 2FA como segredo usando gpt-5.4 xhigh"
-    },
-    {
-      "id": "PD-010",
-      "question": "R6 do slice 007: reviewer encontrou que a conclusao do 2FA nao revalida se o acesso ainda continua permitido; corrigir ou pausar?",
-      "options": [
-        "Pedir nova tentativa focada nesse finding",
-        "Reescopar o slice 007",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-13T22:12:19-04:00",
-      "resolved_at": "2026-04-13T22:32:58-04:00",
-      "decision": "Pedir nova tentativa focada nesse finding"
-    },
-    {
-      "id": "PD-011",
-      "question": "R6 do slice 007: reviewer encontrou que /app com 2FA pendente usa auth antes do middleware de desafio e pode voltar para login no fluxo real; corrigir ou pausar?",
-      "options": [
-        "Pedir nova tentativa focada nesse finding",
-        "Reescopar o slice 007",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-13T22:32:58-04:00",
-      "resolved_at": "2026-04-14T01:03:00-04:00",
-      "decision": "Pedir nova tentativa focada nesse finding; fix aplicado e cadeia completa de gates reexecutada ate approved com zero findings"
-    },
-    {
-      "id": "PD-012",
-      "question": "R6 do slice 009: reviewer reprovou pela 6ª vez com risco de ultimo gerente em concorrencia e auditoria de justificativa livre; continuar, reescopar ou pausar?",
-      "options": [
-        "Pedir nova tentativa focada nesses 3 findings",
-        "Reescopar o slice 009",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-14T17:55:54-04:00",
-      "resolved_at": "2026-04-14T18:04:00-04:00",
-      "decision": "Pedir nova tentativa: repetir ate mais 10 rodadas ou ate passar. Correcoes aplicadas e committadas em 945a098; verifier aprovou."
-    },
-    {
-      "id": "PD-013",
-      "question": "R6 do slice 009: reviewer encontrou que o pacote de review inclui verification.json, quebrando o isolamento entre verifier e reviewer; continuar corrigindo o empacotamento do review, reescopar ou pausar?",
-      "options": [
-        "Pedir nova tentativa focada no empacotamento do review",
-        "Reescopar o slice 009",
-        "Pausar para discussao"
-      ],
-      "created_at": "2026-04-14T18:25:58-04:00",
-      "resolved_at": "2026-04-14T18:57:27-04:00",
-      "decision": "Pedir nova tentativa focada no empacotamento do review; corrigir o pacote para nao expor verification.json ou artefatos operacionais ao reviewer e rerodar ate 10 rodadas ou ate passar."
-    },
-    {
-      "id": "PD-014",
-      "question": "R6 do slice 010: reviewer rejeitou 5 findings na rodada 9 (4 alucinados), continuar loop, override ou refator profundo?",
-      "options": [
-        "A) Continuar review loop",
-        "B) Override PM aceitando slice",
-        "C) Refator unico fixer profundo",
-        "F.1) Fix completo via orquestrador"
-      ],
-      "created_at": "2026-04-15T10:14:00-04:00",
-      "resolved_at": "2026-04-15T12:00:00-04:00",
-      "decision": "F.1 escolhido: orquestrador corrigiu F-001 docblock + 8 findings reais UX-001..UX-008 + bug helper test flaky. Todos 5 gates aprovados em 4 rodadas. Merge via PR #15."
-    }
-  ],
-  "harness": {
-    "agents": 22,
-    "skills": 38,
-    "hooks": 17,
-    "schemas": 10,
-    "last_relock_commit": "a84371f",
-    "codex_orchestrator_commit": "6f7d629",
-    "codex_bootstrap_commit": "1527c69"
-  },
-  "handoff": {
-    "last_session_summary": "Slice 010 (E02-S07 LGPD) concluido via opcao F.1 apos auditoria do reviewer rodada 9 revelar 4 findings alucinados. Orquestrador validou manualmente cada finding: F-002/F-003/F-004/F-005 stale (linhas 1475/556/1873 nao existiam em arquivos de 85-185 linhas), F-001 legitimo (docblock ausente). Functional-reviewer encontrou UX-001 bug real (layouts.guest inexistente, nao pegava em Livewire::test() mas quebraria browser) + 7 findings a11y/UX reais. Todos fixados em 4 rodadas (commits 340d3fb, 98038ff, 31f35a0, 242450e). Tambem corrigido bug flaky em tests/slice-010/TestHelpers.php ignorando overrides['created_at']. 5 gates approved. PR #15 mergeando com conflitos resolvidos contra main (PRs #11/#13/#14 mergeados em paralelo).",
-    "next_action": "Aguardar merge do PR #15. Depois rodar /retrospective 010 e /slice-report 010. Proximo slice: E02-S08 (ou verificar roadmap via /next-slice).",
-    "context_files_to_load": [
-      "CLAUDE.md",
-      "docs/constitution.md",
-      "docs/handoffs/latest.md",
-      "project-state.json",
-      "specs/010/spec.md",
-      "specs/010/plan.md",
-      "docs/incidents/slice-010-pm-override-2026-04-15.md"
-    ]
+    "spec_auditor": null,
+    "plan": null,
+    "plan_review": null,
+    "verifier": null,
+    "reviewer": null,
+    "security_reviewer": null,
+    "test_auditor": null,
+    "functional_reviewer": null
   },
   "epics_status": {
     "E01": {
@@ -257,25 +80,27 @@
         "E02-S07": "merged",
         "E02-S08": "merged"
       }
+    },
+    "E03": {
+      "status": "in_progress",
+      "stories": {
+        "E03-S01a": "draft",
+        "E03-S01b": "draft",
+        "E03-S02a": "draft",
+        "E03-S02b": "draft",
+        "E03-S03a": "draft",
+        "E03-S03b": "draft",
+        "E03-S04a": "draft",
+        "E03-S04b": "draft",
+        "E03-S05a": "draft",
+        "E03-S05b": "draft",
+        "E03-S06a": "draft",
+        "E03-S06b": "draft",
+        "E03-S07a": "draft",
+        "E03-S07b": "draft"
+      }
     }
   },
-  "paused": false,
-  "paused_reason": null,
-  "technical_debt": [
-    "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
-    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md",
-    "secret CI_DB_PASSWORD precisa ser cadastrado no GitHub Actions (slice-011 SEC-006)",
-    "GAP-S05-001: automação trial→expired (job/scheduler ausente) — epics/E02/stories/E02-S05.md",
-    "GAP-S06-001: pro-rata upgrade/downgrade não implementado — epics/E02/stories/E02-S06.md"
-  ],
-  "technical_debt_count": 5,
-  "guide_backlog_ref": "docs/guide-backlog.md (B-022..B-028 abertos)",
-  "state": "active",
-  "amendment_date": "2026-04-15",
-  "last_checkpoint": "2026-04-16T00:38:00Z",
-  "last_handoff": "docs/handoffs/handoff-2026-04-15-2038.md",
-  "current_phase": "execution",
-  "active_epic": "E03",
   "pending_epic_retrospective": null,
   "epic_retrospective_E02": {
     "verdict": "approved",
@@ -290,12 +115,22 @@
     "harness_learner_report": "docs/retrospectives/harness-learner-E02.md",
     "approved_at": "2026-04-16T01:30:00Z"
   },
-  "next_recommended_slice": {
-    "code": "E03-S01",
-    "title": "TBD — decompor E02 primeiro via /decompose-stories E03",
-    "spec_nnn": null,
-    "status": "ready_for_decomposition"
-  },
+  "technical_debt": [
+    "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
+    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md — RESOLVED (repo public)",
+    "secret CI_DB_PASSWORD — RESOLVED (cadastrada 2026-04-16)",
+    "GAP-S05-001: automação trial→expired (job/scheduler ausente) — epics/E02/stories/E02-S05.md",
+    "GAP-S06-001: pro-rata upgrade/downgrade não implementado — epics/E02/stories/E02-S06.md",
+    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md — RESOLVED (chave rotacionada, opção B aceita)"
+  ],
+  "technical_debt_count": 6,
+  "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos)",
+  "state": "active",
+  "paused": false,
+  "paused_reason": null,
+  "active_epic": "E03",
+  "next_recommended_action": "/start-story E03-S01a",
+  "current_phase": "execution",
   "master_auditor_status": "active",
   "harness": {
     "agents": 25,
@@ -308,5 +143,7 @@
     "model_policy_commit": "7cf1b1a",
     "last_relock_commit": "a84371f",
     "codex_gpt5_guide": "docs/operations/codex-gpt5-setup.md"
-  }
+  },
+  "last_checkpoint": "2026-04-16T02:45:00Z",
+  "last_handoff": "docs/handoffs/handoff-2026-04-16-0245.md"
 }
