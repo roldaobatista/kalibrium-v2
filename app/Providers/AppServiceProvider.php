@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Policies\ClientePolicy;
+use App\Policies\ContatoPolicy;
 use App\Policies\TenantSettingsPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -32,5 +33,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('clientes.create', [ClientePolicy::class, 'create']);
         Gate::define('clientes.update', [ClientePolicy::class, 'update']);
         Gate::define('clientes.delete', [ClientePolicy::class, 'delete']);
+
+        Gate::define('contatos.viewAny', [ContatoPolicy::class, 'viewAny']);
+        Gate::define('contatos.view', [ContatoPolicy::class, 'view']);
+        Gate::define('contatos.create', [ContatoPolicy::class, 'create']);
+        Gate::define('contatos.update', [ContatoPolicy::class, 'update']);
+        Gate::define('contatos.delete', [ContatoPolicy::class, 'delete']);
     }
 }
