@@ -1,14 +1,14 @@
 {
   "slice_id": "slice-012",
-  "verdict": "rejected",
-  "timestamp": "2026-04-15T22:10:00Z",
-  "iteration": 2,
+  "verdict": "approved",
+  "timestamp": "2026-04-15T22:35:00Z",
+  "iteration": 3,
   "ac_assessment": [
     {
       "ac": "AC-001",
       "met": true,
       "confidence": "high",
-      "notes": "POST /clientes com CNPJ valido retorna 201, persiste com tipo_pessoa=PJ e tenant_id correto. ClienteResource agora retorna todos os 15 campos do contrato. Teste feature cobre status 201, JsonStructure e assertDatabaseHas."
+      "notes": "POST /clientes com CNPJ valido retorna 201, persiste com tipo_pessoa=PJ e tenant_id correto. ClienteResource retorna todos os 15 campos do contrato incluindo regime_tributario como label. Teste feature cobre status 201, JsonStructure e assertDatabaseHas."
     },
     {
       "ac": "AC-002",
@@ -50,7 +50,7 @@
       "ac": "AC-008",
       "met": true,
       "confidence": "high",
-      "notes": "DELETE /clientes/{id} de cliente ja inativo retorna 409 com code=cliente_ja_inativo e mensagem em linguagem de produto. CON-003 e UX-001 corrigidos. Teste feature verifica status 409 e updated_at inalterado."
+      "notes": "DELETE /clientes/{id} de cliente ja inativo retorna 409 com code=cliente_ja_inativo e mensagem em linguagem de produto 'Este cliente ja esta desativado.' Teste feature verifica status 409 e updated_at inalterado."
     },
     {
       "ac": "AC-009",
@@ -60,14 +60,7 @@
     }
   ],
   "ux_findings": [],
-  "consistency_findings": [
-    {
-      "id": "CON-004",
-      "severity": "medium",
-      "description": "O campo regime_tributario na resposta da API (ClienteResource) retorna o slug armazenado no banco (ex: 'presumido', 'simples') em vez do label legivel ao usuario (ex: 'Lucro Presumido', 'Simples'). O contrato de API (docs/architecture/api-contracts/E03/clientes.md) especifica explicitamente 'banco armazena slugs — API expoe labels via ClienteResource' e o exemplo de resposta mostra 'Lucro Presumido' (label). StoreClienteRequest ja faz a conversao label→slug na entrada, mas ClienteResource nao faz a conversao inversa slug→label na saida.",
-      "recommendation": "Adicionar mapeamento slug→label em ClienteResource para o campo regime_tributario. Mapa inverso: simples→Simples, presumido→Lucro Presumido, real→Lucro Real, mei→MEI, isento→Isento. Considerar usar um Enum PHP para centralizar a conversao bidirecional."
-    }
-  ],
+  "consistency_findings": [],
   "business_rule_findings": [],
-  "next_action": "return_to_fixer"
+  "next_action": "approved"
 }
