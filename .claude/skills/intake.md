@@ -87,8 +87,8 @@ PM: <nome>
 ### Fase 3 — Disparo de sub-agents
 
 Apos registrar respostas:
-1. Spawn `domain-analyst` para produzir glossario, modelo de dominio, riscos, suposicoes.
-2. Spawn `nfr-analyst` para produzir NFRs estruturados.
+1. Spawn `product-expert` (modo: discovery) para produzir glossario, modelo de dominio, riscos, suposicoes.
+2. Spawn `product-expert` (modo: discovery/NFR) para produzir NFRs estruturados.
 
 Ambos em **sequencia** (domain-analyst primeiro, pois nfr-analyst usa o glossario).
 
@@ -114,16 +114,16 @@ Quer seguir para /freeze-prd ou ajustar algo?
 ```
 
 ## Agentes
-- `domain-analyst` — produz glossario, modelo de dominio, riscos e suposicoes (serializado, executa primeiro)
-- `nfr-analyst` — produz NFRs estruturados com metricas mensuraveis (serializado, executa apos domain-analyst)
+- `product-expert` (modo: discovery) — produz glossario, modelo de dominio, riscos e suposicoes (serializado, executa primeiro)
+- `product-expert` (modo: discovery/NFR) — produz NFRs estruturados com metricas mensuraveis (serializado, executa apos domain-analyst)
 
 ## Erros e Recuperacao
 
 | Erro | Recuperacao |
 |---|---|
 | PM nao responde a uma pergunta (nao sabe) | Registrar como "pendente" no intake-responses.md. Prosseguir com as demais. Revisitar antes de `/freeze-prd`. |
-| `domain-analyst` falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
-| `nfr-analyst` falha porque glossario nao existe | Garantir que `domain-analyst` completou com sucesso antes de spawnar `nfr-analyst`. Reexecutar domain-analyst se necessario. |
+| `product-expert` (modo: discovery) falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
+| `product-expert` (modo: discovery/NFR) falha porque glossario nao existe | Garantir que `product-expert` (modo: discovery) completou com sucesso antes de spawnar `product-expert` (modo: discovery/NFR). Reexecutar domain-analyst se necessario. |
 | PM contradiz respostas anteriores durante a entrevista | Parar, apresentar a contradicao em linguagem R12, pedir esclarecimento antes de registrar. |
 
 ## Handoff

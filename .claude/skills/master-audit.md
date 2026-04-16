@@ -30,7 +30,7 @@ description: Consolidação dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI) das
 2. **Spawn paralelo de duas trilhas independentes** (princípio P3 + R11/ADR-0012 E2):
 
    **Trilha A — Claude Opus 4.6:**
-   - Agent tool com `subagent_type: master-auditor` (contexto limpo, sandbox de leitura restrita a `master-audit-input/`)
+   - Agent tool com `subagent_type: governance` (contexto limpo, sandbox de leitura restrita a `master-audit-input/`)
    - Produz `master-audit-input/trail-opus.json`
 
    **Trilha B — GPT-5 via Codex CLI:**
@@ -138,13 +138,13 @@ O script monta o input package, invoca as duas trilhas em paralelo via tools do 
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `master-auditor` (trilha Opus) | sandbox via `verifier-sandbox.sh`, input restrito a `master-audit-input/` | 80k tokens |
+| `governance` (modo: master-audit, trilha Opus) | sandbox via `verifier-sandbox.sh`, input restrito a `master-audit-input/` | 80k tokens |
 | GPT-5 (trilha Codex) | `mcp__codex__codex` sandbox read-only, cwd = `master-audit-input/` | 80k tokens |
 
 ## Cross-ref
 
 - `docs/adr/0012-constitution-amendment-autonomy-dual-llm.md` §E2, §E5
 - `docs/constitution.md §R11` (emendada), §R15, §R16
-- `.claude/agents/master-auditor.md`
+- `.claude/agents/governance.md`
 - `docs/audits/external/master-audit-smoke-test-2026-04-15.json` (primeiro smoke-test documentado)
 - `docs/schemas/master-audit.schema.json` (quando criado — item de backlog)

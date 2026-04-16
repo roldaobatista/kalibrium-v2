@@ -34,7 +34,7 @@ Apos `/security-review NNN` retornar `approved`. Parte do pipeline de gates.
 
 ### 2. Spawn test-auditor (sem worktree)
 ```
-Agent(subagent_type="test-auditor")
+Agent(subagent_type="qa-expert")
 ```
 **Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
@@ -86,7 +86,7 @@ Atualizar `project-state.json` gates_status.
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `test-auditor` | worktree isolada | 25k tokens |
+| `qa-expert` (modo: audit-tests) | worktree isolada | 25k tokens |
 
 ## Handoff
 - `approved` → proximo gate (`/functional-review NNN`)

@@ -59,5 +59,5 @@ Após criação bem-sucedida:
    - ACs numerados (AC-001, AC-002, ...)
    - Fora de escopo
    - Dependências
-2. Quando aprovado, invocar sub-agent `architect` para gerar `plan.md`.
-3. Nunca pular para `ac-to-test` ou `implementer` antes de spec + plan aprovados.
+2. Quando aprovado, invocar sub-agent `architecture-expert` (modo: plan) para gerar `plan.md`.
+3. Nunca pular para `builder` (modo: test-writer) ou `builder` (modo: implementer) antes de spec + plan aprovados.

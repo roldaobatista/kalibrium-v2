@@ -35,7 +35,7 @@ Se falhar, mostra ao PM o que falta em linguagem R12 e para.
 
 ### Fase 2 — Disparar ac-to-test
 
-Spawna o sub-agent `ac-to-test` (`.claude/agents/ac-to-test.md`) com:
+Spawna o sub-agent `builder` (modo: test-writer) (`.claude/agents/ac-to-test.md`) com:
 - `subagent_type: "ac-to-test"`
 - Prompt contendo o NNN do slice
 - O ac-to-test lê spec.md + plan.md e gera testes em `tests/`
@@ -82,21 +82,21 @@ Próximo passo:
 - **PM quer pausar** → registrar estado e encerrar
 
 ## Agentes
-- `ac-to-test` — gera testes red a partir de spec.md + plan.md, um teste por AC no mínimo
+- `builder` (modo: test-writer) — gera testes red a partir de spec.md + plan.md, um teste por AC no mínimo
 
 ## Erros e Recuperação
 
 | Erro | Recuperação |
 |---|---|
 | `specs/NNN/plan.md` não existe ou não está `approved` | Abortar e sugerir `/draft-plan NNN` para gerar/aprovar o plan primeiro. |
-| `specs/NNN/plan-review.json` ausente, sem proveniencia do `plan-reviewer`, reprovado ou com findings | Abortar e rodar `/review-plan NNN`; se houver findings, corrigir todos e reauditar. |
-| `ac-to-test` gera teste que nasce verde (não falha) | Rejeitar o teste via `post-edit-gate.sh`. Re-spawnar ac-to-test com instrução para garantir red. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
+| `specs/NNN/plan-review.json` ausente, sem proveniencia do `architecture-expert` (modo: plan-review), reprovado ou com findings | Abortar e rodar `/review-plan NNN`; se houver findings, corrigir todos e reauditar. |
+| `builder` (modo: test-writer) gera teste que nasce verde (não falha) | Rejeitar o teste via `post-edit-gate.sh`. Re-spawnar ac-to-test com instrução para garantir red. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
 | `draft-tests.sh --validate` detecta AC sem teste correspondente | Listar os ACs descobertos e re-spawnar ac-to-test com foco nos ACs faltantes. |
 | Stack/framework ainda não está instalado para rodar testes | Informar PM que a infraestrutura de testes precisa ser configurada primeiro. Sugerir resolução antes de prosseguir. |
 
 ## Regras
 - Todo AC do spec DEVE ter pelo menos 1 teste (P2)
-- Nunca gerar testes sem `plan-review.json` aprovado, com proveniencia do `plan-reviewer` em contexto `isolated` e `findings: []`
+- Nunca gerar testes sem `plan-review.json` aprovado, com proveniencia do `architecture-expert` (modo: plan-review) em contexto `isolated` e `findings: []`
 - Todo teste DEVE falhar na primeira execução (red) — nascer verde é bug do teste
 - Não mockar o módulo sob teste (regra anti-teste-tautológico C1)
 - Não inventar testes para requisitos que não estão no spec

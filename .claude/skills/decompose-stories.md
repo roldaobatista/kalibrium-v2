@@ -29,7 +29,7 @@ Apos `/decompose-epics` e aprovacao do roadmap pelo PM. Executar por epico, na o
 Se alguma falhar, listar o que falta e parar.
 
 ### 2. Spawn story-decomposer
-Spawn sub-agent `story-decomposer` com acesso ao epic e docs aprovados.
+Spawn sub-agent `product-expert` (modo: decompose) com acesso ao epic e docs aprovados.
 O agent produz:
 - `epics/ENN/stories/INDEX.md` — indice de stories
 - `epics/ENN/stories/ENN-SNN.md` — Story Contract por story
@@ -85,13 +85,13 @@ Atualizar `project-state.json`:
 | Cenário | Recuperação |
 |---|---|
 | Épico `ENN` não existe ou não foi aprovado pelo PM | Listar pré-condições faltantes. Orientar PM a aprovar o épico primeiro ou rodar `/decompose-epics`. |
-| Sub-agent `story-decomposer` falha ou excede budget (30k tokens) | Revisar complexidade do épico. Se muito grande, sugerir ao PM dividir o épico antes de decompor. Re-invocar com contexto reduzido. |
+| Sub-agent `product-expert` (modo: decompose) falha ou excede budget (30k tokens) | Revisar complexidade do épico. Se muito grande, sugerir ao PM dividir o épico antes de decompor. Re-invocar com contexto reduzido. |
 | PM rejeita todas as stories propostas | Voltar ao épico (`epics/ENN/epic.md`), revisar escopo com PM, e re-decompor com novas diretrizes. |
 | Dependência circular entre stories detectada | Apresentar o grafo de dependências ao PM (em linguagem de produto). Reorganizar a sequência até eliminar ciclos. |
 
 ## Agentes
 
-- `story-decomposer` (budget: 30k tokens) — decompõe o épico em stories com Story Contract completo.
+- `product-expert` (modo: decompose) (budget: 30k tokens) — decompõe o épico em stories com Story Contract completo.
 
 ## Handoff
 - Todos os contratos aprovados → `/start-story ENN-S01` para iniciar a primeira

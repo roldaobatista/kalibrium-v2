@@ -36,7 +36,7 @@ Apos `/test-audit NNN` retornar `approved`. Ultimo gate antes de apresentar ao P
 
 ### 2. Spawn functional-reviewer (sem worktree)
 ```
-Agent(subagent_type="functional-reviewer")
+Agent(subagent_type="product-expert")
 ```
 **Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
@@ -87,13 +87,13 @@ Atualizar `project-state.json` gates_status.
 | Cenário | Recuperação |
 |---|---|
 | Pré-condição falha (gates anteriores não aprovados) | Listar quais gates faltam. Orientar a rodar o pipeline na ordem: `/verify-slice` → `/review-pr` → `/security-review` → `/test-audit` → `/functional-review`. |
-| Sub-agent `functional-reviewer` falha ou excede budget (25k tokens) | Re-invocar com contexto reduzido. Se persistir, verificar se o slice é muito grande e sugerir decomposição. |
+| Sub-agent `product-expert` (modo: functional-gate) falha ou excede budget (25k tokens) | Re-invocar com contexto reduzido. Se persistir, verificar se o slice é muito grande e sugerir decomposição. |
 | 6º `rejected` consecutivo (R6) | Parar imediatamente. Invocar `/explain-slice NNN` para traduzir o problema ao PM. Escalar decisão humana — não tentar corrigir sem orientação. |
 | PM cancela a revisão funcional | Registrar estado parcial em `project-state.json`. O slice não avança para merge. PM pode retomar com `/functional-review NNN` quando desejar. |
 
 ## Agentes
 
-- `functional-reviewer` (budget: 25k tokens) — executa em worktree isolada, avalia ACs do ponto de vista de produto/UX. Emite `functional-review.json`.
+- `product-expert` (modo: functional-gate) (budget: 25k tokens) — executa em worktree isolada, avalia ACs do ponto de vista de produto/UX. Emite `functional-review.json`.
 
 ## Handoff
 - `approved` (todos os gates) → `/merge-slice NNN`
