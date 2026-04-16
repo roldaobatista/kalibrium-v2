@@ -1,5 +1,6 @@
 ---
-description: Revisa plan.md com plan-reviewer em contexto limpo. Quando approved, libera fluxo automatico para draft-tests sem aguardar PM (CLAUDE.md §6 Fase D step 17). Uso: /review-plan NNN.
+description: Revisa plan.md com architecture-expert (plan-review) em contexto limpo. Quando approved, libera fluxo automatico para draft-tests sem aguardar PM (CLAUDE.md §6 Fase D step 17). Uso: /review-plan NNN.
+protocol_version: "1.2.2"
 ---
 
 # /review-plan
@@ -26,7 +27,7 @@ bash scripts/plan-review.sh NNN --check
 
 Se falhar, parar e corrigir o plan/spec antes de chamar o revisor.
 
-### Fase 2 — Disparar plan-reviewer
+### Fase 2 — Disparar architecture-expert (modo: plan-review)
 
 Spawna o sub-agent `architecture-expert` (modo: plan-review) (`.claude/agents/architecture-expert.md`) em contexto limpo, sem conversa do architecture-expert e sem git history.
 
@@ -57,3 +58,13 @@ Gate só passa com `provenance` do `architecture-expert` em contexto `isolated`,
 - Não existe "aprovado com ressalva".
 - Não pular para `/draft-tests NNN` sem `plan-review.json` aprovado, com proveniencia do `architecture-expert` (modo: plan-review) em contexto `isolated` e `findings: []`.
 - Até 5 ciclos automáticos de correção; na 6ª falha consecutiva, escalar ao PM em linguagem de produto.
+
+## Conformidade com protocolo v1.2.2
+
+- **Agent invocado:** `architecture-expert (plan-review)` — conforme mapa canonico 00 §3.1
+- **Gate name (enum):** `plan-review`
+- **Output:** `specs/NNN/plan-review.json`
+- **Schema:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios)
+- **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §13`
+- **Isolamento R3:** gate roda em instancia isolada com `isolation_context` unico (separado da instancia que rodou architecture-expert (plan))
+- **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0`

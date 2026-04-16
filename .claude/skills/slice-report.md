@@ -1,5 +1,7 @@
 ---
 description: Gera relatório quantitativo de um slice a partir da telemetria (.claude/telemetry/slice-NNN.jsonl). Use após /verify-slice para ter os números antes da retrospectiva. Uso: /slice-report NNN.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /slice-report
@@ -14,11 +16,11 @@ description: Gera relatório quantitativo de um slice a partir da telemetria (.c
 Lê `.claude/telemetry/slice-NNN.jsonl` e gera `docs/retrospectives/slice-NNN-report.md` com:
 
 - **Tempo total** do slice (do primeiro evento ao `verdict: approved`)
-- **Tokens por sub-agent** (architect / ac-to-test / implementer / verifier)
+- **Tokens por sub-agent** (architecture-expert / builder test-writer / builder implementer / qa-expert verify)
 - **Total de tokens** do slice
 - **Gates disparados** (quantos `post-edit-gate`, `pre-commit-gate`, bloqueios)
 - **Gates que bloquearam** (agente teve que corrigir)
-- **Reprovações do verifier** (deveria ser 0 ou 1)
+- **Reprovações do `qa-expert` (modo: verify)** (deveria ser 0 ou 1)
 - **Tempo até primeiro green** (por AC)
 - **Commits no slice** (nomes e mensagens)
 - **Arquivos tocados**
@@ -33,14 +35,14 @@ Lê `.claude/telemetry/slice-NNN.jsonl` e gera `docs/retrospectives/slice-NNN-re
 | Métrica | Valor |
 |---|---|
 | Tempo total | 2h13m |
-| Tokens (architect) | 12.3k |
-| Tokens (ac-to-test) | 28.7k |
-| Tokens (implementer) | 64.1k |
-| Tokens (verifier) | 18.9k |
+| Tokens (architecture-expert) | 12.3k |
+| Tokens (builder test-writer) | 28.7k |
+| Tokens (builder implementer) | 64.1k |
+| Tokens (qa-expert verify) | 18.9k |
 | **Tokens totais** | **124.0k** |
 | Gates disparados | 47 |
 | Gates bloqueando | 3 |
-| Reprovações verifier | 0 |
+| Reprovações qa-expert (verify) | 0 |
 
 ## ACs
 | AC | Teste | Primeiro green | Notas |
@@ -77,3 +79,12 @@ Nenhum — executada pelo orquestrador.
 
 ## Handoff
 Output alimenta `/retrospective NNN`, que adiciona análise qualitativa em cima dos números.
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador lê telemetria e agrega métricas).
+- **Gates produzidos:** não é gate; é relatório quantitativo derivado de telemetria.
+- **Output:** `docs/retrospectives/slice-NNN-report.md` (markdown com tabelas fixas).
+- **Schema formal:** seções quantitativas (métricas, ACs, commits) padronizadas.
+- **Isolamento R3:** não aplicável (consome artefatos imutáveis).
+- **Ordem no pipeline:** após `/merge-slice NNN`; precede `/retrospective NNN`.

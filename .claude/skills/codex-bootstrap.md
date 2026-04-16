@@ -1,5 +1,7 @@
 ---
 description: Inicializa uma sessao Codex CLI neste projeto seguindo o harness. Uso obrigatorio no inicio de toda sessao Codex e antes de qualquer trabalho.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
 # /codex-bootstrap
@@ -101,3 +103,18 @@ git status --short
 - PM quer encerrar -> checkpoint/handoff obrigatorio antes de responder que pode encerrar.
 - PM quer abrir outro terminal -> checkpoint/handoff obrigatorio antes de entregar o prompt de retomada.
 - Contexto comprimiu -> checkpoint imediato e recomendacao de nova sessao.
+
+## Próximo passo
+
+- Bootstrap OK → seguir `next_action` do handoff carregado
+- Check falhou → parar, explicar ao PM, investigar antes de editar
+- Sem handoff prévio → `/start` ou `/project-status` para orientar PM
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador Codex carrega fontes R1).
+- **Gates produzidos:** gate de inicialização de sessão Codex; equivalente ao SessionStart do Claude Code.
+- **Output:** mensagem R12 ao PM com estado restaurado + próxima ação.
+- **Schema formal:** consome fontes canônicas R1 + `project-state.json`.
+- **Isolamento R3:** não aplicável (orquestrador principal).
+- **Ordem no pipeline:** **primeiro comando** de toda sessão Codex; obrigatório antes de qualquer trabalho.

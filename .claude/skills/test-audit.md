@@ -1,5 +1,7 @@
 ---
-description: Roda auditoria independente de testes (isolado por hook, sem worktree). Monta test-audit-input/, spawn test-auditor, valida JSON contra schema. Verifica cobertura de ACs, edge cases e anti-patterns. Uso: /test-audit NNN.
+description: Roda auditoria independente de testes (isolado por hook, sem worktree). Monta test-audit-input/, spawn qa-expert (audit-tests), valida JSON contra schema. Verifica cobertura de ACs, edge cases e anti-patterns. Uso: /test-audit NNN.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-A1 (Output no chat R12)"
 ---
 
 # /test-audit
@@ -10,7 +12,7 @@ description: Roda auditoria independente de testes (isolado por hook, sem worktr
 ```
 
 ## Por que existe
-Testes verdes nao significam testes bons. O test-auditor verifica se cada AC realmente tem teste adequado, se edge cases estao cobertos e se nao ha anti-patterns (testes frageis, assertions vazias, etc.).
+Testes verdes nao significam testes bons. O `qa-expert` (modo: audit-tests) verifica se cada AC realmente tem teste adequado, se edge cases estao cobertos e se nao ha anti-patterns (testes frageis, assertions vazias, etc.).
 
 ## Quando invocar
 Apos `/security-review NNN` retornar `approved`. Parte do pipeline de gates.
@@ -32,7 +34,7 @@ Apos `/security-review NNN` retornar `approved`. Parte do pipeline de gates.
 - `test-results.txt` — output da execucao dos testes
 - `coverage-report.json` — relatorio de cobertura (se disponivel)
 
-### 2. Spawn test-auditor (sem worktree)
+### 2. Spawn qa-expert (modo: audit-tests) (sem worktree)
 ```
 Agent(subagent_type="qa-expert")
 ```
@@ -78,9 +80,9 @@ Atualizar `project-state.json` gates_status.
 | Cenário | Recuperação |
 |---|---|
 | `security-review.json` não existe ou não tem `verdict: approved` | Abortar. Rodar `/security-review NNN` primeiro — pipeline de gates é sequencial. |
-| Testes do slice falham durante montagem de `test-audit-input/` | Abortar. Testes devem estar verdes antes do audit. Sugerir `/fix NNN verifier` ou corrigir manualmente. |
-| `test-audit.json` não passa na validação contra schema | Re-spawn test-auditor. Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
-| Cobertura de ACs parcial (AC sem teste correspondente) | test-auditor emite `rejected` com finding por AC descoberto. Sugerir `/fix NNN tests` para adicionar testes faltantes. |
+| Testes do slice falham durante montagem de `test-audit-input/` | Abortar. Testes devem estar verdes antes do audit. Sugerir `/fix NNN verify` ou corrigir manualmente. |
+| `test-audit.json` não passa na validação contra schema | Re-spawn `qa-expert` (modo: audit-tests). Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
+| Cobertura de ACs parcial (AC sem teste correspondente) | `qa-expert` (modo: audit-tests) emite `rejected` com finding por AC descoberto. Sugerir `/fix NNN audit-tests` para adicionar testes faltantes. |
 
 ## Agentes
 
@@ -90,4 +92,24 @@ Atualizar `project-state.json` gates_status.
 
 ## Handoff
 - `approved` → proximo gate (`/functional-review NNN`)
-- `rejected` → `/fix NNN tests` → re-run `/test-audit NNN`
+- `rejected` → `/fix NNN audit-tests` → re-run `/test-audit NNN`
+
+## Conformidade com protocolo v1.2.2
+
+- **Agent invocado:** `qa-expert (audit-tests)` — conforme mapa canonico 00 §3.1
+- **Gate name (enum):** `audit-tests`
+- **Output:** `specs/NNN/test-audit.json`
+- **Schema:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios)
+- **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §4`
+- **Isolamento R3:** gate roda em instancia isolada com `isolation_context` unico
+- **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0`
+
+## Output no chat (para PM — R12)
+
+Ao fim da execucao, apresentar ao PM em ate 3 linhas de linguagem de produto:
+
+1. **Veredicto:** frase unica em PT-BR sem jargao — ex: "A auditoria de testes do slice NNN passou: todos os criterios que voce definiu estao cobertos."
+2. **Proxima etapa:** acao unica recomendada — ex: "Posso seguir para a revisao funcional (/functional-review NNN)."
+3. **Se rejeitado:** "Encontrei N pontos na qualidade dos testes. Vou corrigir automaticamente e reexecutar o gate."
+
+Nunca jogar o test-audit.json cru, nomes de arquivo de teste, assertions tecnicas ou exit codes ao PM. Detalhes tecnicos ficam em `specs/NNN/test-audit.json` para o builder (fixer).

@@ -1,5 +1,7 @@
 ---
 description: Mostra o estado completo do projeto em linguagem de produto (R12). Le project-state.json e apresenta fase, epico/story/slice ativos, gates, pendencias e proxima acao. Substitui /where-am-i com dados estruturados. Uso: /project-status.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
 # /status
@@ -99,3 +101,30 @@ Nenhum — executada pelo orquestrador.
 - PM quer avancar → sugerir proxima skill baseada na fase
 - PM quer detalhes → sugerir `/where-am-i` para detalhes tecnicos
 - PM quer retomar → sugerir `/resume`
+
+## Próximo passo
+
+Ação recomendada varia por fase:
+
+- Discovery → `/intake` ou `/freeze-prd`
+- Strategy → `/decide-stack` ou `/freeze-architecture`
+- Planning → `/decompose-epics` ou `/decompose-stories`
+- Execution → `/next-slice` ou retomar slice ativo
+- Release → `/release-readiness`
+
+### Diferença para `/where-am-i`
+
+| Aspecto | `/project-status` | `/where-am-i` |
+|---|---|---|
+| Escopo | projeto inteiro (fase, épicos, decisões) | foco em slices |
+| Fonte primária | `project-state.json` | `specs/` + telemetria |
+| Nível | estratégico | operacional |
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum.
+- **Gates produzidos:** não é gate; é relatório agregado de estado.
+- **Output:** mensagem R12 no chat com fase + progresso + próxima ação.
+- **Schema formal:** consome `project-state.json` (schema canônico).
+- **Isolamento R3:** não aplicável.
+- **Ordem no pipeline:** invocado ad hoc; complementar a `/resume` e `/where-am-i`.

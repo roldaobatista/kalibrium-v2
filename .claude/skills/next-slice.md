@@ -1,5 +1,7 @@
 ---
 description: Lê o PRD (ou roadmap se existir) e recomenda ao PM qual o próximo slice fazer, com justificativa em PT-BR. Modo wizard na primeira execução (constrói roadmap.md); modo consulta depois. Uso: /next-slice.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
 # /next-slice
@@ -218,3 +220,19 @@ mv docs/product/roadmap.md "docs/product/roadmap-v$(date +%Y%m%d)-backup.md"
 ```
 
 Depois `/next-slice` volta pro modo wizard e constrói nova versão considerando o estado atual dos slices e eventuais novos requisitos.
+
+## Próximo passo
+
+- PM aceita recomendação → `/new-slice NNN "título"` (usa NNN sugerido)
+- PM quer trocar ordem → registrar no roadmap e reapresentar
+- ADR bloqueante → `/adr NNNN` ou `/decide-stack` primeiro
+- Todos do roadmap concluídos → `/release-readiness`
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador lê docs de produto + roadmap).
+- **Gates produzidos:** não é gate; é recomendação R13/R14-aware de próxima execução.
+- **Output:** mensagem R12 ao PM + (modo wizard) `docs/product/roadmap.md`.
+- **Schema formal:** roadmap em Markdown com código `DOMAIN-NNN` + metadados.
+- **Isolamento R3:** não aplicável.
+- **Ordem no pipeline:** após `/freeze-architecture` + primeira decomposição; sempre antes de `/new-slice`.

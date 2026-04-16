@@ -1,7 +1,8 @@
 ---
 name: audit-stories
-description: Audita Story Contracts de um epico. Roda story-auditor em contexto limpo. Ciclo automatico — auditoria, correcao, re-auditoria ate aprovado (5 ciclos automáticos; 6ª rejeição escala PM). Uso /audit-stories ENN.
+description: Audita Story Contracts de um epico. Roda qa-expert (audit-story) em contexto limpo. Ciclo automatico — auditoria, correcao, re-auditoria ate aprovado (5 ciclos automáticos; 6ª rejeição escala PM). Uso /audit-stories ENN.
 user_invocable: true
+protocol_version: "1.2.2"
 ---
 
 # /audit-stories
@@ -30,8 +31,8 @@ Story Contracts podem ter ACs vagos, secoes faltantes, gaps de cobertura ou depe
 ### 1. Validar pre-condicoes
 Se alguma falhar, listar o que falta e parar.
 
-### 2. Spawn story-auditor (contexto limpo)
-Spawn sub-agent `qa-expert` (modo: audit-story) (ou general-purpose com prompt de story-auditor).
+### 2. Spawn qa-expert (modo: audit-story) (contexto limpo)
+Spawn sub-agent `qa-expert` (modo: audit-story) conforme mapa canonico 00 §3.1.
 Produz: `docs/audits/planning/story-audit-ENN.json`
 
 ### 3. Avaliar resultado
@@ -77,7 +78,7 @@ loop (5 ciclos automáticos; 6ª rejeição escala PM):
      - Se e gap de cobertura → adicionar AC ou story
      - Se e dependencia quebrada → corrigir referencia
      - Se e scope leak → mover AC para story correta
-  3. Re-spawnar story-auditor (contexto limpo novo)
+  3. Re-spawnar `qa-expert` (modo: audit-story) (contexto limpo novo)
   4. Se approved → sair do loop
   5. Se rejected de novo → repetir
   6. Se 6 iteracoes sem aprovacao → escalar humano (R6)
@@ -94,9 +95,9 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
 ### Fluxo completo
 ```
 /decompose-stories ENN
-  → story-decomposer gera stories
+  → product-expert (decompose) gera stories
   → /audit-stories ENN (automatico)
-    → story-auditor valida
+    → qa-expert (audit-story) valida
     → se rejected: corrige + re-audita (ate 3x)
     → se approved: apresenta ao PM
   → PM aprova/ajusta stories
@@ -107,7 +108,7 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
 
 | Cenario | Recuperacao |
 |---|---|
-| story-auditor excede budget (40k tokens) | Epico com muitas stories. Auditar em lotes de 3-4 stories. |
+| `qa-expert` (modo: audit-story) excede budget (40k tokens) | Epico com muitas stories. Auditar em lotes de 3-4 stories. |
 | Ciclo de correcao nao converge (6 iteracoes) | Escalar humano via R6. Apresentar findings restantes traduzidos com `/explain-slice`. |
 | Pre-condicao falha | Listar o que falta e sugerir `/decompose-stories ENN`. |
 | Story Contract com formato inesperado | Reportar como finding critical. Fixer regenera a partir do template. |
@@ -120,3 +121,13 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
 - Approved → prosseguir para aprovacao do PM e `/start-story ENN-SNN`
 - Rejected e corrigido → re-auditar automaticamente
 - Rejected 6x → escalar humano com `/explain-slice`
+
+## Conformidade com protocolo v1.2.2
+
+- **Agent invocado:** `qa-expert (audit-story)` — conforme mapa canonico 00 §3.1
+- **Gate name (enum):** `audit-story`
+- **Output:** `docs/audits/planning/story-audit-ENN.json`
+- **Schema:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios)
+- **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §11`
+- **Isolamento R3:** gate roda em instancia isolada com `isolation_context` unico
+- **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0`

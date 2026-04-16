@@ -1,5 +1,7 @@
 ---
 description: Congela a arquitetura para a fase de planejamento. Valida que PRD esta frozen, ADRs existem, threat model existe, deploy profile definido. Nenhum codigo antes deste gate. Uso: /freeze-architecture.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /freeze-architecture
@@ -87,3 +89,12 @@ Nenhum — executada pelo orquestrador.
 - PM confirma → congelar e iniciar planejamento
 - PM recusa → listar o que quer mudar
 - Pre-condicao falha → listar gaps e sugerir ADRs necessarios
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador valida ADRs e muta status).
+- **Gates produzidos:** gate de fase (transição Estratégia → Planejamento); não é gate de slice.
+- **Output:** ADRs relevantes com `Status: ACCEPTED-FROZEN — YYYY-MM-DD` + snapshot.
+- **Schema formal:** snapshot em `docs/architecture/snapshots/arch-frozen-YYYY-MM-DD.md`.
+- **Isolamento R3:** não aplicável (sem sub-agent).
+- **Ordem no pipeline:** após `/decide-stack` + revisão PM; precede `/decompose-epics`.

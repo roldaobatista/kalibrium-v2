@@ -1,5 +1,6 @@
 ---
-description: Roda revisao funcional independente (isolado por hook, sem worktree). Avalia se ACs sao atendidos do ponto de vista do produto/usuario. Monta functional-review-input/, spawn functional-reviewer. Uso: /functional-review NNN.
+description: Roda revisao funcional independente (isolado por hook, sem worktree). Avalia se ACs sao atendidos do ponto de vista do produto/usuario. Monta functional-review-input/, spawn product-expert (functional-gate). Uso: /functional-review NNN.
+protocol_version: "1.2.2"
 ---
 
 # /functional-review
@@ -10,7 +11,7 @@ description: Roda revisao funcional independente (isolado por hook, sem worktree
 ```
 
 ## Por que existe
-Testes podem passar mas o comportamento nao atender o que o PM descreveu. O functional-reviewer avalia do ponto de vista do produto: UX, consistencia, regras de negocio, terminologia.
+Testes podem passar mas o comportamento nao atender o que o PM descreveu. O `product-expert` (modo: functional-gate) avalia do ponto de vista do produto: UX, consistencia, regras de negocio, terminologia.
 
 ## Quando invocar
 Apos `/test-audit NNN` retornar `approved`. Ultimo gate antes de apresentar ao PM para merge.
@@ -34,7 +35,7 @@ Apos `/test-audit NNN` retornar `approved`. Ultimo gate antes de apresentar ao P
 - `journeys.md` — copia de jornadas
 - `glossary-pm.md` — glossario de produto
 
-### 2. Spawn functional-reviewer (sem worktree)
+### 2. Spawn product-expert (modo: functional-gate) (sem worktree)
 ```
 Agent(subagent_type="product-expert")
 ```
@@ -57,11 +58,11 @@ Regras de negocio: OK
 🎉 Todos os gates passaram! Slice NNN pronto para merge.
 
 Pipeline completo:
-✅ Verificador mecanico (verifier)
-✅ Revisor de codigo (reviewer)
-✅ Revisor de seguranca (security-reviewer)
-✅ Auditor de testes (test-auditor)
-✅ Revisor funcional (functional-reviewer)
+✅ Verificador mecanico (qa-expert verify)
+✅ Revisor de codigo (architecture-expert code-review)
+✅ Revisor de seguranca (security-expert security-gate)
+✅ Auditor de testes (qa-expert audit-tests)
+✅ Revisor funcional (product-expert functional-gate)
 
 Proximo passo: /merge-slice NNN
 ```
@@ -75,7 +76,7 @@ Problemas encontrados:
 🟠 UX-001: mensagem de erro tecnica ("401 Unauthorized") em vez de texto amigavel
 
 Acao necessaria: corrigir problemas funcionais.
-→ /fix NNN functional
+→ /fix NNN functional-gate
 ```
 
 ### 5. Persistir resultado
@@ -97,4 +98,14 @@ Atualizar `project-state.json` gates_status.
 
 ## Handoff
 - `approved` (todos os gates) → `/merge-slice NNN`
-- `rejected` → `/fix NNN functional` → re-run `/functional-review NNN`
+- `rejected` → `/fix NNN functional-gate` → re-run `/functional-review NNN`
+
+## Conformidade com protocolo v1.2.2
+
+- **Agent invocado:** `product-expert (functional-gate)` — conforme mapa canonico 00 §3.1
+- **Gate name (enum):** `functional-gate`
+- **Output:** `specs/NNN/functional-review.json`
+- **Schema:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios)
+- **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §5`
+- **Isolamento R3:** gate roda em instancia isolada com `isolation_context` unico
+- **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0`

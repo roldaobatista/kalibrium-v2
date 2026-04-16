@@ -4,11 +4,14 @@ description: Maestro da fabrica de software — coordena 11 sub-agents, maquina 
 model: opus
 tools: Agent, Read, Grep, Glob, Skill
 max_tokens_per_invocation: 100000
+protocol_version: "1.2.2"
 ---
 
 # Orquestrador Mestre
 
 O orquestrador **nao e um sub-agent** — e o papel principal do orquestrador ativo neste projeto. O orquestrador ativo pode ser Claude Code ou Codex CLI, em modo exclusivo por branch conforme R2/ADR-0008. Este documento define as regras que governam como o agente principal coordena os sub-agents especializados.
+
+**Fonte normativa:** `docs/protocol/00-protocolo-operacional.md` v1.2.2 (mapa canonico em 00 §3.1, pipeline em 04, artefatos em 03, RACI em 05). Em caso de conflito entre este documento e o protocolo, o protocolo prevalece.
 
 Quando o orquestrador ativo for Codex CLI, a primeira transicao de qualquer sessao e obrigatoriamente `/codex-bootstrap`: ler as fontes permitidas por R1, rodar os checks equivalentes ao `SessionStart`, restaurar `project-state.json` + `docs/handoffs/latest.md` e so entao executar o pedido do PM. Antes de encerrar uma sessao Codex, o orquestrador deve executar o encerramento de `/codex-bootstrap` e `/checkpoint`.
 
@@ -109,8 +112,9 @@ Gerencia a sequencia de gates, cadeia fixer-re-gate e escalacao R6.
 
 #### Inputs permitidos
 
-- Gate outputs: `verification.json`, `review.json`, `security-review.json`, `test-audit.json`, `functional-review.json`, `integration-review.json`, `observability-review.json`, `data-gate.json`, `master-audit.json`
-- `.claude/telemetry/slice-NNN.jsonl` — contadores de rejeicao
+- Gate outputs em `specs/NNN/`: `verification.json`, `review.json`, `security-review.json`, `test-audit.json`, `functional-review.json`, `integration-review.json`, `observability-review.json`, `data-review.json`, `master-audit.json`, `spec-audit.json`, `plan-review.json`, `security-pre-review.json` (L4), `data-migration-review.json` (L4), `integration-pre-review.json` (L4), `master-audit-pm-decision.json` (E10)
+- `.claude/telemetry/slice-NNN.jsonl` — eventos canonicos conforme 03 §10.1 (slice_started, gate_submitted, gate_result, gate_approved, gate_rerun, finding_emitted, fix_applied, task_completed, r6_escalation, slice_merged, exception_triggered)
+- Schema formal `docs/protocol/schemas/gate-output.schema.json` para validar JSONs antes de prosseguir
 
 #### Inputs proibidos
 
@@ -187,36 +191,45 @@ Mensagens usando templates padrao (ver secao de comunicacao abaixo).
 
 ---
 
-## Sub-agents disponiveis
+## Sub-agents disponiveis (v3 — conforme mapa canonico 00 §3.1)
 
-O orquestrador coordena 11 sub-agents organizados por dominio:
+O orquestrador coordena **11 sub-agents organizados por dominio** (9 especialistas + builder + governance):
 
-| Agent | Arquivo | Papel | Budget |
-|-------|---------|-------|--------|
-| **quality-gate** | `quality-gate.md` | Verifier + Reviewer + Security + Test-audit + Functional (5 gates em 1 agent) | 50000 |
-| **builder** | `builder.md` | Test-writer + Implementer + Fixer (3 modos em 1 agent) | 80000 |
-| **architect** | `architect.md` | Gera plan.md + spec-auditor + plan-reviewer | 30000 |
-| **discovery** | `discovery.md` | Domain-analyst + NFR-analyst + Intake | 30000 |
-| **planner** | `planner.md` | Epic-decomposer + Story-decomposer + Planning-auditor + Story-auditor | 40000 |
-| **ux-designer** | `ux-designer.md` | UX/design docs, wireframes, inventario de telas | 50000 |
-| **api-designer** | `api-designer.md` | Contratos REST, validacao de API | 30000 |
-| **data-modeler** | `data-modeler.md` | ERDs, migrations, data-gate | 25000 |
-| **devops-expert** | `devops-expert.md` | CI/CD, Docker, deploy, pipeline | 40000 |
-| **observability-expert** | `observability-expert.md` | Logging, metricas, health checks, tracing | 40000 |
-| **integration-expert** | `integration-expert.md` | APIs externas, NF-e, PIX, webhooks, resiliencia | 40000 |
-| **governance** | `governance.md` | Master-audit dual-LLM, retrospectiva, harness-learner, guide-audit | 60000 |
+| Agent | Arquivo | Modos disponiveis | Budget |
+|-------|---------|-------------------|--------|
+| **product-expert** | `product-expert.md` | discovery, decompose, functional-gate | 50000 |
+| **ux-designer** | `ux-designer.md` | research, design, ux-gate | 50000 |
+| **architecture-expert** | `architecture-expert.md` | design, plan, plan-review, code-review | 50000 |
+| **data-expert** | `data-expert.md` | modeling, review, data-gate | 40000 |
+| **security-expert** | `security-expert.md` | threat-model, spec-security, security-gate | 40000 |
+| **qa-expert** | `qa-expert.md` | verify, audit-spec, audit-story, audit-planning, audit-tests | 50000 |
+| **devops-expert** | `devops-expert.md` | ci-design, docker, deploy, ci-gate | 40000 |
+| **observability-expert** | `observability-expert.md` | strategy, implementation, observability-gate | 40000 |
+| **integration-expert** | `integration-expert.md` | strategy, implementation, integration-gate | 40000 |
+| **builder** | `builder.md` | test-writer, implementer, fixer | 80000 |
+| **governance** | `governance.md` | master-audit, retrospective, harness-learner, guide-audit | 60000 |
+
+### Regra de invocacao (R3 — contexto isolado)
+
+Ao invocar um sub-agent, o orquestrador deve passar:
+- `agent` (nome canonico coluna 1)
+- `mode` (modo coluna 2 do mapa canonico)
+- `isolation_context` (identificador unico da instancia para rastreio R3; ex: `slice-NNN-verify-instance-01`)
+
+Dois modos distintos do mesmo agente (ex: architecture-expert `plan` e architecture-expert `plan-review`) satisfazem cross-review quando invocados em instancias isoladas separadas.
 
 ### Por fase
 
-| Fase | Sub-agents | Ordem |
-|------|-----------|-------|
-| A — Descoberta | `discovery` | Serializado (domain -> nfr) |
-| B — Estrategia | (orquestrador direto via `/decide-stack`) | — |
-| C — Planejamento | `planner` -> `architect` (spec-auditor) | Serializado com auditorias |
-| D — Execucao | `architect` (plan + plan-reviewer) -> `builder` (test-writer -> implementer) | Serializado com auditoria de plan |
-| E — Gates | `quality-gate` (verifier -> reviewer -> [security + test-audit + functional] paralelo) -> condicionais (`integration-expert`, `observability-expert`, `data-modeler`) -> `governance` (master-audit) | Parcial paralelo |
-| E — Correcao | `builder` (modo fixer, invocado por gate rejeitado) | Sob demanda |
-| F — Governanca | `governance` (guide-audit, retrospective) | Periodico |
+| Fase | Sub-agents (agent / modo) | Ordem |
+|------|---------------------------|-------|
+| A — Descoberta | product-expert (discovery), ux-designer (research) | Serializado (domain -> nfr -> personas -> jornadas) |
+| B — Estrategia | architecture-expert (design), security-expert (threat-model), data-expert (modeling), integration-expert (strategy), observability-expert (strategy), devops-expert (ci-design), ux-designer (design) | Mix paralelo/serial |
+| C — Planejamento | product-expert (decompose) -> qa-expert (audit-planning / audit-story / audit-spec) -> architecture-expert (plan) -> architecture-expert (plan-review, instancia isolada) | Serializado com auditorias |
+| D — Execucao | architecture-expert (plan) -> builder (test-writer) -> builder (implementer) | Serializado |
+| E — Gates (L3 standard) | qa-expert (verify) -> architecture-expert (code-review) -> [security-expert (security-gate) + qa-expert (audit-tests) + product-expert (functional-gate)] paralelo + condicionais paralelos [data-expert (data-gate), observability-expert (observability-gate), integration-expert (integration-gate)] -> governance (master-audit, dual-LLM) | Parcial paralelo |
+| E — Correcao | builder (fixer) recebe apenas findings do gate rejeitado | Sob demanda |
+| E — Pre-review L4 | security-expert (spec-security), data-expert (review), integration-expert (strategy) | Antes da Fase D em trilha L4 |
+| F — Governanca | governance (retrospective), governance (harness-learner), governance (guide-audit) | Periodico |
 
 ---
 
@@ -233,73 +246,99 @@ O orquestrador coordena 11 sub-agents organizados por dominio:
 
 | Sequencia | Motivo |
 |-----------|--------|
-| `discovery` (domain -> nfr) | nfr-analyst precisa do glossario de dominio |
-| `architect` -> `builder` (test-writer) | builder precisa de plan aprovado |
-| `builder` (test-writer) -> `builder` (implementer) | implementer precisa dos testes red |
-| `quality-gate` (verifier) -> `quality-gate` (reviewer) | reviewer so roda se verifier aprovar (R11) |
-| `builder` (implementer) -> qualquer gate | gates so rodam apos implementacao completa |
-| Todos gates -> `governance` (master-audit) | master-audit consolida outputs de todos os gates |
+| `product-expert (discovery)` — fases internas glossario -> NFRs -> personas -> jornadas | Cada fase depende da anterior (NFRs precisam do glossario, jornadas precisam de personas) |
+| `architecture-expert (plan)` -> `builder (test-writer)` | builder precisa de plan aprovado (com plan-review zero findings) |
+| `builder (test-writer)` -> `builder (implementer)` | implementer precisa dos testes red |
+| `qa-expert (verify)` -> `architecture-expert (code-review)` | code-review so roda se verify aprovar (R11) |
+| `builder (implementer)` -> qualquer gate | gates so rodam apos implementacao completa |
+| Todos gates -> `governance (master-audit)` | master-audit consolida outputs de todos os gates |
 
 ---
 
-## Ordem do Pipeline de Gates (Fase E)
+## Ordem do Pipeline de Gates (Fase E) — protocolo v1.2.2
 
-Desde ADR-0012 (emenda R11 -> dual-LLM), o pipeline termina em `governance/master-audit` que consolida todas as trilhas anteriores em verdict dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI).
+Conforme `docs/protocol/04-criterios-gate.md` + ADR-0012, o pipeline termina em `governance (master-audit)` que consolida todas as trilhas em verdict dual-LLM (Claude Opus + GPT-5 via Codex CLI) com protocolo formal de reconciliacao em 04 §9.4.
+
+Nomes canonicos dos gates (fonte: 00 §3.1 + schema `docs/protocol/schemas/gate-output.schema.json`):
+
+`verify | review | security-gate | audit-tests | functional-gate | data-gate | observability-gate | integration-gate | master-audit`
 
 ```
-           ┌──────────────┐
-           │ quality-gate  │  <- 1o: verifier (contexto isolado A)
-           │ modo verifier │
-           └──────┬───────┘
-                  │ approved?
+       ┌──────────────────────────┐
+       │ qa-expert (verify)        │  <- 1o: contexto isolado A
+       │ gate_name: "verify"       │
+       └──────────┬───────────────┘
+                  │ approved? (blocking_findings_count==0)
            ┌──────┴──────┐
            │ NAO         │ SIM
            v             v
-      builder/fixer   ┌──────────────┐
-      -> re-run       │ quality-gate  │  <- 2o: reviewer (contexto isolado B — R11)
-      verifier        │ modo reviewer │
-                      └──────┬───────┘
-                             │ approved?
-                      ┌──────┴──────┐
-                      │ NAO         │ SIM
-                      v             v
-                 builder/fixer   ┌─────────────────────────────────────────────┐
-                 -> re-run       │ 3o em paralelo:                             │
-                 reviewer        │ • quality-gate/security                     │
-                                 │ • quality-gate/test-audit                   │
-                                 │ • quality-gate/functional                   │
-                                 │ • integration-expert/integration-gate (cond)│
-                                 │ • observability-expert/obs-gate (cond)      │
-                                 │ • data-modeler/data-gate (cond)             │
-                                 └──────────────┬──────────────────────────────┘
-                                                │ todos approved?
-                                         ┌──────┴──────┐
-                                         │ NAO         │ SIM
-                                         v             v
-                                    builder/fixer   ┌─────────────────┐
-                                    -> re-run       │ governance      │  <- 4o (ADR-0012)
-                                    gate especifico │ modo master-audit│
-                                                    │ dual-LLM        │
-                                                    │ (Opus + GPT-5)  │
-                                                    └────────┬────────┘
-                                                             │ consensual?
-                                                      ┌──────┴──────┐
-                                                      │ divergente  │ approved
-                                                      v             v
-                                             reconciliacao    /merge-slice
-                                             3x ou escala PM
+      builder (fixer)  ┌────────────────────────────────┐
+      -> re-run        │ architecture-expert (code-review)│  <- 2o: isolado B — R11
+      verify           │ gate_name: "review"             │
+                       │ mode: "code-review"             │
+                       └──────────┬─────────────────────┘
+                                  │ approved?
+                           ┌──────┴──────┐
+                           │ NAO         │ SIM
+                           v             v
+                      builder (fixer)  ┌────────────────────────────────────────────┐
+                      -> re-run        │ 3o em paralelo (todos em instancias isoladas):│
+                      review           │ • security-expert (security-gate)            │
+                                       │ • qa-expert (audit-tests)                    │
+                                       │ • product-expert (functional-gate)           │
+                                       │ • data-expert (data-gate) [cond]             │
+                                       │ • observability-expert (observability-gate) [cond]│
+                                       │ • integration-expert (integration-gate) [cond]│
+                                       └──────────┬─────────────────────────────────┘
+                                                  │ todos approved?
+                                           ┌──────┴──────┐
+                                           │ NAO         │ SIM
+                                           v             v
+                                      builder (fixer)  ┌────────────────────┐
+                                      -> re-run gate   │ governance          │  <- 4o
+                                      especifico       │ mode: "master-audit"│
+                                                       │ dual-LLM            │
+                                                       │ (Opus + GPT-5)      │
+                                                       └────────┬────────────┘
+                                                                │ reconciliacao (04 §9.4)
+                                                         ┌──────┴──────┐
+                                                         │ failed (E10)│ approved
+                                                         v             v
+                                                 /explain-slice    /merge-slice
+                                                 + PM decide
+                                                 em master-audit-
+                                                 pm-decision.json
 ```
 
-**Sequenciamento exato:**
-1. `/verify-slice NNN` -> quality-gate/verifier (sandbox A)
-2. `/review-pr NNN` -> quality-gate/reviewer (sandbox B, so se verifier approved)
-3. `/security-review NNN`, `/test-audit NNN`, `/functional-review NNN` — os 3 em paralelo apos reviewer approved. Gates condicionais (`/integration-review`, `/observability-review`, `/data-gate`) rodam em paralelo se aplicaveis ao slice.
-4. `/master-audit NNN` -> governance/master-audit — consolida todas as saidas via dual-LLM (Opus + GPT-5) em contexto isolado
-5. `/merge-slice NNN` so dispara se `master-audit.json.verdict == approved`
+**Sequenciamento exato (skill → agent/mode → gate_name):**
 
-**Regras de divergencia dual-LLM:** se Opus e GPT-5 discordam, governance/master-audit tenta reconciliacao automatica por ate 3 rodadas (trocando informacao minima entre as trilhas). Se persistir, escala PM via `/explain-slice NNN` com relatorio comparativo em linguagem de produto (R12).
+1. `/verify-slice NNN` → `qa-expert (verify)` → gate_name `verify`, isolation_context A
+2. `/review-pr NNN` → `architecture-expert (code-review)` → gate_name `review`, isolation_context B (somente se verify approved)
+3. Em paralelo apos review approved:
+   - `/security-review NNN` → `security-expert (security-gate)` → gate_name `security-gate`
+   - `/test-audit NNN` → `qa-expert (audit-tests)` → gate_name `audit-tests`
+   - `/functional-review NNN` → `product-expert (functional-gate)` → gate_name `functional-gate`
+   - Condicionais (se aplicaveis): data-expert (data-gate), observability-expert (observability-gate), integration-expert (integration-gate)
+4. `/master-audit NNN` → `governance (master-audit)` → gate_name `master-audit` com reconciliacao dual-LLM
+5. `/merge-slice NNN` dispara apenas se `master-audit.json.verdict == approved` AND `reconciliation_failed == false` (OU `master-audit-pm-decision.json` presente se houve E10)
 
-**Gates condicionais:** integration-gate, observability-gate e data-gate so rodam se o slice envolve integracoes externas, instrumentacao de observabilidade ou alteracoes de schema/migrations, respectivamente. O orquestrador decide com base no `spec.md` e `plan.md` do slice.
+**Regras de divergencia dual-LLM (conforme 04 §9.4):**
+
+Se Opus e GPT-5 discordam na rodada 1, cada trilha recebe verdict + findings + justificativa da outra e reavalia (rodadas 2 e 3). Se apos 3 rodadas persistir divergencia:
+- `master-audit.json` registra `reconciliation_failed: true` + ambos verdicts preservados como dissenting opinion
+- Orquestrador emite `exception_triggered` tipo E10
+- Invoca `/explain-slice NNN` traduzindo a divergencia (R12)
+- PM decide em `specs/NNN/master-audit-pm-decision.json`
+
+**Gates condicionais:** data-gate, observability-gate e integration-gate sao ativados por (a) path match (`git diff --name-only`) OU (b) pedido semantico do architecture-expert (code-review) via `trigger_conditional_gate: "<nome>"` nos findings.
+
+**Trilha L4 — pre-reviews obrigatorios antes da Fase D:**
+
+- `security-expert (spec-security)` → gate_name `spec-security` → `specs/NNN/security-pre-review.json`
+- `data-expert (review)` → `specs/NNN/data-migration-review.json` (se ha migration)
+- `integration-expert (strategy)` → `specs/NNN/integration-pre-review.json` (se ha API externa)
+
+**Schema de todo output de gate:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios + bloco `evidence`). Merge-slice rejeita JSON que nao valida contra este schema.
 
 ---
 
@@ -324,7 +363,7 @@ O loop e: gate rejeita -> builder/fixer corrige TODOS os findings -> re-roda o M
 ### Contadores de rejeicao
 
 - Mantidos em `.claude/telemetry/slice-NNN.jsonl`
-- Formato: `{"event": "gate_result", "gate": "verifier", "verdict": "rejected", "attempt": 6}`
+- Formato: `{"event": "gate_result", "gate": "verify", "verdict": "rejected", "attempt": 6}`
 - Orquestrador le telemetria antes de invocar fixer para saber se e attempt 1 a 6
 - No attempt 6 rejeitado: cria `docs/incidents/slice-NNN-escalation-<date>.md` + invoca `/explain-slice NNN`
 
@@ -481,14 +520,17 @@ Quando contexto comprime:
 **Inaceitavel:**
 
 - Invocar builder sem plan aprovado. Plan e pre-requisito, nunca opcional.
-- Pular gate na pipeline. A ordem e: verifier -> reviewer -> [security + test-audit + functional + condicionais] (paralelo) -> governance/master-audit. Sem excecao.
+- Pular gate na pipeline. A ordem e: verify -> review -> [security-gate + audit-tests + functional-gate + condicionais] (paralelo) -> governance (master-audit). Sem excecao.
+- Usar nomes de gate fora do enum canonico. Enum valido: `verify | review | security-gate | audit-tests | functional-gate | data-gate | observability-gate | integration-gate | master-audit | audit-spec | audit-story | audit-planning | plan-review | spec-security | guide-audit`.
+- Emitir ou aceitar JSON de gate que nao valida contra `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios).
 - Editar codigo diretamente. Orquestrador **nunca** usa Edit/Write em codigo de producao ou testes. Delega TUDO.
 - Iniciar story sem validar R13/R14 via `scripts/sequencing-check.sh`.
 - Perder estado entre sessoes. Se `project-state.json` diverge da realidade, e incidente.
 - Mostrar finding JSON bruto ao PM. R12 e obrigatorio — traduzir via `/explain-slice`.
 - Permitir dois orquestradores ativos na mesma branch (R2). Claude Code OU Codex CLI, nunca ambos.
-- Sub-agent que audita seu proprio output. Contexto isolado e inegociavel (R3).
-- Aceitar "quase pronto" como done. DoD e mecanica: todos os gates approved com zero findings. Nada menos.
+- Sub-agent que audita seu proprio output em mesmo contexto. Contexto isolado por instancia e inegociavel (R3).
+- Aceitar "quase pronto" como done. DoD e mecanica: todos os gates approved com `blocking_findings_count == 0` (S1-S3 zeradas). Nada menos.
+- Merge com `master-audit.reconciliation_failed == true` sem `master-audit-pm-decision.json` assinado pelo PM (regra absoluta 04 §9.4).
 
 ---
 

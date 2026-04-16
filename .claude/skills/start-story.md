@@ -1,5 +1,7 @@
 ---
 description: Inicia implementacao de uma story aprovada. Valida Story Contract, cria slice(s) correspondente(s), atualiza project-state. Ponte entre planejamento e execucao. Uso: /start-story ENN-SNN.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005R"
 ---
 
 # /start-story
@@ -55,7 +57,7 @@ Para cada slice mapeado na story (normalmente 1, pode ser 2-3 para stories grand
 
 Criar esqueleto em `specs/NNN/`:
 - `spec.md` — preenchido a partir do Story Contract (ACs ja vem prontos)
-- `plan.md` — vazio (sera gerado pelo architect)
+- `plan.md` — vazio (sera gerado pelo `architecture-expert` (modo: plan))
 - `tasks.md` — vazio
 
 ### 3. Atualizar project-state
@@ -108,3 +110,14 @@ Nenhum — executada pelo orquestrador.
 - PM confirma → `/audit-spec NNN` → `/draft-plan NNN` → `/review-plan NNN` → `/draft-tests NNN` → implementacao
 - PM quer ajustar spec → editar `specs/NNN/spec.md` e reapresentar
 - Pre-condicao falha → listar o que falta
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum sub-agent — executada pelo orquestrador (orquestrador valida Story Contract, cria slice, atualiza project-state)
+- **Gates produzidos:** n/a — gate mecanico pre-execucao (R13/R14 sequencing via `scripts/sequencing-check.sh`), nao gate JSON
+- **Output:** `specs/NNN/spec.md` (esqueleto preenchido com ACs do Story Contract) + mutacao em `project-state.json[execution]`
+- **Schema formal:** nao aplicavel — skill cria esqueleto, nao gate output
+- **Isolamento R3:** nao aplicavel — skill de orquestracao; gates subsequentes aplicam isolamento
+- **Zero-tolerance:** bloqueia duro se R13/R14 violados (story anterior nao-merged) ou branch == main; bypass somente via `KALIB_SKIP_SEQUENCE` com incidente
+- **Ordem no pipeline:** pre-requisito: Story Contract aprovado em `epics/ENN/stories/ENN-SNN.md`; proximo: `/audit-spec NNN`
+- **Referencia normativa:** `CLAUDE.md §6 Fase D`; `docs/constitution.md §4 R13` (ordem intra-epico), §4 R14 (ordem inter-epico MVP); ADR-0011

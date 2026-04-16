@@ -1,5 +1,7 @@
 ---
-description: Decompoe um epico aprovado em stories com Story Contract completo. Spawn story-decomposer que produz epics/ENN/stories/INDEX.md e ENN-SNN.md por story. Uso: /decompose-stories ENN.
+description: Decompoe um epico aprovado em stories com Story Contract completo. Spawn product-expert (decompose) que produz epics/ENN/stories/INDEX.md e ENN-SNN.md por story. Uso: /decompose-stories ENN.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005R"
 ---
 
 # /decompose-stories
@@ -28,7 +30,7 @@ Apos `/decompose-epics` e aprovacao do roadmap pelo PM. Executar por epico, na o
 ### 1. Validar pre-condicoes
 Se alguma falhar, listar o que falta e parar.
 
-### 2. Spawn story-decomposer
+### 2. Spawn product-expert (modo: decompose)
 Spawn sub-agent `product-expert` (modo: decompose) com acesso ao epic e docs aprovados.
 O agent produz:
 - `epics/ENN/stories/INDEX.md` — indice de stories
@@ -97,3 +99,14 @@ Atualizar `project-state.json`:
 - Todos os contratos aprovados → `/start-story ENN-S01` para iniciar a primeira
 - PM quer ajustar → editar contratos especificos
 - Pre-condicao falha → listar dependencias nao satisfeitas
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** `product-expert (decompose)` — conforme mapa canonico 00 §3.1 (budget: 30k tokens)
+- **Gates produzidos:** n/a — skill de decomposicao de planejamento, nao gate
+- **Output:** `epics/ENN/stories/INDEX.md` + `epics/ENN/stories/ENN-SNN.md` (Story Contract por story, markdown R12 com frontmatter)
+- **Schema formal:** nao aplicavel (Story Contracts sao markdown estruturado, nao gate JSON)
+- **Isolamento R3:** nao aplicavel — decomposicao e atividade de produto, sem dual-verifier
+- **Zero-tolerance:** nao aplicavel (sem verdict); PM aprova cada contrato individualmente
+- **Ordem no pipeline:** pre-requisito: `/decompose-epics` approved + `epics/ENN/epic.md` aprovado pelo PM; proximo: `/start-story ENN-S01`
+- **Referencia normativa:** `CLAUDE.md §6 Fase C`; `docs/constitution.md §2 P1` (contexto precede decisao), §4 R13 (Story Contract com `dependencies: []` habilita paralelismo intra-epico)
