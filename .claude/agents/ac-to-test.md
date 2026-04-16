@@ -40,6 +40,22 @@ O hook `post-edit-gate.sh` e `pre-commit-gate.sh` rejeitam testes que:
 - Usam apenas asserções de existência (`expect(fn).toBeDefined()`) sem exercitar comportamento.
 - Cobrem menos ACs do que o spec declara.
 
+### Stubs proibidos como "red" (B-026)
+
+Os seguintes métodos **NÃO** constituem red válido e **NUNCA** devem ser gerados por este agente:
+
+- `$this->markTestIncomplete(...)` — teste fica "incomplete", não "failed". Red-check não detecta como falha.
+- `$this->markTestSkipped(...)` — teste fica "skipped", não "failed". Idem.
+- `self::markTestIncomplete(...)` / `self::markTestSkipped(...)` — variantes estáticas.
+- `$this->assertTrue(false, 'not implemented')` sem exercitar comportamento real — é melhor que incomplete, mas ainda tautológico.
+
+**Red válido** = teste que falha por **assertion contra comportamento ausente** ou **exception por classe/método/rota inexistente**. Exemplos:
+- `$response->assertStatus(200)` quando a rota não existe ainda (falha com 404/500).
+- `$this->assertEquals('expected', $service->calculate(...))` quando `calculate()` não existe.
+- `expect($result)->toBe(...)` quando o módulo não foi implementado.
+
+Se o agente gerar `markTestIncomplete` ou `markTestSkipped`, o red-check DEVE rejeitar e o fixer DEVE converter em assertion real antes do commit.
+
 ## Se o AC não é testável como escrito
 **Parar e reportar ao humano.** Não inventar teste fraco. Não reformular o AC sem aprovação. Listar em `specs/NNN/plan.md §riscos` e aguardar decisão.
 
