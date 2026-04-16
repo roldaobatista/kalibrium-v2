@@ -61,4 +61,17 @@ final class TenantRole
     {
         return strtolower($role) === self::MANAGER;
     }
+
+    /**
+     * Roles allowed to manage clientes (create, deactivate).
+     * Spec role "atendente" maps to operational roles: gerente, tecnico, administrativo.
+     */
+    public static function canManageClientes(string $role): bool
+    {
+        return in_array(strtolower($role), [
+            self::MANAGER,
+            self::TECHNICIAN,
+            self::ADMINISTRATIVE,
+        ], true);
+    }
 }

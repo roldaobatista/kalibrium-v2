@@ -1,0 +1,49 @@
+{
+  "slice_id": "slice-012",
+  "verdict": "approved",
+  "timestamp": "2026-04-15T20:50:00Z",
+  "quality_checks": [
+    {
+      "category": "duplication",
+      "status": "pass",
+      "evidence": "F-001 corrigido: preg_replace em prepareForValidation (normaliza antes da validacao) e validatedForStorage (guard defensivo na conversao API->DB) servem propositos distintos; nenhuma duplicacao >10 linhas; Cpf e Cnpj sao classes separadas com algoritmos diferentes"
+    },
+    {
+      "category": "complexity",
+      "status": "pass",
+      "evidence": "ClienteController::store 15 linhas, destroy 20 linhas; StoreClienteRequest::rules 30 linhas; Cpf::hasValidDigits 20 linhas; nenhuma funcao excede 50 linhas; nesting maximo 2 niveis"
+    },
+    {
+      "category": "naming",
+      "status": "pass",
+      "evidence": "Nomes descritivos: validatedForStorage, prepareForValidation, hasValidDigits, getTenantId; convencao camelCase consistente; campos DB em snake_case; spec documenta mapeamento cnpj_cpf (API) vs documento (DB)"
+    },
+    {
+      "category": "security",
+      "status": "pass",
+      "evidence": "Sem SQL injection (usa Eloquent/Query Builder); sem secrets hardcoded; tenant_id vem de request attributes (middleware), nao de input do usuario; RLS habilitado na migration; soft-delete verifica tenant_id antes de operar; input normalizado antes de persistir"
+    },
+    {
+      "category": "simplicity",
+      "status": "pass",
+      "evidence": "Sem abstracoes prematuras; REGIME_MAP e constante simples; factory com state pf() e direto; sem dependencias externas novas; controller magro delega para FormRequest e Model"
+    },
+    {
+      "category": "glossary",
+      "status": "pass",
+      "evidence": "Usa termos canonicos: Cliente (nao Customer/Account), Tenant (nao Organizacao), tipo_pessoa PJ/PF conforme dominio BR; documento como coluna DB conforme ERD"
+    },
+    {
+      "category": "adr_compliance",
+      "status": "pass",
+      "evidence": "ADR-0001 aceito: Laravel 13 + Eloquent + PostgreSQL + Pest 4; migration usa RLS (Row-Level Security) conforme ADR-0001 estrategia multi-tenancy; SoftDeletes nativo Laravel; FormRequest padrao Laravel"
+    },
+    {
+      "category": "dead_code",
+      "status": "pass",
+      "evidence": "F-002 corrigido: nenhum import DB sem uso em codigo de producao; todos os imports em ClienteController, StoreClienteRequest, ClienteResource, Cliente, Cpf sao utilizados; nenhuma funcao orfa detectada"
+    }
+  ],
+  "findings": [],
+  "next_action": "approve_pr"
+}

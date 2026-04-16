@@ -1,0 +1,49 @@
+{
+  "slice_id": "slice-012",
+  "verdict": "approved",
+  "timestamp": "2026-04-15T21:45:00Z",
+  "severity_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 0
+  },
+  "findings": [],
+  "lgpd_checks": [
+    {
+      "check": "pii_in_logs",
+      "status": "pass",
+      "evidence": "Nenhum log no slice contem dados pessoais (documento, telefone, email). Logs existentes registram apenas tenant_id e path."
+    },
+    {
+      "check": "pii_in_api_response",
+      "status": "pass",
+      "evidence": "ClienteResource::formatDocumento() mascara CNPJ (XX.XXX.***\/XXXX-**) e CPF (***.XXX.XXX-**) conforme LGPD Art.6 III. Documento completo nao e exposto."
+    },
+    {
+      "check": "data_minimization",
+      "status": "pass",
+      "evidence": "API response inclui apenas campos necessarios para operacao. telefone e email nao estao no ClienteResource output."
+    },
+    {
+      "check": "encryption_at_rest",
+      "status": "pass",
+      "evidence": "Documento armazenado como digits-only no banco. Criptografia em repouso delegada ao PostgreSQL (transparent encryption configurada em ADR infra)."
+    }
+  ],
+  "dependency_audit": {
+    "tool": "composer audit",
+    "result": "No security vulnerability advisories found",
+    "cve_count": 0
+  },
+  "iteration": 2,
+  "previous_findings_resolved": [
+    "SEC-001: EnsureReadOnlyTenantMode adicionado nas rotas /clientes",
+    "SEC-002: ClientePolicy + TenantRole.canManageClientes + Gate::authorize em ambos endpoints",
+    "SEC-003: CnpjFormat (formato puro) substituiu Cnpj no FormRequest — uniqueness via Rule::unique separado",
+    "SEC-004: Mascara LGPD no ClienteResource para CNPJ e CPF",
+    "SEC-005: observacoes max:2000 adicionado nas regras de validacao"
+  ],
+  "next_action": "approved"
+}

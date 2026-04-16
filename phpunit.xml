@@ -38,6 +38,9 @@
         <testsuite name="tenant-isolation">
             <directory>tests/slice-011</directory>
         </testsuite>
+        <testsuite name="Slice012">
+            <directory>tests/slice-012</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>

@@ -74,3 +74,4 @@ Thumbs.db
 
 # Local scratch (nunca commitado)
 tmp/
+scripts/write_audit_e03.py
