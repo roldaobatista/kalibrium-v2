@@ -1,5 +1,7 @@
 ---
 description: Salva estado completo do projeto em project-state.json e cria handoff em docs/handoffs/. Garante que qualquer nova sessao pode retomar via /resume. Usar antes de encerrar sessao ou em pontos importantes. Uso: /checkpoint.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
 # /checkpoint
@@ -89,3 +91,18 @@ Nenhum — executada pelo orquestrador.
 ## Handoff
 - PM quer encerrar → confirmar que checkpoint esta salvo
 - PM quer continuar → checkpoint salvo, prosseguir normalmente
+
+## Próximo passo
+
+- Checkpoint salvo → PM pode encerrar com segurança ou continuar
+- Encerrou → próxima sessão abre com `/resume`
+- Falha ao salvar → investigar disco/permissões antes de qualquer outro comando
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador persiste estado local).
+- **Gates produzidos:** não é gate; é ponto de salvamento para continuidade entre sessões.
+- **Output:** `project-state.json` + `docs/handoffs/handoff-YYYY-MM-DD-HHMM.md` + `docs/handoffs/latest.md`.
+- **Schema formal:** `docs/schemas/project-state.schema.json` + template `docs/templates/handoff.md`.
+- **Isolamento R3:** não aplicável.
+- **Ordem no pipeline:** invocado ad hoc — antes de encerrar sessão, após marco, ou quando contexto aproxima limite.

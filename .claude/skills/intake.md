@@ -1,5 +1,7 @@
 ---
-description: Entrevista guiada de descoberta com o PM. Faz as 10 perguntas estrategicas que determinam arquitetura, infra, seguranca e custo. Produz intake-responses.md e dispara domain-analyst + nfr-analyst. Uso: /intake.
+description: Entrevista guiada de descoberta com o PM. Faz as 10 perguntas estrategicas que determinam arquitetura, infra, seguranca e custo. Produz intake-responses.md e dispara product-expert (discovery). Uso: /intake.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005R"
 ---
 
 # /intake
@@ -90,7 +92,7 @@ Apos registrar respostas:
 1. Spawn `product-expert` (modo: discovery) para produzir glossario, modelo de dominio, riscos, suposicoes.
 2. Spawn `product-expert` (modo: discovery/NFR) para produzir NFRs estruturados.
 
-Ambos em **sequencia** (domain-analyst primeiro, pois nfr-analyst usa o glossario).
+Ambos em **sequencia** (product-expert (discovery) primeiro para glossário, pois product-expert (discovery/NFR) usa o glossario).
 
 ### Fase 4 — Resumo ao PM
 
@@ -114,8 +116,8 @@ Quer seguir para /freeze-prd ou ajustar algo?
 ```
 
 ## Agentes
-- `product-expert` (modo: discovery) — produz glossario, modelo de dominio, riscos e suposicoes (serializado, executa primeiro)
-- `product-expert` (modo: discovery/NFR) — produz NFRs estruturados com metricas mensuraveis (serializado, executa apos domain-analyst)
+- `product-expert` (modo: discovery) — produz glossario, modelo de dominio, riscos e suposicoes (serializado, executa primeiro) — substitui v2 `domain-analyst`
+- `product-expert` (modo: discovery/NFR) — produz NFRs estruturados com metricas mensuraveis (serializado, executa apos product-expert discovery) — substitui v2 `nfr-analyst`
 
 ## Erros e Recuperacao
 
@@ -123,10 +125,21 @@ Quer seguir para /freeze-prd ou ajustar algo?
 |---|---|
 | PM nao responde a uma pergunta (nao sabe) | Registrar como "pendente" no intake-responses.md. Prosseguir com as demais. Revisitar antes de `/freeze-prd`. |
 | `product-expert` (modo: discovery) falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
-| `product-expert` (modo: discovery/NFR) falha porque glossario nao existe | Garantir que `product-expert` (modo: discovery) completou com sucesso antes de spawnar `product-expert` (modo: discovery/NFR). Reexecutar domain-analyst se necessario. |
+| `product-expert` (modo: discovery/NFR) falha porque glossario nao existe | Garantir que `product-expert` (modo: discovery) completou com sucesso antes de spawnar `product-expert` (modo: discovery/NFR). Reexecutar `product-expert` (modo: discovery) se necessario. |
 | PM contradiz respostas anteriores durante a entrevista | Parar, apresentar a contradicao em linguagem R12, pedir esclarecimento antes de registrar. |
 
 ## Handoff
 - PM satisfeito → `/freeze-prd`
 - PM quer ajustar → reexecutar perguntas especificas
 - PM nao sabe ainda → registrar pendencias e pausar
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** `product-expert (discovery)` serializado com `product-expert (discovery/NFR)` — conforme mapa canonico 00 §3.1
+- **Gates produzidos:** n/a — skill de descoberta, nao gera gate JSON
+- **Output:** `docs/product/intake-responses.md` (markdown R12) + artefatos subsequentes em `docs/domain/` via sub-agents
+- **Schema formal:** nao aplicavel (skill nao produz gate output)
+- **Isolamento R3:** nao aplicavel — entrevista interativa com PM roda no contexto principal do orquestrador
+- **Zero-tolerance:** nao aplicavel (sem verdict)
+- **Ordem no pipeline:** pre-requisito: nenhuma (primeira skill do fluxo); proximo: `/freeze-prd`
+- **Referencia normativa:** `CLAUDE.md §6 Fase A`; `docs/constitution.md §2 P1` (contexto precede decisao tecnica)

@@ -1,5 +1,7 @@
 ---
 description: Mostra ao PM o estado atual de todos os slices do Kalibrium em linguagem de produto (R12). Último evento, arquivos presentes, próximo passo sugerido. Use a qualquer momento pra se orientar. Uso: /where-am-i [NNN].
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
 # /where-am-i
@@ -27,9 +29,9 @@ Para cada slice com `specs/NNN/spec.md`:
 4. **Últimos 3 eventos** da telemetria (traduzidos: "verificação automática aprovou", "revisão estrutural rejeitou", etc.)
 5. **Próximo passo** sugerido em PT-BR:
    - `verify approved` → "rodar revisão estrutural (/review-pr NNN)"
-   - `verify rejected` → "aguardando correção pelo implementer"
+   - `verify rejected` → "aguardando correção pelo builder (fixer)"
    - `review approved` → "pronto para merge (/merge-slice NNN)"
-   - `review rejected` → "aguardando correção pelo implementer"
+   - `review rejected` → "aguardando correção pelo builder (fixer)"
    - `merge` → "✓ slice concluído e documentado" quando relatório e retrospectiva existem; senão "✓ slice concluído — documentação de encerramento pendente"
    - **sem telemetria** → infere por artefatos: plan.md aprovado + plan-review approved com findings [] → "plano pronto, próximo passo: testes"; plan sem review → "plano precisa de revisão"; spec-audit aprovado → "spec auditado, próximo passo: plano"; spec-audit ausente/reprovado → "spec preenchido, próximo passo: auditoria da spec"
 
@@ -82,3 +84,22 @@ Nenhum — executada pelo orquestrador.
 ## Handoff
 
 Nenhum — é só leitura. Após ler o relatório, PM decide o próximo passo livremente (criar novo slice, retomar existente, rodar verify/review/merge, etc.).
+
+## Próximo passo
+
+Sugestão contextual ao PM (sempre em R12):
+
+- Nenhum slice existe → `/new-slice NNN "título"` ou `/next-slice`
+- Slice em "verify approved" → `/review-pr NNN`
+- Slice em "review approved" → `/merge-slice NNN`
+- Slice em "rejected" → aguardar builder (fixer) ou escalar se R6
+- Todos concluídos → `/release-readiness`
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador inspeciona `specs/` + telemetria).
+- **Gates produzidos:** não é gate; é visão de estado por slice.
+- **Output:** relatório em stderr/chat em PT-BR (nunca JSON cru ao PM).
+- **Schema formal:** não emite JSON; consome telemetria `.claude/telemetry/*.jsonl`.
+- **Isolamento R3:** não aplicável.
+- **Ordem no pipeline:** invocado ad hoc; complementa G-09 (session-start automático).

@@ -4,7 +4,11 @@ description: Especialista em observabilidade — logging estruturado, health che
 model: sonnet
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 40000
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix F-03 (PII in logs e informational aqui; blocking pertence ao security-gate)"
 ---
+
+**Fonte normativa:** `docs/protocol/` v1.2.2 — mapa canonico de modos em 00 §3.1, contratos de artefato por modo em 03, criterios objetivos de gate em 04 §§1-15, schema formal em `docs/protocol/schemas/gate-output.schema.json`. Em caso de conflito entre este agente e o protocolo, o protocolo prevalece.
 
 # Observability Expert
 
@@ -91,6 +95,11 @@ Implementa logging estruturado, health checks, metricas e correlation IDs no cod
 
 ### Modo 3: `observability-gate` (Validacao de observabilidade em slice)
 
+- **Gate name canonico (enum):** `observability-gate`
+- **Output:** `specs/NNN/observability-review.json` conforme schema `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios incluindo `$schema`, `lane`, `mode`, `isolation_context`).
+- **Criterios binarios:** `docs/protocol/04-criterios-gate.md §10.1`.
+- **Isolamento R3:** emitir campo `isolation_context` unico por invocacao (ex: `slice-NNN-observability-gate-instance-01`). Este modo nao pode ser invocado na mesma instancia que outros modos de gate do mesmo slice.
+
 Valida que o slice implementa observabilidade adequada: logs estruturados, health checks, metricas, sem PII em logs.
 
 **Inputs permitidos (APENAS `observability-review-input/`):**
@@ -109,33 +118,59 @@ Valida que o slice implementa observabilidade adequada: logs estruturados, healt
 - `git log`, `git blame`, `git show`
 - Comunicacao com outros sub-agents
 
-**Output esperado — `observability-review.json`:**
+**Output esperado — `observability-review.json`** (nome do arquivo; gate_name canonico e `observability-gate`) conforme schema `docs/protocol/schemas/gate-output.schema.json`:
 ```json
 {
+  "$schema": "gate-output-v1",
+  "gate": "observability-gate",
   "slice": "NNN",
-  "gate": "observability-review",
-  "verdict": "approved | rejected",
+  "lane": "L3",
+  "agent": "observability-expert",
+  "mode": "observability-gate",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T16:00:00Z",
+  "commit_hash": "abc1234",
+  "isolation_context": "slice-NNN-observability-gate-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
   "findings": [],
-  "checks": {
-    "structured_logging": true | false,
-    "no_string_interpolation_logs": true | false,
-    "request_id_propagated": true | false,
-    "tenant_id_in_context": true | false,
-    "no_pii_in_logs": true | false,
-    "exceptions_logged": true | false,
-    "health_check_updated": true | false,
-    "no_n_plus_1_undetected": true | false
-  },
-  "log_quality": {
-    "structured_count": 0,
-    "unstructured_count": 0,
-    "pii_violations": []
-  },
-  "timestamp": "ISO8601"
+  "evidence": {
+    "checks": {
+      "structured_logging": true,
+      "no_string_interpolation_logs": true,
+      "request_id_propagated": true,
+      "tenant_id_in_context": true,
+      "no_pii_in_logs": true,
+      "exceptions_logged": true,
+      "health_check_updated": true,
+      "no_n_plus_1_undetected": true
+    },
+    "log_quality": {
+      "structured_count": 0,
+      "unstructured_count": 0,
+      "pii_violations": []
+    }
+  }
 }
 ```
 
-**ZERO TOLERANCE:** verdict so e `approved` quando `findings: []`.
+**Zero tolerance S1-S3:** `verdict: approved` exige `blocking_findings_count == 0`. S4/S5 nao bloqueiam.
+
+#### Ownership de "PII in logs" (F-03 — disambiguacao com security-gate)
+
+PII em logs e uma area com overlap natural entre observability-gate e security-gate. Para evitar duplo-veto:
+
+- **observability-expert (este gate) NAO emite blocking finding sobre existencia de PII.** O foco aqui e qualidade estrutural do log: formato JSON, niveis (DEBUG/INFO/WARN/ERROR), presenca de `request_id`/`tenant_id` no contexto, metricas RED, alerta acionavel, runbook. Se PII for detectado durante a analise observacional: registrar como nota descritiva no campo `evidence.log_quality.pii_violations[]` com referencia explicita a `"owner: security-expert — ver security-review.json"` — sem atribuir severidade S1-S3.
+  - `ownership: observability-expert/quality (informational)`
+  - Nao bloqueia o merge por este gate.
+
+- **security-expert (security-gate) detem o ownership BLOCKING.** Qualquer PII em log (CPF, senha, token, email com contexto identificavel, endereco, telefone) e emitido por ele como **S1 LGPD** em `security-review.json`. Vazamento de PII em log e violacao legal imediata — nao e questao de qualidade.
+  - `ownership: security-expert/LGPD (blocking)`
+
+- **Excecao (escalacao):** se o observability-gate identifica um caso de PII que o security-gate NAO reportou em `security-review.json`, pode emitir um finding **S3** sob a categoria "cross-gate coverage gap" apontando para security-review.json — sinalizando falha de cobertura do security-gate, nao duplicando o veto. Caso excepcional, nao rotina.
+
+Esta regra evita duplo-veto, aprovacao erronea por "assumption de que o outro pega" e findings sobrepostos em re-runs.
 
 ## Checklist de auditoria (observability-gate)
 

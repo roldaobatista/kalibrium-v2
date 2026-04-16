@@ -1,7 +1,8 @@
 ---
 name: audit-planning
-description: Audita epicos e stories contra PRD, FRs e NFRs. Roda planning-auditor em contexto limpo. Ciclo automatico: auditoria → correcao → re-auditoria ate aprovado. Uso: /audit-planning [ENN | roadmap | all].
+description: Audita epicos e stories contra PRD, FRs e NFRs. Roda qa-expert (audit-planning) em contexto limpo. Ciclo automatico: auditoria → correcao → re-auditoria ate aprovado. Uso: /audit-planning [ENN | roadmap | all].
 user_invocable: true
+protocol_version: "1.2.2"
 ---
 
 # /audit-planning
@@ -32,7 +33,7 @@ Epicos e stories podem ter gaps de cobertura, ACs subjetivos, dependencias circu
 ### 1. Validar pre-condicoes
 Se alguma falhar, listar o que falta e parar.
 
-### 2. Spawn planning-auditor (contexto limpo)
+### 2. Spawn qa-expert (modo: audit-planning) (contexto limpo)
 Spawn sub-agent `qa-expert` (modo: audit-planning) com escopo definido.
 Produz: `docs/audits/planning/planning-audit-{scope}.json`
 
@@ -67,8 +68,8 @@ Vou corrigir automaticamente e re-auditar. Aguarde...
 
 ```
 loop:
-  1. Spawnar fixer ou story-decomposer para corrigir findings
-  2. Re-spawnar planning-auditor (contexto limpo novo)
+  1. Spawnar `builder` (fixer) ou `product-expert` (decompose) para corrigir findings
+  2. Re-spawnar `qa-expert` (modo: audit-planning) (contexto limpo novo)
   3. Se approved → sair do loop
   4. Se rejected de novo → repetir (5 ciclos automáticos)
   5. Se 6 iteracoes sem aprovacao → escalar humano (R6)
@@ -81,7 +82,7 @@ Sempre em linguagem de produto. Nunca mostrar JSON cru.
 
 | Cenario | Recuperacao |
 |---|---|
-| planning-auditor excede budget (40k tokens) | Reduzir escopo: auditar 1 epico por vez em vez de all |
+| `qa-expert` (modo: audit-planning) excede budget (40k tokens) | Reduzir escopo: auditar 1 epico por vez em vez de all |
 | Ciclo de correcao nao converge (6 iteracoes) | Escalar humano via R6. Apresentar findings restantes traduzidos. |
 | Pre-condicao falha | Listar o que falta e sugerir skill adequada |
 
@@ -93,3 +94,13 @@ Sempre em linguagem de produto. Nunca mostrar JSON cru.
 - Approved → prosseguir para implementacao (`/start-story ENN-SNN`)
 - Rejected e corrigido → re-auditar automaticamente
 - Rejected 6x → escalar humano com `/explain-slice`
+
+## Conformidade com protocolo v1.2.2
+
+- **Agent invocado:** `qa-expert (audit-planning)` — conforme mapa canonico 00 §3.1
+- **Gate name (enum):** `audit-planning`
+- **Output:** `docs/audits/planning/planning-audit-{scope}.json`
+- **Schema:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios)
+- **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §12`
+- **Isolamento R3:** gate roda em instancia isolada com `isolation_context` unico
+- **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0`

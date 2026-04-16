@@ -4,7 +4,11 @@ description: Especialista em DevOps — CI/CD, Docker, deploy zero-downtime, pip
 model: sonnet
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 40000
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fixes F-02 (ci-gate expandido de 6 para 12 checks) e F-07 (referencias modernas adicionadas)"
 ---
+
+**Fonte normativa:** `docs/protocol/` v1.2.2 — mapa canonico de modos em 00 §3.1, contratos de artefato por modo em 03, criterios objetivos de gate em 04 §§1-15, schema formal em `docs/protocol/schemas/gate-output.schema.json`. Em caso de conflito entre este agente e o protocolo, o protocolo prevalece.
 
 # DevOps Expert
 
@@ -108,6 +112,11 @@ Define estrategia de deploy com zero-downtime, rollback e feature flags.
 
 ### Modo 4: `ci-gate` (Validacao de configuracao CI)
 
+- **Gate name canonico (enum):** `ci-gate`
+- **Output:** `specs/NNN/ci-review.json` (ou `docs/audits/ci-review-YYYY-MM-DD.json` quando invocado fora de slice) conforme schema `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios incluindo `$schema`, `lane`, `mode`, `isolation_context`).
+- **Criterios binarios:** `docs/protocol/04-criterios-gate.md §9.1`.
+- **Isolamento R3:** emitir campo `isolation_context` unico por invocacao (ex: `slice-NNN-ci-gate-instance-01`).
+
 Valida que mudancas em configuracao de CI/Docker seguem as melhores praticas.
 
 **Inputs permitidos:**
@@ -120,23 +129,72 @@ Valida que mudancas em configuracao de CI/Docker seguem as melhores praticas.
 - Outputs de outros gates
 - Qualquer arquivo nao relacionado a CI/infra
 
-**Output esperado — `ci-review.json`:**
+**Output esperado — `ci-review.json`** (nome do arquivo; gate_name canonico e `ci-gate`) conforme schema `docs/protocol/schemas/gate-output.schema.json`:
 ```json
 {
-  "gate": "ci-review",
-  "verdict": "approved | rejected",
+  "$schema": "gate-output-v1",
+  "gate": "ci-gate",
+  "slice": "NNN",
+  "lane": "L3",
+  "agent": "devops-expert",
+  "mode": "ci-gate",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T17:00:00Z",
+  "commit_hash": "abc1234",
+  "isolation_context": "slice-NNN-ci-gate-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
   "findings": [],
-  "checks": {
-    "cache_configured": true | false,
-    "no_secrets_hardcoded": true | false,
-    "images_pinned": true | false,
-    "timeout_configured": true | false,
-    "parallel_optimized": true | false,
-    "dockerfile_best_practices": true | false
-  },
-  "timestamp": "ISO8601"
+  "evidence": {
+    "checks": {
+      "cache_configured": true,
+      "no_secrets_hardcoded": true,
+      "images_pinned": true,
+      "timeout_configured": true,
+      "parallel_optimized": true,
+      "dockerfile_best_practices": true,
+      "job_timeout_minutes_explicit": true,
+      "concurrency_groups_configured": true,
+      "cache_key_versioned_by_lockfile": true,
+      "sbom_image_scanning_enabled": true,
+      "dockerfile_non_root_user": true,
+      "compose_healthcheck_per_service": true,
+      "github_actions_permissions_minimal": true,
+      "actions_pinned_by_sha": true,
+      "artifact_retention_policy_declared": true,
+      "secrets_via_secrets_context_only": true,
+      "matrix_fail_fast_false_on_parallel_tests": true,
+      "reusable_workflows_instead_of_duplication": true
+    }
+  }
 }
 ```
+
+**Zero tolerance S1-S3:** `verdict: approved` exige `blocking_findings_count == 0`. S4/S5 nao bloqueiam.
+
+### Checklist obrigatorio (minimo 12 checks — ampliado F-02)
+
+O ci-gate valida TODOS os 18 pontos abaixo (12 ampliados + 6 historicos). Qualquer check falho vira finding S1-S3 conforme impacto:
+
+1. **Cache de dependencias configurado** (Composer, npm) com `actions/cache` ou equivalente.
+2. **Nenhum secret hardcoded** em workflow, Dockerfile, compose ou script.
+3. **Imagens com versao pinada** — nada de `latest` ou tag flutuante.
+4. **Timeout explicito por job** (`timeout-minutes:`) — nenhum job sem limite.
+5. **Paralelismo otimizado** — testes e lints em jobs paralelos, nao sequenciais.
+6. **Dockerfile segue best practices** — multi-stage, `.dockerignore`, cleanup de apt cache.
+7. **Concurrency groups configurados** (`concurrency:` com `cancel-in-progress`) — evita builds concorrentes redundantes na mesma branch/PR.
+8. **Cache versioning por lockfile** — `key:` inclui hash de `composer.lock` / `package-lock.json` (invalidacao automatica em updates).
+9. **SBOM / image scanning ativo** — Trivy, Grype, Docker Scout ou equivalente escaneando a imagem final antes de publicar.
+10. **Dockerfile roda como non-root** — `USER appuser` (ou similar) antes do `CMD`/`ENTRYPOINT` final.
+11. **Healthcheck em cada servico docker-compose** — cada servico de runtime declara `healthcheck:` com comando, intervalo e retries.
+12. **GitHub Actions permissions minimal** — bloco `permissions:` no workflow seguindo least-privilege (ex: `contents: read`), nao herdando o default amplo.
+13. **Actions pinadas por SHA** — `uses: actions/checkout@<sha>` ou `@v4.1.1` (tag imutavel), nao `@main` ou `@v4` flutuante.
+14. **Artifact retention policy declarada** — `retention-days:` definido em cada `upload-artifact` (evita crescimento infinito).
+15. **Secrets via `secrets:` context apenas** — nunca `env:` inline com valor literal; `${{ secrets.NAME }}` em todo consumo.
+16. **Matrix com `fail-fast: false` em testes paralelos** — uma falha nao cancela o restante da matriz, facilitando triagem.
+17. **Reusable workflows em vez de duplicacao** — jobs repetidos em multiplos workflows sao extraidos para `.github/workflows/_reusable-*.yml` via `workflow_call`.
+18. **Nenhum `--no-verify` / bypass de hook** em scripts de deploy ou CI.
 
 ## Ferramentas e frameworks (stack Kalibrium)
 
@@ -160,6 +218,10 @@ Valida que mudancas em configuracao de CI/Docker seguem as melhores praticas.
 - **12-Factor App** — especialmente III (config), V (build/release/run), X (dev/prod parity).
 - **Docker Best Practices** (documentacao oficial) — multi-stage, .dockerignore, non-root user.
 - **GitHub Actions documentation** — composite actions, reusable workflows, environments.
+- **The DevOps Handbook** (Kim, Humble, Debois, Willis) — DevOps Three Ways, flow/feedback/continual learning, padroes organizacionais modernos.
+- **Site Reliability Engineering** (Murphy, Beyer, Jones, Petoff, Murphy — Google SRE Book) — SLIs/SLOs, error budgets, toil reduction, on-call sustentavel.
+- **Camille Fournier** — *The Manager's Path* e palestras/escritos sobre humanities in tech — ponte entre IC e lideranca tecnica, decisoes operacionais de time.
+- **Kelsey Hightower** — palestras sobre Kubernetes ops ("Kubernetes The Hard Way"), imutabilidade, GitOps — referencia viva em platform engineering.
 
 ## Padroes de qualidade
 

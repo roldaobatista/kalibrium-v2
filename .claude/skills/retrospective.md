@@ -1,5 +1,6 @@
 ---
-description: Cria docs/retrospectives/slice-NNN.md combinando slice-report + template qualitativo. OBRIGATÓRIA após cada slice concluído. Uso: /retrospective NNN.
+description: Cria docs/retrospectives/slice-NNN.md combinando slice-report + template qualitativo. Tambem dispara retrospectiva de épico (governance retrospective) quando todos os slices do épico estão merged, gerando docs/retrospectives/epic-ENN.md + proposta harness-learner em docs/governance/harness-learner-ENN.md. OBRIGATÓRIA após cada slice concluído. Uso: /retrospective NNN.
+protocol_version: "1.2.2"
 ---
 
 # /retrospective
@@ -28,7 +29,7 @@ description: Cria docs/retrospectives/slice-NNN.md combinando slice-report + tem
 - <bullets — apenas fatos, não opiniões vagas>
 
 ## O que não funcionou
-- <bullets — com evidência: gate X bloqueou Y vezes, verifier reprovou com razão Z>
+- <bullets — com evidência: gate X bloqueou Y vezes, qa-expert (verify) reprovou com razão Z>
 
 ## Gates que dispararam em falso
 - <hook> bloqueou por <razão> mas comportamento estava correto — ajustar regra? ADR?
@@ -47,6 +48,10 @@ description: Cria docs/retrospectives/slice-NNN.md combinando slice-report + tem
 
 3. **Obrigatório:** alimentar `docs/guide-backlog.md` com qualquer mudança proposta.
 4. Se houver proposta de alteração de P/R, lembrar humano de seguir §5 da constitution (ADR + aprovação).
+5. **Cascata S4 diferida (01 §cascata):** findings S4 do slice NÃO são promovidos para S3 automaticamente ao fim do slice. A promoção é avaliada no final do ÉPICO, quando `governance` (modo: retrospective) examina padrões recorrentes.
+6. **Retrospectiva de épico (R15, ADR-0012 E3):** se todos os slices do épico ENN estão `merged` em `project-state.json[epics_status]`, disparar automaticamente `governance` (modo: retrospective) para gerar:
+   - `docs/retrospectives/epic-ENN.md` — retrospectiva qualitativa do épico (local canonico)
+   - `docs/governance/harness-learner-ENN.md` — propostas do `governance` (modo: harness-learner) para evolução incremental do harness (R16: max 3 mudanças PATCH/MINOR por ciclo; NÃO pode alterar P1-P9/R1-R14)
 
 ## Implementação
 ```bash
@@ -67,7 +72,17 @@ bash scripts/retrospective.sh "$1"
 
 ## Agentes
 
-Nenhum — executada pelo orquestrador.
+- `governance` (modo: retrospective) — disparado automaticamente no fim de épico (R15). Gera `docs/retrospectives/epic-ENN.md`.
+- `governance` (modo: harness-learner) — disparado após retrospective de épico (R16, ADR-0012 E4). Gera `docs/governance/harness-learner-ENN.md` com até 3 propostas PATCH/MINOR.
+
+## Conformidade com protocolo v1.2.2
+
+- **Paths canônicos:**
+  - Retrospectiva de slice: `docs/retrospectives/slice-NNN.md`
+  - Retrospectiva de épico: `docs/retrospectives/epic-ENN.md` (NÃO `docs/retrospectives/epics/` nem outros)
+  - Harness-learner: `docs/governance/harness-learner-ENN.md` (NÃO `docs/retrospectives/`)
+- **Cascata S4 diferida:** promoção S4→S3 avaliada no fim de épico, não no próximo slice (01 §cascata diferida; 07 §5.3 alinhado com v1.2.2).
+- **R16 harness-learner:** máximo 3 mudanças por ciclo retrospectivo; apenas PATCH/MINOR; NÃO pode revogar ou afrouxar P1-P9/R1-R14.
 
 ## Pré-condições
 

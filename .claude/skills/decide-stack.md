@@ -1,5 +1,7 @@
 ---
 description: Gera recomendação completa de stack (ADR-0001) em linguagem de produto para decisão do humano PM. Substitui a sessão técnica de 2h do guia original. R10+R12 enforcement. Uso: /decide-stack.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /decide-stack
@@ -109,3 +111,12 @@ Nenhum — executada pelo orquestrador.
 | `docs/adr/0001-stack-choice.md` já existe | Abortar e informar que a stack já foi decidida. Sugerir revisão via ADR formal se quiser mudar. |
 | PM não entende as opções apresentadas | Reformular usando analogias do cotidiano (R12 reforçada). Oferecer "quer conversar mais antes de decidir". |
 | `scripts/decide-stack.sh` falha na execução | Verificar se o script existe e tem permissão de execução. Gerar o ADR manualmente se o script estiver indisponível. |
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador gera recomendação R12; PM decide).
+- **Gates produzidos:** não é gate; é scaffold de ADR-0001 com recomendação forte.
+- **Output:** `docs/adr/0001-stack-choice.md` em status `proposed` + decisão em aberto.
+- **Schema formal:** template ADR + seção "Sua decisão" em linguagem R12.
+- **Isolamento R3:** não aplicável (sem sub-agent).
+- **Ordem no pipeline:** após `/freeze-prd`; precede `/freeze-architecture`.

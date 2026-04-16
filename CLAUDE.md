@@ -2,8 +2,23 @@
 
 **Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
-Versão: 2.7.0 — 2026-04-15 (auto-approval do plano: dual-gate spec-auditor + plan-reviewer dispensa aprovação manual do PM).
-<!-- Contagem: 22 agents em .claude/agents/ (21 sub-agents + 1 orchestrator), 38 skills em .claude/skills/ -->
+Versão: 2.8.0 — 2026-04-16 (harness alinhado com protocolo operacional v1.2.2 — mapa canônico de agentes/gates/modos, schema JSON formal para gates, protocolo de reconciliação dual-LLM E10, cascata S4 diferida, gates L4 com pré-reviews).
+<!-- Contagem: 12 agents em .claude/agents/ (11 sub-agents + 1 orchestrator), 40 skills em .claude/skills/ -->
+
+**Fonte normativa complementar:** `docs/protocol/` v1.2.2 é a fonte única de verdade para **pipeline, gates, artefatos, RACI, severidade, métricas e políticas de exceção**. Em caso de conflito, o protocolo prevalece nessas questões. Este CLAUDE.md prevalece para **P1-P9, R1-R16, operação de sessão e bootstrap**.
+
+**Documentos do protocolo (fonte única de verdade operacional):**
+
+- `docs/protocol/00-protocolo-operacional.md` — documento mestre + mapa canônico de agentes/modos
+- `docs/protocol/01-sistema-severidade.md` — S1-S5, zero-tolerance, cascata diferida
+- `docs/protocol/02-trilhas-complexidade.md` — L1/L2/L3/L4 + matriz de inputs por trilha
+- `docs/protocol/03-contrato-artefatos.md` — contratos de todo artefato + schema JSON base
+- `docs/protocol/04-criterios-gate.md` — 15 gates (9 principais + 6 de planejamento/L4)
+- `docs/protocol/05-matriz-raci.md` — RACI + princípio de isolamento por instância (R3)
+- `docs/protocol/06-estrategia-evidencias.md` — rastreabilidade e imutabilidade
+- `docs/protocol/07-politica-excecoes.md` — E1-E10 (inclui E10 divergência dual-LLM)
+- `docs/protocol/08-metricas-processo.md` — métricas + dashboard PM
+- `docs/protocol/schemas/gate-output.schema.json` — schema formal (validator oficial)
 
 ---
 

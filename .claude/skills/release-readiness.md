@@ -1,5 +1,7 @@
 ---
 description: Valida se o projeto esta pronto para release. Checa todos os epicos/stories completos, gates aprovados, documentacao atualizada, testes verdes, seguranca OK. Gera relatorio final para PM. Uso: /release-readiness.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /release-readiness
@@ -127,3 +129,12 @@ Nenhum — executada pelo orquestrador.
 ## Handoff
 - Tudo verde → PM aprova deploy
 - Itens pendentes → listar acoes e ajudar a resolver
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador executa checklist agregado de todos os gates).
+- **Gates produzidos:** gate meta-release; consolida outputs de todos os gates de slice + fase.
+- **Output:** relatório PM-ready (pronto/não-pronto) + logs de validação automática.
+- **Schema formal:** checklist declarado inline; validações referenciam schemas de cada gate.
+- **Isolamento R3:** não aplicável (agrega artefatos já auditados).
+- **Ordem no pipeline:** último gate antes de deploy; roda após todos os épicos MVP `merged`.

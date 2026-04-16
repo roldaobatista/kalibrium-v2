@@ -1,5 +1,7 @@
 ---
 description: Congela o PRD para a fase de estrategia tecnica. Valida que intake foi feito, PRD esta completo, NFRs existem. Muda status do PRD para 'frozen'. Nenhuma decisao tecnica antes deste gate. Uso: /freeze-prd.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /freeze-prd
@@ -88,3 +90,12 @@ Nenhum — executada pelo orquestrador.
 - PM confirma → congelar e sugerir proximo passo
 - PM recusa → listar o que quer mudar, voltar ao PRD
 - Pre-condicao falha → listar faltantes, sugerir skill adequada
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador executa validação + muta status).
+- **Gates produzidos:** gate de fase (transição Descoberta → Estratégia); não é gate de slice.
+- **Output:** `docs/product/PRD.md` com header `Status: FROZEN — YYYY-MM-DD` + snapshot imutável.
+- **Schema formal:** snapshot em `docs/product/snapshots/prd-frozen-YYYY-MM-DD.md`.
+- **Isolamento R3:** não aplicável (sem sub-agent).
+- **Ordem no pipeline:** após `/intake` + revisão PM; precede `/decide-stack` e `/freeze-architecture`.

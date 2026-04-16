@@ -1,5 +1,6 @@
 ---
-description: Monta verification-input/, spawn verifier (isolado por hook, sem worktree), valida JSON contra schema, atualiza R6, dispara relatorio PM-ready (G-11). Use apos AC-tests verdes. Uso: /verify-slice NNN.
+description: Monta verification-input/, spawn qa-expert (verify) (isolado por hook, sem worktree), valida JSON contra schema, atualiza R6, dispara relatorio PM-ready (G-11). Use apos AC-tests verdes. Uso: /verify-slice NNN.
+protocol_version: "1.2.2"
 ---
 
 # /verify-slice
@@ -25,9 +26,9 @@ description: Monta verification-input/, spawn verifier (isolado por hook, sem wo
    - `files-changed.txt` (`git diff --name-only base...HEAD` do slice)
    - `constitution-snapshot.md` (cópia de `docs/constitution.md` no estado atual)
 
-2. **Spawn do verifier SEM worktree** via Claude Code `Agent` com `subagent_type: qa-expert` (sem `isolation: worktree`). O isolamento é garantido pelo hook `verifier-sandbox.sh`, que bloqueia reads fora de `verification-input/`. Worktree não é usada porque o input package é untracked e não existiria na worktree.
+2. **Spawn do `qa-expert` (modo: verify) SEM worktree** via Claude Code `Agent` com `subagent_type: qa-expert` (sem `isolation: worktree`). O isolamento é garantido pelo hook `verifier-sandbox.sh`, que bloqueia reads fora de `verification-input/`. Worktree não é usada porque o input package é untracked e não existiria na worktree.
 
-3. **Aguarda** o verifier escrever `verification-input/verification.json`.
+3. **Aguarda** o `qa-expert` (modo: verify) escrever `verification-input/verification.json`.
 
 4. **Valida JSON contra schema** (R4). Rejeita outputs:
    - Sem `verdict`, `ac_checks`, `violations`, `next_action`
@@ -103,12 +104,22 @@ bash scripts/verify-slice.sh "$1"
 | Cenário | Recuperação |
 |---|---|
 | AC-tests não estão todos verdes | Abortar. Implementer deve corrigir testes antes de verificar. Sugerir rodar testes filtrados do slice. |
-| `verification.json` não passa na validação contra schema (R4) | Re-spawn verifier. Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
+| `verification.json` não passa na validação contra schema (R4) | Re-spawn `qa-expert` (modo: verify). Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
 | Worktree isolada falha ao ser criada | Verificar espaço em disco e estado do git. Tentar novamente. Se persistir, reportar erro ao PM. |
-| Verifier rejeita pela 6ª vez consecutiva (R6) | Criar incident file automaticamente, bloquear implementer, gerar relatório PM via `scripts/explain-slice.sh`. Aguardar decisão humana. |
+| `qa-expert` (modo: verify) rejeita pela 6ª vez consecutiva (R6) | Criar incident file automaticamente, bloquear implementer, gerar relatório PM via `scripts/explain-slice.sh`. Aguardar decisão humana. |
 
 ## Agentes
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
 | `qa-expert` (modo: verify) | worktree isolada | 25k tokens |
+
+## Conformidade com protocolo v1.2.2
+
+- **Agent invocado:** `qa-expert (verify)` — conforme mapa canonico 00 §3.1
+- **Gate name (enum):** `verify`
+- **Output:** `specs/NNN/verification.json`
+- **Schema:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios)
+- **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §1`
+- **Isolamento R3:** gate roda em instancia isolada com `isolation_context` unico
+- **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0`

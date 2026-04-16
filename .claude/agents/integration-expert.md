@@ -4,7 +4,11 @@ description: Especialista em integracoes externas (APIs, NF-e, PIX, webhooks) co
 model: sonnet
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 40000
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix F-10 (exemplos JSON de findings por categoria)"
 ---
+
+**Fonte normativa:** `docs/protocol/` v1.2.2 — mapa canonico de modos em 00 §3.1, contratos de artefato por modo em 03, criterios objetivos de gate em 04 §§1-15, schema formal em `docs/protocol/schemas/gate-output.schema.json`. Em caso de conflito entre este agente e o protocolo, o protocolo prevalece.
 
 # Integration Expert
 
@@ -111,6 +115,11 @@ Nao edita codigo diretamente — o builder executa. Advisory apenas.
 
 ### Modo 3: integration-gate (contexto isolado)
 
+- **Gate name canonico (enum):** `integration-gate`
+- **Output:** `specs/NNN/integration-review.json` conforme schema `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios incluindo `$schema`, `lane`, `mode`, `isolation_context`).
+- **Criterios binarios:** `docs/protocol/04-criterios-gate.md §11.1`.
+- **Isolamento R3:** emitir campo `isolation_context` unico por invocacao (ex: `slice-NNN-integration-gate-instance-01`). Este modo nao pode ser invocado na mesma instancia que outros modos de gate do mesmo slice.
+
 Valida uso de APIs externas, resiliencia e conformidade de integracoes. Emite `integration-review.json`.
 
 #### Inputs permitidos
@@ -129,33 +138,38 @@ Valida uso de APIs externas, resiliencia e conformidade de integracoes. Emite `i
 
 #### Output esperado
 
-Arquivo `specs/NNN/integration-review.json`:
+Arquivo `specs/NNN/integration-review.json` (nome do arquivo; gate_name canonico e `integration-gate`) conforme schema `docs/protocol/schemas/gate-output.schema.json`:
 
 ```json
 {
-  "slice_id": "slice-NNN",
-  "gate": "integration-review",
-  "verdict": "approved|rejected",
-  "timestamp": "ISO-8601",
-  "provenance": {
-    "agent": "integration-expert",
-    "mode": "integration-gate",
-    "context": "isolated",
-    "model": "sonnet"
-  },
-  "checks": [
-    {
-      "id": "INT-001",
-      "category": "timeout",
-      "status": "pass|fail",
-      "file": "path/to/file.php",
-      "line": 42,
-      "description": "descricao do check",
-      "evidence": "trecho de codigo ou comando executado"
-    }
-  ],
+  "$schema": "gate-output-v1",
+  "gate": "integration-gate",
+  "slice": "NNN",
+  "lane": "L3",
+  "agent": "integration-expert",
+  "mode": "integration-gate",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T16:15:00Z",
+  "commit_hash": "abc1234",
+  "isolation_context": "slice-NNN-integration-gate-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
   "findings": [],
-  "summary": "resumo em 1-2 frases"
+  "evidence": {
+    "checks": [
+      {
+        "id": "INT-001",
+        "category": "timeout",
+        "status": "pass",
+        "file": "path/to/file.php",
+        "line": 42,
+        "description": "descricao do check",
+        "evidence": "trecho de codigo"
+      }
+    ],
+    "summary": "resumo em 1-2 frases"
+  }
 }
 ```
 
@@ -175,6 +189,89 @@ Arquivo `specs/NNN/integration-review.json`:
 | `error-handling` | Erros de integracao tem fallback graceful + log estruturado |
 | `contract-test` | Testes cobrem cenarios de erro (400, 401, 429, 500, timeout) |
 | `async-pattern` | Operacoes longas (NF-e, pagamento) sao assincronas (job/queue) |
+
+### Exemplos de findings por categoria (catalogo operacional)
+
+Os exemplos abaixo sao canonicos: ao emitir findings no `integration-review.json`, seguir exatamente esta forma (campos obrigatorios: `id`, `severity`, `category`, `file`, `line`, `description`, `evidence`, `recommendation`).
+
+#### Categoria `timeout`
+
+```json
+{
+  "id": "INT-001",
+  "severity": "S2",
+  "category": "timeout",
+  "file": "app/Services/External/PaymentGateway.php",
+  "line": 42,
+  "description": "Chamada HTTP para Stripe sem timeout explicito — default PHP e ilimitado, causando risco de thread starvation",
+  "evidence": "$response = Http::post('https://api.stripe.com/v1/charges', $payload);  // sem ->timeout()",
+  "recommendation": "Http::timeout(30)->connectTimeout(5)->post('https://api.stripe.com/v1/charges', $payload);"
+}
+```
+
+#### Categoria `idempotency`
+
+```json
+{
+  "id": "INT-002",
+  "severity": "S1",
+  "category": "idempotency",
+  "file": "app/Services/External/NfeIssuer.php",
+  "line": 87,
+  "description": "Emissao de NF-e sem chave de idempotencia — retry automatico pode gerar duplicata fiscal com impacto tributario",
+  "evidence": "POST https://nfe.sefaz.../emitir sem header Idempotency-Key nem controle local de deduplicacao",
+  "recommendation": "Adicionar header 'Idempotency-Key: {tenant_id}-{order_id}-{attempt}' e tabela local de deduplicacao antes do envio a SEFAZ"
+}
+```
+
+#### Categoria `webhook-signature`
+
+```json
+{
+  "id": "INT-003",
+  "severity": "S1",
+  "category": "webhook-signature",
+  "file": "app/Http/Controllers/Webhooks/StripeWebhookController.php",
+  "line": 15,
+  "description": "Webhook do Stripe processa payload sem validar assinatura HMAC — qualquer ator pode forjar evento e acionar side effects (refund, subscription cancel)",
+  "evidence": "$event = json_decode($request->getContent(), true);  // processamento direto, sem Stripe\\Webhook::constructEvent()",
+  "recommendation": "Validar signature via \\Stripe\\Webhook::constructEvent($payload, $sigHeader, config('services.stripe.webhook_secret')) antes de processar"
+}
+```
+
+#### Categoria `retry`
+
+```json
+{
+  "id": "INT-004",
+  "severity": "S2",
+  "category": "retry",
+  "file": "app/Jobs/SendNfe.php",
+  "line": 53,
+  "description": "Retry configurado para qualquer exception, incluindo 400 Bad Request — erro de validacao nao melhora com retry e desperdica budget de retries",
+  "evidence": "Http::retry(3, 100)->post(...);  // sem filtro de status code, aplica retry em 400/401/422",
+  "recommendation": "Http::retry(3, 100, fn ($exception) => $exception instanceof ConnectionException || ($exception->response?->status() >= 500 || $exception->response?->status() === 429))->post(...);"
+}
+```
+
+#### Categoria `queue-config`
+
+```json
+{
+  "id": "INT-005",
+  "severity": "S3",
+  "category": "queue-config",
+  "file": "app/Jobs/ProcessPixWebhook.php",
+  "line": 12,
+  "description": "Job de integracao sem $tries, $backoff e $maxExceptions definidos — usa defaults do Laravel que nao sao adequados para API externa instavel",
+  "evidence": "class ProcessPixWebhook implements ShouldQueue { use Dispatchable, InteractsWithQueue; /* sem $tries, $backoff, $maxExceptions */ }",
+  "recommendation": "public int $tries = 5; public array $backoff = [30, 60, 300, 900]; public int $maxExceptions = 3; implementar metodo failed() com log estruturado + envio para dead letter"
+}
+```
+
+#### Outras categorias
+
+Seguir o mesmo formato acima para `circuit-breaker`, `dead-letter`, `secrets`, `rate-limit`, `error-handling`, `contract-test`, `async-pattern`. Todos os campos obrigatorios (`id`, `severity`, `category`, `file`, `line`, `description`, `evidence`, `recommendation`) devem estar presentes. Ids sequenciais por slice (`INT-001`, `INT-002`, ...).
 
 ---
 

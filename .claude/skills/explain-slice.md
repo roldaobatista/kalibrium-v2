@@ -1,5 +1,7 @@
 ---
 description: Traduz um slice técnico em relatório de linguagem de produto para o humano (PM, não desenvolvedor). R12 enforcement. Uso obrigatório em escalações R6 e opcional após merge. Uso: /explain-slice NNN.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
 # /explain-slice
@@ -17,7 +19,7 @@ Esta skill lê artefatos técnicos do slice (`spec.md`, `plan.md`, `verification
 
 ## Quando usar
 
-1. **Obrigatório** em escalações R6 (verifier, reviewer ou auditoria reprovou pela 6ª vez consecutiva no mesmo gate) — humano precisa decidir sem entender o diff.
+1. **Obrigatório** em escalações R6 (qualquer gate canonico reprovou pela 6ª vez consecutiva) — humano precisa decidir sem entender o diff.
 2. **Opcional** após merge bem-sucedido — relatório informativo do que entrou em produção.
 3. **Opcional** antes de decidir stack (ADR-0001) — usa-se para descrever trade-offs em linguagem de produto.
 
@@ -118,3 +120,18 @@ Nenhum — executada pelo orquestrador.
 | Artefatos técnicos incompletos (sem `verification.json`, sem testes) | Gerar explicação parcial com o que estiver disponível. Indicar claramente quais informações estão faltando no relatório. |
 | Tradução impossível (termo técnico sem equivalente de produto) | Usar a regra 4 do tradutor: marcar "precisa de revisão técnica" e colocar o termo em seção colapsável de detalhes técnicos. |
 | PM não entende a explicação gerada | Simplificar ainda mais, usando analogias do dia-a-dia. Perguntar ao PM qual parte ficou confusa e reformular. |
+
+## Próximo passo
+
+- Explicação gerada → PM lê `docs/explanations/slice-NNN.md` e decide (aceitar/ajustar/escalar)
+- Escalação R6 → PM precisa decidir A/B/sim/não antes de o fluxo continuar
+- Após merge (informativo) → PM segue para `/next-slice`
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador traduz artefatos técnicos via script).
+- **Gates produzidos:** não é gate; é tradução R12 obrigatória em escalações.
+- **Output:** `docs/explanations/slice-NNN.md` em PT-BR de produto, sem JSON cru.
+- **Schema formal:** seções fixas (O que foi feito / Status / Visível / Próximo passo).
+- **Isolamento R3:** não aplicável (consome artefatos já auditados).
+- **Ordem no pipeline:** invocado automaticamente em `/verify-slice` e `/review-pr` (G-11); obrigatório em R6.
