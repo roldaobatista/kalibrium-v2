@@ -197,7 +197,7 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 21. `/security-review NNN` → security-reviewer em contexto isolado → `security-review.json`.
 22. `/test-audit NNN` → test-auditor em contexto isolado → `test-audit.json`.
 23. `/functional-review NNN` → functional-reviewer em contexto isolado → `functional-review.json`.
-24. `/master-audit NNN` → master-auditor consolida as 5 saídas anteriores em verdict dual-LLM (Opus + GPT-5) em contexto isolado → `master-audit.json`. Se as duas trilhas divergirem, master-auditor tenta reconciliar em até 3 rodadas; persistindo, escala PM via `/explain-slice NNN` (R12).
+24. `/master-audit NNN` → master-auditor consolida as 5 saídas anteriores em verdict dual-LLM (Opus + GPT-5) em contexto isolado → `master-audit.json`. Se as duas trilhas divergirem, master-auditor tenta reconciliar em até 3 rodadas; persistindo, escala PM via `/explain-slice NNN` (R12). **Invocação da Trilha GPT-5 (Codex CLI):** ler `docs/operations/codex-gpt5-setup.md` — em ChatGPT Plus auth, NÃO passar `--model` (default = gpt-5); no Windows usar `--sandbox workspace-write` (não `read-only`, evita `CreateProcessAsUserW failed: 5`).
 25. Se qualquer gate emitir findings (mesmo minor/low/info) → `/fix NNN [gate]` → fixer corrige TODOS → **re-run do mesmo gate** (não pula). Repete até `findings: []`.
 26. Se 6º `rejected` consecutivo no mesmo gate (R6) → parar, escalar humano via `/explain-slice NNN`.
 27. Todos os 5 gates + master-auditor `approved` com zero findings → `/merge-slice NNN`.

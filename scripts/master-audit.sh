@@ -104,12 +104,17 @@ Próximas ações (em paralelo quando possível):
    - O sandbox hook restringe reads a $INPUT_DIR/
    - Saída esperada: $INPUT_DIR/trail-opus.json
 
-2. TRILHA B — GPT-5 (Codex CLI via MCP)
-   - Invoque via tool mcp__codex__codex:
-     model: gpt-5.4
-     sandbox: read-only
-     cwd: $REPO_ROOT/$INPUT_DIR
-     prompt: <mesmo prompt da trilha A, ver §Prompt canônico>
+2. TRILHA B — GPT-5 (Codex CLI via Bash direto, recomendado)
+   - IMPORTANTE: em ChatGPT Plus auth NAO passe --model (default = gpt-5).
+     Ver docs/operations/codex-gpt5-setup.md para regras e troubleshooting.
+   - Invoque via tool Bash:
+     cd $REPO_ROOT/$INPUT_DIR && codex exec \\
+       --sandbox workspace-write \\
+       --skip-git-repo-check \\
+       "<mesmo prompt da trilha A>"
+   - Alternativa (MCP, pode sofrer CreateProcessAsUserW no Windows):
+     mcp__codex__codex com sandbox: "workspace-write", cwd: $REPO_ROOT/$INPUT_DIR
+     (SEM passar model — deixar default)
    - Saída esperada: $INPUT_DIR/trail-gpt5.json
 
 3. CONSOLIDAÇÃO (feita pelo orquestrador):
