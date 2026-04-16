@@ -32,6 +32,8 @@ Opções:
 - **(A)** Rodar BFG para remover `.env.testing` de todo o histórico — reescreve commits, quebra referências de PRs antigos
 - **(B)** Aceitar que a chave antiga está no histórico — risco baixo pois é de ambiente de teste sem dados reais
 
+**Decisão PM (2026-04-16):** opção B aceita. Chave de teste rotacionada, sem dados reais, risco baixo. Histórico não será reescrito.
+
 ## Prevenção
 
 - `.env.testing` agora está no `.gitignore` (via regra `.env.*`)
