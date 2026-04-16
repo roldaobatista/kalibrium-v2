@@ -1,90 +1,71 @@
 {
   "slice_id": "slice-012",
   "verdict": "rejected",
-  "timestamp": "2026-04-15T21:15:00Z",
+  "timestamp": "2026-04-15T22:10:00Z",
+  "iteration": 2,
   "ac_assessment": [
     {
       "ac": "AC-001",
       "met": true,
       "confidence": "high",
-      "notes": "POST /clientes com CNPJ valido retorna 201, persiste com tipo_pessoa=PJ e tenant_id correto. 2 testes feature + 2 testes unitarios cobrem este AC. Evidencia: test-results.txt linhas 22-23, 47-48."
+      "notes": "POST /clientes com CNPJ valido retorna 201, persiste com tipo_pessoa=PJ e tenant_id correto. ClienteResource agora retorna todos os 15 campos do contrato. Teste feature cobre status 201, JsonStructure e assertDatabaseHas."
     },
     {
       "ac": "AC-002",
       "met": true,
       "confidence": "high",
-      "notes": "POST /clientes com CPF valido retorna 201, persiste com tipo_pessoa=PF. 1 teste feature + 3 testes unitarios cobrem este AC. Evidencia: test-results.txt linhas 24, 53-55."
+      "notes": "POST /clientes com CPF valido retorna 201, persiste com tipo_pessoa=PF. Dados acessiveis via rota de exibicao. Teste feature cobre criacao e persistencia."
     },
     {
       "ac": "AC-003",
       "met": true,
       "confidence": "high",
-      "notes": "POST /clientes com CNPJ invalido (digitos repetidos e digitos verificadores errados) retorna 422 com erro no campo cnpj_cpf, nenhum registro persistido. 2 testes feature + 2 testes unitarios. Evidencia: linhas 25-26, 49-50."
+      "notes": "POST /clientes com CNPJ invalido retorna 422 com erro no campo cnpj_cpf, nenhum registro persistido. 2 testes feature cobrem digitos repetidos e digitos verificadores errados."
     },
     {
       "ac": "AC-004",
       "met": true,
       "confidence": "high",
-      "notes": "POST /clientes com CPF invalido retorna 422 com erro no campo cnpj_cpf, nenhum registro persistido. 2 testes feature + 5 testes unitarios (sequencia repetida, digitos errados, curto, vazio, zeros). Evidencia: linhas 27-28, 56-60."
+      "notes": "POST /clientes com CPF invalido retorna 422 com erro no campo cnpj_cpf, nenhum registro persistido. Testes feature + unitarios cobrem sequencia repetida, digitos errados, curto, vazio."
     },
     {
       "ac": "AC-005",
       "met": true,
       "confidence": "high",
-      "notes": "CNPJ e CPF duplicados no mesmo tenant retornam 422 com erro de validacao no campo cnpj_cpf. 2 testes feature (CNPJ + CPF). Evidencia: linhas 42-43."
+      "notes": "CNPJ e CPF duplicados no mesmo tenant retornam 422 com erro de validacao. 2 testes feature cobrem duplicata CNPJ e CPF."
     },
     {
       "ac": "AC-006",
       "met": true,
       "confidence": "high",
-      "notes": "Mesmo CNPJ em tenant diferente e aceito (201). Teste verifica ambos registros existem nos respectivos tenants. Evidencia: linha 44."
+      "notes": "Mesmo CNPJ em tenant diferente e aceito (201). Teste feature verifica ambos registros coexistem nos respectivos tenants."
     },
     {
       "ac": "AC-007",
       "met": true,
       "confidence": "high",
-      "notes": "DELETE /clientes/{id} de cliente ativo retorna 200, ativo=false, deleted_at preenchido. 2 testes feature. Evidencia: linhas 36-37."
+      "notes": "DELETE /clientes/{id} de cliente ativo retorna 200, ativo=false, deleted_at preenchido. Teste feature verifica status 200 e data.ativo=false."
     },
     {
       "ac": "AC-008",
       "met": true,
       "confidence": "high",
-      "notes": "DELETE /clientes/{id} de cliente ja inativo retorna 409, sem alteracao no registro (updated_at preservado). 2 testes feature. Evidencia: linhas 38-39."
+      "notes": "DELETE /clientes/{id} de cliente ja inativo retorna 409 com code=cliente_ja_inativo e mensagem em linguagem de produto. CON-003 e UX-001 corrigidos. Teste feature verifica status 409 e updated_at inalterado."
     },
     {
       "ac": "AC-009",
       "met": true,
       "confidence": "high",
-      "notes": "Tabela clientes existe com todas as 22 colunas do ERD, seeder cria ao menos 1 cliente por tenant, partial unique index em (tenant_id, documento) WHERE deleted_at IS NULL existe. 3 testes. Evidencia: linhas 31-33."
+      "notes": "Tabela clientes existe com todas as colunas do ERD, seeder cria ao menos 1 cliente por tenant, partial unique index em (tenant_id, documento) WHERE deleted_at IS NULL existe. 3 testes cobrem migracao, seeder e indice."
     }
   ],
-  "ux_findings": [
-    {
-      "id": "UX-001",
-      "severity": "medium",
-      "area": "error_messages",
-      "description": "Resposta 409 do DELETE /clientes/{id} quando cliente ja inativo expoe detalhe de implementacao ao usuario: 'Cliente ja esta com ativo = false.' O campo errors.id contem linguagem tecnica que nao e util ao consumidor da API.",
-      "recommendation": "Trocar a mensagem de errors.id para algo orientado ao usuario, por exemplo 'Este cliente ja foi desativado anteriormente.' Remover referencia ao campo 'ativo = false'."
-    }
-  ],
+  "ux_findings": [],
   "consistency_findings": [
     {
-      "id": "CON-001",
-      "severity": "high",
-      "description": "ClienteResource retorna apenas 8 campos (id, tipo_pessoa, cnpj_cpf, razao_social, nome_fantasia, ativo, created_at, updated_at) mas o contrato de API (docs/architecture/api-contracts/E03/clientes.md) para POST /clientes 201 especifica 15 campos incluindo logradouro, numero, complemento, bairro, cidade, uf, cep, regime_tributario e limite_credito. A resposta da API nao corresponde ao contrato documentado.",
-      "recommendation": "Atualizar ClienteResource.toArray() para incluir todos os campos definidos no contrato de API: logradouro, numero, complemento, bairro, cidade, uf, cep, regime_tributario (convertido de slug para label conforme contrato), limite_credito."
-    },
-    {
-      "id": "CON-002",
+      "id": "CON-004",
       "severity": "medium",
-      "description": "O campo cnpj_cpf na resposta da API (ClienteResource) retorna o valor bruto da coluna 'documento' (somente digitos, ex: '11222333000181'). O contrato de API mostra o valor formatado com mascara (ex: '11.222.333/0001-81'). O consumidor da API recebe formato diferente do documentado.",
-      "recommendation": "Formatar o campo cnpj_cpf na ClienteResource aplicando mascara de CNPJ (XX.XXX.XXX/XXXX-XX) ou CPF (XXX.XXX.XXX-XX) conforme tipo_pessoa, para corresponder ao contrato de API."
-    },
-    {
-      "id": "CON-003",
-      "severity": "medium",
-      "description": "O contrato de API para DELETE /clientes/{id} 409 especifica code 'cliente_ja_inativo' na tabela de erros, mas a implementacao retorna estrutura generica com 'message' + 'errors' sem campo 'code'. Inconsistencia entre contrato documentado e resposta real.",
-      "recommendation": "Adicionar campo 'code': 'cliente_ja_inativo' na resposta 409 do ClienteController::destroy, conforme tabela de erros do contrato de API."
+      "description": "O campo regime_tributario na resposta da API (ClienteResource) retorna o slug armazenado no banco (ex: 'presumido', 'simples') em vez do label legivel ao usuario (ex: 'Lucro Presumido', 'Simples'). O contrato de API (docs/architecture/api-contracts/E03/clientes.md) especifica explicitamente 'banco armazena slugs — API expoe labels via ClienteResource' e o exemplo de resposta mostra 'Lucro Presumido' (label). StoreClienteRequest ja faz a conversao label→slug na entrada, mas ClienteResource nao faz a conversao inversa slug→label na saida.",
+      "recommendation": "Adicionar mapeamento slug→label em ClienteResource para o campo regime_tributario. Mapa inverso: simples→Simples, presumido→Lucro Presumido, real→Lucro Real, mei→MEI, isento→Isento. Considerar usar um Enum PHP para centralizar a conversao bidirecional."
     }
   ],
   "business_rule_findings": [],
