@@ -17,7 +17,7 @@
 
 ## GET /clientes/{clienteId}/contatos
 
-**Descricao:** Lista contatos do cliente. Sem paginacao se <= 10 registros; paginada (20/pagina) se > 10. Retorna apenas contatos ativos por padrao.
+**Descricao:** Lista contatos do cliente. Sem paginacao se <= 20 registros; paginada (20/pagina) se > 20. Retorna apenas contatos ativos por padrao.
 **Permissao:** `tecnico`, `atendente`, `admin`
 **Rate limit:** 120 req/min
 
@@ -25,7 +25,7 @@
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `clienteId` | UUID | ID do cliente pai |
+| `clienteId` | integer | ID do cliente pai (bigint) |
 
 ### Query params
 
@@ -40,8 +40,8 @@
 {
   "data": [
     {
-      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-      "cliente_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "id": 42,
+      "cliente_id": 7,
       "nome": "Ana Paula Silva",
       "email": "ana.silva@calibralab.com.br",
       "whatsapp": "11987654321",
@@ -86,7 +86,7 @@
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `clienteId` | UUID | ID do cliente pai |
+| `clienteId` | integer | ID do cliente pai (bigint) |
 
 ### Request Body
 
@@ -95,7 +95,7 @@
 | `nome` | string | sim | max:255 | `"Ana Paula Silva"` |
 | `email` | string | nao | formato email valido; max:255; nullable | `"ana.silva@calibralab.com.br"` |
 | `whatsapp` | string | nao | minimo 10 digitos numericos (DDD + numero); nullable | `"11987654321"` |
-| `papel` | enum | sim | `in:comprador,responsavel_tecnico,outro` | `"responsavel_tecnico"` |
+| `papel` | enum | sim | `in:comprador,responsavel_tecnico,financeiro,outro` | `"responsavel_tecnico"` |
 
 > Pelo menos `email` ou `whatsapp` deve ser fornecido (validacao condicional).
 
@@ -104,8 +104,8 @@
 ```json
 {
   "data": {
-    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    "cliente_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "id": 42,
+    "cliente_id": 7,
     "nome": "Ana Paula Silva",
     "email": "ana.silva@calibralab.com.br",
     "whatsapp": "11987654321",
@@ -143,7 +143,7 @@
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do contato |
+| `id` | integer | ID do contato (bigint) |
 
 ### Response 200 OK
 
@@ -152,8 +152,8 @@ Mesmo schema do item em `GET /clientes/{clienteId}/contatos`, com campo adiciona
 ```json
 {
   "data": {
-    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    "cliente_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "id": 42,
+    "cliente_id": 7,
     "nome": "Ana Paula Silva",
     "email": "ana.silva@calibralab.com.br",
     "whatsapp": "11987654321",
@@ -189,7 +189,7 @@ Mesmo schema do item em `GET /clientes/{clienteId}/contatos`, com campo adiciona
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do contato |
+| `id` | integer | ID do contato (bigint) |
 
 ### Request Body
 
@@ -198,7 +198,7 @@ Mesmo schema do item em `GET /clientes/{clienteId}/contatos`, com campo adiciona
 | `nome` | string | nao | max:255 | `"Ana Paula Oliveira"` |
 | `email` | string | nao | formato email valido; max:255; nullable | `"ana.oliveira@calibralab.com.br"` |
 | `whatsapp` | string | nao | minimo 10 digitos numericos; nullable | `"11912345678"` |
-| `papel` | enum | nao | `in:comprador,responsavel_tecnico,outro` | `"comprador"` |
+| `papel` | enum | nao | `in:comprador,responsavel_tecnico,financeiro,outro` | `"comprador"` |
 
 ### Response 200 OK
 
@@ -225,7 +225,7 @@ Retorna o schema completo do contato atualizado.
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do contato |
+| `id` | integer | ID do contato (bigint) |
 
 ### Response 200 OK
 
@@ -233,7 +233,7 @@ Retorna o schema completo do contato atualizado.
 {
   "message": "Contato desativado com sucesso.",
   "data": {
-    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "id": 42,
     "ativo": false,
     "updated_at": "2026-04-15T15:30:00-03:00"
   }
@@ -261,7 +261,7 @@ Retorna o schema completo do contato atualizado.
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do contato |
+| `id` | integer | ID do contato (bigint) |
 
 ### Request Body
 
@@ -275,14 +275,14 @@ Retorna o schema completo do contato atualizado.
 ```json
 {
   "data": {
-    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
-    "contato_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "id": 1,
+    "contato_id": 42,
     "canal": "email_marketing",
     "concedido": true,
     "concedido_em": "2026-04-15T10:00:00-03:00",
     "revogado_em": null,
     "forma_aceite": "formulario web - pagina de cadastro",
-    "registrado_por_user_id": "d4e5f6a7-b8c9-0123-defa-234567890123"
+    "registrado_por_user_id": 15
   }
 }
 ```
@@ -309,7 +309,7 @@ Retorna o schema completo do contato atualizado.
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do contato |
+| `id` | integer | ID do contato (bigint) |
 | `canal` | enum | `email_marketing` ou `whatsapp` |
 
 ### Response 200 OK
@@ -318,13 +318,13 @@ Retorna o schema completo do contato atualizado.
 {
   "message": "Consentimento revogado com sucesso.",
   "data": {
-    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
-    "contato_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "id": 1,
+    "contato_id": 42,
     "canal": "email_marketing",
     "concedido": false,
     "concedido_em": "2026-04-15T10:00:00-03:00",
     "revogado_em": "2026-04-15T15:30:00-03:00",
-    "registrado_por_user_id": "d4e5f6a7-b8c9-0123-defa-234567890123"
+    "registrado_por_user_id": 15
   }
 }
 ```
@@ -350,7 +350,7 @@ Retorna o schema completo do contato atualizado.
 
 | Param | Tipo | Descricao |
 |---|---|---|
-| `id` | UUID | ID do contato |
+| `id` | integer | ID do contato (bigint) |
 
 ### Response 200 OK
 
@@ -358,22 +358,22 @@ Retorna o schema completo do contato atualizado.
 {
   "data": [
     {
-      "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+      "id": 2,
       "canal": "email_marketing",
       "concedido": true,
       "concedido_em": "2026-04-15T11:00:00-03:00",
       "revogado_em": null,
       "forma_aceite": "formulario web pos-revogacao",
-      "registrado_por_user_id": "d4e5f6a7-b8c9-0123-defa-234567890123"
+      "registrado_por_user_id": 15
     },
     {
-      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "id": 1,
       "canal": "email_marketing",
       "concedido": false,
       "concedido_em": "2026-04-15T10:00:00-03:00",
       "revogado_em": "2026-04-15T10:30:00-03:00",
       "forma_aceite": "formulario web - pagina de cadastro",
-      "registrado_por_user_id": "d4e5f6a7-b8c9-0123-defa-234567890123"
+      "registrado_por_user_id": 15
     }
   ]
 }

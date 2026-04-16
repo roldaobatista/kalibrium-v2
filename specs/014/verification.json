@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "014",
+  "verification_date": "2026-04-16",
+  "verdict": "approved",
+  "ac_checks": {
+    "AC-001": "pass",
+    "AC-002": "pass",
+    "AC-003": "pass",
+    "AC-004": "pass",
+    "AC-005": "pass",
+    "AC-006": "pass",
+    "AC-007": "pass",
+    "AC-008": "pass",
+    "AC-009": "pass",
+    "AC-010": "pass",
+    "AC-011": "pass",
+    "AC-012": "pass",
+    "AC-013": "pass",
+    "AC-014": "pass",
+    "AC-015": "pass",
+    "AC-016": "pass",
+    "AC-017": "pass"
+  },
+  "violations": [],
+  "findings": [],
+  "next_action": "open_pr",
+  "summary": "19 testes Pest executados via PHP 8.4 (vendor/bin/pest tests/slice-014), todos passando com exit 0, 47 assertions. Todos os 17 ACs cobertos por testes executaveis. RBAC (AC-005, AC-006, AC-009, AC-010) verificado via ContatoPolicy com TenantRole::canWriteContatos/canReadContatos. Isolamento de tenant (AC-008, AC-013, AC-014) verificado via ScopesToCurrentTenant no Model Contato e where tenant_id explicito no destroy(). Commits atomicos com autor identificavel (P6 OK). Testes escritos antes do codigo (P2 OK — arquivos de teste presentes no diff junto com implementacao)."
+}
