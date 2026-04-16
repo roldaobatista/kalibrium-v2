@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "slice-013",
+  "review_date": "2026-04-16",
+  "provenance": {
+    "agent": "plan-reviewer",
+    "context": "isolated"
+  },
+  "verdict": "approved",
+  "summary": "Plano cobre todos os 14 ACs do spec com tasks concretas e arquivos explícitos. Decisões arquiteturais alinhadas com ADR-0001, reversíveis, com mínimo de 2 alternativas cada. Zero findings.",
+  "checks": {
+    "ac_coverage": {
+      "status": "pass",
+      "details": "AC-007 a AC-013 (incluindo sub-ACs 009b, 010a, 010b, 011b, 011c, 012a, 012b, 012c) mapeados em tasks T1-T8 com arquivo e critério de done explícitos. AC-010 e AC-010b tratados corretamente como pertencentes ao slice 012, com teste de regressão no slice 013 (T8/ClienteRbacTest). Sem AC órfão e sem task referenciando AC inexistente."
+    },
+    "architectural_decisions": {
+      "status": "pass",
+      "details": "6 decisões (D1-D6), todas com mínimo 3 alternativas, razão explícita referenciando ACs ou ADR-0001, reversibilidade declarada. D5 (granularidade RBAC) preserva canManageClientes() intocado para não quebrar testes do slice 012 — decisão prudente e justificada. D6 (whenCounted + showDetail) é idiomático Laravel e atende AC-012b sem dependência de relações ainda inexistentes. Nenhuma decisão contradiz ADRs vigentes nem a constitution."
+    },
+    "technical_feasibility": {
+      "status": "pass",
+      "details": "T1-T7 referenciam arquivo concreto (criar ou modificar) com critério de done testável. Ordem de tasks respeita dependências implícitas (FormRequests antes do Controller, TenantRole antes da Policy). Nenhum pacote externo adicionado. withQueryString(), ILIKE e whenCounted são nativos Laravel/PostgreSQL. Propriedade pública $resource->showDetail = true é mecanismo válido em ApiResource do Laravel."
+    },
+    "risks_mitigations": {
+      "status": "pass",
+      "details": "6 riscos listados, todos com mitigação concreta e implementável: (1) canManageClientes incluindo tecnico → canWriteClientes separado + Policy corrigida; (2) paginação perde params → withQueryString(); (3) ILIKE em documento vs cnpj_cpf formatado → normalizar para dígitos no Controller antes da busca; (4) contatos_count/instrumentos_count sem relações → whenCounted fallback 0 + flag showDetail; (5) colisão de nomes de rotas → nomes distintos confirmados; (6) per_page > 100 → max:100 no FormRequest. Risco do spec coberto."
+    },
+    "security": {
+      "status": "pass",
+      "details": "Gate::authorize() explícito em todos os três métodos novos (index, show, update). findOrFail via global scope de tenant garante isolamento cross-tenant (AC-013). UpdateClienteRequest exclui cnpj_cpf e tipo_pessoa das regras, preservando imutabilidade. validatedForStorage() normaliza input antes de fill(), sem acesso a campos raw. Sem secret, sem endpoint público, sem pacote externo que amplie superfície de ataque."
+    },
+    "simplicity": {
+      "status": "pass",
+      "details": "Sem abstração prematura. Dois FormRequests novos justificados por contratos distintos (POST obriga campos, PUT aceita subconjunto). validatedForStorage() é método simples no FormRequest, sem camada de serviço ou repositório adicional. whenCounted com fallback é idiomático Laravel. Nenhum pacote adicionado. Solução é a mais simples que atende todos os ACs."
+    }
+  },
+  "findings": [],
+  "stats": {
+    "total_checks": 6,
+    "passed": 6,
+    "failed": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0
+  }
+}
