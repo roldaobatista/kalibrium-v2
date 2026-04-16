@@ -1,6 +1,6 @@
 # Slice 011 — E02-S08: Testes estruturais de isolamento entre tenants
 
-**Status:** revisão aprovada; aguardando gates finais
+**Status:** ⚠ precisa da sua decisão
 **Data:** 2026-04-15
 **Slice:** 011
 
@@ -81,9 +81,21 @@ AC-006** — (edge de AC-006) Dado aumento de 1 model novo na suite, quando cron
 - Isolamento de arquivos no storage (S3/disk) — escopo de slice dedicado em E04.
 - Suite de performance/load testing — fora do MVP, item de governança.
 
+## Sua decisão é necessária
+
+A entrega não ficou pronta nesta tentativa. Os problemas acima foram
+encontrados por uma verificação automática — não é opinião minha,
+é resultado mecânico.
+
+**Opções:**
+
+- [ ] **Pedir nova tentativa** — o agente implementador corrige os problemas e tenta de novo
+- [ ] **Reescopar** — o slice é grande demais; dividir em pedaços menores
+- [ ] **Pausar** — prefiro discutir antes de decidir
+
 ## Próximo passo
 
-Seguir para as revisões de segurança, testes e funcionalidade antes de qualquer merge.
+Marque uma opção acima e me avise. Não vou continuar sem sua decisão.
 
 ---
 
@@ -92,14 +104,17 @@ Seguir para as revisões de segurança, testes e funcionalidade antes de qualque
 
 - **Verifier verdict:** approved
 - **Reviewer verdict:** approved
-- **Security verdict:** -
-- **Test audit verdict:** -
-- **Functional verdict:** -
+- **Security verdict:** approved
+- **Test audit verdict:** rejected
+- **Functional verdict:** rejected
 - **ACs pass/fail:** 16 / 0
 - **Artefatos:**
     - `specs/011/spec.md`
     - `specs/011/verification.json`
     - `specs/011/review.json`
+    - `specs/011/security-review.json`
+    - `specs/011/test-audit.json`
+    - `specs/011/functional-review.json`
 
 Tradução gerada automaticamente por `scripts/translate-pm.sh` (B-010).
 
