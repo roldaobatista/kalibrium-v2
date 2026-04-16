@@ -9,6 +9,7 @@ declare(strict_types=1);
  * Red natural: 404 (rota inexistente) ou tabela inexistente.
  */
 
+use Illuminate\Support\Facades\DB;
 use Tests\TenantIsolationTestCase;
 
 uses(TenantIsolationTestCase::class)->group('slice-012', 'cliente-soft-delete');
@@ -164,7 +165,7 @@ test('AC-008: DELETE /clientes/{id} ja inativo nao altera o registro', function 
     $this->deleteJson("/clientes/{$clienteId}");
 
     // Captura updated_at apos primeira desativacao
-    $record = \Illuminate\Support\Facades\DB::table('clientes')
+    $record = DB::table('clientes')
         ->where('id', $clienteId)
         ->first();
     $updatedAtAfterFirst = $record->updated_at;
@@ -173,7 +174,7 @@ test('AC-008: DELETE /clientes/{id} ja inativo nao altera o registro', function 
     $secondDelete = $this->deleteJson("/clientes/{$clienteId}");
     $secondDelete->assertStatus(409);
 
-    $recordAfterSecond = \Illuminate\Support\Facades\DB::table('clientes')
+    $recordAfterSecond = DB::table('clientes')
         ->where('id', $clienteId)
         ->first();
 

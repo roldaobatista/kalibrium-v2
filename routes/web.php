@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
 use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
@@ -502,8 +503,8 @@ Route::middleware([
     SetCurrentTenantContext::class,
 ])
     ->group(function (): void {
-        Route::post('/clientes', [\App\Http\Controllers\ClienteController::class, 'store'])->name('clientes.store');
-        Route::delete('/clientes/{id}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('clientes.destroy');
+        Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
+        Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
     });
 
 // ---------------------------------------------------------------------------

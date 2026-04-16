@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Tenant;
 use App\Rules\Cnpj;
 use App\Rules\Cpf;
 use Illuminate\Foundation\Http\FormRequest;
@@ -116,7 +117,7 @@ final class StoreClienteRequest extends FormRequest
     {
         $tenant = $this->attributes->get('current_tenant');
 
-        if ($tenant instanceof \App\Models\Tenant) {
+        if ($tenant instanceof Tenant) {
             return (int) $tenant->id;
         }
 

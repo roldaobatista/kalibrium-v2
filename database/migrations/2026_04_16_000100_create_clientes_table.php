@@ -45,7 +45,7 @@ return new class extends Migration
         // CHECK constraints
         DB::unprepared("ALTER TABLE clientes ADD CONSTRAINT clientes_tipo_pessoa_check CHECK (tipo_pessoa IN ('PJ', 'PF'))");
         DB::unprepared("ALTER TABLE clientes ADD CONSTRAINT clientes_regime_tributario_check CHECK (regime_tributario IS NULL OR regime_tributario IN ('simples', 'presumido', 'real', 'mei', 'isento'))");
-        DB::unprepared("ALTER TABLE clientes ADD CONSTRAINT clientes_limite_credito_check CHECK (limite_credito IS NULL OR limite_credito >= 0)");
+        DB::unprepared('ALTER TABLE clientes ADD CONSTRAINT clientes_limite_credito_check CHECK (limite_credito IS NULL OR limite_credito >= 0)');
 
         // Partial unique index for document uniqueness per tenant (only active/non-deleted)
         DB::unprepared('CREATE UNIQUE INDEX clientes_tenant_documento_unique ON clientes (tenant_id, documento) WHERE deleted_at IS NULL');

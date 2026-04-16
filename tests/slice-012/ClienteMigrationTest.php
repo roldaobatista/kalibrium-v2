@@ -1,14 +1,16 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
 
 /**
  * Slice 012 — E03-S01a: Teste de migration e seeder (AC-009)
  *
  * Red natural: tabela `clientes` nao existe e artisan falha.
  */
-
-uses(\Tests\TestCase::class)->group('slice-012', 'cliente-migration');
+uses(TestCase::class)->group('slice-012', 'cliente-migration');
 
 // ---------------------------------------------------------------------------
 // AC-009: migrate:fresh --seed executa com exit 0, tabela existe, seeder cria dados
@@ -16,7 +18,7 @@ uses(\Tests\TestCase::class)->group('slice-012', 'cliente-migration');
 
 test('AC-009: tabela clientes existe apos migration com todas as colunas do ERD', function () {
     /** @ac AC-009 */
-    $columns = \Illuminate\Support\Facades\Schema::getColumnListing('clientes');
+    $columns = Schema::getColumnListing('clientes');
 
     expect($columns)->not->toBeEmpty('Tabela clientes nao existe ou nao tem colunas.');
 
@@ -52,14 +54,14 @@ test('AC-009: tabela clientes existe apos migration com todas as colunas do ERD'
 
 test('AC-009: seeder cria ao menos um cliente por tenant de exemplo', function () {
     /** @ac AC-009 */
-    $tenantCount = \Illuminate\Support\Facades\DB::table('tenants')->count();
+    $tenantCount = DB::table('tenants')->count();
 
     expect($tenantCount)->toBeGreaterThan(0, 'Nenhum tenant de exemplo encontrado. Seeders anteriores podem ter falhado.');
 
-    $tenantIds = \Illuminate\Support\Facades\DB::table('tenants')->pluck('id');
+    $tenantIds = DB::table('tenants')->pluck('id');
 
     foreach ($tenantIds as $tenantId) {
-        $clienteCount = \Illuminate\Support\Facades\DB::table('clientes')
+        $clienteCount = DB::table('clientes')
             ->where('tenant_id', $tenantId)
             ->count();
 
@@ -72,7 +74,7 @@ test('AC-009: seeder cria ao menos um cliente por tenant de exemplo', function (
 
 test('AC-009: partial unique index existe na tabela clientes', function () {
     /** @ac AC-009 */
-    $indexExists = \Illuminate\Support\Facades\DB::select(
+    $indexExists = DB::select(
         "SELECT 1 FROM pg_indexes WHERE tablename = 'clientes' AND indexdef LIKE '%documento%' AND indexdef LIKE '%WHERE%' LIMIT 1"
     );
 
