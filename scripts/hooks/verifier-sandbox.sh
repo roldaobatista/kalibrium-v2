@@ -1,33 +1,31 @@
 #!/usr/bin/env bash
-# PreToolUse hook — enforce R3 (verifier isolation) + R11 (dual-verifier).
+# PreToolUse hook — enforce R3 (isolamento de gate) + R11 (dual-verifier).
+#
+# Versao v3 (2026-04-16) — alinhada com protocolo operacional v1.2.2.
+# Aceita tanto nomes de agent v2 (legado) quanto v3 (mapa canonico 00 §3.1).
 #
 # Cobertura:
-#   - Read|Grep|Glob: path-based sandbox para verifier/reviewer/security-reviewer/
-#                      test-auditor/functional-reviewer
-#   - Bash:           comandos de inspeção (cat/less/head/tail/...) bloqueados
-#                     fora dos diretórios sandbox quando AGENT é gate isolado
-#                     (item 1.6 meta-audit)
+#   - Read|Grep|Glob: path-based sandbox por gate
+#   - Bash:           comandos de inspecao bloqueados fora do sandbox
 #
-# Cinco contextos isolados:
-#   - verifier:            só pode ler verification-input/       (R3)
-#   - reviewer:            só pode ler review-input/             (R11)
-#   - security-reviewer:   só pode ler security-review-input/    (F2 audit 2026-04-12)
-#   - test-auditor:        só pode ler test-audit-input/         (F2 audit 2026-04-12)
-#   - functional-reviewer: só pode ler functional-review-input/  (F2 audit 2026-04-12)
-#              + Cada gate é BLOQUEADO de ler output de outros gates
+# Determinacao do sandbox:
+#   1. v3: detecta qual *-input/ existe em cwd (worktree isolado)
+#   2. v2 (fallback): mapeamento fixo AGENT -> SANDBOX
 #
-# Defesa contra CLAUDE_AGENT_NAME vazio (item 1.4 meta-audit):
-#   detecção multi-sinal de contexto sub-agent quando o env var não foi setado
-#   pelo orquestrador. Vetor coberto: audit-claude-opus §B.2 + audit-codex §Ameaça #2.
+# Sandboxes suportados:
+#   - verification-input/         (gate verify)
+#   - review-input/               (gate review / code-review)
+#   - security-review-input/      (gate security-gate)
+#   - test-audit-input/           (gate audit-tests)
+#   - functional-review-input/    (gate functional-gate)
+#   - data-review-input/          (gate data-gate) — novo v3
+#   - observability-review-input/ (gate observability-gate) — novo v3
+#   - integration-review-input/   (gate integration-gate) — novo v3
 #
-# Canonicalização de path (item 1.5 meta-audit):
-#   resolve symlinks/.. ANTES do match para fechar §D.2 (symlink escape).
-#
-# Variáveis injetadas pelo Claude Code:
+# Variaveis injetadas pelo Claude Code:
 #   CLAUDE_AGENT_NAME       — nome do sub-agent atual ("" no agente principal)
 #   CLAUDE_TOOL_ARG_FILE    — caminho do arquivo que o tool tentou acessar
 #   CLAUDE_TOOL_ARG_COMMAND — comando completo (Bash matcher)
-#   (fallback: $1)
 
 set -euo pipefail
 
@@ -36,100 +34,107 @@ TARGET="${CLAUDE_TOOL_ARG_FILE:-${1:-}}"
 COMMAND="${CLAUDE_TOOL_ARG_COMMAND:-}"
 
 # ----------------------------------------------------------------------
-# Detecção multi-sinal de contexto sub-agent (item 1.4 meta-audit).
-# Defesa em profundidade — basta UMA camada disparar.
+# Deteccao de contexto sub-agent
 # ----------------------------------------------------------------------
 detect_subagent_context() {
-  # Sinal 1: working dir é uma worktree git? (.git é arquivo, não diretório)
-  # Worktrees criados via Agent tool com isolation:"worktree" têm .git como
-  # arquivo apontando para .git/worktrees/<nome> do main repo.
   [ -f .git ] && return 0
-
-  # Sinal 2: comparar toplevel atual com main worktree do repo
   local toplevel main_wt
   toplevel="$(git rev-parse --show-toplevel 2>/dev/null || echo '')"
   main_wt="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree/ {print $2; exit}')"
   if [ -n "$toplevel" ] && [ -n "$main_wt" ] && [ "$toplevel" != "$main_wt" ]; then
     return 0
   fi
-  return 1  # main context
+  return 1
 }
 
 # ----------------------------------------------------------------------
-# Tratamento de CLAUDE_AGENT_NAME vazio
+# CLAUDE_AGENT_NAME vazio
 # ----------------------------------------------------------------------
 if [ -z "$AGENT" ]; then
   if detect_subagent_context; then
     echo "[verifier-sandbox BLOCK] CLAUDE_AGENT_NAME vazio em contexto de sub-agent (worktree) — fail-closed (R3)" >&2
-    echo "  Origem: meta-audit 2026-04-10 item 1.4 + audit-claude-opus §B.2 + audit-codex §Ameaça #2" >&2
     exit 1
   fi
-  exit 0  # main agent legítimo
+  exit 0
 fi
 
 # ----------------------------------------------------------------------
-# Sub-agents NÃO isolados (implementer, architect, ac-to-test, etc)
+# Lista de agentes que operam gates isolados
+# v2 (legado) + v3 (mapa canonico 00 §3.1)
 # ----------------------------------------------------------------------
 case "$AGENT" in
-  verifier|reviewer|security-reviewer|test-auditor|functional-reviewer) : ;;  # continua para checks específicos abaixo
+  # v2 legado — aceita para compat
+  verifier|reviewer|security-reviewer|test-auditor|functional-reviewer) : ;;
+  # v3 — agents de especialidade que podem executar gates
+  qa-expert|architecture-expert|security-expert|product-expert|data-expert|observability-expert|integration-expert|governance|ux-designer|devops-expert) : ;;
   *)
     if detect_subagent_context; then
-      echo "[verifier-sandbox BLOCK] sub-agent '$AGENT' rodando em worktree (apenas gates isolados permitidos)" >&2
+      echo "[verifier-sandbox BLOCK] sub-agent '$AGENT' nao autorizado a rodar em worktree" >&2
       exit 1
     fi
-    exit 0  # implementer/architect rodando no main repo: passa
+    exit 0
     ;;
 esac
 
 # ======================================================================
-# Daqui em diante: AGENT é um dos 5 gates isolados
+# Determinacao do SANDBOX_DIR
 # ======================================================================
 
-# Define o sandbox dir esperado para este agente
-case "$AGENT" in
-  verifier)            SANDBOX_DIR="verification-input" ;;
-  reviewer)            SANDBOX_DIR="review-input" ;;
-  security-reviewer)   SANDBOX_DIR="security-review-input" ;;
-  test-auditor)        SANDBOX_DIR="test-audit-input" ;;
-  functional-reviewer) SANDBOX_DIR="functional-review-input" ;;
-esac
+SANDBOX_DIR=""
+
+# Estrategia v3: detectar por diretorio de input presente no worktree
+for candidate in verification-input review-input security-review-input test-audit-input functional-review-input data-review-input observability-review-input integration-review-input; do
+  if [ -d "$candidate" ]; then
+    if [ -n "$SANDBOX_DIR" ]; then
+      echo "[verifier-sandbox BLOCK] multiplos sandbox dirs presentes ('$SANDBOX_DIR' + '$candidate') — violacao de isolamento R3" >&2
+      exit 1
+    fi
+    SANDBOX_DIR="$candidate"
+  fi
+done
+
+# Fallback v2: se nao detectou por diretorio, usar mapeamento fixo por AGENT
+if [ -z "$SANDBOX_DIR" ]; then
+  case "$AGENT" in
+    verifier)            SANDBOX_DIR="verification-input" ;;
+    reviewer)            SANDBOX_DIR="review-input" ;;
+    security-reviewer)   SANDBOX_DIR="security-review-input" ;;
+    test-auditor)        SANDBOX_DIR="test-audit-input" ;;
+    functional-reviewer) SANDBOX_DIR="functional-review-input" ;;
+  esac
+fi
+
+# Se ainda nao ha sandbox e estamos em worktree sub-agent v3, fail-closed
+if [ -z "$SANDBOX_DIR" ]; then
+  if detect_subagent_context; then
+    echo "[verifier-sandbox BLOCK] agent '$AGENT' em worktree sem sandbox dir reconhecido (esperado: *-input/)" >&2
+    exit 1
+  fi
+  exit 0
+fi
 
 # ----------------------------------------------------------------------
-# Item 1.6: cobertura de Bash para sub-agents
-# Bloqueia comandos de leitura/inspeção quando o alvo claramente não está
-# dentro do sandbox dir do agente.
+# Bloqueio de comandos Bash de inspecao fora do sandbox
 # ----------------------------------------------------------------------
 if [ -n "$COMMAND" ]; then
-  # Padrão de comandos de inspeção que poderiam ler arquivos sensíveis
   case "$COMMAND" in
     cat\ *|*\ cat\ *|less\ *|*\ less\ *|head\ *|*\ head\ *|tail\ *|*\ tail\ *|more\ *|od\ *|xxd\ *|hexdump\ *|strings\ *|dd\ if=*|*\ dd\ if=*)
-      # Heurística conservadora: se o comando NÃO menciona o sandbox dir, bloqueia.
       if ! echo "$COMMAND" | grep -qE "(^|[[:space:]/])${SANDBOX_DIR}(/|[[:space:]]|$)"; then
-        echo "[verifier-sandbox BLOCK] $AGENT tentou comando de inspeção fora de $SANDBOX_DIR/" >&2
+        echo "[verifier-sandbox BLOCK] $AGENT tentou comando de inspecao fora de $SANDBOX_DIR/" >&2
         echo "  Comando: $COMMAND" >&2
-        echo "  Origem: meta-audit 2026-04-10 item 1.6" >&2
         exit 1
       fi
       ;;
   esac
-  # Outros comandos via Bash em contexto sub-agent: permite (validate-verification, sha256sum, etc.)
 fi
 
 # ----------------------------------------------------------------------
-# Path-based sandbox (Read|Grep|Glob) com canonicalização (item 1.5)
+# Path-based sandbox (Read|Grep|Glob) com canonicalizacao
 # ----------------------------------------------------------------------
-# Sem TARGET (foi um Bash matcher e já passou nos checks acima): permite
 [ -z "$TARGET" ] && exit 0
 
-# Normaliza path: backslash → slash
 TARGET_NORM="${TARGET//\\//}"
 
-# Item 1.5: canonicaliza path (resolve symlinks + ..) ANTES de match.
-# Fecha vetor §D.2: ln -s /etc/hosts verification-input/innocent.md OU
-# verification-input/../../.env → ambos seriam aceitos pelo match textual antigo.
-#
-# Se o sandbox dir não existir ainda (caso comum em smoke-test sem fixture),
-# pula a canonicalização e cai direto no path-text matching abaixo.
 SANDBOX_ABS=""
 if [ -d "$SANDBOX_DIR" ]; then
   SANDBOX_ABS="$(cd "$SANDBOX_DIR" && pwd -P)"
@@ -138,17 +143,12 @@ if [ -n "$SANDBOX_ABS" ]; then
   TARGET_ABS="$(realpath -m "$TARGET_NORM" 2>/dev/null || echo "")"
   if [ -n "$TARGET_ABS" ]; then
     case "$TARGET_ABS" in
-      "$SANDBOX_ABS"|"$SANDBOX_ABS"/*)
-        # Dentro do sandbox canônico → segue para checks de cross-block abaixo
-        :
-        ;;
+      "$SANDBOX_ABS"|"$SANDBOX_ABS"/*) : ;;
       *)
-        # Fora do sandbox canônico — BLOCK incondicional.
         echo "[verifier-sandbox BLOCK] $AGENT path traversal/symlink escape detectado" >&2
         echo "  TARGET:    $TARGET" >&2
-        echo "  Canônico:  $TARGET_ABS" >&2
+        echo "  Canonico:  $TARGET_ABS" >&2
         echo "  Sandbox:   $SANDBOX_ABS" >&2
-        echo "  Origem: meta-audit 2026-04-10 item 1.5" >&2
         exit 1
         ;;
     esac
@@ -156,102 +156,57 @@ if [ -n "$SANDBOX_ABS" ]; then
 fi
 
 # ----------------------------------------------------------------------
-# VERIFIER (R3 + R11)
+# R3 + R11: cada sandbox so pode ler arquivos do proprio escopo
+# e nao pode ler output de outros gates
 # ----------------------------------------------------------------------
-if [ "$AGENT" = "verifier" ]; then
-  case "$TARGET_NORM" in
-    verification-input/*|*/verification-input/*|./verification-input/*|verification-input)
-      exit 0
-      ;;
-    *review-input/*|*review.json)
-      echo "[verifier-sandbox BLOCK] R11: verifier nao pode ver output do reviewer ('$TARGET')" >&2
-      exit 1
-      ;;
-    *)
-      echo "[verifier-sandbox BLOCK] R3: verifier so pode acessar verification-input/ (tentou: $TARGET)" >&2
-      exit 1
-      ;;
-  esac
-fi
 
-# ----------------------------------------------------------------------
-# REVIEWER (R11)
-# ----------------------------------------------------------------------
-if [ "$AGENT" = "reviewer" ]; then
-  case "$TARGET_NORM" in
-    review-input/*|*/review-input/*|./review-input/*|review-input)
-      exit 0
-      ;;
-    *verification-input/*|*verification.json)
-      echo "[verifier-sandbox BLOCK] R11: reviewer nao pode ver output do verifier ('$TARGET')" >&2
-      exit 1
-      ;;
-    *plan.md|*tasks.md)
-      echo "[verifier-sandbox BLOCK] R11: reviewer nao pode ler plan/tasks (narrativa do implementer)" >&2
-      exit 1
-      ;;
-    *)
-      echo "[verifier-sandbox BLOCK] R11: reviewer so pode acessar review-input/ (tentou: $TARGET)" >&2
-      exit 1
-      ;;
-  esac
-fi
+# Funcao auxiliar: bloqueia se TARGET casa com algum padrao de output de outro gate
+block_if_other_gate_output() {
+  local target="$1"
+  local self_sandbox="$2"
+  local patterns=(
+    "verification-input" "verification.json"
+    "review-input" "review.json"
+    "security-review-input" "security-review.json"
+    "test-audit-input" "test-audit.json"
+    "functional-review-input" "functional-review.json"
+    "data-review-input" "data-review.json"
+    "observability-review-input" "observability-review.json"
+    "integration-review-input" "integration-review.json"
+    "master-audit.json"
+  )
+  for p in "${patterns[@]}"; do
+    # skip self
+    [ "$p" = "$self_sandbox" ] && continue
+    case "$target" in
+      *"$p"/*|*"$p")
+        echo "[verifier-sandbox BLOCK] R3/R11: $AGENT (sandbox $self_sandbox) nao pode ler output de outro gate ('$target')" >&2
+        exit 1
+        ;;
+    esac
+  done
+}
 
-# ----------------------------------------------------------------------
-# SECURITY-REVIEWER (F2 master-audit 2026-04-12)
-# ----------------------------------------------------------------------
-if [ "$AGENT" = "security-reviewer" ]; then
-  case "$TARGET_NORM" in
-    security-review-input/*|*/security-review-input/*|./security-review-input/*|security-review-input)
-      exit 0
-      ;;
-    *verification-input/*|*verification.json|*review-input/*|*review.json|*test-audit-input/*|*test-audit.json|*functional-review-input/*|*functional-review.json)
-      echo "[verifier-sandbox BLOCK] security-reviewer nao pode ver output de outros gates ('$TARGET')" >&2
+# Valida acesso ao sandbox proprio
+case "$TARGET_NORM" in
+  "$SANDBOX_DIR"/*|*/"$SANDBOX_DIR"/*|./"$SANDBOX_DIR"/*|"$SANDBOX_DIR")
+    # Dentro do proprio sandbox: ainda assim bloqueia se o path aponta para arquivo de outro gate
+    block_if_other_gate_output "$TARGET_NORM" "$SANDBOX_DIR"
+    exit 0
+    ;;
+  *plan.md|*tasks.md)
+    # review-input especificamente bloqueia plan/tasks (R11)
+    if [ "$SANDBOX_DIR" = "review-input" ]; then
+      echo "[verifier-sandbox BLOCK] R11: review nao pode ler plan/tasks (narrativa do implementer)" >&2
       exit 1
-      ;;
-    *)
-      echo "[verifier-sandbox BLOCK] security-reviewer so pode acessar security-review-input/ (tentou: $TARGET)" >&2
-      exit 1
-      ;;
-  esac
-fi
-
-# ----------------------------------------------------------------------
-# TEST-AUDITOR (F2 master-audit 2026-04-12)
-# ----------------------------------------------------------------------
-if [ "$AGENT" = "test-auditor" ]; then
-  case "$TARGET_NORM" in
-    test-audit-input/*|*/test-audit-input/*|./test-audit-input/*|test-audit-input)
-      exit 0
-      ;;
-    *verification-input/*|*verification.json|*review-input/*|*review.json|*security-review-input/*|*security-review.json|*functional-review-input/*|*functional-review.json)
-      echo "[verifier-sandbox BLOCK] test-auditor nao pode ver output de outros gates ('$TARGET')" >&2
-      exit 1
-      ;;
-    *)
-      echo "[verifier-sandbox BLOCK] test-auditor so pode acessar test-audit-input/ (tentou: $TARGET)" >&2
-      exit 1
-      ;;
-  esac
-fi
-
-# ----------------------------------------------------------------------
-# FUNCTIONAL-REVIEWER (F2 master-audit 2026-04-12)
-# ----------------------------------------------------------------------
-if [ "$AGENT" = "functional-reviewer" ]; then
-  case "$TARGET_NORM" in
-    functional-review-input/*|*/functional-review-input/*|./functional-review-input/*|functional-review-input)
-      exit 0
-      ;;
-    *verification-input/*|*verification.json|*review-input/*|*review.json|*security-review-input/*|*security-review.json|*test-audit-input/*|*test-audit.json)
-      echo "[verifier-sandbox BLOCK] functional-reviewer nao pode ver output de outros gates ('$TARGET')" >&2
-      exit 1
-      ;;
-    *)
-      echo "[verifier-sandbox BLOCK] functional-reviewer so pode acessar functional-review-input/ (tentou: $TARGET)" >&2
-      exit 1
-      ;;
-  esac
-fi
-
-exit 0
+    fi
+    # outros sandboxes: cai no catch-all abaixo
+    echo "[verifier-sandbox BLOCK] R3: $AGENT (sandbox $SANDBOX_DIR) so pode acessar $SANDBOX_DIR/ (tentou: $TARGET)" >&2
+    exit 1
+    ;;
+  *)
+    block_if_other_gate_output "$TARGET_NORM" "$SANDBOX_DIR"
+    echo "[verifier-sandbox BLOCK] R3: $AGENT (sandbox $SANDBOX_DIR) so pode acessar $SANDBOX_DIR/ (tentou: $TARGET)" >&2
+    exit 1
+    ;;
+esac
