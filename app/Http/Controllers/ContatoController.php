@@ -37,12 +37,15 @@ final class ContatoController extends Controller
 
     public function show(Request $request, int $id): JsonResponse
     {
+        $tenant = $request->attributes->get('current_tenant');
         $tenantUser = $request->attributes->get('current_tenant_user');
 
         Gate::authorize('contatos.view', $tenantUser);
 
-        // ScopesToCurrentTenant garante 404 cross-tenant automaticamente
-        $contato = Contato::findOrFail($id);
+        // where tenant_id explícito (defense-in-depth, mesmo padrão do destroy())
+        $contato = Contato::where('tenant_id', $tenant->id)
+            ->where('id', $id)
+            ->firstOrFail();
 
         return (new ContatoResource($contato))
             ->response()
@@ -77,12 +80,15 @@ final class ContatoController extends Controller
 
     public function update(UpdateContatoRequest $request, int $id): JsonResponse
     {
+        $tenant = $request->attributes->get('current_tenant');
         $tenantUser = $request->attributes->get('current_tenant_user');
 
         Gate::authorize('contatos.update', $tenantUser);
 
-        // ScopesToCurrentTenant garante 404 cross-tenant automaticamente
-        $contato = Contato::findOrFail($id);
+        // where tenant_id explícito (defense-in-depth, mesmo padrão do destroy())
+        $contato = Contato::where('tenant_id', $tenant->id)
+            ->where('id', $id)
+            ->firstOrFail();
 
         $data = $request->validated();
 

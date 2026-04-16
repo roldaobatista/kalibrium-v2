@@ -19,6 +19,13 @@ final class Contato extends Model
     use ScopesToCurrentTenant;
     use SoftDeletes;
 
+    /**
+     * Campos PII (LGPD Art. 5 I): email e whatsapp armazenados em texto plano.
+     * Criptografia em repouso (ex: Laravel encrypted cast) é candidata a hardening
+     * futuro — aceita como risco MVP (SEC-003, accepted risk, slice-014).
+     * Base legal de tratamento: execução de contrato (LGPD Art. 7 V).
+     */
+
     /** @var list<string> */
     protected $fillable = [
         'tenant_id',
