@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "slice-012",
+  "review_date": "2026-04-15",
+  "provenance": {
+    "agent": "plan-reviewer",
+    "context": "isolated"
+  },
+  "verdict": "approved",
+  "summary": "Plan corrigido resolve todos os 3 findings da iteracao 1. D6 (bigserial prevalece sobre UUID), D7 (slugs no banco, labels na API com mapeamento explicito) e D8 (API contract prevalece para validacao de input, ERD nullable preservado para dados legados) estao bem declaradas com justificativas e sem contradicao com ADRs ou constitution. Todos os 9 ACs cobertos, 7 tasks concretas, 6 riscos mitigados, nenhum finding novo.",
+  "checks": {
+    "ac_coverage": { "status": "pass", "details": "Todos os 9 ACs do spec mapeados a pelo menos 1 task. Tabela AC-arquivos completa. Nenhuma task referencia AC inexistente." },
+    "architectural_decisions": { "status": "pass", "details": "8 decisoes (D1-D8) todas com alternativas (minimo 2), razao justificada e reversibilidade declarada. D6 resolve divergencia id UUID/bigserial (ERD prevalece). D7 resolve regime_tributario labels/slugs com mapeamento explicito. D8 resolve campos endereco obrigatorios vs nullable. Nenhuma decisao contradiz ADRs vigentes (0001, 0004) ou constitution (P1-P9)." },
+    "technical_feasibility": { "status": "pass", "details": "Tasks 1-7 concretas com arquivos especificos listados. Dependencias entre tasks implicitas na ordem e logicas. Dependencias de slices anteriores (007, 008) declaradas. Nenhum pacote ou servico novo assumido." },
+    "risks_mitigations": { "status": "pass", "details": "6 riscos listados com mitigacoes concretas (race condition via partial unique index, mapeamento cnpj_cpf/documento centralizado, reutilizacao de Cnpj rule, divergencia ativo/deleted_at, seeder dependente de tenants, mascara CPF/CNPJ). Divergencias ERD vs API contract agora resolvidas por D6-D8 — nao requerem risco adicional." },
+    "security": { "status": "pass", "details": "Endpoints protegidos por autenticacao existente (middleware E02). RLS no PostgreSQL. Partial unique index protege contra race condition. Sem vetor de ataque obvio introduzido." },
+    "simplicity": { "status": "pass", "details": "Reutiliza componentes existentes (Cnpj rule, ScopesToCurrentTenant). Nenhuma abstracao prematura. Nenhum pacote novo adicionado. Mapeamentos D7/D8 sao minimos e ficam nas camadas corretas (FormRequest/Resource)." }
+  },
+  "findings": [],
+  "stats": {
+    "total_checks": 6,
+    "passed": 6,
+    "failed": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0
+  }
+}
