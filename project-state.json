@@ -264,20 +264,37 @@
   "technical_debt": [
     "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
     "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md",
-    "secret CI_DB_PASSWORD precisa ser cadastrado no GitHub Actions (slice-011 SEC-006)"
+    "secret CI_DB_PASSWORD precisa ser cadastrado no GitHub Actions (slice-011 SEC-006)",
+    "GAP-S05-001: automação trial→expired (job/scheduler ausente) — epics/E02/stories/E02-S05.md",
+    "GAP-S06-001: pro-rata upgrade/downgrade não implementado — epics/E02/stories/E02-S06.md"
   ],
+  "technical_debt_count": 5,
+  "guide_backlog_ref": "docs/guide-backlog.md (B-022..B-028 abertos)",
   "state": "active",
   "amendment_date": "2026-04-15",
   "last_checkpoint": "2026-04-16T00:38:00Z",
   "last_handoff": "docs/handoffs/handoff-2026-04-15-2038.md",
   "current_phase": "execution",
   "active_epic": "E03",
-  "pending_epic_retrospective": "E02",
+  "pending_epic_retrospective": null,
+  "epic_retrospective_E02": {
+    "verdict": "approved",
+    "iteration": 2,
+    "findings_total": 8,
+    "findings_resolved": 5,
+    "findings_accepted_debt": 3,
+    "findings_open": 0,
+    "report": "docs/retrospectives/epic-E02-retrospective.md",
+    "harness_learner_executed": true,
+    "harness_learner_changes": ["B-023", "B-026", "B-027"],
+    "harness_learner_report": "docs/retrospectives/harness-learner-E02.md",
+    "approved_at": "2026-04-16T01:30:00Z"
+  },
   "next_recommended_slice": {
     "code": "E03-S01",
     "title": "TBD — decompor E02 primeiro via /decompose-stories E03",
     "spec_nnn": null,
-    "status": "awaiting_epic_retrospective_E02"
+    "status": "ready_for_decomposition"
   },
   "master_auditor_status": "active",
   "harness": {

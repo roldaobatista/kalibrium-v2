@@ -1,4 +1,4 @@
-# Incidente P0 — bypass #5/5 para merge do PR #14 (ADR-0012)
+# Incidente P0 — bypass #5/5 para merge do PR #14 (ADR-0012 harness governance, NÃO billing de produto)
 
 **Data:** 2026-04-15
 **Classificação:** P0 (último bypass do contador 5/5)
