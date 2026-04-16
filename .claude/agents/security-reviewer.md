@@ -61,6 +61,15 @@ Avaliar a seguranca do codigo de um slice contra OWASP top 10, politicas LGPD do
 - Queries parametrizadas (sem concatenacao SQL)
 - Upload de arquivo validado (tipo, tamanho, conteudo)
 
+### Fail-Open em Scopes Globais / Builder Scopes (B-027)
+- **GlobalScope / BuilderScope que retorna query sem filtro quando contexto ausente e VULNERABILIDADE CRITICA.**
+- Verificar TODO `GlobalScope`, `Scope`, `BuilderScope`, `scopeXxx()` local scope no codigo do slice.
+- Para cada scope encontrado, validar: **o que acontece quando o contexto (tenant, user, org) e `null`?**
+  - Se retorna query sem clausula restritiva (`WHERE 1=1`, sem `where`, ou `return $builder` inalterado) → finding **critical** (fail-open, vazamento cross-tenant).
+  - Padrao correto: fail-closed (`whereRaw('1=0')`, throw exception, ou `abort(403)`).
+- Em particular para multi-tenancy: `TenantScope`, `ScopesToCurrentTenant`, qualquer scope que filtre por `tenant_id` DEVE ter branch fail-closed quando `tenant_id` e null.
+- Jobs, queue workers, commands artisan: verificar se rodam com tenant context definido. Se nao, scopes globais podem ser bypassados silenciosamente.
+
 ## Output
 Arquivo unico: `security-review-input/security-review.json`
 

@@ -20,13 +20,16 @@ Apos `/decompose-stories` e aprovacao do Story Contract pelo PM.
 ## Pre-condicoes (validadas)
 1. `epics/ENN/stories/ENN-SNN.md` existe (Story Contract)
 2. Story Contract esta aprovado (marcado pelo PM)
-3. **R13/R14 (ADR-0011):** `scripts/start-story.sh ENN-SNN` (ou `scripts/sequencing-check.sh --story ENN-SNN`) retorna 0 ou 5. Gate bloqueia se:
+3. **Branch != main (B-023):** verificar `git branch --show-current`. Se retornar `main`, **bloquear** e orientar:
+   > "Voce esta em `main`. Crie uma feature branch antes de iniciar o slice: `git checkout -b feat/ENN-SNN` ou `git worktree add ../ENN-SNN feat/ENN-SNN`."
+   Nao prosseguir ate que a branch atual seja diferente de `main`. Bypass: `KALIB_SKIP_BRANCH_CHECK="<motivo>"` registra incidente em `docs/incidents/`.
+4. **R13/R14 (ADR-0011):** `scripts/start-story.sh ENN-SNN` (ou `scripts/sequencing-check.sh --story ENN-SNN`) retorna 0 ou 5. Gate bloqueia se:
    - stories anteriores do mesmo epico nao estao `merged` em `project-state.json[epics_status]` (R13), ou
    - e a primeira story do epico e o epico anterior MVP nao esta 100% `merged` (R14).
    - Paralelismo intra-epico permitido quando o Story Contract declara `dependencies: []` no frontmatter.
    - Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` registra incidente e autoriza.
-4. Nenhum slice ativo bloqueado por R6.
-5. Arquitetura congelada.
+5. Nenhum slice ativo bloqueado por R6.
+6. Arquitetura congelada.
 
 ## O que faz
 

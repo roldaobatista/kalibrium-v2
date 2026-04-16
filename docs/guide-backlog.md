@@ -8,12 +8,41 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
-### [B-023] Guardrail para impedir slice de produto iniciado diretamente em `main`
+### [B-025] Telemetria de tokens em todos os gates
+
+- **Origem:** retrospectiva do slice-011.
+- **Evidência:** `docs/retrospectives/slice-011-report.md` mostrou `Tokens totais = 0` apesar de ~35 sub-agents invocados (8 rodadas reviewer, 3 verifier, 2 security/test/functional, master-auditor dual-LLM). Eventos `verify`/`review`/`security-review`/`test-audit`/`functional-review` não emitem `tokens_used`.
+- **Ação:** atualizar `scripts/record-telemetry.sh` e schemas (`docs/schemas/*.schema.json`) para incluir `tokens_used` em todos os eventos de gate. Ajustar `slice-report.sh` para somar.
+- **Status:** aberto. Prioridade média; bloqueia análise de R8 (budget de tokens).
+
+### [B-026] Red-check estrito: rejeitar `markTestIncomplete()` em ac-to-test — RESOLVIDO 2026-04-15
+
+- **Origem:** retrospectiva do slice-011 — verifier rejeitou rodada 2 (`2026-04-15T22:50:06Z`) por 29 testes incomplete.
+- **Evidência:** ac-to-test gerou stubs `markTestIncomplete()` que passaram pelo red-check (não falhavam por assertion). Fixer teve que converter em testes reais que falhavam.
+- **Ação:** atualizar `.claude/agents/ac-to-test.md` com regra explícita.
+- **Resolução (harness-learner E02):** adicionada seção "Stubs proibidos como red (B-026)" em `.claude/agents/ac-to-test.md` com lista explícita de métodos proibidos (`markTestIncomplete`, `markTestSkipped`) e definição de "red válido" (falha por assertion/exception). Hook `red-check.sh` é selado; melhoria futura no hook requer relock pelo PM.
+- **Status:** resolvido. Agent-level enforcement ativo.
+
+### [B-027] Detectar fail-open em scopes globais Eloquent — RESOLVIDO 2026-04-15
+
+- **Origem:** retrospectiva do slice-011 — reviewer pegou em rodada inicial que `ScopesToCurrentTenant` original era fail-open quando sem tenant context.
+- **Evidência:** scope global retornava query sem filtro quando `TenantContext::current()` era null, vazando dados cross-tenant em jobs sem context. Fixado com `whereRaw('1=0')` (fail-closed).
+- **Resolução (harness-learner E02):** adicionada seção "Fail-Open em Scopes Globais / Builder Scopes (B-027)" no checklist do `security-reviewer` (`.claude/agents/security-reviewer.md`). Cobre: GlobalScope, BuilderScope, local scopes, multi-tenancy, jobs/workers sem contexto. Classifica fail-open como finding critical.
+- **Status:** resolvido. Security-reviewer checklist endurecido.
+
+### [B-028] Slice-report enriquecido: rodadas por gate
+
+- **Origem:** retrospectiva do slice-011.
+- **Evidência:** report atual conta apenas verifier (1 rejected). O sinal mais relevante do slice-011 (8 rodadas reviewer com 7 rejeições reais) ficou invisível.
+- **Ação:** atualizar `scripts/slice-report.sh` para contar rodadas por gate (verifier/reviewer/security/test/functional/master-auditor), com taxa de finding-fix entre rodadas. Sobrepõe parcialmente com B-024 — pode ser mesma entrega.
+- **Status:** aberto. Prioridade média; melhora leitura pós-slice.
+
+### [B-023] Guardrail para impedir slice de produto iniciado diretamente em `main` — RESOLVIDO 2026-04-15
 
 - **Origem:** retrospectiva do slice-008 e incidente `docs/incidents/slice-008-mainline-integration-2026-04-14.md`.
 - **Evidência:** slices 006 e 008 chegaram ao encerramento com todos os gates aprovados, mas ja estavam em `main`. O `merge-slice.sh` bloqueia corretamente em `main`, porem tarde demais para evitar a excecao operacional.
-- **Ação:** adicionar verificacao preventiva em `/start-story`, `/new-slice` ou script equivalente: se a branch atual for `main`, bloquear inicio de slice de produto e orientar criar feature branch ou git worktree.
-- **Status:** aberto. Prioridade alta antes do proximo slice de produto.
+- **Resolução (harness-learner E02):** adicionado check "Branch != main (B-023)" como pre-condicao em `.claude/skills/start-story.md` (item 3) e `.claude/skills/new-slice.md` (item 2). Bloqueia inicio de slice quando branch == `main`, orienta criar feature branch. Bypass via `KALIB_SKIP_BRANCH_CHECK` com registro de incidente.
+- **Status:** resolvido. Guardrail preventivo ativo nas duas skills de criacao de slice.
 
 ### [B-024] `slice-report.sh` deve contabilizar todos os gates atuais
 
@@ -376,3 +405,5 @@ Itens resolvidos movem para o histórico no final.
 - 2026-04-11 — B-016..B-021 adicionados pós análise de classe Hercules/Lovable/Bolt (UX pattern import; import do que funciona, descarte do que mataria os gates)
 - 2026-04-12 — Fase B: auditoria de operabilidade PM entrega 23 gaps novos (G-01..G-23) em `docs/audits/pm-operability-audit-2026-04-12.md` + revisão de prioridades do backlog existente
 - 2026-04-12 — Fase A / Bloco 0: B-001, B-007, B-020 resolvidos (post-edit-gate Laravel + CI dormant + wrapper relock exercitado por caso real)
+- 2026-04-16 — B-025, B-026, B-027, B-028 adicionados pós retrospectiva slice-011 (E02-S08 isolamento multi-tenant)
+- 2026-04-15 — B-023, B-026, B-027 resolvidos por harness-learner E02 (ADR-0012 E4 / R16)

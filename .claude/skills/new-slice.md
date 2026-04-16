@@ -17,12 +17,13 @@ Exemplo:
 ## O que faz
 
 1. Valida que `NNN` é 3 dígitos (001-999) e que `specs/NNN/` **não** existe.
-2. Valida gate R13/R14 (ADR-0011): se o título começar com `ENN-SNN:` (ex.: `E02-S07: LGPD + consentimentos`), executa `scripts/sequencing-check.sh --story ENN-SNN` e bloqueia se stories/épicos anteriores não estão `merged` em `project-state.json[epics_status]`. Slices standalone (sem prefixo de story) não passam pelo gate. Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` registra incidente.
-3. Cria `specs/NNN/`.
-4. Copia `docs/templates/spec.md`, `docs/templates/plan.md` e `docs/templates/tasks.md` para `specs/NNN/`.
-5. Preenche título, data, status `draft` no cabeçalho de cada um.
-6. Adiciona linha em `docs/slice-registry.md`: `| NNN | título | draft | <data> |`.
-7. **Não commita.** O humano revisa `spec.md` manualmente antes.
+2. **Branch != main (B-023):** verifica `git branch --show-current`. Se retornar `main`, **bloqueia** e orienta criar feature branch (`git checkout -b feat/slice-NNN`) ou worktree. Nao prosseguir ate branch != `main`. Bypass: `KALIB_SKIP_BRANCH_CHECK="<motivo>"` registra incidente em `docs/incidents/`.
+3. Valida gate R13/R14 (ADR-0011): se o título começar com `ENN-SNN:` (ex.: `E02-S07: LGPD + consentimentos`), executa `scripts/sequencing-check.sh --story ENN-SNN` e bloqueia se stories/épicos anteriores não estão `merged` em `project-state.json[epics_status]`. Slices standalone (sem prefixo de story) não passam pelo gate. Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` registra incidente.
+4. Cria `specs/NNN/`.
+5. Copia `docs/templates/spec.md`, `docs/templates/plan.md` e `docs/templates/tasks.md` para `specs/NNN/`.
+6. Preenche título, data, status `draft` no cabeçalho de cada um.
+7. Adiciona linha em `docs/slice-registry.md`: `| NNN | título | draft | <data> |`.
+8. **Não commita.** O humano revisa `spec.md` manualmente antes.
 
 ## Implementação
 
