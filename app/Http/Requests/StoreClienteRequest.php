@@ -37,9 +37,6 @@ final class StoreClienteRequest extends FormRequest
             ? new Cpf
             : new Cnpj;
 
-        // Normalize the document for uniqueness check
-        $normalizedDoc = preg_replace('/\D+/', '', (string) $this->input('cnpj_cpf', '')) ?? '';
-
         return [
             'tipo_pessoa' => ['required', 'string', Rule::in(['PJ', 'PF'])],
             'cnpj_cpf' => [

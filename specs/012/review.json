@@ -1,0 +1,32 @@
+{
+  "slice_id": "slice-012",
+  "verdict": "rejected",
+  "timestamp": "2026-04-15T20:45:00Z",
+  "quality_checks": [
+    {"category": "duplication", "status": "fail", "evidence": "StoreClienteRequest.php: preg_replace('/\D+/', '', ...) aparece 3 vezes (linhas 128, 174, 197 do diff). Normalizacao em rules() e redundante pois prepareForValidation() ja executa antes."},
+    {"category": "complexity", "status": "pass", "evidence": "Todas as funcoes <50 linhas, nesting max 2 niveis. Controller store/destroy simples."},
+    {"category": "naming", "status": "pass", "evidence": "Nomes descritivos: Cliente, StoreClienteRequest, validatedForStorage, ClienteResource. Convencao Laravel seguida."},
+    {"category": "security", "status": "pass", "evidence": "RLS habilitado na migration, tenant_id scoped no controller destroy, sem SQL injection, sem secrets hardcoded, input validado via FormRequest."},
+    {"category": "simplicity", "status": "pass", "evidence": "Arquitetura direta: Model + Controller + FormRequest + Resource. Sem abstracoes prematuras."},
+    {"category": "glossary", "status": "pass", "evidence": "Termos canonicos usados: Tenant (glossary), Cliente (entidade de dominio do epico E03). Sem alias proibidos."},
+    {"category": "adr_compliance", "status": "pass", "evidence": "ADR-0001: Laravel 13 + PostgreSQL + Pest 4 + RLS. ADR-0004: Fortify/Sanctum auth middleware nas rotas. Tudo conforme."},
+    {"category": "dead_code", "status": "fail", "evidence": "ClienteController.php: 'use Illuminate\Support\Facades\DB;' importado mas nunca usado no arquivo."}
+  ],
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "duplication",
+      "file": "app/Http/Requests/StoreClienteRequest.php",
+      "line": 128,
+      "message": "preg_replace('/\D+/', '', ...) aparece 3 vezes no mesmo arquivo (prepareForValidation, rules, validatedForStorage). A chamada em rules() e redundante porque prepareForValidation() ja normaliza o input antes de rules() ser avaliado pelo Laravel. Extrair para metodo privado ou remover a duplicata em rules()."
+    },
+    {
+      "severity": "minor",
+      "category": "dead_code",
+      "file": "app/Http/Controllers/ClienteController.php",
+      "line": 12,
+      "message": "Import 'use Illuminate\Support\Facades\DB;' nunca utilizado no corpo do controller. Remover import orfao."
+    }
+  ],
+  "next_action": "return_to_implementer"
+}

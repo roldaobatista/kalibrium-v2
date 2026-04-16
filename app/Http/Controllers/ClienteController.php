@@ -9,7 +9,6 @@ use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 final class ClienteController extends Controller
 {
