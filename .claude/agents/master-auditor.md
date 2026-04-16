@@ -82,7 +82,18 @@ Em sessão isolada:
 
 ### Passo 3: Trilha GPT-5
 
-**Método preferido — Bash direto** (mais estável no Windows):
+**Método preferido — MCP `mcp__codex__codex`** (plugin codex-plugin-cc v1.0.3, resolve sandbox issues Windows):
+```
+mcp__codex__codex(
+  sandbox: "workspace-write",
+  cwd: "<abs path to master-audit-input>",
+  approval-policy: "never",
+  prompt: "<prompt consolidado com inputs + checklist + JSON output>"
+)
+```
+**Não** passar `model` — deixar default.
+
+**Método alternativo — Bash direto** (fallback se MCP indisponível):
 ```bash
 cd master-audit-input && codex exec \
   --sandbox workspace-write \
@@ -93,20 +104,11 @@ cd master-audit-input && codex exec \
 **REGRAS CRÍTICAS** (ver `docs/operations/codex-gpt5-setup.md`):
 - ChatGPT Plus auth: **NÃO** passar `--model` (default já é gpt-5). Flags `--model gpt-5/gpt-5.4/o1-mini` falham com `"not supported when using Codex with a ChatGPT account"`.
 - Usar `--sandbox workspace-write` para permitir escrita de `trail-gpt5.json`.
-- Windows: `--sandbox read-only` pode falhar com `CreateProcessAsUserW failed: 5` — use `workspace-write`.
+- Windows: `--sandbox read-only` pode falhar com `CreateProcessAsUserW failed: 5` — plugin MCP contorna isso.
 
-**Método alternativo — MCP:**
-```
-mcp__codex__codex(
-  sandbox: "workspace-write",
-  cwd: "<abs path to master-audit-input>",
-  approval-policy: "never",
-  prompt: "<mesmo prompt>"
-)
-```
-**Não** passar `model` no MCP — deixar default.
+**Fallback graceful:** se tanto MCP quanto Bash falharem 3x consecutivas, registrar `"gpt5_unavailable": true` no `master-audit.json` e prosseguir apenas com Trilha Claude. Ver `docs/operations/codex-gpt5-setup.md §Fallback graceful`.
 
-Para reconciliação (§Passo 5): nova chamada Bash `codex exec` OU `mcp__codex__codex-reply` com session id.
+Para reconciliação (§Passo 5): usar `mcp__codex__codex-reply` com session id (preferido) OU nova chamada Bash `codex exec`.
 
 Capturar parecer da trilha GPT-5. Não ver parecer da trilha Claude.
 

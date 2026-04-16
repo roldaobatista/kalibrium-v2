@@ -27,7 +27,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('tenant-plans.view', [TenantSettingsPolicy::class, 'viewPlan']);
         Gate::define('tenant-plans.request-upgrade', [TenantSettingsPolicy::class, 'requestPlanUpgrade']);
 
+        Gate::define('clientes.viewAny', [ClientePolicy::class, 'viewAny']);
+        Gate::define('clientes.view', [ClientePolicy::class, 'view']);
         Gate::define('clientes.create', [ClientePolicy::class, 'create']);
+        Gate::define('clientes.update', [ClientePolicy::class, 'update']);
         Gate::define('clientes.delete', [ClientePolicy::class, 'delete']);
     }
 }

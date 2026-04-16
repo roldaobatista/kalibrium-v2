@@ -74,4 +74,30 @@ final class TenantRole
             self::ADMINISTRATIVE,
         ], true);
     }
+
+    /**
+     * Roles allowed to READ clientes (index, show).
+     * Includes: gerente, tecnico, administrativo, visualizador.
+     */
+    public static function canReadClientes(string $role): bool
+    {
+        return in_array(strtolower($role), [
+            self::MANAGER,
+            self::TECHNICIAN,
+            self::ADMINISTRATIVE,
+            self::VIEWER,
+        ], true);
+    }
+
+    /**
+     * Roles allowed to WRITE clientes (create, update, deactivate).
+     * Excludes tecnico and visualizador — write requires gerente or administrativo.
+     */
+    public static function canWriteClientes(string $role): bool
+    {
+        return in_array(strtolower($role), [
+            self::MANAGER,
+            self::ADMINISTRATIVE,
+        ], true);
+    }
 }

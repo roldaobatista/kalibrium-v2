@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "013",
+  "verification_date": "2026-04-16",
+  "verdict": "approved",
+  "ac_checks": {
+    "AC-007": "pass",
+    "AC-008": "pass",
+    "AC-009": "pass",
+    "AC-009b": "pass",
+    "AC-010": "pass",
+    "AC-010a": "pass",
+    "AC-010b": "pass",
+    "AC-011": "pass",
+    "AC-011b": "pass",
+    "AC-011c": "pass",
+    "AC-012a": "pass",
+    "AC-012b": "pass",
+    "AC-012c": "pass",
+    "AC-013": "pass"
+  },
+  "violations": [],
+  "findings": [],
+  "next_action": "open_pr",
+  "summary": "33 testes executados, 129 assertions, exit 0 (pest tests/slice-013 --group=slice-013). Todos os 14 ACs cobertos por testes concretos: AC-007 via ClienteListingTest (paginacao + isolamento tenant); AC-008 via ClienteListingTest (filtro razao_social, nome_fantasia, documento); AC-009/AC-009b via ClienteUpdateTest (edicao campos editaveis, payload vazio 422, campos imutaveis ignorados); AC-010 via ClienteRbacTest (soft-delete com 409 regressao do slice-012); AC-010a via ClienteListingTest (filtro ?ativo=false); AC-010b via ClienteRbacTest (409 cliente ja inativo, 403 tecnico antes da logica negocio); AC-011/AC-011b/AC-011c via ClienteRbacTest (tecnico 403 POST/PUT/DELETE); AC-012a/AC-012b/AC-012c via ClienteListingTest + ClienteRbacTest + ClienteShowTest (tecnico 200 GET, contatos_count/instrumentos_count=0, sort invalido 422); AC-013 via ClienteShowTest (cross-tenant 404). Rotas GET/POST/PUT/DELETE /clientes registradas em routes/web.php:507-511. Policy canWriteClientes exclui tecnico e visualizador; canReadClientes inclui todos os roles. TenantScope garante isolamento. Sem violations P1-P9/R1-R10."
+}

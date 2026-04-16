@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "013",
+  "audit_date": "2026-04-16",
+  "verdict": "approved",
+  "coverage_summary": {
+    "acs_total": 14,
+    "acs_covered": 14,
+    "acs_missing": 0,
+    "test_count": 36,
+    "line_coverage_pct": null
+  },
+  "ac_coverage": {
+    "AC-007": "covered",
+    "AC-008": "covered",
+    "AC-009": "covered",
+    "AC-009b": "covered",
+    "AC-010": "covered",
+    "AC-010a": "covered",
+    "AC-010b": "covered",
+    "AC-011": "covered",
+    "AC-011b": "covered",
+    "AC-011c": "covered",
+    "AC-012a": "covered",
+    "AC-012b": "covered",
+    "AC-012c": "covered",
+    "AC-013": "covered"
+  },
+  "findings": [],
+  "anti_patterns": [],
+  "summary": "14 de 14 ACs cobertos com 36 testes e 138 assertions. AC-010 agora tem 3 testes dedicados em ClienteListingTest: (1) DELETE retorna 200 e persiste ativo=false no banco; (2) cliente desativado some da listagem padrao; (3) cliente desativado permanece acessivel via GET /clientes/{id}. Todos os ACs cobrem happy path e pelo menos um error/edge path. RBAC validado com tecnico, gerente e visualizador. Isolamento de tenant verificado em AC-007 e AC-013. Zero anti-patterns: sem mocks do modulo sob teste, sem sleeps, sem assertions triviais, setup/teardown via initializeTenant/endTenant consistente em todos os testes.",
+  "next_action": "approved"
+}

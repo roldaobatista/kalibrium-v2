@@ -18,3 +18,5 @@ uses(TestCase::class)->in('slice-007');
 uses(TestCase::class)->in('slice-008');
 uses(TestCase::class)->in('slice-009');
 uses(TestCase::class)->in('slice-010');
+// slice-012: uses TenantIsolationTestCase per-file (ClienteCreationTest, ClienteSoftDeleteTest, ClienteUniquenessTest)
+// slice-013: uses TenantIsolationTestCase per-file

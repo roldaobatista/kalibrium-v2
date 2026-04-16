@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Rules\Cnpj;
 use App\Rules\CnpjFormat;
 use Tests\TestCase;
 
@@ -18,7 +19,7 @@ uses(TestCase::class)->group('slice-012', 'cnpj-cliente-validation');
 
 test('AC-001: Cnpj::normalize remove mascara e retorna somente digitos', function () {
     /** @ac AC-001 */
-    $normalized = \App\Rules\Cnpj::normalize('11.222.333/0001-81');
+    $normalized = Cnpj::normalize('11.222.333/0001-81');
 
     expect($normalized)->toBe('11222333000181');
 });

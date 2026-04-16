@@ -495,7 +495,7 @@ if (! app()->environment('production')) {
 }
 
 // ---------------------------------------------------------------------------
-// Slice 012 — E03-S01a: Clientes CRUD (store + destroy)
+// Slice 012 + 013 — E03-S01a+b: Clientes CRUD
 // ---------------------------------------------------------------------------
 Route::middleware([
     'auth',
@@ -504,7 +504,10 @@ Route::middleware([
     EnsureReadOnlyTenantMode::class,
 ])
     ->group(function (): void {
+        Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
         Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
+        Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes.show');
+        Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
         Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
     });
 

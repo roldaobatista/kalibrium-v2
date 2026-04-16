@@ -1,6 +1,6 @@
 # Guia operacional — Codex CLI + GPT-5 no Kalibrium
 
-Versão: 1.0 — 2026-04-15
+Versão: 1.1 — 2026-04-16
 Autor: PM + agente
 Contexto: master-audit dual-LLM (ADR-0012) exige a Trilha B (GPT-5 via Codex CLI)
 
@@ -19,6 +19,64 @@ Ao invocar `codex` via Bash ou MCP neste projeto aparecem, com frequência, dois
    ```
 
 Este guia resolve cada um.
+
+## Plugin codex-plugin-cc (modo preferido no Windows)
+
+**Plugin instalado:** `codex@openai-codex` v1.0.3
+
+O plugin expõe duas MCP tools nativas no Claude Code:
+
+| Tool | Uso |
+|---|---|
+| `mcp__codex__codex` | Inicia nova sessão Codex (equivalente a `codex exec`) |
+| `mcp__codex__codex-reply` | Envia mensagem de follow-up a sessão existente (para reconciliação) |
+
+### Skills disponíveis via plugin
+
+| Skill | Descrição |
+|---|---|
+| `/codex:rescue` | Recupera sessão Codex travada |
+| `/codex:setup` | Verifica/corrige configuração do plugin |
+| `/codex:status` | Status da sessão Codex ativa |
+| `/codex:result` | Recupera output de sessão em background |
+
+### Por que preferir mcp__codex__codex em vez de Bash
+
+- **Sem sandbox issues no Windows:** o plugin v1.0.3 contorna o erro `CreateProcessAsUserW failed: 5` que afetava invocações Bash.
+- **Background nativo:** o plugin gerencia o processo em background sem necessidade de `&` ou arquivos temporários.
+- **Retry automático:** o plugin faz retry interno em timeouts curtos antes de escalar.
+- **Session tracking:** `mcp__codex__codex-reply` permite reconciliação na mesma sessão sem novo cold-start.
+
+### Invocação via plugin (canonical)
+
+```
+mcp__codex__codex(
+  sandbox: "workspace-write",
+  cwd: "C:\\PROJETOS\\saas\\kalibrium-v2\\master-audit-input",
+  approval-policy: "never",
+  prompt: "<prompt consolidado>"
+)
+```
+
+**Não** passar `model` — deixar default (gpt-5 no ChatGPT Plus).
+
+### Limitações do plugin
+
+- **ChatGPT Plus:** `--model` explícito não é suportado. Sempre GPT-5 default. Para usar modelos explícitos (`gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`, `gpt-5-codex`) é necessário OpenAI API key (`OPENAI_API_KEY`).
+- **Model IDs disponíveis com API key:** `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`, `gpt-5-codex`.
+
+### Fallback graceful
+
+Se `mcp__codex__codex` falhar (erro de conexão, timeout, modelo indisponível), o master-auditor deve:
+
+1. Registrar `"gpt5_unavailable": true` no campo `trails.gpt5` do `master-audit.json`.
+2. Prosseguir **somente com Trilha Claude** (não bloquear o pipeline).
+3. Anotar na seção `escalation` que a trilha GPT-5 ficou indisponível.
+4. Adicionar linha no §Histórico de incidentes deste documento.
+
+O orquestrador trata `gpt5_unavailable` como verdict parcial (não como falha total do gate).
+
+---
 
 ## Diagnóstico rápido
 
@@ -92,7 +150,41 @@ trust_level = "trusted"             # Kalibrium já está trusted
 
 ## Invocação canônica para master-audit Trilha B
 
-### Via Bash direto (recomendado)
+### Via MCP `mcp__codex__codex` (preferido — resolve sandbox issues Windows)
+
+```
+mcp__codex__codex(
+  sandbox: "workspace-write",
+  cwd: "C:\\PROJETOS\\saas\\kalibrium-v2\\master-audit-input",
+  approval-policy: "never",
+  prompt: "Voce e o master-auditor Trilha B (GPT-5) do slice-NNN.
+
+Leia arquivos neste diretorio (CWD):
+- spec.md
+- verification.json
+- review.json
+- security-review.json
+- test-audit.json
+- functional-review.json
+- diff.txt (se existir)
+
+Consolide os 5 verdicts anteriores. Grave trail-gpt5.json com JSON estrito:
+{
+  \"verdict\": \"approved\" | \"rejected\" | \"divergent\",
+  \"findings\": [],
+  \"next_action\": \"approve_pr\" | \"return_to_fixer\" | \"escalate_human\",
+  \"reasoning\": \"<sintese curta>\"
+}
+
+Apenas JSON. Sem markdown. Sem fence de codigo. Sem prosa."
+)
+```
+
+**Não** passar `model` — deixar default.
+
+Se falhar → ver §Fallback graceful no início deste documento.
+
+### Via Bash direto (fallback se MCP indisponível)
 
 ```bash
 cd /c/PROJETOS/saas/kalibrium-v2/master-audit-input
@@ -121,23 +213,6 @@ Apenas JSON. Sem markdown. Sem fence de codigo. Sem prosa.
 EOF
 )" 2>&1 | tail -15
 ```
-
-### Via MCP (`mcp__codex__codex`)
-
-**Atenção:** no Windows, a versão atual do MCP do Codex pode sofrer o erro `CreateProcessAsUserW failed: 5` ao tentar abrir shell de leitura dentro do sandbox. Use com cautela.
-
-Parâmetros conhecidos que funcionam:
-
-```json
-{
-  "sandbox": "workspace-write",
-  "cwd": "C:\\PROJETOS\\saas\\kalibrium-v2\\master-audit-input",
-  "approval-policy": "never",
-  "prompt": "<prompt equivalente ao bash acima>"
-}
-```
-
-**Não** passe `model` — deixe o default.
 
 ## Sandbox Windows (CreateProcessAsUserW failed: 5)
 
