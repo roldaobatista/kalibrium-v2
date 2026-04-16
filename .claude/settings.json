@@ -1,181 +1,183 @@
-{
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "permissions": {
-    "allow": [
-      "Read",
-      "Grep",
-      "Glob",
-      "Edit",
-      "Write",
-      "Bash(git status*)",
-      "Bash(git diff*)",
-      "Bash(git log*)",
-      "Bash(git add*)",
-      "Bash(git commit*)",
-      "Bash(git checkout*)",
-      "Bash(git branch*)",
-      "Bash(git stash*)",
-      "Bash(git push origin*)",
-      "Bash(gh pr create*)",
-      "Bash(gh pr merge*)",
-      "Bash(ls*)",
-      "Bash(pwd)",
-      "Bash(mkdir*)",
-      "Bash(bash scripts/*)",
-      "Bash(bash scripts/hooks/*)"
-    ],
-    "deny": [
-      "Bash(git push --force*)",
-      "Bash(git reset --hard*)",
-      "Bash(git clean -fdx*)",
-      "Bash(rm -rf*)",
-      "Read(.env*)",
-      "Read(**/*.key)",
-      "Read(**/*.pem)",
-      "Read(**/credentials.*)"
-    ]
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/session-start.sh",
-            "statusMessage": "Validando harness e carregando constitution..."
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/user-prompt-submit.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Read|Grep|Glob",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/verifier-sandbox.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/read-secrets-block.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/edit-scope-check.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/settings-lock.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/hooks-lock.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/telemetry-lock.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/block-project-init.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/sealed-files-bash-lock.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/verifier-sandbox.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash(git commit*)",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/pre-commit-gate.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash(git push*)",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/pre-push-gate.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/post-edit-gate.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash(git commit*)",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/collect-telemetry.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /c/PROJETOS/saas/kalibrium-v2/scripts/hooks/stop-gate.sh"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/record-subagent-usage.sh"
-          }
-        ]
-      }
-    ]
-  },
-  "enabledPlugins": {
-    "codex@openai-codex": true
-  }
+﻿{
+    "$schema":  "https://json.schemastore.org/claude-code-settings.json",
+    "permissions":  {
+                        "allow":  [
+                                      "Read",
+                                      "Grep",
+                                      "Glob",
+                                      "Edit",
+                                      "Write",
+                                      "Bash(git status*)",
+                                      "Bash(git diff*)",
+                                      "Bash(git log*)",
+                                      "Bash(git add*)",
+                                      "Bash(git commit*)",
+                                      "Bash(git checkout*)",
+                                      "Bash(git branch*)",
+                                      "Bash(git stash*)",
+                                      "Bash(git push origin*)",
+                                      "Bash(gh pr create*)",
+                                      "Bash(gh pr merge*)",
+                                      "Bash(ls*)",
+                                      "Bash(pwd)",
+                                      "Bash(mkdir*)",
+                                      "Bash(bash scripts/*)",
+                                      "Bash(bash scripts/hooks/*)",
+                                      "mcp__codex__codex",
+                                      "mcp__codex__codex-reply"
+                                  ],
+                        "deny":  [
+                                     "Bash(git push --force*)",
+                                     "Bash(git reset --hard*)",
+                                     "Bash(git clean -fdx*)",
+                                     "Bash(rm -rf*)",
+                                     "Read(.env*)",
+                                     "Read(**/*.key)",
+                                     "Read(**/*.pem)",
+                                     "Read(**/credentials.*)"
+                                 ]
+                    },
+    "hooks":  {
+                  "SessionStart":  [
+                                       {
+                                           "hooks":  [
+                                                         {
+                                                             "type":  "command",
+                                                             "command":  "bash scripts/hooks/session-start.sh",
+                                                             "statusMessage":  "Validando harness e carregando constitution..."
+                                                         }
+                                                     ]
+                                       }
+                                   ],
+                  "UserPromptSubmit":  [
+                                           {
+                                               "hooks":  [
+                                                             {
+                                                                 "type":  "command",
+                                                                 "command":  "bash scripts/hooks/user-prompt-submit.sh"
+                                                             }
+                                                         ]
+                                           }
+                                       ],
+                  "PreToolUse":  [
+                                     {
+                                         "matcher":  "Read|Grep|Glob",
+                                         "hooks":  [
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/verifier-sandbox.sh"
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "matcher":  "Read",
+                                         "hooks":  [
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/read-secrets-block.sh"
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "matcher":  "Edit|Write",
+                                         "hooks":  [
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/edit-scope-check.sh"
+                                                       },
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/settings-lock.sh"
+                                                       },
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/hooks-lock.sh"
+                                                       },
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/telemetry-lock.sh"
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "matcher":  "Bash",
+                                         "hooks":  [
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/block-project-init.sh"
+                                                       },
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/sealed-files-bash-lock.sh"
+                                                       },
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/verifier-sandbox.sh"
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "matcher":  "Bash(git commit*)",
+                                         "hooks":  [
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/pre-commit-gate.sh"
+                                                       }
+                                                   ]
+                                     },
+                                     {
+                                         "matcher":  "Bash(git push*)",
+                                         "hooks":  [
+                                                       {
+                                                           "type":  "command",
+                                                           "command":  "bash scripts/hooks/pre-push-gate.sh"
+                                                       }
+                                                   ]
+                                     }
+                                 ],
+                  "PostToolUse":  [
+                                      {
+                                          "matcher":  "Edit|Write",
+                                          "hooks":  [
+                                                        {
+                                                            "type":  "command",
+                                                            "command":  "bash scripts/hooks/post-edit-gate.sh"
+                                                        }
+                                                    ]
+                                      },
+                                      {
+                                          "matcher":  "Bash(git commit*)",
+                                          "hooks":  [
+                                                        {
+                                                            "type":  "command",
+                                                            "command":  "bash scripts/hooks/collect-telemetry.sh"
+                                                        }
+                                                    ]
+                                      }
+                                  ],
+                  "Stop":  [
+                               {
+                                   "hooks":  [
+                                                 {
+                                                     "type":  "command",
+                                                     "command":  "bash /c/PROJETOS/saas/kalibrium-v2/scripts/hooks/stop-gate.sh"
+                                                 }
+                                             ]
+                               }
+                           ],
+                  "SubagentStop":  [
+                                       {
+                                           "matcher":  "*",
+                                           "hooks":  [
+                                                         {
+                                                             "type":  "command",
+                                                             "command":  "bash scripts/hooks/record-subagent-usage.sh"
+                                                         }
+                                                     ]
+                                       }
+                                   ]
+              },
+    "enabledPlugins":  {
+                           "codex@openai-codex":  true
+                       }
 }
