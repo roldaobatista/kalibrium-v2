@@ -1,6 +1,8 @@
 # 06 — Estrategia de Evidencias
 
-Versao: 1.0.0 — 2026-04-16
+Versao: 1.2.0 — 2026-04-16
+
+Changelog 1.2.0: path do harness-learner corrigido para `docs/governance/harness-learner-ENN.md` alinhado com 03 §7.2 (antes divergente em 2.6 e 5.2).
 
 Todo gate e toda transicao de fase devem produzir evidencia verificavel. Nenhuma aprovacao pode ser inferida — deve ser comprovada por artefato rastreavel.
 
@@ -165,9 +167,9 @@ Todo gate e toda transicao de fase devem produzir evidencia verificavel. Nenhuma
 
 | Aspecto | Especificacao |
 |---------|--------------|
-| Evidencia | `docs/retrospectives/epic-ENN.md` + `docs/retrospectives/harness-learner-ENN.md` |
+| Evidencia | `docs/retrospectives/epic-ENN.md` + `docs/governance/harness-learner-ENN.md` |
 | Quem assina | governance |
-| Local | `docs/retrospectives/` |
+| Local | `docs/retrospectives/` (retrospectiva do epico) + `docs/governance/` (harness-learner) |
 | Conteudo minimo | metricas do epico, licoes aprendidas, acoes corretivas, mudancas de harness propostas |
 | Verificacao | Arquivos presentes e commitados + referenciados em `project-state.json` |
 
@@ -272,4 +274,4 @@ Telemetria operacional (tempos, contagens, metricas de processo) deve ser regist
 | C→D (plan approved) | spec-audit.json approved + plan-review.json approved (ambos zero findings) | Automatico (orchestrator) |
 | D→E (code ready) | Testes verdes + codigo commitado | builder |
 | E→merge | TODOS gates approved (zero S1-S3) + master-audit approved | governance |
-| F (retrospective) | governance (retrospective) epic-retrospective.md + governance (harness-learner) report.md | governance |
+| F (retrospective) | `docs/retrospectives/epic-ENN.md` + `docs/governance/harness-learner-ENN.md` | governance |

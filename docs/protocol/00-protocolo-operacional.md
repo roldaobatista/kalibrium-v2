@@ -1,7 +1,10 @@
 # 00 — Protocolo Operacional da Fabrica de Software — Kalibrium V2
 
-> Documento normativo mestre. Versao 1.1.0 — 2026-04-16.
+> Documento normativo mestre. Versao 1.2.2 — 2026-04-16.
 > Status: aprovado pelo PM.
+> Changelog 1.2.2 (PATCH — meta-audit L4-ready): fechados os 5 findings S3 do meta-audit (F-004 gate name `review` vs modo `code-review`; F-005 `07 §5.3` alinhado com cascata diferida; F-006 `tokens_used` canonico em 08; F-007 `phase_timestamps` em schema de project-state em 03; F-008 criterios objetivos dos 6 gates faltantes adicionados em 04 §§10-15). Protocolo agora apto para trilha L4 (high-risk).
+> Changelog 1.2.1 (PATCH — meta-audit governance Opus 4.7): fechados os 3 findings S2 do meta-audit (F-001 enum E1-E10 em 03/07/08; F-002 exemplos JSON de 04 alinhados ao schema formal; F-003 campo `agent` sem modo + campo `mode` separado conforme schema). Relatorio completo em `docs/audits/protocol-meta-audit-2026-04-16.md`.
+> Changelog 1.2.0: correcoes de auditoria externa — schema JSON unificado (03 §8 + arquivo formal), RACI alinhada com mapa canonico, nomes de gate unificados (verify/review/security-gate/etc.), protocolo dual-LLM reconciliacao formalizado (04 §9.4 + E10), cascata S4→S3 corrigida (promocao diferida ao fim de epico), M-V03 recalibrada, contratos de scripts documentados, glossario de commit local/push remoto/sessao/instancia isolada, harness-learner path unificado em docs/governance/.
 
 ---
 
@@ -73,6 +76,10 @@ Este protocolo opera sob os principios P1-P9 definidos em `docs/constitution.md`
 | **Degraded approval (aprovacao degradada)** | Aprovacao emitida com menos agents do que o requerido (ex: single-LLM quando dual-LLM e obrigatorio). Nao permite merge em trilha high-risk. |
 | **Technical debt (divida tecnica)** | Finding aceito como pendencia com deadline de resolucao. Somente S3 e S4 podem ser divida. S1 e S2 nao podem. |
 | **Exception (excecao)** | Situacao que nao se enquadra no fluxo normal e requer tratamento especifico conforme politica de excecoes. |
+| **Commit local** | Commit registrado na branch do slice no repositorio local (ainda nao enviado ao remoto). Gates da Fase E operam sobre o HEAD local da branch do slice. Ciclos de fix geram novos commits locais no topo da branch — nao usar `--amend` em commits ja auditados. |
+| **Push remoto** | Envio da branch do slice para o remoto (`git push`). Somente autorizado apos `governance (master-audit)` emitir verdict approved e o script `merge-slice.sh` validar todos os JSONs. O push e parte do merge e nao ocorre antes. |
+| **Sessao** | Intervalo delimitado entre `/resume` (ou abertura do projeto) e `/checkpoint` (ou encerramento). SLAs "na mesma sessao" referem-se a esse intervalo. O PM define o limite maximo de sessao (default: jornada de trabalho). |
+| **Instancia isolada (R3)** | Invocacao de um agente em processo/sessao separada, sem acesso ao output de outras invocacoes do mesmo slice. Dois modos diferentes do mesmo agente (ex: plan e plan-review) contam como instancias isoladas quando executados em contextos separados. Obrigatorio em gates de cross-review. |
 
 ---
 
@@ -228,6 +235,68 @@ Os seguintes anexos complementam este protocolo. Devem ser criados conforme nece
 | **Anexo B** | Checklists de gate — versao simplificada dos criterios de 04-criterios-gate.md para consulta rapida durante execucao. | A ser extraido de 04-criterios-gate.md. |
 | **Anexo C** | Tabelas de decisao — fluxograma de classificacao de trilha (lane) para uso pelo orchestrator. | A ser extraido de 02-trilhas-complexidade.md. |
 | **Anexo D** | Modelos de relatorio — templates para dashboard do PM, retrospective, incident report, slice report. | A ser criado com base em 08-metricas-processo.md. |
+| **Anexo E** | Contratos de scripts auxiliares (merge-slice, record-telemetry, telemetry-lock, relock-harness). | Ver secao 13.1 abaixo. |
+
+---
+
+## 13.1. Anexo E — Contratos de scripts auxiliares
+
+Scripts operacionais referenciados pelo protocolo. Todo script deve ter input, output, exit codes e side effects declarados.
+
+### 13.1.1. scripts/merge-slice.sh
+
+| Campo | Valor |
+|---|---|
+| **Objetivo** | Validar que todos os JSONs de gate do slice existem, estao approved e nao stale; executar push + criar PR + armar auto-merge. |
+| **Input** | `$1 = NNN` (numero do slice). Le `specs/NNN/*.json`, `project-state.json`. |
+| **Output stdout** | Mensagens de progresso + URL do PR criado. |
+| **Output colateral** | Commit + push da branch do slice; chamada `gh pr create` + `gh pr merge --auto`. |
+| **Exit codes** | 0: merge armado; 1: input invalido; 2: JSON de gate faltando; 3: algum gate com `verdict: rejected` ou `stale: true`; 4: master-audit.json ausente ou divergente; 5: push falhou. |
+| **Pre-condicoes** | Todos os gates aprovados com `blocking_findings_count == 0`; `master-audit.json` com `reconciliation_failed: false` OU `master-audit-pm-decision.json` presente; branch do slice existe. |
+| **Seal status** | Selado (nao editavel pelo agente). |
+
+### 13.1.2. scripts/record-telemetry.sh
+
+| Campo | Valor |
+|---|---|
+| **Objetivo** | Append de eventos canonicos em `.claude/telemetry/slice-NNN.jsonl` via lock que garante atomicidade. |
+| **Input** | `$1 = slice_id`, `$2 = event_name`, `$3 = JSON payload (string)`. |
+| **Output stdout** | OK + hash do evento (idempotencia). |
+| **Output colateral** | Linha JSON appendada ao arquivo `.jsonl`. |
+| **Exit codes** | 0: sucesso; 1: input invalido; 2: event_name nao e evento canonico (ver 03-contrato-artefatos.md §10.1); 3: JSON payload malformado; 4: lock nao adquirido em 5s. |
+| **Pre-condicoes** | Arquivo `.jsonl` existente ou criavel pelo agente atual. |
+| **Seal status** | Selado. |
+
+### 13.1.3. scripts/hooks/telemetry-lock.sh
+
+| Campo | Valor |
+|---|---|
+| **Objetivo** | Bloquear edicao direta de arquivos em `.claude/telemetry/` por qualquer ferramenta que nao seja `record-telemetry.sh`. |
+| **Invocado por** | Hook `PreToolUse` para Edit/Write/Bash quando path match `.claude/telemetry/`. |
+| **Output** | Stderr com motivo + exit 2 (bloqueia ferramenta). |
+| **Exit codes** | 0: caminho nao e telemetria (deixa passar); 2: caminho e telemetria + ferramenta nao e o script oficial (bloqueia). |
+| **Seal status** | Selado. |
+
+### 13.1.4. scripts/relock-harness.sh
+
+| Campo | Valor |
+|---|---|
+| **Objetivo** | Regenerar selos criptograficos (SHA-256) de `.claude/settings.json` e `scripts/hooks/MANIFEST.sha256` apos edicao legitima de hooks/settings pelo PM em terminal externo. |
+| **Input** | `KALIB_RELOCK_AUTHORIZED=1` no env + stdin TTY + confirmacao literal `RELOCK` + escrita automatica de incident report. |
+| **Output** | Incident em `docs/incidents/harness-relock-<timestamp>.md` + selos atualizados. |
+| **Exit codes** | 0: relock executado; 1: authorization env ausente; 2: stdin nao e TTY; 3: confirmacao nao digitada literal; 4: erro ao calcular hash. |
+| **Pre-condicoes** | 4 camadas de salvaguarda conforme CLAUDE.md §9. |
+| **Seal status** | Selado — executavel apenas pelo PM em terminal externo. |
+
+### 13.1.5. scripts/sequencing-check.sh
+
+| Campo | Valor |
+|---|---|
+| **Objetivo** | Validar ordem intra-epico (R13) e inter-epico (R14) antes de criar slice nova. |
+| **Input** | `--story ENN-SNN` ou `--epic ENN`. |
+| **Output** | Mensagem + exit code. |
+| **Exit codes** | 0: OK; 1: story anterior do mesmo epico nao esta `merged`; 2: primeiro slice de epico N e epico N-1 nao esta 100% merged; 3: bypass autorizado via `KALIB_SKIP_SEQUENCE` (registra incidente). |
+| **Seal status** | Selado. |
 
 ---
 

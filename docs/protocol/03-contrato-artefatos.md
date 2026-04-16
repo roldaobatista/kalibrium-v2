@@ -1,6 +1,9 @@
 # 03 — Contrato de Artefatos
 
-> Documento normativo. Versao 1.1.0 — 2026-04-16.
+> Documento normativo. Versao 1.2.2 — 2026-04-16.
+> Changelog 1.2.2 (PATCH — meta-audit, L4-ready): secao 10.2 (project-state.json) agora inclui campo `phase_timestamps` (discovery/strategy/planning/execution/closing × start/end) que M-V02 em 08 consulta.
+> Changelog 1.2.1 (PATCH — meta-audit): enum `active_exceptions.type` corrigido para `E1-E10` (alinhado com introducao de E10 em 1.2.0).
+> Changelog 1.2.0: plan-review.json owner corrigido para architecture-expert (plan-review) alinhado com mapa canonico; schema JSON base expandido com commit_hash, mode, isolation_context; arquivo formal em docs/protocol/schemas/gate-output.schema.json; imutabilidade pos-gate formalizada (9.2); eventos de telemetria expandidos para suportar metricas do 08 (gate_approved, gate_rerun, finding_emitted, task_completed); contratos de modos pre-implementacao L4 referenciados (4.12).
 > Define o contrato de producao, revisao, formato e aceitacao de cada artefato do pipeline Kalibrium V2.
 
 ---
@@ -169,7 +172,7 @@ Todo artefato listado neste documento possui os seguintes campos obrigatorios:
 | **Output** | `docs/compliance/lgpd-base-legal.md` — Markdown com tabela: dado pessoal/base legal (art. 7)/finalidade/retencao/titular pode excluir?. |
 | **Versionamento** | Git diff. Commit com `docs(lgpd):`. |
 | **Criterio de aceitacao** | Todo campo PII identificado no ERD deve ter base legal mapeada. Dados sem base legal valida devem ser removidos do modelo. |
-| **Destino** | security-review gate, functional-review gate. |
+| **Destino** | security-gate, functional-gate. |
 
 ### 3.6. style-guide.md
 
@@ -349,7 +352,7 @@ Todo artefato listado neste documento possui os seguintes campos obrigatorios:
 | Campo | Valor |
 |---|---|
 | **Objetivo** | Validar plan.md em contexto isolado, verificando consistencia tecnica e alinhamento com spec e ADRs. |
-| **Owner** | qa-expert (modo: review-plan) |
+| **Owner** | architecture-expert (modo: plan-review) |
 | **Reviewer** | Nenhum (gate independente). |
 | **Input obrigatorio** | plan.md + spec.md auditada + ADRs relevantes + constitution.md. |
 | **Output** | `specs/NNN/plan-review.json` — JSON com schema base de gate (secao 8). |
@@ -398,6 +401,21 @@ Todo artefato listado neste documento possui os seguintes campos obrigatorios:
 
 ---
 
+### 4.12. Contratos de modos pre-implementacao (referencia)
+
+Os modos `data-expert (review)`, `integration-expert (strategy)` e `observability-expert (strategy)` produzem artefatos formais nas secoes 4.10, 4.11 e via observability-plan.md (3.9). Estes modos sao chamados antes da Fase D em trilha L4 e a referencia normativa dos seus contratos esta:
+
+| Modo | Artefato | Secao normativa |
+|---|---|---|
+| data-expert (review) | `specs/NNN/data-migration-review.json` | 4.10 |
+| integration-expert (strategy) | `specs/NNN/integration-pre-review.json` | 4.11 |
+| observability-expert (strategy) | `docs/architecture/observability-plan.md` (epico) | 3.9 |
+| security-expert (spec-security) | `specs/NNN/security-pre-review.json` | 4.9 |
+
+Todos seguem o schema base de gate (secao 8) com campos extras proprios.
+
+---
+
 ## 5. Fase D — Execucao
 
 ### 5.1. Arquivos de teste (tests/*.php)
@@ -437,7 +455,7 @@ Todo artefato listado neste documento possui os seguintes campos obrigatorios:
 | **Output** | `database/migrations/YYYY_MM_DD_HHMMSS_<descricao>.php` — Laravel migration com `up()` e `down()`. |
 | **Versionamento** | Git diff. Commit com `feat(slice-NNN):` ou `db(slice-NNN):`. |
 | **Criterio de aceitacao** | `up()` e `down()` devem ser inversos exatos. `down()` deve ser testavel via `php artisan migrate:rollback`. Coluna `tenant_id` obrigatoria em tabelas multi-tenant. Indices documentados no plan.md devem existir na migration. |
-| **Destino** | data-review gate, verify-slice gate. |
+| **Destino** | data-gate, verify. |
 
 ---
 
@@ -607,7 +625,7 @@ Todo artefato listado neste documento possui os seguintes campos obrigatorios:
 
 ## 8. Schema JSON base para saidas de gate
 
-Todo JSON de gate deve seguir este schema minimo:
+Todo JSON de gate deve seguir este schema minimo. Este schema e a **fonte unica de verdade** para saidas de gate. Os exemplos em 04-criterios-gate.md podem adicionar o bloco `evidence` (campos especificos de cada gate) mas NAO podem omitir nenhum campo aqui definido.
 
 ```json
 {
@@ -616,8 +634,11 @@ Todo JSON de gate deve seguir este schema minimo:
   "slice": "<NNN>",
   "lane": "<L1|L2|L3|L4>",
   "agent": "<nome-do-agent>",
+  "mode": "<modo do agent>",
   "verdict": "<approved|rejected>",
-  "timestamp": "<ISO 8601>",
+  "timestamp": "<ISO 8601 com timezone UTC>",
+  "commit_hash": "<SHA do commit avaliado>",
+  "isolation_context": "<id da instancia isolada R3>",
   "blocking_findings_count": 0,
   "non_blocking_findings_count": 0,
   "findings_by_severity": {
@@ -641,11 +662,16 @@ Todo JSON de gate deve seguir este schema minimo:
       "reclassification_requested": false,
       "exception_granted": false
     }
-  ]
+  ],
+  "evidence": {
+    "// Bloco livre — campos especificos do gate (ver 04-criterios-gate.md)": ""
+  }
 }
 ```
 
-Campos adicionais especificos de cada gate estao documentados na secao 6 deste documento.
+**Regra normativa:** a referencia oficial do schema e o arquivo `docs/protocol/schemas/gate-output.schema.json` (formato JSON Schema draft-07). Todo validador automatico (merge-slice, governance master-audit) deve usar este arquivo como fonte. Nenhum gate pode emitir JSON sem validar contra esse schema.
+
+Campos adicionais especificos de cada gate (ex: `owasp_categories_checked`, `ac_coverage_map`, `rollback_strategy_defined`) devem ser colocados dentro do bloco `evidence`. Estao documentados na secao 6 deste documento e em 04-criterios-gate.md.
 
 ---
 
@@ -658,6 +684,18 @@ Nenhum artefato pode ser produzido antes que todos os seus inputs obrigatorios e
 ### 9.2. Imutabilidade pos-gate
 
 Apos um gate emitir `verdict: approved`, os arquivos de input daquele gate nao podem ser alterados sem re-execucao do gate. Se forem alterados, todos os gates que os consumiram devem ser re-executados.
+
+**Caso spec.md alterado apos audit-spec aprovado:**
+
+1. O orchestrator deve detectar a alteracao comparando o `commit_hash` do spec atual com o `commit_hash` registrado no `spec-audit.json` aprovado.
+2. Se o hash divergir, o orchestrator marca o `spec-audit.json` como `stale: true` e dispara re-execucao do qa-expert (audit-spec).
+3. Todos os gates downstream (plan-review, verify, review, etc.) que ja rodaram sobre o spec antigo devem ser marcados como `stale: true` e re-executados na ordem normativa.
+4. Commits de alteracao de spec pos-aprovacao devem seguir mensagem: `spec(slice-NNN): <descricao> [invalidates spec-audit]`.
+5. Se a alteracao for trivial (correcao de texto sem mudanca de AC), o qa-expert (audit-spec) pode emitir novo verdict approved rapidamente. Se houver mudanca de AC, o pipeline volta a Fase C — re-audit completo.
+
+**Caso plan.md alterado apos plan-review aprovado:** mesmo procedimento, com `plan-review.json` marcado stale e re-execucao de architecture-expert (plan-review) + re-draft de tests e re-execucao de todos os gates da Fase E.
+
+**Regra absoluta:** o `merge-slice` deve rejeitar merge se qualquer JSON de gate tiver `stale: true` ou se o `commit_hash` do JSON nao corresponder ao HEAD atual da branch.
 
 ### 9.3. Rastreabilidade
 
@@ -678,12 +716,16 @@ Cada slice deve ter um arquivo de telemetria em `.claude/telemetry/slice-NNN.jso
 | Evento | Campos obrigatorios | Descricao |
 |---|---|---|
 | `slice_started` | `timestamp` (ISO 8601), `slice_id` (string), `story_id` (string), `epic_id` (string), `lane` (L1\|L2\|L3\|L4) | Emitido quando o orchestrator inicia um slice via `/start-story` ou `/new-slice`. |
-| `gate_submitted` | `timestamp` (ISO 8601), `gate_name` (string), `agent` (string), `mode` (string) | Emitido quando o orchestrator delega execucao de um gate a um agent. |
-| `gate_result` | `timestamp` (ISO 8601), `gate_name` (string), `verdict` (approved\|rejected), `blocking_findings` (int), `non_blocking_findings` (int), `duration_ms` (int), `tokens_used` (int) | Emitido quando um agent de gate retorna seu verdict. |
-| `fix_applied` | `timestamp` (ISO 8601), `gate_name` (string), `findings_fixed` (int), `iteration` (int) | Emitido quando o fixer corrige findings de um gate e submete para re-run. |
+| `gate_submitted` | `timestamp` (ISO 8601), `gate_name` (string), `agent` (string), `mode` (string), `isolation_context` (string), `attempt` (int, 1-based) | Emitido quando o orchestrator delega execucao de um gate a um agent. |
+| `gate_result` | `timestamp` (ISO 8601), `gate_name` (string), `verdict` (approved\|rejected), `blocking_findings` (int), `non_blocking_findings` (int), `duration_ms` (int), `tokens_used` (int), `attempt` (int) | Emitido quando um agent de gate retorna seu verdict. |
+| `gate_approved` | `timestamp` (ISO 8601), `gate_name` (string), `slice_id` (string), `attempt` (int) | Emitido quando um gate emite `verdict: approved`. Derivavel de `gate_result` mas registrado explicitamente para facilitar queries de M-Q01 e M-V04. |
+| `gate_rerun` | `timestamp` (ISO 8601), `gate_name` (string), `iteration` (int), `triggered_by` (fix_applied\|scope_change\|manual) | Emitido quando o mesmo gate e re-executado apos correcao. Permite contagem de ciclos (M-Q03, M-C04). |
+| `finding_emitted` | `timestamp` (ISO 8601), `gate_name` (string), `finding_id` (string), `severity` (S1-S5), `escaped_from` (string ou null) | Emitido para cada finding individual. Permite agregacoes por severidade (M-Q05) e deteccao de defeitos escapados (M-Q04). |
+| `fix_applied` | `timestamp` (ISO 8601), `gate_name` (string), `findings_fixed` (int), `iteration` (int), `tokens_used` (int) | Emitido quando o fixer corrige findings de um gate e submete para re-run. |
+| `task_completed` | `timestamp` (ISO 8601), `task_id` (string), `slice_id` (string), `tokens_used` (int) | Emitido quando builder (implementer) completa uma task do tasks.md. Usado em M-C04 (ratio de retrabalho). |
 | `r6_escalation` | `timestamp` (ISO 8601), `gate_name` (string), `consecutive_rejections` (int) | Emitido quando o mesmo gate atinge 6 rejeicoes consecutivas (R6) e escala ao PM. |
 | `slice_merged` | `timestamp` (ISO 8601), `slice_id` (string), `pr_number` (int), `commit_hash` (string), `total_gates` (int), `total_fix_cycles` (int) | Emitido quando o slice e merged via `/merge-slice`. |
-| `exception_triggered` | `timestamp` (ISO 8601), `exception_type` (E1-E9), `description` (string), `owner` (string) | Emitido quando uma excecao da politica 07 e acionada durante o slice. |
+| `exception_triggered` | `timestamp` (ISO 8601), `exception_type` (E1-E10), `description` (string), `owner` (string) | Emitido quando uma excecao da politica 07 e acionada durante o slice. |
 
 **Regras:**
 
@@ -703,6 +745,19 @@ O arquivo `project-state.json` na raiz do repositorio e a fonte de verdade do es
   "project": "string — nome do projeto",
   "phase": "string — fase atual (discovery|strategy|planning|execution|closing)",
   "updated_at": "string — ISO 8601 do ultimo update",
+
+  "phase_timestamps": {
+    "discovery_start": "string — ISO 8601 ou null",
+    "discovery_end": "string — ISO 8601 ou null",
+    "strategy_start": "string — ISO 8601 ou null",
+    "strategy_end": "string — ISO 8601 ou null",
+    "planning_start": "string — ISO 8601 ou null",
+    "planning_end": "string — ISO 8601 ou null",
+    "execution_start": "string — ISO 8601 ou null",
+    "execution_end": "string — ISO 8601 ou null",
+    "closing_start": "string — ISO 8601 ou null",
+    "closing_end": "string — ISO 8601 ou null"
+  },
 
   "discovery": {
     "intake_complete": "boolean",
@@ -764,7 +819,7 @@ O arquivo `project-state.json` na raiz do repositorio e a fonte de verdade do es
 
   "active_exceptions": [
     {
-      "type": "string — E1-E9",
+      "type": "string — E1-E10",
       "description": "string",
       "owner": "string",
       "deadline": "string — ISO 8601",

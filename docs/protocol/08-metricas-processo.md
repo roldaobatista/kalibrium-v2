@@ -1,6 +1,9 @@
 # 08 — Metricas do Processo
 
-> Documento normativo. Versao 1.0.0 — 2026-04-16.
+> Documento normativo. Versao 1.2.2 — 2026-04-16.
+> Changelog 1.2.2 (PATCH — meta-audit, L4-ready): M-C01/M-C02/M-C03 agora usam campo canonico `tokens_used` declarado em 03 §10.1 (antes divergiam em `tokens`, `input_tokens+output_tokens` e `tokens_verify/tokens_code_review/...` ad-hoc).
+> Changelog 1.2.1 (PATCH — meta-audit): M-H04 definicao agora enumera `E1-E10` (antes `E1-E9`, inconsistente com introducao de E10 em 1.2.0).
+> Changelog 1.2.0: M-V03 recalibrada — thresholds por trilha (L2/L3/L4) substituem threshold global irrealista que divergia da matematica de M-Q03 × M-V04.
 > Fonte de verdade para definicao, coleta e analise de metricas da fabrica de software Kalibrium V2.
 
 ---
@@ -45,9 +48,9 @@ Toda metrica deve ter formula de calculo, fonte de dados, frequencia de coleta, 
 | **Formula** | `last_gate_approved_timestamp - first_gate_submitted_timestamp` em horas. |
 | **Fonte de dados** | `.claude/telemetry/slice-NNN.jsonl` (eventos de gate). |
 | **Frequencia de coleta** | Por slice. |
-| **Threshold** | Verde: < 1h. Amarelo: 1-2h. Vermelho: > 2h. |
+| **Threshold (calibrado com M-Q03 e M-V04)** | L2: verde < 30min, amarelo 30-60min, vermelho > 60min. L3: verde < 4h, amarelo 4-8h, vermelho > 8h. L4: verde < 6h, amarelo 6-12h, vermelho > 12h. Derivacao: 6 gates × 3 ciclos × 15min ≈ 4.5h para L3 verde nominal; L4 acrescenta 3 gates condicionais. |
 | **Quem revisa** | Orchestrator (operacional). |
-| **Acao quando vermelho** | Analisar qual gate consumiu mais tempo; verificar se fix cycles estao altos. |
+| **Acao quando vermelho** | Analisar qual gate consumiu mais tempo; verificar se fix cycles estao acima de M-Q03 verde. |
 
 ### M-V04: Tempo de ciclo fix
 
@@ -158,8 +161,8 @@ Toda metrica deve ter formula de calculo, fonte de dados, frequencia de coleta, 
 | Campo | Valor |
 |---|---|
 | **Definicao** | Total de tokens consumidos em todas as invocacoes de agents para um slice. |
-| **Formula** | `sum(input_tokens + output_tokens)` por slice. |
-| **Fonte de dados** | `.claude/telemetry/slice-NNN.jsonl` (campo `tokens` por evento). |
+| **Formula** | `sum(tokens_used)` por slice, agregando todos os eventos que contem o campo. |
+| **Fonte de dados** | `.claude/telemetry/slice-NNN.jsonl` (campo canonico `tokens_used` — ver 03 §10.1). |
 | **Frequencia de coleta** | Por slice. |
 | **Threshold** | Verde: < 500k tokens. Amarelo: 500k-1M. Vermelho: > 1M. |
 | **Quem revisa** | Orchestrator (operacional). |
@@ -170,7 +173,7 @@ Toda metrica deve ter formula de calculo, fonte de dados, frequencia de coleta, 
 | Campo | Valor |
 |---|---|
 | **Definicao** | Total de tokens consumidos por cada agent, agregado por epico. |
-| **Formula** | `sum(input_tokens + output_tokens)` agrupado por `agent_name`. |
+| **Formula** | `sum(tokens_used)` agrupado por `agent` nos eventos `gate_result`, `fix_applied`, `task_completed`. |
 | **Fonte de dados** | `.claude/telemetry/slice-NNN.jsonl`. |
 | **Frequencia de coleta** | Por epico. |
 | **Threshold** | Sem threshold fixo. Analise comparativa para identificar agents desproporcionalmente custosos. |
@@ -182,8 +185,8 @@ Toda metrica deve ter formula de calculo, fonte de dados, frequencia de coleta, 
 | Campo | Valor |
 |---|---|
 | **Definicao** | Total de tokens consumidos pelo pipeline de gates (fase E). |
-| **Formula** | `sum(tokens_verify + tokens_code_review + tokens_security_gate + tokens_audit_tests + tokens_functional_gate + tokens_master_audit)` por slice. |
-| **Fonte de dados** | `.claude/telemetry/slice-NNN.jsonl`. |
+| **Formula** | `sum(tokens_used)` filtrado por eventos com `gate_name IN (verify, review, security-gate, audit-tests, functional-gate, master-audit, data-gate, observability-gate, integration-gate)`. Agregacoes por gate obtem-se via filtro adicional `WHERE gate_name = '<nome>'`. |
+| **Fonte de dados** | `.claude/telemetry/slice-NNN.jsonl` (eventos `gate_result` e `fix_applied`). |
 | **Frequencia de coleta** | Por slice. |
 | **Threshold** | Verde: < 200k tokens. Amarelo: 200k-400k. Vermelho: > 400k. |
 | **Quem revisa** | Orchestrator (operacional). |
@@ -257,7 +260,7 @@ Toda metrica deve ter formula de calculo, fonte de dados, frequencia de coleta, 
 
 | Campo | Valor |
 |---|---|
-| **Definicao** | Contagem de excecoes por categoria (E1-E9) por epico. |
+| **Definicao** | Contagem de excecoes por categoria (E1-E10) por epico. |
 | **Formula** | `count(exceptions_type_EX)` por epico. |
 | **Fonte de dados** | `project-state.json` (campo `active_exceptions[]`). |
 | **Frequencia de coleta** | Por epico. |
