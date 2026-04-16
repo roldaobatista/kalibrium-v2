@@ -305,3 +305,89 @@ test('AC-012c: GET /clientes?sort=razao_social retorna 200 (sort valido)', funct
 
     $this->endTenant();
 });
+
+// ---------------------------------------------------------------------------
+// AC-010 — Happy path: soft-delete persiste ativo=false, some da listagem padrao
+//           e permanece acessivel via GET /clientes/{id}
+// ---------------------------------------------------------------------------
+
+test('AC-010: DELETE /clientes/{id} retorna 200 e persiste ativo=false no banco', function () {
+    /** @ac AC-010 */
+    $tenantA = $this->tenantA();
+    $userA = $this->userA();
+
+    $this->initializeTenant($tenantA);
+
+    $cliente = Cliente::factory()->create([
+        'tenant_id' => $tenantA->id,
+        'ativo' => true,
+    ]);
+
+    $this->actingAs($userA);
+
+    $response = $this->deleteJson("/clientes/{$cliente->id}");
+
+    $response->assertStatus(200);
+
+    $this->assertDatabaseHas('clientes', [
+        'id' => $cliente->id,
+        'ativo' => false,
+    ]);
+
+    $this->endTenant();
+});
+
+test('AC-010: cliente desativado nao aparece na listagem padrao GET /clientes', function () {
+    /** @ac AC-010 */
+    $tenantA = $this->tenantA();
+    $userA = $this->userA();
+
+    $this->initializeTenant($tenantA);
+
+    $clienteAtivo = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $clienteDesativado = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+
+    $this->actingAs($userA);
+
+    // Desativa o segundo cliente
+    $this->deleteJson("/clientes/{$clienteDesativado->id}");
+
+    // Listagem padrao deve retornar apenas o ativo
+    $response = $this->getJson('/clientes');
+
+    $response->assertStatus(200);
+    $response->assertJsonPath('meta.total', 1);
+
+    $ids = collect($response->json('data'))->pluck('id')->toArray();
+    expect($ids)->toContain($clienteAtivo->id);
+    expect($ids)->not->toContain($clienteDesativado->id);
+
+    $this->endTenant();
+});
+
+test('AC-010: cliente desativado ainda retorna 200 via GET /clientes/{id}', function () {
+    /** @ac AC-010 */
+    $tenantA = $this->tenantA();
+    $userA = $this->userA();
+
+    $this->initializeTenant($tenantA);
+
+    $cliente = Cliente::factory()->create([
+        'tenant_id' => $tenantA->id,
+        'ativo' => true,
+    ]);
+
+    $this->actingAs($userA);
+
+    // Desativa o cliente
+    $this->deleteJson("/clientes/{$cliente->id}");
+
+    // Deve ainda ser acessivel individualmente
+    $response = $this->getJson("/clientes/{$cliente->id}");
+
+    $response->assertStatus(200);
+    $response->assertJsonPath('data.id', $cliente->id);
+    $response->assertJsonPath('data.ativo', false);
+
+    $this->endTenant();
+});

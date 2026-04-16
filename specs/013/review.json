@@ -1,0 +1,49 @@
+{
+  "slice_id": "slice-013",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T00:00:00Z",
+  "quality_checks": [
+    {
+      "category": "duplication",
+      "status": "pass",
+      "evidence": "Nenhuma duplicação >10 linhas entre arquivos. filter_var em ListClientesRequest.prepareForValidation() é o local correto e único para conversão de string para boolean antes da validação — não é duplicação. REGIME_MAP aparece apenas em UpdateClienteRequest (write path) e match expression em ClienteResource (read path), com responsabilidades distintas e sem extração necessária."
+    },
+    {
+      "category": "complexity",
+      "status": "pass",
+      "evidence": "Função mais longa é ClienteController::index() com ~55 linhas incluindo comentários inline. Nesting máximo de 3 níveis (where closure dentro de if dentro de método). Cada método do controller tem responsabilidade única. TenantRole com funções estáticas simples de 3-5 linhas cada."
+    },
+    {
+      "category": "naming",
+      "status": "pass",
+      "evidence": "Nomes descritivos e com verbo+substantivo: canReadClientes, canWriteClientes, validatedForStorage, formatDocumento, prepareForValidation. Variáveis: $ativoFilter, $sortMap, $searchTerm, $digitsOnly — todas autodescritivas. Constantes: REGIME_MAP, EDITABLE_FIELDS — intenção clara. Sem abreviações obscuras."
+    },
+    {
+      "category": "security",
+      "status": "pass",
+      "evidence": "whereRaw usa placeholders parametrizados (?) — sem SQL injection. LGPD: CPF mascarado como ***.XXX.XXX-** e CNPJ como XX.XXX.***/XXXX-** em ClienteResource. Sem secrets hardcoded. destroy() usa where('tenant_id', $tenant->id) explícito antes de firstOrFail() — sem IDOR. Gate::authorize em todos os endpoints antes de qualquer query."
+    },
+    {
+      "category": "simplicity",
+      "status": "pass",
+      "evidence": "$sortMap como array associativo é idiomático e direto. showDetail como bool público em ClienteResource é simples e evita over-engineering com subclasses. canManageClientes() preservado intencionalmente para compatibilidade com testes do slice 012 — documentado no plan.md D5 e plan-review.json. Sem abstrações prematuras."
+    },
+    {
+      "category": "glossary",
+      "status": "pass",
+      "evidence": "Termos canônicos usados: Cliente (não Customer/Account), TenantUser, Técnico mapeado para constante TECHNICIAN='tecnico'. Enum de regime_tributario usa labels em português (Simples, Lucro Presumido, Lucro Real, MEI, Isento). AppServiceProvider registra gates como 'clientes.*' — nomenclatura coerente com domínio."
+    },
+    {
+      "category": "adr_compliance",
+      "status": "pass",
+      "evidence": "Rotas Clientes CRUD no grupo correto: auth + EnsureTwoFactorChallengeCompleted + SetCurrentTenantContext + EnsureReadOnlyTenantMode — consistente com padrão dos slices 010/011/012. Gates registrados em AppServiceProvider via Gate::define() — padrão estabelecido. declare(strict_types=1) em todos os arquivos PHP."
+    },
+    {
+      "category": "dead_code",
+      "status": "pass",
+      "evidence": "canManageClientes() em TenantRole.php referenciado em docblocks históricos de ClientePolicy.php e documentado no plan.md como código preservado intencionalmente para não quebrar testes do slice 012. Não é dead code órfão — é compatibilidade documentada. Todos os imports em todos os arquivos são utilizados."
+    }
+  ],
+  "findings": [],
+  "next_action": "approve_pr"
+}

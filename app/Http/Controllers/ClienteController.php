@@ -75,12 +75,18 @@ final class ClienteController extends Controller
 
     public function show(Request $request, int $id): JsonResponse
     {
+        $tenant = $request->attributes->get('current_tenant');
         $tenantUser = $request->attributes->get('current_tenant_user');
 
         Gate::authorize('clientes.view', $tenantUser);
 
-        // Global scope ScopesToCurrentTenant ensures 404 for cross-tenant access
-        $cliente = Cliente::findOrFail($id);
+        // withTrashed: clientes desativados (ativo=false + deleted_at) permanecem
+        // acessíveis via GET /clientes/{id} conforme AC-010.
+        // Restrição de tenant via where explícito (global scope nao abrange withTrashed).
+        $cliente = Cliente::withTrashed()
+            ->where('tenant_id', $tenant->id)
+            ->where('id', $id)
+            ->firstOrFail();
 
         $resource = new ClienteResource($cliente);
         $resource->showDetail = true;

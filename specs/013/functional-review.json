@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "013",
+  "review_date": "2026-04-16",
+  "verdict": "approved",
+  "findings": [],
+  "ac_assessment": {
+    "AC-007": "pass",
+    "AC-008": "pass",
+    "AC-009": "pass",
+    "AC-009b": "pass",
+    "AC-010": "pass",
+    "AC-010a": "pass",
+    "AC-010b": "pass",
+    "AC-011": "pass",
+    "AC-011b": "pass",
+    "AC-011c": "pass",
+    "AC-012a": "pass",
+    "AC-012b": "pass",
+    "AC-012c": "pass",
+    "AC-013": "pass"
+  },
+  "summary": "Todos os 14 ACs do slice-013 atendidos. 33 testes passaram com exit 0 (129 assertions). Listagem paginada retorna exatamente 20 registros por página com isolamento de tenant verificado. Filtro por razão social, nome fantasia e CNPJ/CPF (case-insensitive com normalização de dígitos) funciona corretamente. Paginação preserva query params via withQueryString(). Edição persiste apenas campos editáveis, rejeita cnpj_cpf e tipo_pessoa como imutáveis, e retorna 422 para payload vazio ou com apenas campos imutáveis. Desativação (soft-delete) persiste ativo=false, remove da listagem padrão mas mantém acessível via GET /{id}, retorna 409 para cliente já inativo. RBAC correto: técnico e visualizador recebem 403 em POST/PUT/DELETE; técnico recebe 200 em GET /clientes e GET /clientes/{id}. Cross-tenant retorna 404 via global scope. Resposta de show inclui contatos_count e instrumentos_count com valor 0 quando não há relacionamentos, conforme contrato de API."
+}
