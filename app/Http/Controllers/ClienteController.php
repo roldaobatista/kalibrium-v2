@@ -27,10 +27,7 @@ final class ClienteController extends Controller
         $perPage = (int) ($request->input('per_page', 20));
         $sort = $request->input('sort', 'razao_social');
 
-        // Determine if ativo filter was explicitly provided
-        $ativoFilter = $request->has('ativo')
-            ? filter_var($request->input('ativo'), FILTER_VALIDATE_BOOLEAN)
-            : true;
+        $ativoFilter = $request->validated()['ativo'] ?? true;
 
         $query = Cliente::query();
 
