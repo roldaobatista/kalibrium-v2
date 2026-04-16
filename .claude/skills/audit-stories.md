@@ -31,7 +31,7 @@ Story Contracts podem ter ACs vagos, secoes faltantes, gaps de cobertura ou depe
 Se alguma falhar, listar o que falta e parar.
 
 ### 2. Spawn story-auditor (contexto limpo)
-Spawn sub-agent `story-auditor` (ou general-purpose com prompt de story-auditor).
+Spawn sub-agent `qa-expert` (modo: audit-story) (ou general-purpose com prompt de story-auditor).
 Produz: `docs/audits/planning/story-audit-ENN.json`
 
 ### 3. Avaliar resultado
@@ -113,8 +113,8 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
 | Story Contract com formato inesperado | Reportar como finding critical. Fixer regenera a partir do template. |
 
 ## Agentes
-- `story-auditor` (budget: 40k) — audita e emite JSON estruturado
-- `fixer` (budget: 60k) — corrige findings quando necessario (via orquestrador)
+- `qa-expert` (modo: audit-story) (budget: 40k) — audita e emite JSON estruturado
+- `builder` (modo: fixer) (budget: 60k) — corrige findings quando necessario (via orquestrador)
 
 ## Handoff
 - Approved → prosseguir para aprovacao do PM e `/start-story ENN-SNN`

@@ -39,7 +39,7 @@ Se falhar (exit != 0), o security-reviewer NAO e spawnado. Corrigir vulnerabilid
 
 ### 2. Spawn security-reviewer (sem worktree)
 ```
-Agent(subagent_type="security-reviewer")
+Agent(subagent_type="security-expert")
 ```
 **Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
@@ -87,7 +87,7 @@ Registrar em telemetria.
 
 ## Agentes
 
-- **security-reviewer** — executado em worktree isolada, sem acesso ao contexto do implementer. Emite `security-review.json`.
+- **security-expert** (modo: security-gate) — executado em worktree isolada, sem acesso ao contexto do builder. Emite `security-review.json`.
 
 ## Pré-condições
 

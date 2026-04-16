@@ -33,7 +33,7 @@ Epicos e stories podem ter gaps de cobertura, ACs subjetivos, dependencias circu
 Se alguma falhar, listar o que falta e parar.
 
 ### 2. Spawn planning-auditor (contexto limpo)
-Spawn sub-agent `planning-auditor` com escopo definido.
+Spawn sub-agent `qa-expert` (modo: audit-planning) com escopo definido.
 Produz: `docs/audits/planning/planning-audit-{scope}.json`
 
 ### 3. Avaliar resultado
@@ -86,8 +86,8 @@ Sempre em linguagem de produto. Nunca mostrar JSON cru.
 | Pre-condicao falha | Listar o que falta e sugerir skill adequada |
 
 ## Agentes
-- `planning-auditor` (budget: 40k) — audita e emite JSON estruturado
-- `fixer` (budget: 60k) — corrige findings quando necessario
+- `qa-expert` (modo: audit-planning) (budget: 40k) — audita e emite JSON estruturado
+- `builder` (modo: fixer) (budget: 60k) — corrige findings quando necessario
 
 ## Handoff
 - Approved → prosseguir para implementacao (`/start-story ENN-SNN`)

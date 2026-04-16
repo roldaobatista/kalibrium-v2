@@ -12,6 +12,19 @@ Histórico de mudanças nos sub-agents da fábrica. Atualizar a cada modificaç�
 
 ---
 
+## 2026-04-16 — REDESIGN v3.0: reorganização por domínio (25 → 12 agentes)
+
+- **Removidos 23 agentes** task-based: domain-analyst, nfr-analyst, architect, api-designer, data-modeler, plan-reviewer, spec-auditor, story-auditor, planning-auditor, epic-decomposer, story-decomposer, ac-to-test, implementer, fixer, verifier, reviewer, security-reviewer, test-auditor, functional-reviewer, master-auditor, guide-auditor, harness-learner, epic-retrospective
+- **Criados 10 novos agentes** domain-based: product-expert, architecture-expert, data-expert, security-expert, qa-expert, devops-expert (novo), observability-expert (novo), integration-expert (novo), builder, governance
+- **Reescritos 2 agentes** existentes: ux-designer (escopo expandido), orchestrator (novo fluxo com 12 agentes)
+- Cada agente agora opera em **múltiplos modos** conforme a fase do projeto (ex: qa-expert tem 6 modos: verify, review, audit-spec, audit-story, audit-planning, audit-tests)
+- Isolamento R3/R11 preservado: mesmo agente, contextos isolados separados por modo
+- **Perfis de elite** definidos para cada agente: persona senior, mentalidade, especialidades profundas, padrões de qualidade, anti-padrões, referências de mercado
+- Pipeline de gates expandido com gates condicionais: data-gate, observability-gate, integration-gate (ativados quando slice envolve esses domínios)
+- 18 skills atualizadas para referenciar novos nomes de agentes
+- CLAUDE.md seções 6 e 8 atualizadas
+- **Motivação:** PM pediu reorganização por domínio de conhecimento (~5 áreas) para centralizar expertise e reduzir fragmentação. Proposta em docs/proposals/agent-redesign-v3.md
+
 ## 2026-04-11 — orchestrator (NOVO)
 
 - Criado `orchestrator.md` como agente formal do orquestrador mestre

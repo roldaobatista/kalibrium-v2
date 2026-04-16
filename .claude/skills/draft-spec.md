@@ -10,10 +10,10 @@ description: Assistente guiado para converter descrição livre do PM (portuguê
 ```
 
 ## Por que existe
-Antes do meta-audit #2 (2026-04-11), `architect` e `ac-to-test` exigiam `spec.md` com ACs numerados, mas nenhum componente traduzia a descrição livre do PM para esse formato. `/draft-spec` fecha essa lacuna: é a skill interativa que transforma NL do PM em spec.md validável.
+Antes do meta-audit #2 (2026-04-11), `architecture-expert` (modo: plan) e `builder` (modo: test-writer) exigiam `spec.md` com ACs numerados, mas nenhum componente traduzia a descrição livre do PM para esse formato. `/draft-spec` fecha essa lacuna: é a skill interativa que transforma NL do PM em spec.md validável.
 
 ## Quando invocar
-Depois de `/new-slice NNN "título"` (que cria o esqueleto vazio) e **antes** de convocar `architect`.
+Depois de `/new-slice NNN "título"` (que cria o esqueleto vazio) e **antes** de convocar `architecture-expert` (modo: plan).
 
 ## Pré-condições
 - `specs/NNN/spec.md` existe e contém o template (status `draft`)
@@ -48,7 +48,7 @@ bash scripts/draft-spec.sh "$1" --check
 ```
 
 ## Handoff
-- **OK + PM aceita** → invocar sub-agent `architect` para gerar `plan.md`.
+- **OK + PM aceita** → invocar sub-agent `architecture-expert` (modo: plan) para gerar `plan.md`.
 - **PM pede ajuste** → skill reexecuta no trecho apontado.
 - **PM não sabe ainda** → registra "spec em pausa" e encerra sem bloquear outras tarefas.
 

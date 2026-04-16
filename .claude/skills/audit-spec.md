@@ -16,7 +16,7 @@ Exemplo: `/audit-spec 007`
 
 ## Por que existe
 
-`spec.md` é a fonte de verdade para plano, testes e implementação. O validador `/draft-spec` só checa formato; este gate adiciona auditoria independente de escopo, ACs, testabilidade, segurança, dependências e alinhamento de produto antes do `architect`.
+`spec.md` é a fonte de verdade para plano, testes e implementação. O validador `/draft-spec` só checa formato; este gate adiciona auditoria independente de escopo, ACs, testabilidade, segurança, dependências e alinhamento de produto antes do `architecture-expert` (modo: plan).
 
 ## Quando invocar
 
@@ -41,7 +41,7 @@ bash scripts/audit-spec.sh NNN --check
 
 ### 1. Spawn spec-auditor
 
-Roda `spec-auditor` em contexto limpo, com acesso apenas aos artefatos permitidos no agent card.
+Roda `qa-expert` (modo: audit-spec) em contexto limpo, com acesso apenas aos artefatos permitidos no agent card.
 
 Output esperado: `specs/NNN/spec-audit.json`.
 
@@ -91,12 +91,12 @@ loop (5 ciclos automáticos; 6ª rejeição escala PM):
 
 ## Agentes
 
-- `spec-auditor` (budget: 25k) — audita e emite `spec-audit.json`.
-- `fixer` (budget: 60k) — corrige findings no spec quando necessario.
+- `qa-expert` (modo: audit-spec) (budget: 25k) — audita e emite `spec-audit.json`.
+- `builder` (modo: fixer) (budget: 60k) — corrige findings no spec quando necessario.
 
 ## Integração
 
-`/draft-plan NNN` deve exigir `bash scripts/audit-spec.sh NNN --approved` antes de chamar o `architect`.
+`/draft-plan NNN` deve exigir `bash scripts/audit-spec.sh NNN --approved` antes de chamar o `architecture-expert` (modo: plan).
 
 ## Handoff
 

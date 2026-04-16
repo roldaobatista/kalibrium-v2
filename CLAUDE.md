@@ -180,27 +180,30 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 ### Fase D — Execução (por story)
 13. `/start-story ENN-SNN` — cria slice(s) a partir do Story Contract.
     - **Gate R13/R14 (obrigatório):** `scripts/sequencing-check.sh --story ENN-SNN` executa antes de criar slice. Bloqueia se stories anteriores do mesmo épico não estão `merged` em `project-state.json[epics_status]`, ou se é a 1ª story de um épico MVP novo e o épico anterior não está fechado. Paralelismo intra-épico permitido quando o contrato declara `dependencies: []` no frontmatter. Bypass só via `KALIB_SKIP_SEQUENCE="<motivo>"` (registra incidente).
-14. `/audit-spec NNN` → sub-agent `spec-auditor` valida spec.md; se houver findings, fixer corrige e re-audita até zero findings.
-15. `/draft-plan NNN` → sub-agent `architect` gera plan.md.
-16. `/review-plan NNN` → sub-agent `plan-reviewer` valida plan.md em contexto limpo; se houver findings, corrige plan e re-audita até zero findings.
-17. **Auto-approval do plano:** quando `spec-auditor` E `plan-reviewer` ambos retornam `verdict: approved` com `findings: []`, o orquestrador prossegue automaticamente para a próxima etapa (draft-tests) **sem pausar para o PM**. O PM só é envolvido em: (a) escalação R6 (6º rejected consecutivo), (b) decisão de produto explícita que apareça mid-flow, (c) PM solicita pausa via `/checkpoint` ou conversa direta. Esta política reduz fricção do PM mantendo R11 (dual-verifier) preservado.
-18. `/draft-tests NNN` → sub-agent `ac-to-test` gera testes red.
+14. `/audit-spec NNN` → `qa-expert` (modo: audit-spec) valida spec.md; se houver findings, `builder` (modo: fixer) corrige e re-audita até zero findings.
+15. `/draft-plan NNN` → `architecture-expert` (modo: plan) gera plan.md.
+16. `/review-plan NNN` → `architecture-expert` (modo: plan-review, contexto isolado) valida plan.md; se houver findings, corrige plan e re-audita até zero findings.
+17. **Auto-approval do plano:** quando `qa-expert` (audit-spec) E `architecture-expert` (plan-review) ambos retornam `verdict: approved` com `findings: []`, o orquestrador prossegue automaticamente para a próxima etapa (draft-tests) **sem pausar para o PM**. O PM só é envolvido em: (a) escalação R6 (6º rejected consecutivo), (b) decisão de produto explícita que apareça mid-flow, (c) PM solicita pausa via `/checkpoint` ou conversa direta. Esta política reduz fricção do PM mantendo R11 (dual-verifier) preservado.
+18. `/draft-tests NNN` → `builder` (modo: test-writer) gera testes red.
 19. Commit: `test(slice-NNN): AC tests red`.
-20. Sub-agent `implementer` faz testes virarem verdes, task por task.
+20. `builder` (modo: implementer) faz testes virarem verdes, task por task.
 
 ### Fase E — Pipeline de Gates (por slice)
 
-> **Ordem definida no orchestrator.md:** verifier (1º) → reviewer (2º, só se verifier aprovou) → [security + test-audit + functional] (3º, em paralelo) → **master-auditor (4º, ADR-0012: consolidação dual-LLM Claude Opus 4.6 + GPT-5 via Codex CLI)**. **ZERO TOLERANCE:** nenhum finding de qualquer severidade é aceito. Gate só aprova com `findings: []`. Loop: gate rejeita → fixer corrige TODOS → re-run do mesmo gate → repete até zero findings; as 5 primeiras reprovações consecutivas do mesmo gate ficam no loop automático e a 6ª escala ao PM.
+> **Ordem definida no orchestrator.md:** qa-expert:verify (1º) → architecture-expert:code-review (2º, contexto isolado) → [security-expert:gate + qa-expert:audit-tests + product-expert:functional-gate + data-expert:data-gate + observability-expert:gate + integration-expert:gate] (3º, em paralelo, últimos 3 condicionais) → **governance:master-audit (4º, dual-LLM Opus + GPT-5)**. **ZERO TOLERANCE (S1-S3):** nenhum finding S1-S3 é aceito. Gate aprova com `blocking_findings_count == 0` (S4/S5 não bloqueiam mas são registrados). Loop: gate rejeita → builder:fixer corrige TODOS S1-S3 → re-run do mesmo gate → repete até zero S1-S3; as 5 primeiras reprovações consecutivas do mesmo gate ficam no loop automático e a 6ª escala ao PM.
 
-19. `/verify-slice NNN` → verifier em contexto isolado → `verification.json`.
-20. `/review-pr NNN` → reviewer em contexto isolado → `review.json`.
-21. `/security-review NNN` → security-reviewer em contexto isolado → `security-review.json`.
-22. `/test-audit NNN` → test-auditor em contexto isolado → `test-audit.json`.
-23. `/functional-review NNN` → functional-reviewer em contexto isolado → `functional-review.json`.
-24. `/master-audit NNN` → master-auditor consolida as 5 saídas anteriores em verdict dual-LLM (Opus + GPT-5) em contexto isolado → `master-audit.json`. Se as duas trilhas divergirem, master-auditor tenta reconciliar em até 3 rodadas; persistindo, escala PM via `/explain-slice NNN` (R12). **Invocação da Trilha GPT-5 (Codex CLI):** ler `docs/operations/codex-gpt5-setup.md` — em ChatGPT Plus auth, NÃO passar `--model` (default = gpt-5); no Windows usar `--sandbox workspace-write` (não `read-only`, evita `CreateProcessAsUserW failed: 5`).
-25. Se qualquer gate emitir findings (mesmo minor/low/info) → `/fix NNN [gate]` → fixer corrige TODOS → **re-run do mesmo gate** (não pula). Repete até `findings: []`.
+19. `/verify-slice NNN` → `qa-expert` (modo: verify) em contexto isolado → `verification.json`.
+20. `/review-pr NNN` → `architecture-expert` (modo: code-review) em contexto isolado → `review.json`.
+21. `/security-review NNN` → `security-expert` (modo: security-gate) em contexto isolado → `security-review.json`.
+22. `/test-audit NNN` → `qa-expert` (modo: audit-tests) em contexto isolado → `test-audit.json`.
+23. `/functional-review NNN` → `product-expert` (modo: functional-gate) em contexto isolado → `functional-review.json`.
+23b. (condicional) `data-expert` (modo: data-gate) → `data-review.json` [se slice tem migrations].
+23c. (condicional) `observability-expert` (modo: observability-gate) → `observability-review.json` [se slice tem logging/metrics].
+23d. (condicional) `integration-expert` (modo: integration-gate) → `integration-review.json` [se slice tem APIs externas/webhooks].
+24. `/master-audit NNN` → `governance` (modo: master-audit) consolida todas as saídas em verdict dual-LLM (Opus + GPT-5) em contexto isolado → `master-audit.json`. Se as duas trilhas divergirem, tenta reconciliar em até 3 rodadas; persistindo, escala PM via `/explain-slice NNN` (R12). **Invocação da Trilha GPT-5 (Codex CLI):** ler `docs/operations/codex-gpt5-setup.md`.
+25. Se qualquer gate emitir findings S1-S3 → `/fix NNN [gate]` → `builder` (modo: fixer) corrige TODOS S1-S3 → **re-run do mesmo gate** (não pula). Repete até `blocking_findings_count == 0`. Findings S4/S5 são registrados mas não bloqueiam.
 26. Se 6º `rejected` consecutivo no mesmo gate (R6) → parar, escalar humano via `/explain-slice NNN`.
-27. Todos os 5 gates + master-auditor `approved` com zero findings → `/merge-slice NNN`.
+27. Todos os gates + master-audit `approved` com zero findings S1-S3 → `/merge-slice NNN`.
 
 ### Fase F — Encerramento
 27. `/slice-report NNN` e `/retrospective NNN` obrigatórios pós-merge.
@@ -277,61 +280,37 @@ Agente **nunca** roda suite full no meio de uma task. Hook `post-edit-gate.sh` g
 
 ---
 
-## 8. Sub-agents disponíveis
+## 8. Agentes disponíveis (v3 — organização por domínio)
 
-### Núcleo de Descoberta
-| Nome | Papel | Budget |
-|---|---|---|
-| `domain-analyst` | Extrai glossário, modelo de domínio, riscos, suposições | 30k |
-| `nfr-analyst` | Extrai e estrutura NFRs com métricas mensuráveis | 25k |
+### Especialistas de Domínio (9 agentes)
+| Nome | Domínio | Modelo | Budget | Modos de operação |
+|---|---|---|---|---|
+| `product-expert` | Produto e negócio | sonnet | 50k | discovery, decompose, functional-gate |
+| `ux-designer` | Design de experiência | sonnet | 50k | research, design, ux-gate |
+| `architecture-expert` | Design de sistema | opus | 50k | design, plan, plan-review, code-review |
+| `data-expert` | Dados e modelagem | sonnet | 40k | modeling, review, data-gate |
+| `security-expert` | Segurança e LGPD | opus | 40k | threat-model, spec-security, security-gate |
+| `qa-expert` | Qualidade | sonnet | 50k | verify, audit-spec, audit-story, audit-planning, audit-tests |
+| `devops-expert` | Infraestrutura | sonnet | 40k | ci-design, docker, deploy, ci-gate |
+| `observability-expert` | Observabilidade | sonnet | 40k | strategy, implementation, observability-gate |
+| `integration-expert` | Integrações externas | sonnet | 40k | strategy, implementation, integration-gate |
 
-### Núcleo de Planejamento
-| Nome | Papel | Budget |
-|---|---|---|
-| `architect` | Gera plan.md a partir de spec.md | 30k |
-| `epic-decomposer` | Decompõe PRD em épicos com dependências | 30k |
-| `planning-auditor` | Audita roadmap/épicos antes de apresentar ao PM | 40k |
-| `story-decomposer` | Decompõe épico em stories com Story Contract | 30k |
-| `story-auditor` | Audita stories antes de iniciar slices | 40k |
-| `spec-auditor` | Audita spec.md de slice antes do plano técnico | 25k |
-| `ac-to-test` | Gera testes red a partir de ACs | 40k |
-| `plan-reviewer` | Revisa plan.md antes de execução | 25k |
-
-### Núcleo de Design e Contratos
-| Nome | Papel | Budget |
-|---|---|---|
-| `ux-designer` | Gera UX/design docs, wireframes, inventário de telas e fluxos | 50k |
-| `api-designer` | Gera contratos REST por épico e valida consistência de API | 30k |
-| `data-modeler` | Gera ERDs e specs de migrations por épico | 25k |
-
-### Núcleo de Execução
-| Nome | Papel | Budget |
-|---|---|---|
-| `implementer` | Faz testes red virarem verdes | 80k |
-| `fixer` | Corrige findings de spec-audit ou qualquer gate de review | 60k |
-
-### Núcleo de Qualidade (gates independentes em contexto isolado)
-| Nome | Papel | Budget |
-|---|---|---|
-| `verifier` | Valida slice mecanicamente, emite `verification.json` | 25k |
-| `reviewer` | Revisão estrutural de código, emite `review.json` (R11) | 30k |
-| `security-reviewer` | Revisão de segurança (OWASP, LGPD, secrets), emite `security-review.json` | 25k |
-| `test-auditor` | Auditoria de cobertura e qualidade de testes, emite `test-audit.json` | 25k |
-| `functional-reviewer` | Revisão funcional (produto/UX/ACs), emite `functional-review.json` | 25k |
-
-### Núcleo de Governança
-| Nome | Papel | Budget |
-|---|---|---|
-| `guide-auditor` | Auditor periódico de drift no harness, emite `guide-audit.json` | 15k |
+### Agentes de Suporte (2 agentes)
+| Nome | Papel | Modelo | Budget | Modos de operação |
+|---|---|---|---|---|
+| `builder` | Execução (testes + código + correções) | opus | 80k | test-writer, implementer, fixer |
+| `governance` | Processo e governança | opus | 60k | master-audit, retrospective, harness-learner, guide-audit |
 
 ### Orquestrador
-| Nome | Papel | Budget |
-|---|---|---|
-| `orchestrator` | Coordena todos os sub-agents, máquina de estados, cadeia fixer→re-gate | 100k |
+| Nome | Papel | Modelo | Budget |
+|---|---|---|---|
+| `orchestrator` | Coordena todos os sub-agents, máquina de estados, cadeia fixer→re-gate | opus | 100k |
 
 > O orquestrador não é um sub-agent — é o papel principal do orquestrador ativo (Claude Code ou Codex CLI em modo exclusivo). Definido em `.claude/agents/orchestrator.md` com regras de sequenciamento, paralelismo e checkpoint.
 
-Detalhes em `.claude/agents/*.md`. Total: 22 agents (21 sub-agents + 1 orchestrator) organizados em 7 núcleos.
+**Princípio:** cada agente é um especialista de domínio com múltiplos modos de operação. Gates rodam em contextos isolados (R3/R11). Mesmo agente, contextos separados — a expertise é compartilhada, o acesso a dados não.
+
+Detalhes em `.claude/agents/*.md`. Total: 12 agentes (11 sub-agents + 1 orchestrator) organizados por domínio de conhecimento.
 
 ---
 

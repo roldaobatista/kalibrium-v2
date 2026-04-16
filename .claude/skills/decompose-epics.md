@@ -27,7 +27,7 @@ Apos `/freeze-architecture`. Antes de detalhar stories.
 Se alguma falhar, listar o que falta e parar.
 
 ### 2. Spawn epic-decomposer
-Spawn sub-agent `epic-decomposer` com acesso aos documentos aprovados.
+Spawn sub-agent `product-expert` (modo: decompose) com acesso aos documentos aprovados.
 O agent produz:
 - `epics/ROADMAP.md` — indice com sequencia e dependencias
 - `epics/ENN/epic.md` — detalhamento de cada epico
@@ -72,13 +72,13 @@ Atualizar `project-state.json`:
 ```
 
 ## Agentes
-- `epic-decomposer` — decompoe PRD em epicos com dependencias, prioridades e estimativas de stories
+- `product-expert` (modo: decompose) — decompoe PRD em epicos com dependencias, prioridades e estimativas de stories
 
 ## Erros e Recuperacao
 
 | Erro | Recuperacao |
 |---|---|
-| `epic-decomposer` gera epicos sem dependencias claras | Re-spawnar com instrucao explicita para mapear dependencias. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
+| `product-expert` (modo: decompose) gera epicos sem dependencias claras | Re-spawnar com instrucao explicita para mapear dependencias. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
 | Epicos gerados extrapolam o escopo do MVP | Comparar com `docs/product/mvp-scope.md`. Remover epicos fora do MVP e marcar como "pos-MVP" no roadmap. |
 | Pre-condicao falha (PRD ou arquitetura nao frozen) | Listar o que falta e sugerir `/freeze-prd` ou `/freeze-architecture` conforme o caso. |
 

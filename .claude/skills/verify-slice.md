@@ -25,7 +25,7 @@ description: Monta verification-input/, spawn verifier (isolado por hook, sem wo
    - `files-changed.txt` (`git diff --name-only base...HEAD` do slice)
    - `constitution-snapshot.md` (cópia de `docs/constitution.md` no estado atual)
 
-2. **Spawn do verifier SEM worktree** via Claude Code `Agent` com `subagent_type: verifier` (sem `isolation: worktree`). O isolamento é garantido pelo hook `verifier-sandbox.sh`, que bloqueia reads fora de `verification-input/`. Worktree não é usada porque o input package é untracked e não existiria na worktree.
+2. **Spawn do verifier SEM worktree** via Claude Code `Agent` com `subagent_type: qa-expert` (sem `isolation: worktree`). O isolamento é garantido pelo hook `verifier-sandbox.sh`, que bloqueia reads fora de `verification-input/`. Worktree não é usada porque o input package é untracked e não existiria na worktree.
 
 3. **Aguarda** o verifier escrever `verification-input/verification.json`.
 
@@ -111,4 +111,4 @@ bash scripts/verify-slice.sh "$1"
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `verifier` | worktree isolada | 25k tokens |
+| `qa-expert` (modo: verify) | worktree isolada | 25k tokens |

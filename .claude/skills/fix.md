@@ -54,8 +54,8 @@ Vou corrigir agora. Posso prosseguir? (sim/nao)
 
 ### 3. Spawn do fixer
 Se PM confirmar:
-- Spawn sub-agent `fixer` com os JSONs de findings como input
-- Fixer aplica correcoes (ver `.claude/agents/fixer.md`)
+- Spawn sub-agent `builder` (modo: fixer) com os JSONs de findings como input
+- Builder (modo: fixer) aplica correcoes (ver `.claude/agents/builder.md`)
 - Cada correcao dispara hook post-edit para validar teste
 
 ### 4. Apos correcoes
@@ -76,7 +76,7 @@ Proximo passo: re-rodar o gate que reprovou.
 1. Ler JSONs de review do slice
 2. Filtrar findings relevantes
 3. Apresentar resumo ao PM (R12)
-4. Se PM confirmar, spawn Agent(subagent_type="fixer") com prompt contendo os findings
+4. Se PM confirmar, spawn Agent(subagent_type="builder") com prompt contendo os findings
 5. Apos fixer terminar, reportar resultado
 ```
 
@@ -93,7 +93,7 @@ Proximo passo: re-rodar o gate que reprovou.
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `fixer` | mesmo contexto | 60k tokens |
+| `builder` (modo: fixer) | mesmo contexto | 60k tokens |
 
 ## Handoff
 - Fixes aplicados → sugerir re-run do gate que reprovou

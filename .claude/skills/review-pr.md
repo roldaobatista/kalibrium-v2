@@ -10,7 +10,7 @@ description: Invoca o sub-agent reviewer em contexto isolado INDEPENDENTE do ver
 ```
 
 ## Quando invocar
-Após o `verifier` ter emitido `verification.json` com `verdict: approved`. **Nunca** antes — reviewer não deve rodar em slice que nem passou no verifier (desperdício de tokens + semântica errada).
+Após o `qa-expert` (modo: verify) ter emitido `verification.json` com `verdict: approved`. **Nunca** antes — reviewer não deve rodar em slice que nem passou no verifier (desperdício de tokens + semântica errada).
 
 ## Pré-condições
 - `specs/NNN/verification.json` existe e tem `verdict: approved`
@@ -27,9 +27,9 @@ Após o `verifier` ter emitido `verification.json` com `verdict: approved`. **Nu
    - `glossary-snapshot.md`
    - `adr-snapshot/` — cópias dos ADRs mencionados no plan (se houver)
 
-2. **Spawn do sub-agent `reviewer`** via Agent tool:
-   - `subagent_type: "reviewer"`
-   - **Sem** `isolation: "worktree"` — o input package (`review-input/`) é untracked e não existiria na worktree. O isolamento é garantido pelo hook `verifier-sandbox.sh`, que também bloqueia leitura de `verification-input/` quando o agente for `reviewer` (R11: reviewer não vê output do verifier)
+2. **Spawn do sub-agent `qa-expert` (modo: review)** via Agent tool:
+   - `subagent_type: "qa-expert"`
+   - **Sem** `isolation: "worktree"` — o input package (`review-input/`) é untracked e não existiria na worktree. O isolamento é garantido pelo hook `verifier-sandbox.sh`, que também bloqueia leitura de `verification-input/` quando o agente for `qa-expert` em modo review (R11: reviewer não vê output do verifier)
 
 3. **Aguarda** `review-input/review.json` ser escrito pelo reviewer
 
@@ -65,7 +65,7 @@ bash scripts/review-slice.sh "$1"
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `reviewer` | worktree isolada | 30k tokens |
+| `qa-expert` (modo: review) | worktree isolada | 30k tokens |
 
 ## Handoff
 
