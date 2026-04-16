@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
 use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
@@ -509,6 +510,13 @@ Route::middleware([
         Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes.show');
         Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
         Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+
+        // Slice 014 — E03-S02a: Contatos CRUD
+        Route::get('/clientes/{clienteId}/contatos', [ContatoController::class, 'index'])->name('contatos.index');
+        Route::post('/clientes/{clienteId}/contatos', [ContatoController::class, 'store'])->name('contatos.store');
+        Route::get('/contatos/{id}', [ContatoController::class, 'show'])->name('contatos.show');
+        Route::put('/contatos/{id}', [ContatoController::class, 'update'])->name('contatos.update');
+        Route::delete('/contatos/{id}', [ContatoController::class, 'destroy'])->name('contatos.destroy');
     });
 
 // ---------------------------------------------------------------------------

@@ -24,9 +24,9 @@ function criarUsuarioIsolationRole(string $role, int $tenantId): User
     ]);
     DB::table('tenant_users')->insert([
         'tenant_id' => $tenantId,
-        'user_id'   => $user->id,
-        'role'      => $role,
-        'status'    => 'active',
+        'user_id' => $user->id,
+        'role' => $role,
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -37,13 +37,13 @@ function criarUsuarioIsolationRole(string $role, int $tenantId): User
 function criarContatoIsolation(int $tenantId, int $clienteId, array $overrides = []): int
 {
     return DB::table('contatos')->insertGetId(array_merge([
-        'tenant_id'  => $tenantId,
+        'tenant_id' => $tenantId,
         'cliente_id' => $clienteId,
-        'nome'       => 'Contato Isolamento',
-        'email'      => 'isolamento@empresa.test',
-        'papel'      => 'comprador',
-        'principal'  => false,
-        'ativo'      => true,
+        'nome' => 'Contato Isolamento',
+        'email' => 'isolamento@empresa.test',
+        'papel' => 'comprador',
+        'principal' => false,
+        'ativo' => true,
         'created_at' => now(),
         'updated_at' => now(),
     ], $overrides));
@@ -55,12 +55,12 @@ function criarContatoIsolation(int $tenantId, int $clienteId, array $overrides =
 
 test('AC-008: GET /contatos/{id} de contato do tenant B retorna 404 para usuário do tenant A', function () {
     /** @ac AC-008 */
-    $tenantA  = $this->tenantA();
-    $tenantB  = $this->tenantB();
+    $tenantA = $this->tenantA();
+    $tenantB = $this->tenantB();
     $atendente = criarUsuarioIsolationRole('atendente', $tenantA->id);
 
-    $clienteB  = Cliente::factory()->create(['tenant_id' => $tenantB->id, 'ativo' => true]);
-    $contatoB  = criarContatoIsolation($tenantB->id, $clienteB->id);
+    $clienteB = Cliente::factory()->create(['tenant_id' => $tenantB->id, 'ativo' => true]);
+    $contatoB = criarContatoIsolation($tenantB->id, $clienteB->id);
 
     $this->initializeTenant($tenantA);
     $this->actingAs($atendente);
@@ -78,12 +78,12 @@ test('AC-008: GET /contatos/{id} de contato do tenant B retorna 404 para usuári
 
 test('AC-013: PUT /contatos/{id} de contato do tenant B retorna 404 para atendente do tenant A', function () {
     /** @ac AC-013 */
-    $tenantA  = $this->tenantA();
-    $tenantB  = $this->tenantB();
+    $tenantA = $this->tenantA();
+    $tenantB = $this->tenantB();
     $atendente = criarUsuarioIsolationRole('atendente', $tenantA->id);
 
-    $clienteB  = Cliente::factory()->create(['tenant_id' => $tenantB->id, 'ativo' => true]);
-    $contatoB  = criarContatoIsolation($tenantB->id, $clienteB->id);
+    $clienteB = Cliente::factory()->create(['tenant_id' => $tenantB->id, 'ativo' => true]);
+    $contatoB = criarContatoIsolation($tenantB->id, $clienteB->id);
 
     $this->initializeTenant($tenantA);
     $this->actingAs($atendente);
@@ -95,7 +95,7 @@ test('AC-013: PUT /contatos/{id} de contato do tenant B retorna 404 para atenden
     $response->assertStatus(404);
 
     $this->assertDatabaseHas('contatos', [
-        'id'   => $contatoB,
+        'id' => $contatoB,
         'nome' => 'Contato Isolamento', // inalterado
     ]);
 
@@ -108,12 +108,12 @@ test('AC-013: PUT /contatos/{id} de contato do tenant B retorna 404 para atenden
 
 test('AC-014: DELETE /contatos/{id} de contato do tenant B retorna 404 para atendente do tenant A', function () {
     /** @ac AC-014 */
-    $tenantA  = $this->tenantA();
-    $tenantB  = $this->tenantB();
+    $tenantA = $this->tenantA();
+    $tenantB = $this->tenantB();
     $atendente = criarUsuarioIsolationRole('atendente', $tenantA->id);
 
-    $clienteB  = Cliente::factory()->create(['tenant_id' => $tenantB->id, 'ativo' => true]);
-    $contatoB  = criarContatoIsolation($tenantB->id, $clienteB->id, ['ativo' => true]);
+    $clienteB = Cliente::factory()->create(['tenant_id' => $tenantB->id, 'ativo' => true]);
+    $contatoB = criarContatoIsolation($tenantB->id, $clienteB->id, ['ativo' => true]);
 
     $this->initializeTenant($tenantA);
     $this->actingAs($atendente);
@@ -123,7 +123,7 @@ test('AC-014: DELETE /contatos/{id} de contato do tenant B retorna 404 para aten
     $response->assertStatus(404);
 
     $this->assertDatabaseHas('contatos', [
-        'id'   => $contatoB,
+        'id' => $contatoB,
         'ativo' => true, // estado inalterado
     ]);
 
@@ -136,13 +136,13 @@ test('AC-014: DELETE /contatos/{id} de contato do tenant B retorna 404 para aten
 
 test('AC-016: GET /contatos/{id} do próprio tenant retorna 200 com campos id, cliente_id, nome, email, whatsapp, papel, principal, ativo', function () {
     /** @ac AC-016 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioIsolationRole('atendente', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     $contatoId = criarContatoIsolation($tenantA->id, $cliente->id, [
-        'nome'     => 'Contato Visível',
-        'email'    => 'visivel@empresa.test',
+        'nome' => 'Contato Visível',
+        'email' => 'visivel@empresa.test',
         'whatsapp' => '11987654321',
     ]);
 

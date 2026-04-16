@@ -27,9 +27,9 @@ function criarUsuarioContatoRole(string $role, int $tenantId): User
     ]);
     DB::table('tenant_users')->insert([
         'tenant_id' => $tenantId,
-        'user_id'   => $user->id,
-        'role'      => $role,
-        'status'    => 'active',
+        'user_id' => $user->id,
+        'role' => $role,
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -43,7 +43,7 @@ function criarUsuarioContatoRole(string $role, int $tenantId): User
 
 test('AC-001: POST /clientes/{id}/contatos cria contato com ativo=true e retorna 201', function () {
     /** @ac AC-001 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioContatoRole('atendente', $tenantA->id);
 
     $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
@@ -52,9 +52,9 @@ test('AC-001: POST /clientes/{id}/contatos cria contato com ativo=true e retorna
     $this->actingAs($atendente);
 
     $payload = [
-        'nome'   => 'Contato Primário',
-        'email'  => 'contato@empresa.test',
-        'papel'  => 'comprador',
+        'nome' => 'Contato Primário',
+        'email' => 'contato@empresa.test',
+        'papel' => 'comprador',
     ];
 
     $response = $this->postJson("/clientes/{$cliente->id}/contatos", $payload);
@@ -63,8 +63,8 @@ test('AC-001: POST /clientes/{id}/contatos cria contato com ativo=true e retorna
 
     $this->assertDatabaseHas('contatos', [
         'cliente_id' => $cliente->id,
-        'nome'       => 'Contato Primário',
-        'ativo'      => true,
+        'nome' => 'Contato Primário',
+        'ativo' => true,
     ]);
 
     $this->endTenant();
@@ -76,7 +76,7 @@ test('AC-001: POST /clientes/{id}/contatos cria contato com ativo=true e retorna
 
 test('AC-002: cliente pode ter múltiplos contatos com papéis distintos e GET lista ambos', function () {
     /** @ac AC-002 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioContatoRole('atendente', $tenantA->id);
 
     $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
@@ -85,13 +85,13 @@ test('AC-002: cliente pode ter múltiplos contatos com papéis distintos e GET l
     $this->actingAs($atendente);
 
     $this->postJson("/clientes/{$cliente->id}/contatos", [
-        'nome'  => 'Contato Comprador',
+        'nome' => 'Contato Comprador',
         'email' => 'comprador@empresa.test',
         'papel' => 'comprador',
     ]);
 
     $this->postJson("/clientes/{$cliente->id}/contatos", [
-        'nome'  => 'Contato Responsável',
+        'nome' => 'Contato Responsável',
         'email' => 'responsavel@empresa.test',
         'papel' => 'responsavel_tecnico',
     ]);
@@ -112,7 +112,7 @@ test('AC-002: cliente pode ter múltiplos contatos com papéis distintos e GET l
 
 test('AC-015: POST sem email e sem whatsapp retorna 422 com erro de validação', function () {
     /** @ac AC-015 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioContatoRole('atendente', $tenantA->id);
 
     $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
@@ -121,7 +121,7 @@ test('AC-015: POST sem email e sem whatsapp retorna 422 com erro de validação'
     $this->actingAs($atendente);
 
     $response = $this->postJson("/clientes/{$cliente->id}/contatos", [
-        'nome'  => 'Contato Sem Contato',
+        'nome' => 'Contato Sem Contato',
         'papel' => 'comprador',
         // sem email, sem whatsapp
     ]);
@@ -138,21 +138,21 @@ test('AC-015: POST sem email e sem whatsapp retorna 422 com erro de validação'
 
 test('AC-017: PUT /contatos/{id} com cliente_id diferente não altera o cliente_id original', function () {
     /** @ac AC-017 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioContatoRole('atendente', $tenantA->id);
 
     $clienteOriginal = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
-    $clienteOutro    = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $clienteOutro = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
 
     // Cria contato diretamente no banco (model ainda não existe — falha aqui = red)
     $contatoId = DB::table('contatos')->insertGetId([
-        'tenant_id'  => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'cliente_id' => $clienteOriginal->id,
-        'nome'       => 'Contato Original',
-        'email'      => 'original@empresa.test',
-        'papel'      => 'comprador',
-        'principal'  => false,
-        'ativo'      => true,
+        'nome' => 'Contato Original',
+        'email' => 'original@empresa.test',
+        'papel' => 'comprador',
+        'principal' => false,
+        'ativo' => true,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -167,7 +167,7 @@ test('AC-017: PUT /contatos/{id} com cliente_id diferente não altera o cliente_
     $response->assertStatus(200);
 
     $this->assertDatabaseHas('contatos', [
-        'id'         => $contatoId,
+        'id' => $contatoId,
         'cliente_id' => $clienteOriginal->id, // inalterado
     ]);
 

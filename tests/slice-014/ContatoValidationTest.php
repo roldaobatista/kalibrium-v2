@@ -23,9 +23,9 @@ function criarUsuarioValidationRole(string $role, int $tenantId): User
     ]);
     DB::table('tenant_users')->insert([
         'tenant_id' => $tenantId,
-        'user_id'   => $user->id,
-        'role'      => $role,
-        'status'    => 'active',
+        'user_id' => $user->id,
+        'role' => $role,
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -39,7 +39,7 @@ function criarUsuarioValidationRole(string $role, int $tenantId): User
 
 test('AC-012: POST com whatsapp "99999-9999" (sem DDD, 8 dígitos) retorna 422 com erro no campo whatsapp', function () {
     /** @ac AC-012 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioValidationRole('atendente', $tenantA->id);
 
     $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
@@ -48,9 +48,9 @@ test('AC-012: POST com whatsapp "99999-9999" (sem DDD, 8 dígitos) retorna 422 c
     $this->actingAs($atendente);
 
     $response = $this->postJson("/clientes/{$cliente->id}/contatos", [
-        'nome'      => 'Contato WhatsApp Inválido',
-        'whatsapp'  => '99999-9999', // sem DDD, apenas 8 dígitos
-        'papel'     => 'comprador',
+        'nome' => 'Contato WhatsApp Inválido',
+        'whatsapp' => '99999-9999', // sem DDD, apenas 8 dígitos
+        'papel' => 'comprador',
     ]);
 
     $response->assertStatus(422);
@@ -61,7 +61,7 @@ test('AC-012: POST com whatsapp "99999-9999" (sem DDD, 8 dígitos) retorna 422 c
 
 test('AC-012: POST com whatsapp "99999999" (apenas 8 dígitos numéricos sem DDD) retorna 422', function () {
     /** @ac AC-012 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioValidationRole('atendente', $tenantA->id);
 
     $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
@@ -70,9 +70,9 @@ test('AC-012: POST com whatsapp "99999999" (apenas 8 dígitos numéricos sem DDD
     $this->actingAs($atendente);
 
     $response = $this->postJson("/clientes/{$cliente->id}/contatos", [
-        'nome'     => 'Contato WhatsApp Curto',
+        'nome' => 'Contato WhatsApp Curto',
         'whatsapp' => '99999999', // 8 dígitos — menos que o mínimo de 10
-        'papel'    => 'comprador',
+        'papel' => 'comprador',
     ]);
 
     $response->assertStatus(422);
@@ -83,7 +83,7 @@ test('AC-012: POST com whatsapp "99999999" (apenas 8 dígitos numéricos sem DDD
 
 test('AC-012: POST com whatsapp "11987654321" (10+ dígitos com DDD) é aceito no campo whatsapp', function () {
     /** @ac AC-012 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioValidationRole('atendente', $tenantA->id);
 
     $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
@@ -92,9 +92,9 @@ test('AC-012: POST com whatsapp "11987654321" (10+ dígitos com DDD) é aceito n
     $this->actingAs($atendente);
 
     $response = $this->postJson("/clientes/{$cliente->id}/contatos", [
-        'nome'     => 'Contato WhatsApp Válido',
+        'nome' => 'Contato WhatsApp Válido',
         'whatsapp' => '11987654321', // 11 dígitos — DDD + número
-        'papel'    => 'comprador',
+        'papel' => 'comprador',
     ]);
 
     // Deve criar com 201 (não 422) — confirma que a validação aceita o formato correto

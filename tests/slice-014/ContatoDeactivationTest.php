@@ -23,9 +23,9 @@ function criarUsuarioDeactivationRole(string $role, int $tenantId): User
     ]);
     DB::table('tenant_users')->insert([
         'tenant_id' => $tenantId,
-        'user_id'   => $user->id,
-        'role'      => $role,
-        'status'    => 'active',
+        'user_id' => $user->id,
+        'role' => $role,
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -36,13 +36,13 @@ function criarUsuarioDeactivationRole(string $role, int $tenantId): User
 function criarContatoDeactivation(int $tenantId, int $clienteId, bool $ativo = true): int
 {
     return DB::table('contatos')->insertGetId([
-        'tenant_id'  => $tenantId,
+        'tenant_id' => $tenantId,
         'cliente_id' => $clienteId,
-        'nome'       => 'Contato Desativável',
-        'email'      => 'desativavel@empresa.test',
-        'papel'      => 'comprador',
-        'principal'  => false,
-        'ativo'      => $ativo,
+        'nome' => 'Contato Desativável',
+        'email' => 'desativavel@empresa.test',
+        'papel' => 'comprador',
+        'principal' => false,
+        'ativo' => $ativo,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -54,10 +54,10 @@ function criarContatoDeactivation(int $tenantId, int $clienteId, bool $ativo = t
 
 test('AC-011: DELETE /contatos/{id} persiste ativo=false, retorna 200 e contato some da listagem padrão', function () {
     /** @ac AC-011 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioDeactivationRole('atendente', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     $contatoId = criarContatoDeactivation($tenantA->id, $cliente->id, true);
 
     $this->initializeTenant($tenantA);
@@ -68,7 +68,7 @@ test('AC-011: DELETE /contatos/{id} persiste ativo=false, retorna 200 e contato 
     $response->assertStatus(200);
 
     $this->assertDatabaseHas('contatos', [
-        'id'   => $contatoId,
+        'id' => $contatoId,
         'ativo' => false,
     ]);
 
@@ -88,10 +88,10 @@ test('AC-011: DELETE /contatos/{id} persiste ativo=false, retorna 200 e contato 
 
 test('AC-007: DELETE /contatos/{id} em contato já inativo retorna 409 Conflict', function () {
     /** @ac AC-007 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioDeactivationRole('atendente', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     $contatoId = criarContatoDeactivation($tenantA->id, $cliente->id, false); // já inativo
 
     $this->initializeTenant($tenantA);
@@ -103,7 +103,7 @@ test('AC-007: DELETE /contatos/{id} em contato já inativo retorna 409 Conflict'
 
     // Estado não alterado
     $this->assertDatabaseHas('contatos', [
-        'id'   => $contatoId,
+        'id' => $contatoId,
         'ativo' => false,
     ]);
 

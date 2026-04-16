@@ -23,9 +23,9 @@ function criarUsuarioUpdateRole(string $role, int $tenantId): User
     ]);
     DB::table('tenant_users')->insert([
         'tenant_id' => $tenantId,
-        'user_id'   => $user->id,
-        'role'      => $role,
-        'status'    => 'active',
+        'user_id' => $user->id,
+        'role' => $role,
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -36,13 +36,13 @@ function criarUsuarioUpdateRole(string $role, int $tenantId): User
 function criarContatoNoBanco(int $tenantId, int $clienteId, array $overrides = []): int
 {
     return DB::table('contatos')->insertGetId(array_merge([
-        'tenant_id'  => $tenantId,
+        'tenant_id' => $tenantId,
         'cliente_id' => $clienteId,
-        'nome'       => 'Contato Editável',
-        'email'      => 'editavel@empresa.test',
-        'papel'      => 'comprador',
-        'principal'  => false,
-        'ativo'      => true,
+        'nome' => 'Contato Editável',
+        'email' => 'editavel@empresa.test',
+        'papel' => 'comprador',
+        'principal' => false,
+        'ativo' => true,
         'created_at' => now(),
         'updated_at' => now(),
     ], $overrides));
@@ -54,26 +54,26 @@ function criarContatoNoBanco(int $tenantId, int $clienteId, array $overrides = [
 
 test('AC-003: PUT /contatos/{id} persiste novos valores, retorna 200 e cliente_id permanece imutável', function () {
     /** @ac AC-003 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioUpdateRole('atendente', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     $contatoId = criarContatoNoBanco($tenantA->id, $cliente->id, ['papel' => 'comprador']);
 
     $this->initializeTenant($tenantA);
     $this->actingAs($atendente);
 
     $response = $this->putJson("/contatos/{$contatoId}", [
-        'nome'  => 'Novo Nome Editado',
+        'nome' => 'Novo Nome Editado',
         'papel' => 'outro',
     ]);
 
     $response->assertStatus(200);
 
     $this->assertDatabaseHas('contatos', [
-        'id'         => $contatoId,
-        'nome'       => 'Novo Nome Editado',
-        'papel'      => 'outro',
+        'id' => $contatoId,
+        'nome' => 'Novo Nome Editado',
+        'papel' => 'outro',
         'cliente_id' => $cliente->id, // inalterado
     ]);
 
@@ -86,10 +86,10 @@ test('AC-003: PUT /contatos/{id} persiste novos valores, retorna 200 e cliente_i
 
 test('AC-004: PUT /contatos/{id} com payload vazio retorna 422', function () {
     /** @ac AC-004 */
-    $tenantA  = $this->tenantA();
+    $tenantA = $this->tenantA();
     $atendente = criarUsuarioUpdateRole('atendente', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     $contatoId = criarContatoNoBanco($tenantA->id, $cliente->id);
 
     $this->initializeTenant($tenantA);

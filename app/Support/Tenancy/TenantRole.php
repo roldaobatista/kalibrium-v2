@@ -15,6 +15,12 @@ final class TenantRole
     public const string VIEWER = 'visualizador';
 
     /**
+     * Operational role used in contatos API contract.
+     * Maps to write-capable roles for contatos and clientes resources.
+     */
+    public const string ATTENDANT = 'atendente';
+
+    /**
      * @return array<int, string>
      */
     public static function values(): array
@@ -24,6 +30,7 @@ final class TenantRole
             self::TECHNICIAN,
             self::ADMINISTRATIVE,
             self::VIEWER,
+            self::ATTENDANT,
         ];
     }
 
@@ -98,6 +105,36 @@ final class TenantRole
         return in_array(strtolower($role), [
             self::MANAGER,
             self::ADMINISTRATIVE,
+        ], true);
+    }
+
+    /**
+     * Roles allowed to READ contatos (index, show).
+     * Includes: gerente, tecnico, administrativo, visualizador, atendente.
+     * API contract role "atendente" maps to full read+write access on contatos.
+     */
+    public static function canReadContatos(string $role): bool
+    {
+        return in_array(strtolower($role), [
+            self::MANAGER,
+            self::TECHNICIAN,
+            self::ADMINISTRATIVE,
+            self::VIEWER,
+            self::ATTENDANT,
+        ], true);
+    }
+
+    /**
+     * Roles allowed to WRITE contatos (create, update, deactivate).
+     * Excludes tecnico and visualizador — write requires gerente, administrativo or atendente.
+     * API contract role "atendente" maps to full read+write access on contatos.
+     */
+    public static function canWriteContatos(string $role): bool
+    {
+        return in_array(strtolower($role), [
+            self::MANAGER,
+            self::ADMINISTRATIVE,
+            self::ATTENDANT,
         ], true);
     }
 }

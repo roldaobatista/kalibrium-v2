@@ -23,9 +23,9 @@ function criarUsuarioRbacContato(string $role, int $tenantId): User
     ]);
     DB::table('tenant_users')->insert([
         'tenant_id' => $tenantId,
-        'user_id'   => $user->id,
-        'role'      => $role,
-        'status'    => 'active',
+        'user_id' => $user->id,
+        'role' => $role,
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -36,13 +36,13 @@ function criarUsuarioRbacContato(string $role, int $tenantId): User
 function criarContatoRbac(int $tenantId, int $clienteId): int
 {
     return DB::table('contatos')->insertGetId([
-        'tenant_id'  => $tenantId,
+        'tenant_id' => $tenantId,
         'cliente_id' => $clienteId,
-        'nome'       => 'Contato RBAC',
-        'email'      => 'rbac@empresa.test',
-        'papel'      => 'comprador',
-        'principal'  => false,
-        'ativo'      => true,
+        'nome' => 'Contato RBAC',
+        'email' => 'rbac@empresa.test',
+        'papel' => 'comprador',
+        'principal' => false,
+        'ativo' => true,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -55,9 +55,9 @@ function criarContatoRbac(int $tenantId, int $clienteId): int
 test('AC-005: técnico recebe 403 ao tentar PUT /contatos/{id}', function () {
     /** @ac AC-005 */
     $tenantA = $this->tenantA();
-    $tecnico  = criarUsuarioRbacContato('tecnico', $tenantA->id);
+    $tecnico = criarUsuarioRbacContato('tecnico', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     $contatoId = criarContatoRbac($tenantA->id, $cliente->id);
 
     $this->initializeTenant($tenantA);
@@ -70,7 +70,7 @@ test('AC-005: técnico recebe 403 ao tentar PUT /contatos/{id}', function () {
     $response->assertStatus(403);
 
     $this->assertDatabaseHas('contatos', [
-        'id'   => $contatoId,
+        'id' => $contatoId,
         'nome' => 'Contato RBAC', // inalterado
     ]);
 
@@ -84,9 +84,9 @@ test('AC-005: técnico recebe 403 ao tentar PUT /contatos/{id}', function () {
 test('AC-006: técnico recebe 403 ao tentar DELETE /contatos/{id}', function () {
     /** @ac AC-006 */
     $tenantA = $this->tenantA();
-    $tecnico  = criarUsuarioRbacContato('tecnico', $tenantA->id);
+    $tecnico = criarUsuarioRbacContato('tecnico', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     $contatoId = criarContatoRbac($tenantA->id, $cliente->id);
 
     $this->initializeTenant($tenantA);
@@ -97,7 +97,7 @@ test('AC-006: técnico recebe 403 ao tentar DELETE /contatos/{id}', function () 
     $response->assertStatus(403);
 
     $this->assertDatabaseHas('contatos', [
-        'id'   => $contatoId,
+        'id' => $contatoId,
         'ativo' => true, // estado inalterado
     ]);
 
@@ -111,7 +111,7 @@ test('AC-006: técnico recebe 403 ao tentar DELETE /contatos/{id}', function () 
 test('AC-009: técnico recebe 403 ao tentar POST /clientes/{id}/contatos', function () {
     /** @ac AC-009 */
     $tenantA = $this->tenantA();
-    $tecnico  = criarUsuarioRbacContato('tecnico', $tenantA->id);
+    $tecnico = criarUsuarioRbacContato('tecnico', $tenantA->id);
 
     $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
 
@@ -119,7 +119,7 @@ test('AC-009: técnico recebe 403 ao tentar POST /clientes/{id}/contatos', funct
     $this->actingAs($tecnico);
 
     $response = $this->postJson("/clientes/{$cliente->id}/contatos", [
-        'nome'  => 'Contato Criado por Tecnico',
+        'nome' => 'Contato Criado por Tecnico',
         'email' => 'tecnico@empresa.test',
         'papel' => 'comprador',
     ]);
@@ -128,7 +128,7 @@ test('AC-009: técnico recebe 403 ao tentar POST /clientes/{id}/contatos', funct
 
     $this->assertDatabaseMissing('contatos', [
         'cliente_id' => $cliente->id,
-        'nome'       => 'Contato Criado por Tecnico',
+        'nome' => 'Contato Criado por Tecnico',
     ]);
 
     $this->endTenant();
@@ -141,9 +141,9 @@ test('AC-009: técnico recebe 403 ao tentar POST /clientes/{id}/contatos', funct
 test('AC-010: técnico recebe 200 ao fazer GET /clientes/{id}/contatos', function () {
     /** @ac AC-010 */
     $tenantA = $this->tenantA();
-    $tecnico  = criarUsuarioRbacContato('tecnico', $tenantA->id);
+    $tecnico = criarUsuarioRbacContato('tecnico', $tenantA->id);
 
-    $cliente   = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
+    $cliente = Cliente::factory()->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
     criarContatoRbac($tenantA->id, $cliente->id);
 
     $this->initializeTenant($tenantA);
