@@ -501,6 +501,7 @@ Route::middleware([
     'auth',
     EnsureTwoFactorChallengeCompleted::class,
     SetCurrentTenantContext::class,
+    EnsureReadOnlyTenantMode::class,
 ])
     ->group(function (): void {
         Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');

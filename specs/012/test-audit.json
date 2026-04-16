@@ -1,0 +1,202 @@
+{
+  "slice_id": "slice-012",
+  "verdict": "rejected",
+  "timestamp": "2026-04-15T21:45:00Z",
+  "coverage_summary": {
+    "acs_total": 9,
+    "acs_covered": 9,
+    "acs_with_edge_cases": 6,
+    "test_count": 29,
+    "line_coverage_pct": null
+  },
+  "ac_coverage": [
+    {
+      "ac": "AC-001",
+      "tests_found": [
+        "tests/slice-012/ClienteCreationTest.php::AC-001 POST CNPJ valido cria PJ",
+        "tests/slice-012/ClienteCreationTest.php::AC-001 resposta contem dados",
+        "tests/slice-012/CnpjClienteValidationTest.php::AC-001 normalize",
+        "tests/slice-012/CnpjClienteValidationTest.php::AC-001 CNPJ valido passa"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "masked input normalization",
+        "response structure"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-002",
+      "tests_found": [
+        "tests/slice-012/ClienteCreationTest.php::AC-002 CPF valido cria PF",
+        "tests/slice-012/CpfValidationTest.php::AC-002 aceita 529.982.247-25",
+        "tests/slice-012/CpfValidationTest.php::AC-002 aceita somente digitos",
+        "tests/slice-012/CpfValidationTest.php::AC-002 aceita 347.066.120-04"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "digits-only format",
+        "multiple valid CPFs"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-003",
+      "tests_found": [
+        "tests/slice-012/ClienteCreationTest.php::AC-003 CNPJ invalido 422",
+        "tests/slice-012/ClienteCreationTest.php::AC-003 CNPJ digitos invalidos 422",
+        "tests/slice-012/CnpjClienteValidationTest.php::AC-003 digitos iguais rejeitado",
+        "tests/slice-012/CnpjClienteValidationTest.php::AC-003 digitos errados rejeitado"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "repeated digits",
+        "wrong check digits"
+      ],
+      "status": "insufficient"
+    },
+    {
+      "ac": "AC-004",
+      "tests_found": [
+        "tests/slice-012/ClienteCreationTest.php::AC-004 CPF sequencia repetida",
+        "tests/slice-012/ClienteCreationTest.php::AC-004 CPF digitos invalidos",
+        "tests/slice-012/CpfValidationTest.php::AC-004 rejeita 111.111.111-11",
+        "tests/slice-012/CpfValidationTest.php::AC-004 rejeita digitos invalidos",
+        "tests/slice-012/CpfValidationTest.php::AC-004 rejeita menos 11 digitos",
+        "tests/slice-012/CpfValidationTest.php::AC-004 rejeita string vazia",
+        "tests/slice-012/CpfValidationTest.php::AC-004 rejeita 000.000.000-00"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "repeated digits",
+        "wrong check digits",
+        "short length",
+        "empty string",
+        "all zeros"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-005",
+      "tests_found": [
+        "tests/slice-012/ClienteUniquenessTest.php::AC-005 CNPJ duplicado mesmo tenant",
+        "tests/slice-012/ClienteUniquenessTest.php::AC-005 CPF duplicado mesmo tenant"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "CNPJ duplicate",
+        "CPF duplicate"
+      ],
+      "status": "insufficient"
+    },
+    {
+      "ac": "AC-006",
+      "tests_found": [
+        "tests/slice-012/ClienteUniquenessTest.php::AC-006 mesmo CNPJ tenant diferente aceito"
+      ],
+      "happy_path": true,
+      "error_path": false,
+      "edge_cases": [
+        "cross-tenant CNPJ"
+      ],
+      "status": "insufficient"
+    },
+    {
+      "ac": "AC-007",
+      "tests_found": [
+        "tests/slice-012/ClienteSoftDeleteTest.php::AC-007 DELETE ativo retorna 200",
+        "tests/slice-012/ClienteSoftDeleteTest.php::AC-007 DELETE preenche deleted_at"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "ativo flag check",
+        "deleted_at not null"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-008",
+      "tests_found": [
+        "tests/slice-012/ClienteSoftDeleteTest.php::AC-008 DELETE inativo retorna 409",
+        "tests/slice-012/ClienteSoftDeleteTest.php::AC-008 DELETE inativo nao altera registro"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "409 status",
+        "updated_at unchanged"
+      ],
+      "status": "adequate"
+    },
+    {
+      "ac": "AC-009",
+      "tests_found": [
+        "tests/slice-012/ClienteMigrationTest.php::AC-009 tabela colunas ERD",
+        "tests/slice-012/ClienteMigrationTest.php::AC-009 seeder cria cliente por tenant",
+        "tests/slice-012/ClienteMigrationTest.php::AC-009 partial unique index"
+      ],
+      "happy_path": true,
+      "error_path": true,
+      "edge_cases": [
+        "all ERD columns",
+        "partial unique index"
+      ],
+      "status": "adequate"
+    }
+  ],
+  "findings": [
+    {
+      "id": "TEST-001",
+      "severity": "medium",
+      "category": "missing_edge_case",
+      "ac": "AC-003",
+      "file": "tests/slice-012/CnpjClienteValidationTest.php",
+      "description": "Nenhum teste unitario para CNPJ com todos zeros (00.000.000/0000-00). CpfValidationTest cobre 000.000.000-00 mas equivalente CNPJ ausente.",
+      "recommendation": "Adicionar teste: Rule Cnpj rejeita CNPJ 00.000.000/0000-00"
+    },
+    {
+      "id": "TEST-002",
+      "severity": "medium",
+      "category": "missing_edge_case",
+      "ac": "AC-003",
+      "file": "tests/slice-012/CnpjClienteValidationTest.php",
+      "description": "Nenhum teste unitario para CNPJ com comprimento errado. CpfValidationTest tem teste para CPF curto mas equivalente CNPJ ausente.",
+      "recommendation": "Adicionar testes: Rule Cnpj rejeita CNPJ com menos e mais de 14 digitos"
+    },
+    {
+      "id": "TEST-003",
+      "severity": "medium",
+      "category": "missing_edge_case",
+      "ac": "AC-003",
+      "file": "tests/slice-012/CnpjClienteValidationTest.php",
+      "description": "Nenhum teste unitario para CNPJ com string vazia. CpfValidationTest cobre string vazia mas equivalente CNPJ ausente.",
+      "recommendation": "Adicionar teste: Rule Cnpj rejeita string vazia"
+    },
+    {
+      "id": "TEST-004",
+      "severity": "medium",
+      "category": "missing_edge_case",
+      "ac": "AC-005",
+      "file": "tests/slice-012/ClienteUniquenessTest.php",
+      "description": "Nenhum teste verifica que documento de cliente soft-deleted pode ser reutilizado no mesmo tenant. Unique constraint usa whereNull deleted_at sem teste de validacao.",
+      "recommendation": "Adicionar teste: POST /clientes com CNPJ de cliente soft-deleted no mesmo tenant e aceito"
+    },
+    {
+      "id": "TEST-005",
+      "severity": "low",
+      "category": "missing_edge_case",
+      "ac": "AC-006",
+      "file": "tests/slice-012/ClienteUniquenessTest.php",
+      "description": "Isolamento entre tenants testado apenas com CNPJ (PJ). Nenhum teste verifica isolamento cross-tenant com CPF (PF).",
+      "recommendation": "Adicionar teste: POST /clientes com mesmo CPF em tenant diferente e aceito"
+    }
+  ],
+  "anti_patterns": [],
+  "next_action": "return_to_fixer"
+}

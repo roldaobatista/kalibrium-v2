@@ -40,7 +40,7 @@ final readonly class Cnpj implements ValidationRule
         return preg_replace('/\D+/', '', $value) ?? '';
     }
 
-    private static function hasValidDigits(string $documentNumber): bool
+    public static function hasValidDigits(string $documentNumber): bool
     {
         if (strlen($documentNumber) !== 14 || preg_match('/^(\d)\1{13}$/', $documentNumber) === 1) {
             return false;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Models\Tenant;
-use App\Rules\Cnpj;
+use App\Rules\CnpjFormat;
 use App\Rules\Cpf;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,6 +23,9 @@ final class StoreClienteRequest extends FormRequest
 
     public function authorize(): bool
     {
+        // RBAC is enforced in ClienteController via Gate::authorize('clientes.create').
+        // FormRequest authorize() returns true — the gate check happens in the controller
+        // where current_tenant_user is available from request attributes.
         return true;
     }
 
@@ -35,7 +38,7 @@ final class StoreClienteRequest extends FormRequest
         // Determine which document rule to apply
         $documentRule = $tipoPessoa === 'PF'
             ? new Cpf
-            : new Cnpj;
+            : new CnpjFormat;
 
         return [
             'tipo_pessoa' => ['required', 'string', Rule::in(['PJ', 'PF'])],
@@ -68,7 +71,7 @@ final class StoreClienteRequest extends FormRequest
             'limite_credito' => ['nullable', 'numeric', 'min:0'],
             'telefone' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:254'],
-            'observacoes' => ['nullable', 'string'],
+            'observacoes' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

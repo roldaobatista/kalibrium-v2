@@ -1,0 +1,97 @@
+{
+  "slice_id": "slice-012",
+  "verdict": "rejected",
+  "timestamp": "2026-04-15T21:45:00Z",
+  "severity_summary": {
+    "critical": 0,
+    "high": 2,
+    "medium": 2,
+    "low": 1,
+    "info": 0
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "severity": "high",
+      "category": "broken_access_control",
+      "file": "routes/web.php",
+      "line": 500,
+      "description": "Rotas /clientes (store e destroy) nao incluem middleware EnsureReadOnlyTenantMode. Todos os outros grupos de rotas autenticadas no arquivo usam esse middleware. Sem ele, um tenant em modo somente-leitura (ex: suspenso, inadimplente) consegue criar e excluir clientes.",
+      "recommendation": "Adicionar EnsureReadOnlyTenantMode::class ao array de middleware do grupo de rotas /clientes, igual aos demais grupos autenticados.",
+      "owasp": "A5"
+    },
+    {
+      "id": "SEC-002",
+      "severity": "high",
+      "category": "broken_access_control",
+      "file": "app/Http/Controllers/ClienteController.php",
+      "line": 15,
+      "description": "Nenhuma verificacao de role/permissao (RBAC) nos endpoints store e destroy. O spec exige role atendente (AC-001, AC-007), mas qualquer usuario autenticado do tenant pode criar e excluir clientes. authorize() no FormRequest retorna true incondicionalmente. Nao ha Policy nem middleware de autorizacao.",
+      "recommendation": "Implementar Laravel Policy para Cliente ou middleware de autorizacao que verifique se o usuario possui a role atendente antes de permitir store/destroy.",
+      "owasp": "A5"
+    },
+    {
+      "id": "SEC-003",
+      "severity": "medium",
+      "category": "input_validation",
+      "file": "app/Rules/Cnpj.php",
+      "line": 27,
+      "description": "A regra Cnpj, alem de validar digitos verificadores, consulta a tabela tenants (Tenant::where document_number) para verificar unicidade de CNPJ como documento de tenant. Quando usada em StoreClienteRequest para validar o CNPJ de um cliente, essa consulta e semanticamente incorreta: pode rejeitar CNPJs validos de clientes que coincidem com CNPJ de um tenant existente, ou aceitar CNPJs que deveriam ser rejeitados em outro contexto. A validacao de unicidade do cliente por tenant ja e feita pela Rule::unique no FormRequest.",
+      "recommendation": "Separar a validacao algoritmica de CNPJ da validacao de unicidade de tenant. Criar CnpjAlgorithm (somente digitos) para uso em StoreClienteRequest, mantendo a regra Cnpj atual apenas para cadastro de tenant.",
+      "owasp": "A1"
+    },
+    {
+      "id": "SEC-004",
+      "severity": "medium",
+      "category": "lgpd",
+      "file": "app/Http/Resources/ClienteResource.php",
+      "line": 21,
+      "description": "ClienteResource expoe o campo documento (CNPJ/CPF) completo e sem mascara na resposta da API. CNPJ/CPF e dado pessoal sob LGPD. A exposicao sem mascara em toda resposta viola o principio de minimizacao de dados (art. 6, III LGPD). Em listagens, o documento completo nao deveria ser retornado sem necessidade explicita.",
+      "recommendation": "Aplicar mascara parcial ao documento na resposta da API (ex: ***.***.247-25 para CPF, **.***.333/****-81 para CNPJ), ou retornar completo apenas em endpoints de detalhe com justificativa de base legal documentada.",
+      "owasp": "A3"
+    },
+    {
+      "id": "SEC-005",
+      "severity": "low",
+      "category": "input_validation",
+      "file": "app/Http/Requests/StoreClienteRequest.php",
+      "line": 71,
+      "description": "Campo observacoes aceita string sem limite de tamanho (apenas nullable|string). Permite input arbitrariamente grande, possibilitando abuso de storage e potencial armazenamento de PII nao estruturada que escapa dos controles LGPD (direito a exclusao, anonimizacao).",
+      "recommendation": "Adicionar regra max:5000 (ou limite adequado ao negocio) ao campo observacoes. Documentar em LGPD que campos de texto livre podem conter PII e estao cobertos pelos direitos do titular.",
+      "owasp": "A6"
+    }
+  ],
+  "lgpd_checks": [
+    {
+      "check": "pii_in_logs",
+      "status": "pass",
+      "evidence": "Controller e Model nao logam dados pessoais. ScopesToCurrentTenant loga apenas model class e path, sem PII."
+    },
+    {
+      "check": "pii_in_response",
+      "status": "fail",
+      "evidence": "ClienteResource retorna documento (CNPJ/CPF) completo sem mascara. Ver SEC-004."
+    },
+    {
+      "check": "data_minimization",
+      "status": "fail",
+      "evidence": "Campo observacoes sem limite permite armazenamento de PII nao controlada. Ver SEC-005."
+    },
+    {
+      "check": "encryption_at_rest",
+      "status": "pass",
+      "evidence": "Coluna documento usa string no PostgreSQL com RLS ativo. Criptografia de disco delegada a infraestrutura conforme ADR."
+    },
+    {
+      "check": "tenant_isolation",
+      "status": "pass",
+      "evidence": "Model usa ScopesToCurrentTenant (global scope fail-closed), migration aplica RLS policy, config/tenancy.php inclui Cliente em sensitive_models, unique index scoped por tenant_id."
+    },
+    {
+      "check": "right_to_deletion",
+      "status": "pass",
+      "evidence": "Soft-delete implementado via SoftDeletes + coluna ativo. Exclusao definitiva (hard delete para LGPD) e escopo de epic futuro (E03-S07a audit log)."
+    }
+  ],
+  "next_action": "return_to_fixer"
+}

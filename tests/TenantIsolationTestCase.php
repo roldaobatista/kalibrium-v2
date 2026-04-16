@@ -52,7 +52,7 @@ abstract class TenantIsolationTestCase extends TestCase
         DB::table('tenant_users')->insert([
             'tenant_id' => $tenantA->id,
             'user_id' => $userA->id,
-            'role' => 'manager',
+            'role' => 'gerente',
             'status' => 'active',
             'created_at' => now(),
             'updated_at' => now(),
@@ -69,7 +69,7 @@ abstract class TenantIsolationTestCase extends TestCase
         DB::table('tenant_users')->insert([
             'tenant_id' => $tenantB->id,
             'user_id' => $userB->id,
-            'role' => 'manager',
+            'role' => 'gerente',
             'status' => 'active',
             'created_at' => now(),
             'updated_at' => now(),

@@ -82,6 +82,46 @@ test('AC-005: POST /clientes com CPF duplicado no mesmo tenant retorna erro de v
 });
 
 // ---------------------------------------------------------------------------
+// TEST-004: Reutilizacao de documento apos soft-delete e aceita
+// ---------------------------------------------------------------------------
+
+test('AC-005: POST /clientes com CNPJ reutilizado apos soft-delete e aceito', function () {
+    /** @ac AC-005 */
+    $tenantA = $this->tenantA();
+    $userA = $this->userA();
+
+    $this->initializeTenant($tenantA);
+    $this->actingAs($userA);
+
+    $payload = [
+        'tipo_pessoa' => 'PJ',
+        'cnpj_cpf' => '11.222.333/0001-81',
+        'razao_social' => 'Empresa Original Ltda',
+        'logradouro' => 'Rua das Industrias',
+        'numero' => '100',
+        'bairro' => 'Centro',
+        'cidade' => 'Sao Paulo',
+        'uf' => 'SP',
+        'cep' => '01310100',
+        'regime_tributario' => 'presumido',
+    ];
+
+    // Primeiro cadastro
+    $first = $this->postJson('/clientes', $payload);
+    $first->assertStatus(201);
+    $clienteId = $first->json('data.id');
+
+    // Soft-delete
+    $this->deleteJson("/clientes/{$clienteId}")->assertStatus(200);
+
+    // Segundo cadastro com mesmo CNPJ — deve ser aceito (partial unique WHERE deleted_at IS NULL)
+    $payload['razao_social'] = 'Empresa Reuso Ltda';
+    $second = $this->postJson('/clientes', $payload);
+
+    $second->assertStatus(201);
+});
+
+// ---------------------------------------------------------------------------
 // AC-006: Mesmo CNPJ em tenant diferente e aceito (isolamento)
 // ---------------------------------------------------------------------------
 
@@ -144,6 +184,74 @@ test('AC-006: POST /clientes com mesmo CNPJ em tenant diferente e aceito', funct
     $this->assertDatabaseHas('clientes', [
         'tenant_id' => $tenantB->id,
         'documento' => '11222333000181',
+    ]);
+
+    $this->endTenant();
+});
+
+// ---------------------------------------------------------------------------
+// TEST-005: Mesmo CPF em tenant diferente e aceito (isolamento PF)
+// ---------------------------------------------------------------------------
+
+test('AC-006: POST /clientes com mesmo CPF em tenant diferente e aceito', function () {
+    /** @ac AC-006 */
+    $tenantA = $this->tenantA();
+    $tenantB = $this->tenantB();
+    $userA = $this->userA();
+    $userB = $this->userB();
+
+    $cpf = '529.982.247-25';
+
+    // Cadastra no tenant A
+    $this->initializeTenant($tenantA);
+    $this->actingAs($userA);
+
+    $payloadA = [
+        'tipo_pessoa' => 'PF',
+        'cnpj_cpf' => $cpf,
+        'razao_social' => 'Pessoa Tenant A',
+        'logradouro' => 'Rua A',
+        'numero' => '1',
+        'bairro' => 'Centro',
+        'cidade' => 'Sao Paulo',
+        'uf' => 'SP',
+        'cep' => '01310100',
+        'regime_tributario' => 'isento',
+    ];
+
+    $responseA = $this->postJson('/clientes', $payloadA);
+    $responseA->assertStatus(201);
+
+    $this->endTenant();
+
+    // Cadastra no tenant B com mesmo CPF — deve ser aceito
+    $this->initializeTenant($tenantB);
+    $this->actingAs($userB);
+
+    $payloadB = [
+        'tipo_pessoa' => 'PF',
+        'cnpj_cpf' => $cpf,
+        'razao_social' => 'Pessoa Tenant B',
+        'logradouro' => 'Rua B',
+        'numero' => '2',
+        'bairro' => 'Centro',
+        'cidade' => 'Rio de Janeiro',
+        'uf' => 'RJ',
+        'cep' => '20040020',
+        'regime_tributario' => 'isento',
+    ];
+
+    $responseB = $this->postJson('/clientes', $payloadB);
+    $responseB->assertStatus(201);
+
+    // Ambos existem
+    $this->assertDatabaseHas('clientes', [
+        'tenant_id' => $tenantA->id,
+        'documento' => '52998224725',
+    ]);
+    $this->assertDatabaseHas('clientes', [
+        'tenant_id' => $tenantB->id,
+        'documento' => '52998224725',
     ]);
 
     $this->endTenant();

@@ -1,6 +1,6 @@
 # Slice 012 — E03-S01a: Model cliente + validação CNPJ/CPF + unicidade
 
-**Status:** verificação aprovada; aguardando revisão
+**Status:** revisão aprovada; aguardando gates finais
 **Data:** 2026-04-16
 **Slice:** 012
 
@@ -55,7 +55,7 @@ Esta entrega cobre os seguintes critérios:
 
 ## Próximo passo
 
-Seguir para a revisão estrutural independente antes dos próximos gates.
+Seguir para as revisões de segurança, testes e funcionalidade antes de qualquer merge.
 
 ---
 
@@ -63,7 +63,7 @@ Seguir para a revisão estrutural independente antes dos próximos gates.
 <summary>Detalhes técnicos (não precisa abrir)</summary>
 
 - **Verifier verdict:** approved
-- **Reviewer verdict:** -
+- **Reviewer verdict:** approved
 - **Security verdict:** -
 - **Test audit verdict:** -
 - **Functional verdict:** -
@@ -71,6 +71,7 @@ Seguir para a revisão estrutural independente antes dos próximos gates.
 - **Artefatos:**
     - `specs/012/spec.md`
     - `specs/012/verification.json`
+    - `specs/012/review.json`
 
 Tradução gerada automaticamente por `scripts/translate-pm.sh` (B-010).
 

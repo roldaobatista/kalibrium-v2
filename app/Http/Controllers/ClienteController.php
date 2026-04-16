@@ -9,6 +9,7 @@ use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 final class ClienteController extends Controller
 {
@@ -16,6 +17,8 @@ final class ClienteController extends Controller
     {
         $tenant = $request->attributes->get('current_tenant');
         $tenantUser = $request->attributes->get('current_tenant_user');
+
+        Gate::authorize('clientes.create', $tenantUser);
 
         $data = $request->validatedForStorage();
         $data['tenant_id'] = $tenant->id;
@@ -35,6 +38,9 @@ final class ClienteController extends Controller
         // Use withTrashed so we can find soft-deleted records too,
         // but scope to current tenant via DB query
         $tenant = $request->attributes->get('current_tenant');
+        $tenantUser = $request->attributes->get('current_tenant_user');
+
+        Gate::authorize('clientes.delete', $tenantUser);
 
         $cliente = Cliente::withTrashed()
             ->where('tenant_id', $tenant->id)
@@ -43,10 +49,8 @@ final class ClienteController extends Controller
 
         if (! $cliente->ativo) {
             return response()->json([
-                'message' => 'Cliente ja esta inativo.',
-                'errors' => [
-                    'id' => ['Cliente ja esta com ativo = false.'],
-                ],
+                'message' => 'Este cliente ja esta desativado.',
+                'code' => 'cliente_ja_inativo',
             ], 409);
         }
 
