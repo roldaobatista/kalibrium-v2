@@ -1,6 +1,9 @@
 # 07 — Politica de Excecoes
 
-> Documento normativo. Versao 1.0.0 — 2026-04-16.
+> Documento normativo. Versao 1.2.2 — 2026-04-16.
+> Changelog 1.2.2 (PATCH — meta-audit, L4-ready): secao 5.3 (alertas automaticos) — "Excecao E3 com deadline ultrapassado" nao promove severidade automaticamente; avaliacao e diferida ao governance (retrospective) conforme 01 §S4. Remove contradicao com regra de cascata diferida.
+> Changelog 1.2.1 (PATCH — meta-audit): secao 5.2 (auditoria periodica) agora enumera `E1-E10` (antes `E1-E9`, inconsistente com introducao de E10 em 1.2.0).
+> Changelog 1.2.0: categoria E10 adicionada (divergencia dual-LLM persistente apos 3 rodadas de reconciliacao). E5 corrigido: `lane` agora usa enum L1-L4 (antes `standard` era invalido). E3 atualizado: cascata S4→S3 no proximo slice removida, substituida por avaliacao do governance (retrospective) no fim do epico.
 > Fonte de verdade para tratamento de situacoes que nao se enquadram no fluxo normal do pipeline Kalibrium V2.
 
 ---
@@ -107,7 +110,7 @@ Toda excecao deve ter owner, deadline, evidencia e plano de resolucao. Nenhuma e
 1. O PM deve declarar a aceitacao por escrito com: motivo de negocio, finding ID, severidade original, prazo para remediacao.
 2. O orchestrator deve criar entrada em `project-state.json` no campo `technical_debt[]` com `type: "accepted_finding"`, `finding_id`, `original_severity`, `deadline` e `pm_approval_reference`.
 3. O deadline de remediacao e obrigatorio. Nao pode ser "indefinido" ou "quando possivel".
-4. Se o finding S4 nao for corrigido no prazo, ele deve ser promovido a S3 automaticamente (conforme 01-sistema-severidade.md secao 2).
+4. Se o finding S4 nao for corrigido ate o fim do epico, o `governance (retrospective)` avalia promocao para S3 conforme regra de promocao diferida em 01-sistema-severidade.md. Nao ha promocao automatica no proximo slice.
 5. Se o finding S3 nao for corrigido no prazo, o orchestrator deve escalar ao PM com notificacao R12.
 
 **Registro:**
@@ -190,7 +193,7 @@ Toda excecao deve ter owner, deadline, evidencia e plano de resolucao. Nenhuma e
 1. O orchestrator deve aguardar e retentar ate 3 vezes com intervalo de 5 minutos entre tentativas.
 2. Se apos 3 tentativas o agent continuar indisponivel, o orchestrator somente pode prosseguir com verdict single-LLM (Claude apenas) marcado como `DEGRADED`.
 3. O orchestrator deve registrar aprovacao degradada em `specs/NNN/degraded-approval.md` com: timestamps das tentativas, motivo da indisponibilidade, agent ausente, verdict parcial.
-4. O slice nao pode ser merged com aprovacao degradada se estiver na trilha high-risk (conforme 02-trilhas-complexidade.md).
+4. O slice nao pode ser merged com aprovacao degradada se estiver na trilha L4 — high-risk (conforme 02-trilhas-complexidade.md).
 5. Quando o agent ficar disponivel novamente, o orchestrator deve re-executar o gate completo. Se o re-run reprovar, o merge deve ser revertido (se ja ocorreu em trilha nao-high-risk).
 
 **Registro:**
@@ -204,7 +207,7 @@ Toda excecao deve ter owner, deadline, evidencia e plano de resolucao. Nenhuma e
   "retry_count": 3,
   "retry_timestamps": ["2026-04-16T10:00:00Z", "2026-04-16T10:05:00Z", "2026-04-16T10:10:00Z"],
   "degraded_approval": true,
-  "lane": "standard",
+  "lane": "L3",
   "owner": "orchestrator",
   "status": "pending_revalidation",
   "revalidation_deadline": "2026-04-17"
@@ -376,6 +379,51 @@ Toda excecao deve ter owner, deadline, evidencia e plano de resolucao. Nenhuma e
 
 ---
 
+### E10 — Divergencia dual-LLM persistente no master-audit
+
+| Campo | Valor |
+|---|---|
+| **Quando** | Apos 3 rodadas de reconciliacao, trilha Claude e trilha GPT-5 mantem verdicts divergentes no master-audit. |
+| **Owner** | governance dispara; orchestrator invoca `/explain-slice`; PM decide. |
+| **Prazo maximo de espera** | Mesmo de E6 (48h), com lembrete. |
+
+**Protocolo obrigatorio:**
+
+1. O governance (master-audit) deve emitir `master-audit.json` com `reconciliation_failed: true` e ambos os verdicts completos preservados.
+2. O orchestrator deve pausar o slice e invocar `/explain-slice NNN` traduzindo a divergencia em linguagem de produto (R12). O relatorio ao PM deve conter (a) fatos comuns, (b) ponto de divergencia, (c) impacto de aprovar vs rejeitar em linguagem de produto, (d) recomendacao forte do governance.
+3. O PM decide por uma das opcoes:
+   - Escolher a trilha Claude — o verdict Claude e adotado como final.
+   - Escolher a trilha GPT-5 — o verdict GPT-5 e adotado como final.
+   - Solicitar rodada humana — slice fica bloqueado ate review humana externa.
+4. A decisao do PM e registrada em `specs/NNN/master-audit-pm-decision.json` com: `chosen_trail`, `reason`, `timestamp`.
+5. O verdict da trilha nao escolhida permanece no registro como `dissenting_opinion` para auditoria.
+
+**Registro:**
+
+```json
+{
+  "id": "EXC-E10-001",
+  "type": "E10_dual_llm_divergence",
+  "slice": "NNN",
+  "claude_verdict": "approved",
+  "gpt5_verdict": "rejected",
+  "points_in_dispute": ["F-042", "F-043"],
+  "reconciliation_rounds": 3,
+  "pm_decision_path": "specs/NNN/master-audit-pm-decision.json",
+  "owner": "pm",
+  "status": "pending_pm",
+  "resolution": null
+}
+```
+
+**Resolucao:** PM registra decisao em `master-audit-pm-decision.json`. Slice pode prosseguir (se verdict final e approved) ou ir para `/fix` (se final e rejected).
+
+**Regra absoluta:** nenhum slice pode ser merged com `reconciliation_failed: true` sem arquivo `master-audit-pm-decision.json` presente e assinado pelo PM.
+
+**Auditoria:** O `governance (retrospective)` deve listar todas as E10, identificar padroes (ex: qual trilha discorda mais frequentemente) e alimentar o harness-learner.
+
+---
+
 ## 3. Registro centralizado
 
 Todas as excecoes ativas devem constar em `project-state.json` no campo `active_exceptions[]`. O formato de cada entrada segue o JSON exemplificado em cada categoria acima.
@@ -416,7 +464,7 @@ O orchestrator deve verificar excecoes ativas:
 O `governance (retrospective)` deve incluir secao dedicada a excecoes com:
 - Lista de excecoes abertas e resolvidas no periodo.
 - Excecoes que ultrapassaram o prazo sem resolucao.
-- Frequencia por categoria (E1-E9).
+- Frequencia por categoria (E1-E10).
 - Padroes recorrentes que indicam problemas sistemicos.
 - Recomendacoes de melhoria de processo.
 
@@ -426,11 +474,12 @@ O `governance (retrospective)` deve incluir secao dedicada a excecoes com:
 |---|---|
 | Excecao E1 com stub ativo ha mais de 1 epico | Notificar PM sobre prazo se aproximando. |
 | Excecao E2 com feature flag OFF ha mais de 30 dias | Notificar PM para decisao. |
-| Excecao E3 com deadline ultrapassado | Promover severidade automaticamente. |
+| Excecao E3 com deadline ultrapassado | Sinalizar ao governance (retrospective); promocao de severidade e avaliada no fim do epico conforme 01 §S4 (promocao diferida). Nao ha promocao automatica no proximo slice. |
 | Excecao E6 sem resposta do PM ha mais de 48h | Enviar lembrete. |
 | Mais de 3 excecoes E7 no mesmo epico | Alertar sobre qualidade de specs. |
 | Qualquer excecao E8 | Notificacao imediata. |
 | Qualquer excecao E9 | Parada imediata de trabalho. |
+| Qualquer excecao E10 | Pausa do slice + `/explain-slice` + lembrete a cada 48h ate decisao do PM. |
 
 ---
 

@@ -1,6 +1,7 @@
 # 01 — Sistema de Severidade de Findings
 
-> Documento normativo. Versao 1.0.0 — 2026-04-16.
+> Documento normativo. Versao 1.2.0 — 2026-04-16.
+> Changelog 1.2.0: cascata S4→S3 no proximo slice removida; substituida por promocao diferida avaliada pelo governance (retrospective) no fim do epico.
 > Fonte de verdade para classificacao de findings em todos os gates do pipeline Kalibrium V2.
 
 ---
@@ -221,9 +222,14 @@
 **Rastreamento automatico:**
 
 1. O gate deve emitir o finding no JSON com `tech_debt_entry: true`.
-2. O orchestrator deve adicionar entrada em `docs/governance/tech-debt.md` com ID do finding, slice de origem e slice-alvo para correcao.
-3. O slice-alvo deve incluir task de correcao no `tasks.md`.
-4. Se o finding S4 nao for corrigido no slice-alvo, ele deve ser promovido a S3 automaticamente.
+2. O orchestrator deve adicionar entrada em `docs/governance/tech-debt.md` com ID do finding, slice de origem e **slice-alvo preferencial** (proximo slice do mesmo epico que tocar area relacionada).
+3. Se houver slice-alvo natural, incluir task de correcao no `tasks.md` do slice-alvo.
+4. **Promocao diferida (final de epico):** findings S4 nao resolvidos durante o epico sao avaliados pelo `governance (retrospective)` no fim do epico. A retrospectiva pode:
+   - Agrupar S4 pendentes em slice dedicado de cleanup criado no backlog do proximo epico.
+   - Promover para S3 apenas aqueles que ainda sao relevantes e cuja nao-correcao comprometeria o epico seguinte.
+   - Manter como S4 (com tag `overdue`) os que sao cosmetica ou dependem de mudancas futuras de stack.
+5. **Nao ha promocao automatica no proximo slice.** A cascata S4→S3 por ausencia de correcao no "slice-alvo" foi removida porque criava inversao de prioridade (slice seguinte herdava divida aleatoria do epico).
+6. O PM e notificado da promocao via R12 no relatorio de retrospectiva. A promocao formal requer aceitacao implicita (PM nao veta) ou explicita.
 
 ---
 

@@ -1,6 +1,8 @@
 # 05 — Matriz RACI
 
-Versao: 1.0.0 — 2026-04-16
+Versao: 1.2.0 — 2026-04-16
+
+Changelog 1.2.0: auditorias de planejamento/stories/spec transferidas de governance (R) para qa-expert (R) alinhando com mapa canonico 00 §3.1; governance agora C nessas atividades (revisao pos-fato, nao execucao). Review de plan agora architecture-expert (plan-review) R, governance C. Secao de cross-review expandida com principio de isolamento por instancia R3 (dois modos do mesmo agente em contextos isolados satisfazem cross-review).
 
 Legenda: **R** = Responsavel (executa), **A** = Accountable (responde pelo resultado), **C** = Consultado, **I** = Informado.
 
@@ -51,12 +53,12 @@ Regras estruturais:
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Decomposicao em epicos | I | R | C | C | — | — | — | — | — | — | — | — | A |
 | Decomposicao em stories | I | R | C | C | C | — | — | — | — | — | — | — | A |
-| Auditoria de planejamento | I | C | — | C | — | — | C | — | — | — | — | R | A |
-| Auditoria de stories | I | C | C | — | — | — | — | — | — | — | — | R | A |
+| Auditoria de planejamento | I | C | — | C | — | — | R | — | — | — | — | C | A |
+| Auditoria de stories | I | C | C | — | — | — | R | — | — | — | — | C | A |
 | Criacao de spec.md | I | R | C | C | C | C | — | — | — | C | — | — | A |
-| Auditoria de spec | I | C | — | — | — | — | — | — | — | — | — | R | A |
+| Auditoria de spec | I | C | — | — | — | — | R | — | — | — | — | C | A |
 | Criacao de plan.md | I | — | — | R | C | C | C | C | C | C | — | — | A |
-| Review de plan | I | — | — | C | — | — | — | — | — | — | — | R | A |
+| Review de plan | I | — | — | R | — | — | — | — | — | — | — | C | A |
 | Aprovacao de plan | I | — | — | — | — | — | — | — | — | — | — | — | A |
 
 Nota: a aprovacao de plan e automatica (auto-approval) quando qa-expert (audit-spec) E architecture-expert (plan-review) aprovam com zero findings. PM somente e envolvido em escalacao R6 ou decisao de produto explicita.
@@ -106,15 +108,23 @@ Nota sobre correcao de findings: builder e o unico **R** para correcoes de codig
 
 ## Restricoes de cross-review
 
-As seguintes combinacoes sao proibidas (quem produz nao revisa):
+### Principio de isolamento por instancia (R3)
 
-| Produtor | Nao pode revisar |
+Dois modos diferentes do mesmo agente (ex: architecture-expert `plan` e architecture-expert `plan-review`) sao considerados instancias independentes quando invocados em contextos isolados separados. Cada invocacao recebe pacote de input proprio, sem acesso ao output da outra. Isso satisfaz o principio de cross-review P1/R3.
+
+**Regra normativa:** o orchestrator deve garantir que invocacoes de modos distintos do mesmo agente sobre o mesmo slice ocorram em sessoes/processos separados, sem compartilhamento de contexto. A evidencia dessa separacao deve constar no log de telemetria (campo `isolation_context` no evento `gate_submitted`).
+
+### Combinacoes proibidas (quem produz nao revisa)
+
+Mesmo com isolamento por instancia, as seguintes combinacoes sao proibidas em qualquer circunstancia:
+
+| Produtor (modo) | Nao pode revisar (modo) |
 |----------|-----------------|
-| product-expert (spec.md) | spec audit |
-| architecture-expert (plan.md) | plan review |
-| builder (codigo/testes) | verify, code-review, audit-tests |
-| qa-expert (verify) | audit-tests do mesmo slice (se inputs se sobrepuserem) |
-| architecture-expert (plan.md) | code-review do mesmo slice se plan.md for input direto |
-| security-expert (threat model) | security-gate do mesmo slice se threat model for input direto |
+| product-expert (decompose) — spec.md | qa-expert (audit-spec) — somente se o mesmo agente fisico/modelo tiver produzido e auditado; solucao: invocacoes sempre em instancias isoladas |
+| architecture-expert (plan) — plan.md | architecture-expert (plan-review) — exige instancia isolada R3 |
+| builder (implementer) — codigo/testes | qa-expert (verify), architecture-expert (code-review), qa-expert (audit-tests) |
+| qa-expert (verify) | qa-expert (audit-tests) do mesmo slice — exige instancia isolada R3 |
+| architecture-expert (plan) — plan.md | architecture-expert (code-review) do mesmo slice se plan.md for input direto — exige instancia isolada R3 |
+| security-expert (threat-model) | security-expert (security-gate) do mesmo slice se threat-model for input direto — exige instancia isolada R3 |
 
-O orchestrator deve garantir que estas restricoes sejam respeitadas na atribuicao de gates.
+O orchestrator deve garantir que estas restricoes sejam respeitadas na atribuicao de gates e registrar o `isolation_context` no JSON de gate.

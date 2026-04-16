@@ -1,6 +1,7 @@
 # 02 — Trilhas de Complexidade
 
-> Documento normativo. Versao 1.0.0 — 2026-04-16.
+> Documento normativo. Versao 1.2.0 — 2026-04-16.
+> Changelog 1.2.0: nomes de gate alinhados ao mapa canonico (verify/review/security-gate/audit-tests/functional-gate/data-gate/integration-gate/observability-gate). Ativacao semantica de gates condicionais formalizada (4.4).
 > Define as 4 trilhas de complexidade que determinam quais fases, gates e aprovacoes sao obrigatorios para cada slice.
 
 ---
@@ -47,8 +48,8 @@ O orchestrator deve classificar como L1 quando TODAS as condicoes abaixo forem v
 
 ### 2.3. Gates obrigatorios
 
-1. **verify-slice** — Validacao mecanica do slice.
-2. **security-review** — Revisao de seguranca obrigatoria (hotfix pode introduzir vulnerabilidade sob pressao).
+1. **verify** — Validacao mecanica do slice.
+2. **security-gate** — Revisao de seguranca obrigatoria (hotfix pode introduzir vulnerabilidade sob pressao).
 
 Nenhum outro gate e obrigatorio. O governance (master-audit) NAO e executado em L1.
 
@@ -128,10 +129,10 @@ O orchestrator deve classificar como L2 quando TODAS as condicoes abaixo forem v
 
 ### 3.3. Gates obrigatorios
 
-1. **verify-slice** — Validacao mecanica.
-2. **review-pr** — Revisao estrutural.
+1. **verify** — Validacao mecanica.
+2. **review** (code-review) — Revisao estrutural.
 
-Nenhum outro gate e obrigatorio. Security-gate, audit-tests, functional-gate e governance (master-audit) NAO sao executados em L2.
+Nenhum outro gate e obrigatorio. security-gate, audit-tests, functional-gate e governance (master-audit) NAO sao executados em L2.
 
 ### 3.4. Aprovacao
 
@@ -175,25 +176,27 @@ L3 e a trilha **padrao**. Todo slice e classificado como L3 a menos que o orches
 
 Ordem definida no orchestrator.md:
 
-1. **verify-slice** — Validacao mecanica.
-2. **review-pr** — Revisao estrutural (somente se verify aprovado).
+1. **verify** — Validacao mecanica.
+2. **review** (code-review) — Revisao estrutural (somente se verify aprovado).
 3. Em paralelo:
-   - **security-review** — Revisao de seguranca.
-   - **test-audit** — Auditoria de testes.
-   - **functional-review** — Revisao funcional.
+   - **security-gate** — Revisao de seguranca.
+   - **audit-tests** — Auditoria de testes.
+   - **functional-gate** — Revisao funcional.
 4. **governance (master-audit)** — Consolidacao dual-LLM (somente se todos os anteriores aprovados).
 
 ### 4.4. Gates condicionais
 
-Alem dos 6 gates obrigatorios, gates condicionais sao ativados quando o slice toca determinado dominio:
+Alem dos 6 gates obrigatorios, gates condicionais sao ativados quando o slice toca determinado dominio OU quando architecture-expert (code-review) detecta necessidade semantica:
 
-| Dominio tocado | Gate condicional | Criterio de ativacao |
+| Dominio tocado | Gate condicional | Criterio de ativacao automatica (path-based) |
 |---|---|---|
-| `database/migrations/` | data-review | Qualquer arquivo de migration novo ou alterado |
-| Integracao externa (API, webhook) | integration-review | Arquivo em `app/Services/External/` ou `app/Integrations/` |
-| `config/logging.php`, `app/Observers/`, telemetria | observability-review | Alteracao em infra de observabilidade |
+| `database/migrations/` | data-gate | Qualquer arquivo de migration novo ou alterado |
+| Integracao externa (API, webhook) | integration-gate | Arquivo em `app/Services/External/` ou `app/Integrations/` |
+| `config/logging.php`, `app/Observers/`, telemetria | observability-gate | Alteracao em infra de observabilidade |
 
-O orchestrator deve avaliar os arquivos tocados (`git diff --name-only`) e ativar gates condicionais automaticamente.
+**Ativacao semantica adicional:** o agent architecture-expert (code-review) pode requisitar a ativacao de gate condicional mesmo sem path match, emitindo finding `trigger_conditional_gate: "<data-gate|integration-gate|observability-gate>"` com justificativa. Exemplos: novo Service com queries N+1 potenciais (data-gate); uso de HTTP client para URL externa nao mapeada em `app/Services/External/` (integration-gate); `Log::info()` em endpoint auditavel sem mascaramento (observability-gate).
+
+O orchestrator deve avaliar primeiro os arquivos tocados (`git diff --name-only`) e ativar gates condicionais por path; em seguida, deve processar pedidos de ativacao semantica do code-review.
 
 ### 4.5. Aprovacao
 
@@ -232,7 +235,7 @@ O orchestrator deve classificar como L4 quando QUALQUER uma das condicoes abaixo
 
 Todos os gates de L3 mais:
 
-- **TODOS os gates condicionais** sao obrigatorios (data-review, integration-review, observability-review), independentemente dos arquivos tocados.
+- **TODOS os gates condicionais** sao obrigatorios (data-gate, integration-gate, observability-gate), independentemente dos arquivos tocados.
 - Nenhum gate condicional pode ser pulado em L4.
 
 ### 5.4. Revisoes extras (pre-implementacao)
@@ -353,11 +356,11 @@ A trilha classificada deve ser registrada em:
 | plan.md | Nao | Nao | Sim | Sim |
 | audit-spec | Nao | Nao | Sim | Sim |
 | review-plan | Nao | Nao | Sim | Sim |
-| verify-slice | Sim | Sim | Sim | Sim |
-| review-pr | Nao | Sim | Sim | Sim |
-| security-review | Sim | Nao | Sim | Sim |
-| test-audit | Nao | Nao | Sim | Sim |
-| functional-review | Nao | Nao | Sim | Sim |
+| verify | Sim | Sim | Sim | Sim |
+| review (code-review) | Nao | Sim | Sim | Sim |
+| security-gate | Sim | Nao | Sim | Sim |
+| audit-tests | Nao | Nao | Sim | Sim |
+| functional-gate | Nao | Nao | Sim | Sim |
 | governance (master-audit) | Nao | Nao | Sim | Sim |
 | Gates condicionais | Nao | Nao | Se aplicavel | TODOS obrigatorios |
 | Pre-review seguranca | Nao | Nao | Nao | Sim |
