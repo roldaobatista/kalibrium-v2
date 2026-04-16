@@ -2,12 +2,12 @@
   "schema_version": "1.0.0",
   "slice_id": "013",
   "audit_date": "2026-04-16",
-  "verdict": "rejected",
+  "verdict": "approved",
   "coverage_summary": {
     "acs_total": 14,
-    "acs_covered": 13,
-    "acs_missing": 1,
-    "test_count": 33,
+    "acs_covered": 14,
+    "acs_missing": 0,
+    "test_count": 36,
     "line_coverage_pct": null
   },
   "ac_coverage": {
@@ -15,7 +15,7 @@
     "AC-008": "covered",
     "AC-009": "covered",
     "AC-009b": "covered",
-    "AC-010": "missing",
+    "AC-010": "covered",
     "AC-010a": "covered",
     "AC-010b": "covered",
     "AC-011": "covered",
@@ -26,18 +26,8 @@
     "AC-012c": "covered",
     "AC-013": "covered"
   },
-  "findings": [
-    {
-      "id": "TEST-001",
-      "severity": "critical",
-      "category": "missing_ac_test",
-      "ac": "AC-010",
-      "file": null,
-      "description": "AC-010 (soft-delete de cliente) nao possui nenhum teste dedicado ao happy path. O AC define: DELETE /clientes/{id} persiste ativo=false, o cliente some da listagem padrao (WHERE ativo=true), e continua acessivel via GET /clientes/{id}. Nenhum dos 33 testes valida esse fluxo completo. O teste 'AC-010b: gerente pode PUT + recebe 409' em ClienteRbacTest emite um DELETE para um cliente ja inativo (para testar 409), mas nunca faz um DELETE num cliente ativo e verifica que ativo passou a false, que o cliente sumiu da listagem, e que permanece acessivel por ID direto.",
-      "recommendation": "Adicionar pelo menos 3 testes para AC-010: (1) DELETE /clientes/{id} com cliente ativo retorna 200/204 e persiste ativo=false no banco; (2) apos desativacao, GET /clientes nao inclui o cliente (listagem padrao filtra ativo=true); (3) apos desativacao, GET /clientes/{id} ainda retorna 200 com os dados do cliente."
-    }
-  ],
+  "findings": [],
   "anti_patterns": [],
-  "summary": "13 de 14 ACs cobertos adequadamente com 33 testes e 129 assertions. AC-010 (soft-delete happy path) nao possui nenhum teste dedicado — o fluxo de desativacao bem-sucedida (DELETE → ativo=false + ausencia na listagem + acessivel por ID) nunca e exercido diretamente. Todos os outros ACs tem cobertura solida: happy path, error paths, edge cases de tenant isolation e RBAC. Zero anti-patterns detectados (sem mocks do modulo sob teste, sem hardcoded IDs globais, sem sleeps, sem asserts triviais, isolamento de tenant consistente via initializeTenant/endTenant em cada teste).",
-  "next_action": "return_to_fixer"
+  "summary": "14 de 14 ACs cobertos com 36 testes e 138 assertions. AC-010 agora tem 3 testes dedicados em ClienteListingTest: (1) DELETE retorna 200 e persiste ativo=false no banco; (2) cliente desativado some da listagem padrao; (3) cliente desativado permanece acessivel via GET /clientes/{id}. Todos os ACs cobrem happy path e pelo menos um error/edge path. RBAC validado com tecnico, gerente e visualizador. Isolamento de tenant verificado em AC-007 e AC-013. Zero anti-patterns: sem mocks do modulo sob teste, sem sleeps, sem assertions triviais, setup/teardown via initializeTenant/endTenant consistente em todos os testes.",
+  "next_action": "approved"
 }
