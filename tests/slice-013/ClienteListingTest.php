@@ -10,6 +10,8 @@ declare(strict_types=1);
  */
 
 use App\Models\Cliente;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Tests\TenantIsolationTestCase;
 
 uses(TenantIsolationTestCase::class)->group('slice-013', 'cliente-listing');
@@ -21,14 +23,14 @@ uses(TenantIsolationTestCase::class)->group('slice-013', 'cliente-listing');
 test('AC-007: GET /clientes retorna exatamente 20 registros na pagina 1 para tenant A com 25 clientes', function () {
     /** @ac AC-007 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     // Cria 25 clientes no tenant A
     Cliente::factory()->count(25)->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -49,7 +51,7 @@ test('AC-007: GET /clientes nao retorna registros do tenant B', function () {
     /** @ac AC-007 */
     $tenantA = $this->tenantA();
     $tenantB = $this->tenantB();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
@@ -73,7 +75,7 @@ test('AC-007: GET /clientes nao retorna registros do tenant B', function () {
 test('AC-007: resposta de GET /clientes contem estrutura meta e links', function () {
     /** @ac AC-007 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
     Cliente::factory()->count(5)->create(['tenant_id' => $tenantA->id, 'ativo' => true]);
@@ -84,8 +86,8 @@ test('AC-007: resposta de GET /clientes contem estrutura meta e links', function
 
     $response->assertStatus(200);
     $response->assertJsonStructure([
-        'data'  => [['id', 'tipo_pessoa', 'razao_social', 'ativo', 'created_at']],
-        'meta'  => ['current_page', 'per_page', 'total', 'last_page', 'from', 'to'],
+        'data' => [['id', 'tipo_pessoa', 'razao_social', 'ativo', 'created_at']],
+        'meta' => ['current_page', 'per_page', 'total', 'last_page', 'from', 'to'],
         'links' => ['first', 'last', 'prev', 'next'],
     ]);
 
@@ -99,19 +101,19 @@ test('AC-007: resposta de GET /clientes contem estrutura meta e links', function
 test('AC-008: GET /clientes?search=Calibra retorna apenas clientes cuja razao_social contem a substring', function () {
     /** @ac AC-008 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Calibra Laboratorios Ltda',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
     Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Outra Empresa SA',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -128,21 +130,21 @@ test('AC-008: GET /clientes?search=Calibra retorna apenas clientes cuja razao_so
 test('AC-008: GET /clientes?search= filtra por nome_fantasia case-insensitive', function () {
     /** @ac AC-008 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Empresa Qualquer Ltda',
         'nome_fantasia' => 'CalibLab',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
     Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Outra SA',
         'nome_fantasia' => 'OutraFantasia',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -158,19 +160,19 @@ test('AC-008: GET /clientes?search= filtra por nome_fantasia case-insensitive', 
 test('AC-008: GET /clientes?search= filtra por documento (CNPJ sem mascara)', function () {
     /** @ac AC-008 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
         'documento' => '11222333000181',
-        'ativo'     => true,
+        'ativo' => true,
     ]);
     Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
         'documento' => '99888777000166',
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -191,7 +193,7 @@ test('AC-008: GET /clientes?search= filtra por documento (CNPJ sem mascara)', fu
 test('AC-010a: GET /clientes?ativo=false retorna apenas clientes inativos do tenant A', function () {
     /** @ac AC-010a */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
@@ -216,7 +218,7 @@ test('AC-010a: GET /clientes?ativo=false retorna apenas clientes inativos do ten
 test('AC-010a: GET /clientes sem filtro ativo retorna apenas clientes ativos (default ativo=true)', function () {
     /** @ac AC-010a */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
@@ -245,14 +247,14 @@ test('AC-012a: tecnico recebe 200 e listagem paginada ao fazer GET /clientes', f
     $this->initializeTenant($tenantA);
 
     // Cria usuario com role tecnico no tenant A
-    $userTecnico = \App\Models\User::factory()->create([
-        'email' => 'tecnico-listing-' . uniqid() . '@test.com',
+    $userTecnico = User::factory()->create([
+        'email' => 'tecnico-listing-'.uniqid().'@test.com',
     ]);
-    \Illuminate\Support\Facades\DB::table('tenant_users')->insert([
-        'tenant_id'  => $tenantA->id,
-        'user_id'    => $userTecnico->id,
-        'role'       => 'tecnico',
-        'status'     => 'active',
+    DB::table('tenant_users')->insert([
+        'tenant_id' => $tenantA->id,
+        'user_id' => $userTecnico->id,
+        'role' => 'tecnico',
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -276,7 +278,7 @@ test('AC-012a: tecnico recebe 200 e listagem paginada ao fazer GET /clientes', f
 test('AC-012c: GET /clientes?sort=campo_invalido retorna 422 com mensagem dos valores aceitos', function () {
     /** @ac AC-012c */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
     $this->actingAs($userA);
@@ -292,7 +294,7 @@ test('AC-012c: GET /clientes?sort=campo_invalido retorna 422 com mensagem dos va
 test('AC-012c: GET /clientes?sort=razao_social retorna 200 (sort valido)', function () {
     /** @ac AC-012c */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
     $this->actingAs($userA);

@@ -24,13 +24,13 @@ uses(TenantIsolationTestCase::class)->group('slice-013', 'cliente-rbac');
 function criarUsuarioComRole(string $role, int $tenantId): User
 {
     $user = User::factory()->create([
-        'email' => "{$role}-rbac-" . uniqid() . '@test.com',
+        'email' => "{$role}-rbac-".uniqid().'@test.com',
     ]);
     DB::table('tenant_users')->insert([
-        'tenant_id'  => $tenantId,
-        'user_id'    => $user->id,
-        'role'       => $role,
-        'status'     => 'active',
+        'tenant_id' => $tenantId,
+        'user_id' => $user->id,
+        'role' => $role,
+        'status' => 'active',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -44,22 +44,22 @@ function criarUsuarioComRole(string $role, int $tenantId): User
 
 test('AC-011: tecnico recebe 403 ao tentar POST /clientes', function () {
     /** @ac AC-011 */
-    $tenantA     = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userTecnico = criarUsuarioComRole('tecnico', $tenantA->id);
 
     $this->initializeTenant($tenantA);
     $this->actingAs($userTecnico);
 
     $payload = [
-        'tipo_pessoa'       => 'PJ',
-        'cnpj_cpf'          => '11.222.333/0001-81',
-        'razao_social'      => 'Empresa Tecnico Ltda',
-        'logradouro'        => 'Rua Teste',
-        'numero'            => '1',
-        'bairro'            => 'Centro',
-        'cidade'            => 'Sao Paulo',
-        'uf'                => 'SP',
-        'cep'               => '01310100',
+        'tipo_pessoa' => 'PJ',
+        'cnpj_cpf' => '11.222.333/0001-81',
+        'razao_social' => 'Empresa Tecnico Ltda',
+        'logradouro' => 'Rua Teste',
+        'numero' => '1',
+        'bairro' => 'Centro',
+        'cidade' => 'Sao Paulo',
+        'uf' => 'SP',
+        'cep' => '01310100',
         'regime_tributario' => 'simples',
     ];
 
@@ -68,7 +68,7 @@ test('AC-011: tecnico recebe 403 ao tentar POST /clientes', function () {
     $response->assertStatus(403);
 
     $this->assertDatabaseMissing('clientes', [
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Empresa Tecnico Ltda',
     ]);
 
@@ -79,15 +79,15 @@ test('AC-011: visualizador recebe 403 ao tentar PUT /clientes/{id} — canWriteC
     /** @ac AC-011 */
     // Testa o endpoint PUT que e NOVO no slice-013.
     // Enquanto PUT nao existir, recebe 405 (nao 403) — red garantido.
-    $tenantA          = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userVisualizador = criarUsuarioComRole('visualizador', $tenantA->id);
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Empresa Bloqueada para Visualizador',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userVisualizador);
@@ -99,7 +99,7 @@ test('AC-011: visualizador recebe 403 ao tentar PUT /clientes/{id} — canWriteC
     $response->assertStatus(403);
 
     $this->assertDatabaseHas('clientes', [
-        'id'           => $cliente->id,
+        'id' => $cliente->id,
         'razao_social' => 'Empresa Bloqueada para Visualizador',
     ]);
 
@@ -112,15 +112,15 @@ test('AC-011: visualizador recebe 403 ao tentar PUT /clientes/{id} — canWriteC
 
 test('AC-011b: tecnico recebe 403 ao tentar PUT /clientes/{id}', function () {
     /** @ac AC-011b */
-    $tenantA     = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userTecnico = criarUsuarioComRole('tecnico', $tenantA->id);
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Empresa Nao Editavel Ltda',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userTecnico);
@@ -132,7 +132,7 @@ test('AC-011b: tecnico recebe 403 ao tentar PUT /clientes/{id}', function () {
     $response->assertStatus(403);
 
     $this->assertDatabaseHas('clientes', [
-        'id'           => $cliente->id,
+        'id' => $cliente->id,
         'razao_social' => 'Empresa Nao Editavel Ltda',
     ]);
 
@@ -145,14 +145,14 @@ test('AC-011b: tecnico recebe 403 ao tentar PUT /clientes/{id}', function () {
 
 test('AC-011c: tecnico recebe 403 ao tentar DELETE /clientes/{id}', function () {
     /** @ac AC-011c */
-    $tenantA     = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userTecnico = criarUsuarioComRole('tecnico', $tenantA->id);
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userTecnico);
@@ -162,7 +162,7 @@ test('AC-011c: tecnico recebe 403 ao tentar DELETE /clientes/{id}', function () 
     $response->assertStatus(403);
 
     $this->assertDatabaseHas('clientes', [
-        'id'    => $cliente->id,
+        'id' => $cliente->id,
         'ativo' => true,
     ]);
 
@@ -173,14 +173,14 @@ test('AC-011c: visualizador recebe 403 ao tentar PUT /clientes/{id} — canWrite
     /** @ac AC-011c */
     // Testa o PUT (endpoint novo do slice-013) para visualizador.
     // Enquanto PUT nao existir, recebe 405 — red garantido.
-    $tenantA          = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userVisualizador = criarUsuarioComRole('visualizador', $tenantA->id);
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userVisualizador);
@@ -191,7 +191,7 @@ test('AC-011c: visualizador recebe 403 ao tentar PUT /clientes/{id} — canWrite
     $putResponse->assertStatus(403);
 
     $this->assertDatabaseHas('clientes', [
-        'id'    => $cliente->id,
+        'id' => $cliente->id,
         'ativo' => true,
     ]);
 
@@ -204,7 +204,7 @@ test('AC-011c: visualizador recebe 403 ao tentar PUT /clientes/{id} — canWrite
 
 test('AC-012a: tecnico recebe 200 ao fazer GET /clientes', function () {
     /** @ac AC-012a */
-    $tenantA     = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userTecnico = criarUsuarioComRole('tecnico', $tenantA->id);
 
     $this->initializeTenant($tenantA);
@@ -224,7 +224,7 @@ test('AC-012a: tecnico recebe 200 ao fazer GET /clientes', function () {
 test('AC-012a: gerente pode listar clientes via GET /clientes', function () {
     /** @ac AC-012a */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
     $this->actingAs($userA);
@@ -242,14 +242,14 @@ test('AC-012a: gerente pode listar clientes via GET /clientes', function () {
 
 test('AC-012b: tecnico recebe 200 ao fazer GET /clientes/{id}', function () {
     /** @ac AC-012b */
-    $tenantA     = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userTecnico = criarUsuarioComRole('tecnico', $tenantA->id);
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userTecnico);
@@ -274,21 +274,21 @@ test('AC-012b: tecnico recebe 200 ao fazer GET /clientes/{id}', function () {
 test('AC-010b: gerente pode PUT /clientes/{id} E recebe 409 ao tentar desativar cliente ja inativo — regressao canWriteClientes', function () {
     /** @ac AC-010b */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA(); // role gerente
+    $userA = $this->userA(); // role gerente
 
     $this->initializeTenant($tenantA);
 
     // Cliente ativo para o PUT
     $clienteAtivo = Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Empresa Gerente Edita',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
 
     // Cliente ja inativo para o 409
     $clienteInativo = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => false,
+        'ativo' => false,
     ]);
 
     $this->actingAs($userA);
@@ -310,14 +310,14 @@ test('AC-010b: gerente pode PUT /clientes/{id} E recebe 409 ao tentar desativar 
 
 test('AC-010b: tecnico recebe 403 ao tentar desativar cliente ja inativo — policy antes da logica de negocio', function () {
     /** @ac AC-010b */
-    $tenantA     = $this->tenantA();
+    $tenantA = $this->tenantA();
     $userTecnico = criarUsuarioComRole('tecnico', $tenantA->id);
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => false,
+        'ativo' => false,
     ]);
 
     $this->actingAs($userTecnico);

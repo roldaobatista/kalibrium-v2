@@ -21,39 +21,39 @@ uses(TenantIsolationTestCase::class)->group('slice-013', 'cliente-update');
 test('AC-009: PUT /clientes/{id} persiste novos valores dos campos editaveis', function () {
     /** @ac AC-009 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
-        'tenant_id'         => $tenantA->id,
-        'razao_social'      => 'Empresa Original Ltda',
-        'nome_fantasia'     => 'Original',
-        'logradouro'        => 'Rua Velha',
-        'numero'            => '10',
-        'bairro'            => 'Bairro Velho',
-        'cidade'            => 'Curitiba',
-        'uf'                => 'PR',
-        'cep'               => '80010000',
+        'tenant_id' => $tenantA->id,
+        'razao_social' => 'Empresa Original Ltda',
+        'nome_fantasia' => 'Original',
+        'logradouro' => 'Rua Velha',
+        'numero' => '10',
+        'bairro' => 'Bairro Velho',
+        'cidade' => 'Curitiba',
+        'uf' => 'PR',
+        'cep' => '80010000',
         'regime_tributario' => 'simples',
-        'limite_credito'    => 1000.00,
-        'ativo'             => true,
+        'limite_credito' => 1000.00,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
 
     $payload = [
-        'razao_social'      => 'Empresa Atualizada Ltda',
-        'nome_fantasia'     => 'Atualizada',
-        'logradouro'        => 'Rua Nova',
-        'numero'            => '999',
-        'complemento'       => 'Sala 42',
-        'bairro'            => 'Bairro Novo',
-        'cidade'            => 'Sao Paulo',
-        'uf'                => 'SP',
-        'cep'               => '01310100',
+        'razao_social' => 'Empresa Atualizada Ltda',
+        'nome_fantasia' => 'Atualizada',
+        'logradouro' => 'Rua Nova',
+        'numero' => '999',
+        'complemento' => 'Sala 42',
+        'bairro' => 'Bairro Novo',
+        'cidade' => 'Sao Paulo',
+        'uf' => 'SP',
+        'cep' => '01310100',
         'regime_tributario' => 'presumido',
-        'limite_credito'    => 9999.99,
+        'limite_credito' => 9999.99,
     ];
 
     $response = $this->putJson("/clientes/{$cliente->id}", $payload);
@@ -66,9 +66,9 @@ test('AC-009: PUT /clientes/{id} persiste novos valores dos campos editaveis', f
 
     // Verifica persistencia no banco
     $this->assertDatabaseHas('clientes', [
-        'id'           => $cliente->id,
+        'id' => $cliente->id,
         'razao_social' => 'Empresa Atualizada Ltda',
-        'cidade'       => 'Sao Paulo',
+        'cidade' => 'Sao Paulo',
     ]);
 
     $this->endTenant();
@@ -77,16 +77,16 @@ test('AC-009: PUT /clientes/{id} persiste novos valores dos campos editaveis', f
 test('AC-009: PUT /clientes/{id} nao altera campos imutaveis cnpj_cpf e tipo_pessoa', function () {
     /** @ac AC-009 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
-        'tipo_pessoa'  => 'PJ',
-        'documento'    => '11222333000181',
+        'tenant_id' => $tenantA->id,
+        'tipo_pessoa' => 'PJ',
+        'documento' => '11222333000181',
         'razao_social' => 'Empresa Imutavel Ltda',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -94,8 +94,8 @@ test('AC-009: PUT /clientes/{id} nao altera campos imutaveis cnpj_cpf e tipo_pes
     // Tenta alterar campos imutaveis — devem ser ignorados
     $payload = [
         'razao_social' => 'Nome Novo Ltda',
-        'cnpj_cpf'     => '99.888.777/0001-66', // deve ser ignorado
-        'tipo_pessoa'  => 'PF',                   // deve ser ignorado
+        'cnpj_cpf' => '99.888.777/0001-66', // deve ser ignorado
+        'tipo_pessoa' => 'PF',                   // deve ser ignorado
     ];
 
     $response = $this->putJson("/clientes/{$cliente->id}", $payload);
@@ -104,9 +104,9 @@ test('AC-009: PUT /clientes/{id} nao altera campos imutaveis cnpj_cpf e tipo_pes
 
     // Banco deve manter documento e tipo_pessoa originais
     $this->assertDatabaseHas('clientes', [
-        'id'          => $cliente->id,
+        'id' => $cliente->id,
         'tipo_pessoa' => 'PJ',
-        'documento'   => '11222333000181',
+        'documento' => '11222333000181',
     ]);
 
     $this->endTenant();
@@ -115,15 +115,15 @@ test('AC-009: PUT /clientes/{id} nao altera campos imutaveis cnpj_cpf e tipo_pes
 test('AC-009: PUT /clientes/{id} com subset valido de campos persiste apenas os campos enviados', function () {
     /** @ac AC-009 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
-        'tenant_id'      => $tenantA->id,
-        'razao_social'   => 'Empresa Subset Ltda',
+        'tenant_id' => $tenantA->id,
+        'razao_social' => 'Empresa Subset Ltda',
         'limite_credito' => 500.00,
-        'ativo'          => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -136,8 +136,8 @@ test('AC-009: PUT /clientes/{id} com subset valido de campos persiste apenas os 
     $response->assertStatus(200);
 
     $this->assertDatabaseHas('clientes', [
-        'id'             => $cliente->id,
-        'razao_social'   => 'Empresa Subset Ltda', // nao alterado
+        'id' => $cliente->id,
+        'razao_social' => 'Empresa Subset Ltda', // nao alterado
         'limite_credito' => 1500.00,
     ]);
 
@@ -147,13 +147,13 @@ test('AC-009: PUT /clientes/{id} com subset valido de campos persiste apenas os 
 test('AC-009: PUT /clientes/{id} retorna o schema completo da ClienteResource na resposta', function () {
     /** @ac AC-009 */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -181,13 +181,13 @@ test('AC-009: PUT /clientes/{id} retorna o schema completo da ClienteResource na
 test('AC-009b: PUT /clientes/{id} com payload vazio {} retorna 422', function () {
     /** @ac AC-009b */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -202,14 +202,14 @@ test('AC-009b: PUT /clientes/{id} com payload vazio {} retorna 422', function ()
 test('AC-009b: PUT /clientes/{id} com payload vazio nao altera o registro no banco', function () {
     /** @ac AC-009b */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
-        'tenant_id'    => $tenantA->id,
+        'tenant_id' => $tenantA->id,
         'razao_social' => 'Empresa Inalterada Ltda',
-        'ativo'        => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
@@ -220,7 +220,7 @@ test('AC-009b: PUT /clientes/{id} com payload vazio nao altera o registro no ban
     $response->assertStatus(422);
 
     $this->assertDatabaseHas('clientes', [
-        'id'           => $cliente->id,
+        'id' => $cliente->id,
         'razao_social' => 'Empresa Inalterada Ltda',
     ]);
 
@@ -230,20 +230,20 @@ test('AC-009b: PUT /clientes/{id} com payload vazio nao altera o registro no ban
 test('AC-009b: PUT /clientes/{id} com apenas campos imutaveis retorna 422', function () {
     /** @ac AC-009b */
     $tenantA = $this->tenantA();
-    $userA   = $this->userA();
+    $userA = $this->userA();
 
     $this->initializeTenant($tenantA);
 
     $cliente = Cliente::factory()->create([
         'tenant_id' => $tenantA->id,
-        'ativo'     => true,
+        'ativo' => true,
     ]);
 
     $this->actingAs($userA);
 
     // cnpj_cpf e tipo_pessoa nao sao campos editaveis — payload efetivamente vazio
     $response = $this->putJson("/clientes/{$cliente->id}", [
-        'cnpj_cpf'    => '11.222.333/0001-81',
+        'cnpj_cpf' => '11.222.333/0001-81',
         'tipo_pessoa' => 'PJ',
     ]);
 
