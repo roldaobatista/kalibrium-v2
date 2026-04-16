@@ -11,26 +11,62 @@ use App\Support\Tenancy\TenantRole;
 final class ClientePolicy
 {
     /**
+     * Determine if the user can list clientes (GET /clientes).
+     */
+    public function viewAny(User $user, TenantUser $tenantUser): bool
+    {
+        return $this->isActiveWithRole($user, $tenantUser)
+            && TenantRole::canReadClientes((string) $tenantUser->role);
+    }
+
+    /**
+     * Determine if the user can view a single cliente (GET /clientes/{id}).
+     */
+    public function view(User $user, TenantUser $tenantUser): bool
+    {
+        return $this->isActiveWithRole($user, $tenantUser)
+            && TenantRole::canReadClientes((string) $tenantUser->role);
+    }
+
+    /**
      * Determine if the user can create clientes.
-     * Spec role "atendente" maps to operational roles (gerente, tecnico, administrativo).
+     * Previously used canManageClientes (which includes tecnico).
+     * Now uses canWriteClientes (excludes tecnico).
      */
     public function create(User $user, TenantUser $tenantUser): bool
     {
-        return $this->isActiveOperational($user, $tenantUser);
+        return $this->isActiveWithRole($user, $tenantUser)
+            && TenantRole::canWriteClientes((string) $tenantUser->role);
+    }
+
+    /**
+     * Determine if the user can update clientes (PUT /clientes/{id}).
+     */
+    public function update(User $user, TenantUser $tenantUser): bool
+    {
+        return $this->isActiveWithRole($user, $tenantUser)
+            && TenantRole::canWriteClientes((string) $tenantUser->role);
     }
 
     /**
      * Determine if the user can deactivate (soft-delete) clientes.
+     * Previously used canManageClientes (which includes tecnico).
+     * Now uses canWriteClientes (excludes tecnico).
      */
     public function delete(User $user, TenantUser $tenantUser): bool
     {
-        return $this->isActiveOperational($user, $tenantUser);
+        return $this->isActiveWithRole($user, $tenantUser)
+            && TenantRole::canWriteClientes((string) $tenantUser->role);
     }
 
-    private function isActiveOperational(User $user, TenantUser $tenantUser): bool
+    /**
+     * Checks that the TenantUser record belongs to the authenticated user
+     * and that the account is in active status.
+     * Role check is done separately in each policy method.
+     */
+    private function isActiveWithRole(User $user, TenantUser $tenantUser): bool
     {
         return (int) $tenantUser->user_id === (int) $user->id
-            && strtolower((string) $tenantUser->status) === 'active'
-            && TenantRole::canManageClientes((string) $tenantUser->role);
+            && strtolower((string) $tenantUser->status) === 'active';
     }
 }
