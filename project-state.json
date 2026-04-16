@@ -37,10 +37,10 @@
   },
   "execution": {
     "current_epic": "E02",
-    "current_story": "SEG-002",
-    "current_slice": "010",
-    "slice_status": "all_gates_approved_merging",
-    "last_green_commit": "242450e",
+    "current_story": "E02-S08",
+    "current_slice": "011",
+    "slice_status": "spec_draft",
+    "last_green_commit": "dd441b6",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null

@@ -34,7 +34,13 @@ description: Consolidação dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI) das
    - Produz `master-audit-input/trail-opus.json`
 
    **Trilha B — GPT-5 via Codex CLI:**
-   - `mcp__codex__codex` com `model: gpt-5.4` (ou fallback default da config), `sandbox: read-only`, `cwd: master-audit-input/`
+   - Método preferido: **Bash direto** (mais estável no Windows):
+     ```bash
+     cd master-audit-input && codex exec --sandbox workspace-write --skip-git-repo-check "<prompt>"
+     ```
+   - **IMPORTANTE:** em ChatGPT Plus auth NÃO passar `--model` (default = gpt-5).
+     Flags `--model gpt-5`, `--model gpt-5.4`, `--model o1-mini` falham com "not supported when using Codex with a ChatGPT account".
+   - Método alternativo: `mcp__codex__codex` com `sandbox: "workspace-write"`, `cwd: master-audit-input/`, SEM passar model. Pode sofrer `CreateProcessAsUserW failed: 5` no Windows — ver `docs/operations/codex-gpt5-setup.md`.
    - Produz `master-audit-input/trail-gpt5.json`
 
    **Regras de simetria** (para garantir independência genuína):
@@ -49,7 +55,8 @@ description: Consolidação dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI) das
 
 4. **Reconciliação (até 3 rodadas, ADR-0012 E5):**
    - Orquestrador formula pergunta específica para a trilha com verdict minoritário
-   - Usa `mcp__codex__codex-reply` (GPT-5) ou SendMessage ao Agent (Opus) para refinar
+   - Para GPT-5: preferir nova chamada Bash `codex exec` (sem model flag) OU `mcp__codex__codex-reply`
+   - Para Opus: SendMessage ao Agent já spawnado
    - Se alguma trilha mudar veredito → consenso alcançado
    - Se persistir discordância após 3 rodadas → `escalate_human`
 

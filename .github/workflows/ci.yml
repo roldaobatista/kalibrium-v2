@@ -152,7 +152,7 @@ jobs:
         image: postgres:18
         env:
           POSTGRES_USER: kalibrium
-          POSTGRES_PASSWORD: kalibrium_ci
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           POSTGRES_DB: kalibrium_test
         ports:
           - 5432:5432
@@ -234,7 +234,7 @@ jobs:
           DB_PORT: 5432
           DB_DATABASE: kalibrium_test
           DB_USERNAME: kalibrium
-          DB_PASSWORD: kalibrium_ci
+          DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
         run: php artisan migrate --force
@@ -247,7 +247,7 @@ jobs:
           DB_PORT: 5432
           DB_DATABASE: kalibrium_test
           DB_USERNAME: kalibrium
-          DB_PASSWORD: kalibrium_ci
+          DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
           RUN_REMOTE_SMOKE: 0
@@ -378,7 +378,7 @@ jobs:
 
       - name: npm audit
         if: hashFiles('package-lock.json') != ''
-        run: npm audit --audit-level=high || echo "::warning::npm audit encontrou vulnerabilidades — revisar antes do merge"
+        run: npm audit --audit-level=high
 
       - name: Cache Composer global
         if: hashFiles('composer.lock') != ''
@@ -403,3 +403,101 @@ jobs:
           name: sbom
           path: sbom-php.xml
           retention-days: 30
+
+  # =========================================================================
+  # Job 7 — Tenant isolation (AC-005, AC-014, slice-011)
+  #
+  # Roda apenas quando código sensível de isolamento é alterado.
+  # paths filter: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**,
+  #               tests/slice-011/**.
+  # Falha bloqueia merge (AC-005).
+  # =========================================================================
+  tenant-isolation:
+    name: Tenant isolation tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: harness
+    # paths filter via dorny/paths-filter (step check abaixo)
+    # paths: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/slice-011/**
+    # run: php artisan test --testsuite=tenant-isolation
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: kalibrium
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          POSTGRES_DB: kalibrium_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check changed paths
+        id: check
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            run:
+              paths:
+                - 'app/Models/**'
+                - 'app/Http/**'
+                - 'app/Livewire/**'
+                - 'app/Jobs/**'
+                - 'tests/slice-011/**'
+
+      - name: PHP
+        if: steps.check.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, pgsql, mbstring, intl, bcmath
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache
+        if: steps.check.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install
+        if: steps.check.outputs.run == 'true'
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Env
+        if: steps.check.outputs.run == 'true'
+        run: |
+          [ -f .env.example ] && cp .env.example .env || true
+          php artisan key:generate --ansi || true
+
+      - name: Run tenant-isolation testsuite
+        if: steps.check.outputs.run == 'true'
+        run: php artisan test --testsuite=tenant-isolation
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: kalibrium_test
+          DB_USERNAME: kalibrium
+          DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+
+      # paths filter aplicado via step condicional acima — job pulado em PRs
+      # que não tocam: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**

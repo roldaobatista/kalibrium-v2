@@ -32,6 +32,12 @@
         <testsuite name="Slice009">
             <directory>tests/slice-009</directory>
         </testsuite>
+        <testsuite name="Slice010">
+            <directory>tests/slice-010</directory>
+        </testsuite>
+        <testsuite name="tenant-isolation">
+            <directory>tests/slice-011</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>

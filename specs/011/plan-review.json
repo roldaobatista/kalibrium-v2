@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "slice_id": "slice-011",
+  "review_date": "2026-04-15",
+  "provenance": {
+    "agent": "plan-reviewer",
+    "context": "isolated"
+  },
+  "verdict": "approved",
+  "summary": "Todos os 16 ACs do spec estão cobertos por arquivo e teste concretos. As 5 decisões arquiteturais listam alternativas, justificativas mensuráveis e reversibilidade. Nenhuma decisão contradiz ADR-0001, ADR-0012 ou a constitution. Riscos do spec estão endereçados com mitigações concretas. Zero over-engineering. Dependências de slices 001-010 declaradas explicitamente.",
+  "checks": {
+    "ac_coverage": {
+      "status": "pass",
+      "details": "Todos os 16 ACs (AC-001..AC-016) mapeados na tabela 'Mapeamento AC → arquivos' com arquivo de teste concreto. AC-008, AC-009, AC-015 corretamente mapeados como edge cases de AC-001 em TenantIsolationModelTest.php. AC-010, AC-011, AC-016 como edge cases de AC-002 em TenantIsolationHttpTest.php. AC-012 como edge case de AC-003 em TenantIsolationJobTest.php. AC-013 como edge case de AC-004 em TenantIsolationExportTest.php. AC-005, AC-014 em gates.yml. AC-006 em TenantIsolationTestCase.php. AC-007 em README.md. Nenhuma referência a AC inexistente. Nenhum AC sem arquivo."
+    },
+    "architectural_decisions": {
+      "status": "pass",
+      "details": "D1 (TestCase compartilhado): 2 alternativas, razão mensurável referenciando AC-006 e AC-015, reversibilidade 'media' declarada. D2 (config-driven sensitive_models): 3 alternativas (incluindo Opcao C híbrida), razão de determinismo vs. risk de esquecimento mitigado por AC-008, reversibilidade 'facil'. D3 (config/tenancy-jobs.php separado): 2 alternativas, razão de separação de responsabilidade, reversibilidade 'facil'. D4 (job CI separado com paths filter): 3 alternativas, razão referenciando AC-005 e AC-014, dívida técnica transitória de continue-on-error alinhada com spec §Riscos, reversibilidade 'facil'. D5 (data providers Pest): 2 alternativas, razão referenciando P2, reversibilidade 'facil'. Nenhuma decisão contradiz ADR-0001 (Laravel 13 + Pest 4 + stancl/tenancy), ADR-0012 (dual-LLM gates) ou constitution P1-P9/R1-R16. Nenhuma decisão inventa requisito fora do spec."
+    },
+    "technical_feasibility": {
+      "status": "pass",
+      "details": "Tasks 1-6 todas concretas: cada task lista arquivos específicos com ação (Create/Modify) e objetivo mensurável. Ordem coerente: Task 1 (infraestrutura/TestCase base) precede Tasks 2-5 (testes por camada), que precedem Task 6 (CI + README). Dependência implícita na ordem é suficiente. Nenhum pacote novo adicionado: stancl/tenancy, Pest 4 e GitHub Actions já instalados nos slices 001-003. Route::getRoutes() escolhido no lugar de Artisan::call('route:list') — mais idiomático no contexto de teste Laravel, sem conflito com spec §Riscos. Escopo de 7 arquivos novos + 3 modificações é realista para um slice de testes/config/CI."
+    },
+    "risks_mitigations": {
+      "status": "pass",
+      "details": "Todos os 5 riscos do spec §Riscos conhecidos endereçados no plan §Riscos e mitigacoes: (1) fixture pesada → setUpBeforeClass + rollback + RefreshDatabaseLazily + --profile na Task 1; (2) introspecção de rotas → Route::getRoutes() cacheado como propriedade estática no TestCase; (3) model sem BelongsToTenant → AC-008 como falha explícita com nome do model; (4) job retry com tenant errado → JobTenancyBootstrapper validado pelo teste; (5) CI cota esgotada → continue-on-error: true com comentário de remoção e suite local sempre rodável. Nenhum risco novo introduzido sem mitigação. Mitigações são concretas, não 'monitorar' ou 'avaliar depois'."
+    },
+    "security": {
+      "status": "pass",
+      "details": "AC-016 (SQL injection cross-tenant) mapeado em TenantIsolationHttpTest.php com assert de status HTTP (404/403), assert de payload (sem campos do tenant B) e assert de log (tenant_context=A). Mecanismo de defesa explicado no plan §Riscos (global scope Eloquent + binding de rota). AC-010 (query string/header forjado), AC-011 (batch cross-tenant), AC-013 (soft-deleted cross-tenant) todos mapeados. Nenhum endpoint novo introduzido. config/tenancy-jobs.php lista apenas nomes de classes — sem secrets ou credenciais. Autenticação/autorização não alteradas."
+    },
+    "simplicity": {
+      "status": "pass",
+      "details": "Estrutura de 5 classes de teste + 1 TestCase base + 1 config + 1 README + 3 modificações é mínima para cobrir 16 ACs. Helpers tenantA(), tenantB(), userA(), userB() no TestCase são justificados pela reutilização em 4 classes filhas — não são abstrações prematuras. Nenhum pacote adicionado. Decisão D2 escolheu config-driven (mais simples) sobre introspecção automática (mais complexa) justamente para manter simplicidade. Solução é a mais simples que satisfaz todos os 16 ACs."
+    }
+  },
+  "findings": [],
+  "stats": {
+    "total_checks": 6,
+    "passed": 6,
+    "failed": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0
+  }
+}

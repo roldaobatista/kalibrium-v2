@@ -82,16 +82,31 @@ Em sessão isolada:
 
 ### Passo 3: Trilha GPT-5
 
-Em paralelo, via `codex` MCP (plugin Codex Claude Code):
+**Método preferido — Bash direto** (mais estável no Windows):
+```bash
+cd master-audit-input && codex exec \
+  --sandbox workspace-write \
+  --skip-git-repo-check \
+  "<prompt consolidado com inputs + checklist + JSON output>"
+```
+
+**REGRAS CRÍTICAS** (ver `docs/operations/codex-gpt5-setup.md`):
+- ChatGPT Plus auth: **NÃO** passar `--model` (default já é gpt-5). Flags `--model gpt-5/gpt-5.4/o1-mini` falham com `"not supported when using Codex with a ChatGPT account"`.
+- Usar `--sandbox workspace-write` para permitir escrita de `trail-gpt5.json`.
+- Windows: `--sandbox read-only` pode falhar com `CreateProcessAsUserW failed: 5` — use `workspace-write`.
+
+**Método alternativo — MCP:**
 ```
 mcp__codex__codex(
-  model: "gpt-5" (ou melhor disponível — gpt-5-pro se suportado),
-  reasoning_effort: "high",
-  prompt: <prompt consolidado com inputs permitidos + checklist + instrução de output JSON>,
-  sandbox: "read-only" (apenas leitura para não introduzir side-effects)
+  sandbox: "workspace-write",
+  cwd: "<abs path to master-audit-input>",
+  approval-policy: "never",
+  prompt: "<mesmo prompt>"
 )
 ```
-Para continuar a conversa (reconciliação, §Passo 5), usar `mcp__codex__codex-reply` com o mesmo session id.
+**Não** passar `model` no MCP — deixar default.
+
+Para reconciliação (§Passo 5): nova chamada Bash `codex exec` OU `mcp__codex__codex-reply` com session id.
 
 Capturar parecer da trilha GPT-5. Não ver parecer da trilha Claude.
 

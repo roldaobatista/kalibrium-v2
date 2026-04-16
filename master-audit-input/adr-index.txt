@@ -1,0 +1,10 @@
+docs/adr/0000-template.md
+docs/adr/0001-stack-choice.md
+docs/adr/0002-mcp-policy.md
+docs/adr/0004-estrategia-de-identidade-e-autenticacao.md
+docs/adr/0008-codex-cli-orchestrator.md
+docs/adr/0010-constitution-amendment-r6-gate-threshold.md
+docs/adr/0011-constitution-amendment-story-epic-sequencing.md
+docs/adr/0012-constitution-amendment-autonomy-dual-llm.md
+docs/adr/0013-additional-mcps-postgres-figma.md
+docs/adr/0014-technical-bypass-policy.md

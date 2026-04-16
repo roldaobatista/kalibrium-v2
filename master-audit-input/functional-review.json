@@ -1,0 +1,107 @@
+{
+  "slice_id": "slice-011",
+  "verdict": "approved",
+  "timestamp": "2026-04-15T23:59:00Z",
+  "ac_assessment": [
+    {
+      "ac": "AC-001",
+      "met": true,
+      "confidence": "high",
+      "notes": "Dataset cobre all/where/count/find_cross_tenant/whereHas/with/avg (linhas 42-52). Teste adicional de relacionamento cross-tenant User->tenantUsers via ScopesToCurrentTenant (linhas 347-386). whereHas verifica scope dentro do callback; with verifica eager loading; avg detecta vazamento via valor 99999 no tenant B."
+    },
+    {
+      "ac": "AC-002",
+      "met": true,
+      "confidence": "high",
+      "notes": "Duas rotas reais MVP testadas: /settings/privacy/consentimentos e /settings/privacy. Dados homonimos inseridos em ambos os tenants; response do tenant A nao contem email nem tenant_id do tenant B."
+    },
+    {
+      "ac": "AC-003",
+      "met": true,
+      "confidence": "high",
+      "notes": "TenantIsolationJobTest.php linha 47 — job despachado no contexto tenant A nao cria registros em B. verification.json confirma exit 0."
+    },
+    {
+      "ac": "AC-004",
+      "met": true,
+      "confidence": "high",
+      "notes": "TenantIsolationExportTest.php linhas 9-12 — payload export tenant A sem IDs de B."
+    },
+    {
+      "ac": "AC-005",
+      "met": true,
+      "confidence": "medium",
+      "notes": "ci.yml contem job tenant-isolation referenciando testsuite Pest. continue-on-error transitorio e divida tecnica documentada nos Riscos do spec — AC permanece determinístico pelo comportamento alvo."
+    },
+    {
+      "ac": "AC-006",
+      "met": true,
+      "confidence": "high",
+      "notes": "Suite completa 13.70s, fixture <5s, dentro do limite de 60s."
+    },
+    {
+      "ac": "AC-007",
+      "met": true,
+      "confidence": "high",
+      "notes": "README existe, bloco de codigo presente, sensitive_models mencionado, exemplo aparece em <= 2 paragrafos."
+    },
+    {
+      "ac": "AC-008",
+      "met": true,
+      "confidence": "high",
+      "notes": "Itera sensitive_models e falha explicitamente listando nome do model ausente de BelongsToTenant/ScopesToCurrentTenant."
+    },
+    {
+      "ac": "AC-009",
+      "met": true,
+      "confidence": "high",
+      "notes": "valueB=9999 inserido no tenant B; sum Eloquent no contexto A deve ser < sum raw total. Dupla assertion (not->toBe + toBeLessThan) garante que o scope esta filtrando agregacoes SUM."
+    },
+    {
+      "ac": "AC-010",
+      "met": true,
+      "confidence": "high",
+      "notes": "Dois testes cobrem query string ?tenant=B e header X-Tenant forjado via /api/tenant-context. Resposta contem tenant A e nao contem tenant B."
+    },
+    {
+      "ac": "AC-011",
+      "met": true,
+      "confidence": "high",
+      "notes": "Rota DELETE /_test/batch implementada em routes/web.php linha 505 com middleware RestrictToLocalEnv + auth. Teste autentica userA no tenant A, batch com 2 IDs do tenant A + 1 do tenant B, verifica 403 e assert que registros do tenant A permanecem intactos (count==2) e do tenant B nao foi deletado (count==1). Rejeicao atomica do batch confirmada."
+    },
+    {
+      "ac": "AC-012",
+      "met": true,
+      "confidence": "high",
+      "notes": "JobTenancyBootstrapper implementado, isolamento entre handle() consecutivos verificado."
+    },
+    {
+      "ac": "AC-013",
+      "met": true,
+      "confidence": "high",
+      "notes": "withTrashed tenant A nao expoe soft-deleted de B."
+    },
+    {
+      "ac": "AC-014",
+      "met": true,
+      "confidence": "high",
+      "notes": "paths filter declarado explicitamente no workflow ci.yml."
+    },
+    {
+      "ac": "AC-015",
+      "met": true,
+      "confidence": "high",
+      "notes": "Dataset cresce linearmente via foreach(models x methods). Overhead linear <= 4 casos por model adicional confirmado."
+    },
+    {
+      "ac": "AC-016",
+      "met": true,
+      "confidence": "high",
+      "notes": "12 vetores path param + 12 vetores POST + log spy com tenant_context=A. Nenhum dado de tenant B exposto em nenhum vetor."
+    }
+  ],
+  "ux_findings": [],
+  "consistency_findings": [],
+  "business_rule_findings": [],
+  "next_action": "approved"
+}

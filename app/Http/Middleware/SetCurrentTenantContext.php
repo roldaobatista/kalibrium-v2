@@ -7,6 +7,7 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use App\Support\Auth\PostgresAuthContext;
 use App\Support\Tenancy\CurrentTenantResolver;
+use App\Support\Tenancy\TenantScopeBypass;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,8 @@ final readonly class SetCurrentTenantContext
         }
 
         $this->postgresAuthContext->forUser($user->id);
-        $context = $this->resolver->resolve($user);
+        // TenantScopeBypass: permite queries de bootstrap sem tenant_id no contexto (SEC-001).
+        $context = TenantScopeBypass::run(fn () => $this->resolver->resolve($user));
         $this->postgresAuthContext->forTenant($context['tenant']->id);
 
         $request->attributes->set('current_tenant', $context['tenant']);

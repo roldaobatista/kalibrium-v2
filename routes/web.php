@@ -11,6 +11,7 @@ use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
 use App\Http\Middleware\HealthCheckRateLimit;
 use App\Http\Middleware\RequireTwoFactorSession;
+use App\Http\Middleware\RestrictToLocalEnv;
 use App\Http\Middleware\SetCurrentTenantContext;
 use App\Http\Responses\Auth\AuthFailureResponse;
 use App\Http\Responses\Auth\LoginResponse;
@@ -40,7 +41,9 @@ use App\Support\Settings\UserInvitationService;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -406,6 +409,24 @@ Route::middleware([
     EnsureReadOnlyTenantMode::class,
 ])
     ->group(function (): void {
+        // AC-010: expõe o tenant_id do contexto atual da sessão.
+        // Restrito a local/testing via middleware de runtime RestrictToLocalEnv (SEC-002).
+        // Middleware SetCurrentTenantContext define request()->attributes['current_tenant'].
+        // Query string ?tenant=X e header X-Tenant são ignorados intencionalmente.
+        Route::get('/api/tenant-context', function (Request $request) {
+            /** @var Tenant|null $tenant */
+            $tenant = $request->attributes->get('current_tenant');
+
+            Log::info('tenant_context_request', [
+                'tenant_context' => $tenant?->id,
+                'path' => $request->path(),
+            ]);
+
+            return response()->json([
+                'tenant_id' => $tenant?->id,
+            ]);
+        })->middleware(RestrictToLocalEnv::class)->name('api.tenant-context');
+
         Route::get('/app', HomePage::class)->name('app.home');
         Route::get('/settings/tenant', TenantPage::class)->name('settings.tenant');
         Route::post('/settings/tenant', TenantSettingsController::class)->name('settings.tenant.store');
@@ -471,3 +492,46 @@ Route::get('/health', HealthCheckController::class)
 if (! app()->environment('production')) {
     Route::get('/ping', Ping::class);
 }
+
+// ---------------------------------------------------------------------------
+// Slice 011 — rota de teste para AC-011 (batch cross-tenant)
+// Disponível apenas em local/testing. Demonstra comportamento esperado:
+// batch com qualquer ID de tenant diferente do contexto atual → 403 sem deletar nada.
+// ---------------------------------------------------------------------------
+Route::middleware([
+    'auth',
+    SetCurrentTenantContext::class,
+    RestrictToLocalEnv::class,
+])->delete('/_test/batch', function (Request $request) {
+    $currentTenant = $request->attributes->get('current_tenant');
+    if ($currentTenant === null) {
+        return response()->json(['error' => 'No tenant context'], 403);
+    }
+
+    $idsParam = (string) $request->query('ids', '');
+    $ids = array_filter(array_map('intval', explode(',', $idsParam)));
+
+    if (empty($ids)) {
+        return response()->json(['error' => 'No ids provided'], 422);
+    }
+
+    // Verifica se algum ID pertence a outro tenant nas tabelas sensíveis
+    $sensitiveModels = config('tenancy.sensitive_models', []);
+    foreach ($sensitiveModels as $modelClass) {
+        if (! class_exists($modelClass)) {
+            continue;
+        }
+        $instance = new $modelClass;
+        $crossTenant = DB::table($instance->getTable())
+            ->whereIn('id', $ids)
+            ->where('tenant_id', '!=', $currentTenant->id)
+            ->exists();
+
+        if ($crossTenant) {
+            // Rejeita o batch inteiro — nenhum registro é deletado
+            return response()->json(['error' => 'Cross-tenant IDs detected'], 403);
+        }
+    }
+
+    return response()->json(['deleted' => $ids]);
+})->name('test.batch.delete');
