@@ -46,7 +46,7 @@ Após o `qa-expert` (modo: verify) ter emitido `verification.json` com `verdict:
 
 7. **Copia review.json** para `specs/NNN/review.json` (persistência)
 
-8. **Se verification.json=approved E review.json=approved**: skill dispara `/merge-slice NNN` automaticamente
+8. **Se verification.json=approved E review.json=approved**: skill retorna controle ao orquestrador. **Não dispara `/merge-slice` automaticamente.** O orquestrador é responsável por invocar a cadeia de gates restantes na ordem definida em `docs/protocol/04-criterios-gate.md` (§§3-8): `/security-review NNN` → `/test-audit NNN` → `/functional-review NNN` → gates condicionais (`data-gate`, `observability-gate`, `integration-gate`, `ux-gate`) quando aplicáveis → `/master-audit NNN` (dual-LLM Opus + GPT-5). Somente após `master-audit.json` com `verdict: approved` e `blocking_findings_count == 0`, o orquestrador dispara `/merge-slice NNN`.
 
 ## Implementação
 
@@ -81,7 +81,7 @@ bash scripts/review-slice.sh "$1"
 
 ## Handoff
 
-- **Ambos aprovam** → merge automático via `/merge-slice NNN`
+- **Ambos aprovam** → controle retorna ao orquestrador, que segue para `/security-review NNN` (próximo gate da cadeia em `docs/protocol/04-criterios-gate.md`). Merge só após `master-audit` aprovar.
 - **Reviewer reprova** (1ª vez) → volta ao implementer com `findings` + sugestão
 - **Reviewer reprova 6ª vez consecutiva** → `/explain-slice NNN` gera relatório em português pro humano decidir
 
