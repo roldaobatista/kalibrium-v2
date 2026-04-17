@@ -74,8 +74,37 @@
       "plan_review": "approved instance_02 (0 findings em todas severidades)",
       "draft_tests_mechanical": "ok (42 tests, 14/14 ACs rastreaveis via @covers + describe)",
       "audit_tests_draft": "approved instance_03 (0 bloqueantes, 7/7 criterios §16.1 true)",
-      "pending": "builder:implementer — scaffold real, npm install, builds, 14 ACs verdes",
-      "branch_commits": ["1212e8b", "c60004d", "a1afeaf", "fdfab2c", "0e1f7bf"]
+      "implementer_status": "completed 2026-04-17",
+      "implementer_results": {
+        "pm_decision": "Opcao A refinada — demolir frontend Livewire/Blade agora (pre-producao, zero usuarios impactados)",
+        "frontend_legado_removido": "20 Blade + 15 Livewire classes + composer remove livewire/livewire + routes/web.php reescrito como health-only",
+        "testes_zombie_deletados": "20 testes PHPUnit HTTP/Livewire (slice-007..011) — regras de backend preservadas em tests de unidade",
+        "npm_install": "ok (237M, ERESOLVE inicial resolvido ao atualizar eslint-plugin-react-hooks 4.6.2 -> 5.1.0)",
+        "lint": "exit 0 (.d.ts gerados adicionados ao ignore)",
+        "build": "exit 0 (tsc -b + vite build — 228 modules, 8 assets JS + 1 CSS)",
+        "test_scaffold": "35/35 Node --test passing",
+        "test_e2e": "4/4 Playwright passing",
+        "cap_android": "ok (android/ gerado + cap sync com dist/)",
+        "fixes_mecanicos_testes": "shell: true obrigatorio no Node 24+ (CVE-2024-27980 endureceu spawn de .cmd) — aplicado em 5 arquivos de teste"
+      },
+      "acs_status": {
+        "AC-001": "verde (Playwright)",
+        "AC-002": "verde (Node test + manual build)",
+        "AC-003": "skip (Windows, darwin-only)",
+        "AC-004": "verde (cap add android + cap sync)",
+        "AC-005": "verde (7 subdirs src/)",
+        "AC-006": "verde (Playwright, viewports 375 e 1280)",
+        "AC-007": "verde (eslint exit 0)",
+        "AC-008": "verde (0 Blade fora /emails/)",
+        "AC-009": "verde (Playwright)",
+        "AC-010": "verde (build falha com erro de tipo)",
+        "AC-011": "verde (sem dirs extras)",
+        "AC-012": "verde (lint detecta unused-var + recupera)",
+        "AC-013": "verde (routes/web.php sem view())",
+        "AC-014": "verde (capacitor.config.ts sem server.url)"
+      },
+      "branch_commits": ["1212e8b", "c60004d", "a1afeaf", "fdfab2c", "0e1f7bf", "7d0ae53", "601f0b5", "c8e8589", "0f3e37e", "9163bb6", "18ce125", "2e0c463", "bf4e947", "aeb879e", "92e04fc", "19d65db", "533909d", "00882c9", "36bc4e6"],
+      "pending": "pipeline de 5 gates (verify + code-review + security + test-audit + functional) + master-audit dual-LLM 2x Opus 4.7"
     },
     "previous_execution": {
       "current_epic": "E03",
@@ -239,7 +268,7 @@
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "Retomar branch feat/slice-016-scaffold-frontend e invocar builder:implementer para fazer os 14 ACs do slice 016 virarem verdes. Operacao longa: npm install (~500MB), criar scaffold React+TS+Ionic+Capacitor+Vite, npx cap add android (AC-004), AC-003 skip em Windows (!darwin), deletar resources/views (exceto /emails/), npm run build+lint+test. Depois: 5 gates principais + master-audit dual-LLM + merge-slice.",
+  "next_recommended_action": "Slice 016 implementer concluido em 2026-04-17 (4 commits: zombie tests removidos, backend Livewire descartado, scaffold PWA criado, Android gerado). 14/14 ACs verdes (AC-003 skip em Windows esperado). Proximo: pipeline de 5 gates em contextos isolados: qa-expert:verify -> architecture-expert:code-review -> [security-expert:gate + qa-expert:audit-tests + product-expert:functional-gate] -> governance:master-audit dual-LLM (2x Opus 4.7). Depois: /merge-slice 016 + /slice-report 016 + /retrospective 016. ATENCAO ambiente PHP: WinGet 8.4 sem pdo_pgsql — 164 testes Pest falham localmente por DRIVER_NOT_FOUND (CI tem PG+pdo_pgsql, nao afeta). Incidente de ambiente PM pendente: instalar pdo_pgsql ou restaurar scoop.",
   "pending_audit": {
     "type": "comparativa-externa",
     "status": "completed",
