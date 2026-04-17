@@ -1,9 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Functional Review Output",
+  "$comment": "DEPRECATED 2026-04-17 — substituido por docs/protocol/schemas/gate-output.schema.json (gate-output-v1, v1.2.4). Mantido somente para referencia historica. Novos gates (protocolo v1.2.2) validam contra o canonico unificado. Nenhum script do harness deve mais referenciar este arquivo.",
+  "deprecated": true,
+  "title": "[DEPRECATED] Functional Review Output",
   "description": "Output estruturado do functional-reviewer agent",
   "type": "object",
-  "required": ["slice_id", "verdict", "timestamp", "ac_assessment", "ux_findings", "consistency_findings", "business_rule_findings", "next_action"],
+  "required": [
+    "slice_id",
+    "verdict",
+    "timestamp",
+    "ac_assessment",
+    "ux_findings",
+    "consistency_findings",
+    "business_rule_findings",
+    "next_action"
+  ],
   "properties": {
     "slice_id": {
       "type": "string",
@@ -11,7 +22,10 @@
     },
     "verdict": {
       "type": "string",
-      "enum": ["approved", "rejected"]
+      "enum": [
+        "approved",
+        "rejected"
+      ]
     },
     "timestamp": {
       "type": "string",
@@ -21,12 +35,30 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["ac", "met", "confidence"],
+        "required": [
+          "ac",
+          "met",
+          "confidence"
+        ],
         "properties": {
-          "ac": { "type": "string", "pattern": "^AC-\\d{3}$" },
-          "met": { "type": "boolean" },
-          "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
-          "notes": { "type": "string" }
+          "ac": {
+            "type": "string",
+            "pattern": "^AC-\\d{3}$"
+          },
+          "met": {
+            "type": "boolean"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
         }
       }
     },
@@ -34,13 +66,44 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "severity", "area", "description"],
+        "required": [
+          "id",
+          "severity",
+          "area",
+          "description"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^UX-\\d{3}$" },
-          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
-          "area": { "type": "string", "enum": ["error_messages", "empty_states", "loading", "feedback", "flow", "accessibility", "terminology"] },
-          "description": { "type": "string" },
-          "recommendation": { "type": "string" }
+          "id": {
+            "type": "string",
+            "pattern": "^UX-\\d{3}$"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "area": {
+            "type": "string",
+            "enum": [
+              "error_messages",
+              "empty_states",
+              "loading",
+              "feedback",
+              "flow",
+              "accessibility",
+              "terminology"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          }
         }
       }
     },
@@ -48,12 +111,30 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "severity", "description"],
+        "required": [
+          "id",
+          "severity",
+          "description"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
-          "description": { "type": "string" },
-          "recommendation": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          }
         }
       }
     },
@@ -61,19 +142,44 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "severity", "rule", "description"],
+        "required": [
+          "id",
+          "severity",
+          "rule",
+          "description"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
-          "rule": { "type": "string" },
-          "description": { "type": "string" },
-          "recommendation": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "rule": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          }
         }
       }
     },
     "next_action": {
       "type": "string",
-      "enum": ["approved", "return_to_fixer", "escalate_human"]
+      "enum": [
+        "approved",
+        "return_to_fixer",
+        "escalate_human"
+      ]
     }
   }
 }

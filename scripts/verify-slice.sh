@@ -271,8 +271,8 @@ say '    subagent_type: "verifier"'
 say '    description:   "Verify slice-'"$NNN"'"'
 say '    prompt:        "Leia APENAS verification-input/. Escreva'
 say '                    specs/'"$NNN"'/verification.json seguindo o'
-say '                    schema de R4 (docs/schemas/verification.schema.json).'
-say '                    Sem prosa, apenas o JSON."'
+say '                    schema canonico docs/protocol/schemas/gate-output.schema.json'
+say '                    (gate-output-v1, gate=verify). Sem prosa, apenas o JSON."'
 say ""
 say "  Após o verifier gravar verification.json, rode:"
 say ""

@@ -1,10 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "DEPRECATED 2026-04-17 — substituido por docs/protocol/schemas/gate-output.schema.json (gate-output-v1, v1.2.4). Mantido somente para referencia historica. Novos gates (protocolo v1.2.2) validam contra o canonico unificado. Nenhum script do harness deve mais referenciar este arquivo.",
+  "deprecated": true,
   "$id": "https://kalibrium.local/schemas/verification.schema.json",
-  "title": "Verification Output",
+  "title": "[DEPRECATED] Verification Output",
   "description": "Schema do arquivo verification.json produzido pelo sub-agent verifier. Referenciado por R4 em docs/constitution.md.",
   "type": "object",
-  "required": ["slice_id", "verdict", "timestamp", "ac_checks", "violations", "next_action"],
+  "required": [
+    "slice_id",
+    "verdict",
+    "timestamp",
+    "ac_checks",
+    "violations",
+    "next_action"
+  ],
   "additionalProperties": false,
   "properties": {
     "slice_id": {
@@ -14,7 +23,10 @@
     },
     "verdict": {
       "type": "string",
-      "enum": ["approved", "rejected"],
+      "enum": [
+        "approved",
+        "rejected"
+      ],
       "description": "Veredito do verifier. Binário, sem meio-termo."
     },
     "timestamp": {
@@ -28,7 +40,11 @@
       "description": "Resultado por AC declarado no spec. Deve cobrir todos os ACs de ac-list.json.",
       "items": {
         "type": "object",
-        "required": ["ac", "status", "evidence"],
+        "required": [
+          "ac",
+          "status",
+          "evidence"
+        ],
         "additionalProperties": false,
         "properties": {
           "ac": {
@@ -37,7 +53,10 @@
           },
           "status": {
             "type": "string",
-            "enum": ["pass", "fail"]
+            "enum": [
+              "pass",
+              "fail"
+            ]
           },
           "evidence": {
             "type": "string",
@@ -52,14 +71,36 @@
       "description": "Lista de violações de P1-P9 ou R1-R10. Vazio se verdict=approved.",
       "items": {
         "type": "object",
-        "required": ["rule", "file", "line", "reason"],
+        "required": [
+          "rule",
+          "file",
+          "line",
+          "reason"
+        ],
         "additionalProperties": false,
         "properties": {
           "rule": {
             "type": "string",
             "enum": [
-              "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9",
-              "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"
+              "P1",
+              "P2",
+              "P3",
+              "P4",
+              "P5",
+              "P6",
+              "P7",
+              "P8",
+              "P9",
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R5",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10"
             ]
           },
           "file": {
@@ -79,7 +120,11 @@
     },
     "next_action": {
       "type": "string",
-      "enum": ["open_pr", "return_to_implementer", "escalate_human"],
+      "enum": [
+        "open_pr",
+        "return_to_implementer",
+        "escalate_human"
+      ],
       "description": "Ação pós-verdict. approved -> open_pr. rejected 1x-5x -> return_to_implementer. rejected 6x+ -> escalate_human (R6)."
     }
   },
@@ -87,16 +132,26 @@
     {
       "description": "approved exige zero violations e zero ac fail",
       "if": {
-        "properties": { "verdict": { "const": "approved" } }
+        "properties": {
+          "verdict": {
+            "const": "approved"
+          }
+        }
       },
       "then": {
         "properties": {
-          "violations": { "maxItems": 0 },
-          "next_action": { "const": "open_pr" },
+          "violations": {
+            "maxItems": 0
+          },
+          "next_action": {
+            "const": "open_pr"
+          },
           "ac_checks": {
             "items": {
               "properties": {
-                "status": { "const": "pass" }
+                "status": {
+                  "const": "pass"
+                }
               }
             }
           }
@@ -106,12 +161,19 @@
     {
       "description": "rejected NÃO pode ter next_action=open_pr",
       "if": {
-        "properties": { "verdict": { "const": "rejected" } }
+        "properties": {
+          "verdict": {
+            "const": "rejected"
+          }
+        }
       },
       "then": {
         "properties": {
           "next_action": {
-            "enum": ["return_to_implementer", "escalate_human"]
+            "enum": [
+              "return_to_implementer",
+              "escalate_human"
+            ]
           }
         }
       }

@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
-# validate-review.sh — valida review.json contra review.schema.json (R11).
-# Equivalente a validate-verification.sh mas para o reviewer output.
+# validate-review.sh — valida review.json contra o schema canonico gate-output-v1.
 #
-# Sem dependências externas (bash puro + grep). Usa python3+jsonschema se
-# disponível para validação mais rigorosa.
+# Protocolo v1.2.2: toda saida de gate segue docs/protocol/schemas/gate-output.schema.json.
+# Este validador substitui a logica v1 que usava docs/schemas/review.schema.json (deprecated).
+#
+# Politica zero-tolerance: approved exige blocking_findings_count == 0 (S1-S3).
+# S4/S5 podem existir em approved (nao bloqueiam).
+#
+# Uso:
+#   bash scripts/validate-review.sh <path/to/review.json>
+#
+# Exit 0 = valido, Exit 1 = invalido.
 
 set -uo pipefail
 
@@ -13,7 +20,7 @@ if [ -z "$FILE" ]; then
   exit 1
 fi
 if [ ! -f "$FILE" ]; then
-  echo "[validate-review BLOCK] arquivo não encontrado: $FILE" >&2
+  echo "[validate-review BLOCK] arquivo nao encontrado: $FILE" >&2
   exit 1
 fi
 
@@ -22,21 +29,39 @@ fail() { echo "[validate-review FAIL] $*" >&2; exit 1; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SCHEMA="$REPO_ROOT/docs/schemas/review.schema.json"
+SCHEMA="$REPO_ROOT/docs/protocol/schemas/gate-output.schema.json"
+EXPECTED_GATE="review"
+
+if [ ! -f "$SCHEMA" ]; then
+  fail "schema canonico ausente: $SCHEMA"
+fi
 
 # ---------- python3+jsonschema (preferencial) ----------
 if command -v python3 >/dev/null 2>&1 && python3 -c "import jsonschema" 2>/dev/null; then
-  say "usando python3 + jsonschema"
-  if python3 - <<PY
-import json, sys
+  say "usando python3 + jsonschema (gate-output-v1)"
+  if SCHEMA_PATH="$SCHEMA" AUDIT_PATH="$FILE" EXPECTED_GATE="$EXPECTED_GATE" python3 - <<'PY'
+import json, os, sys
+import jsonschema
 try:
-    import jsonschema
-    with open("$SCHEMA") as s:
+    with open(os.environ["SCHEMA_PATH"], encoding="utf-8") as s:
         schema = json.load(s)
-    with open("$FILE") as f:
+    with open(os.environ["AUDIT_PATH"], encoding="utf-8") as f:
         doc = json.load(f)
     jsonschema.validate(doc, schema)
-    print("[validate-review OK] jsonschema passou", file=sys.stderr)
+    if doc["gate"] != os.environ["EXPECTED_GATE"]:
+        raise ValueError(f"gate deve ser '{os.environ['EXPECTED_GATE']}', achei '{doc['gate']}'")
+    if doc["verdict"] == "approved" and doc["blocking_findings_count"] != 0:
+        raise ValueError("approved exige blocking_findings_count == 0")
+    if doc["verdict"] == "rejected" and not doc["findings"]:
+        raise ValueError("rejected exige pelo menos um finding")
+    sev = doc["findings_by_severity"]
+    expected_blocking = sev["S1"] + sev["S2"] + sev["S3"]
+    if doc["blocking_findings_count"] != expected_blocking:
+        raise ValueError(
+            f"blocking_findings_count ({doc['blocking_findings_count']}) "
+            f"inconsistente com S1+S2+S3 ({expected_blocking})"
+        )
+    print("[validate-review OK] gate-output-v1 passou", file=sys.stderr)
     sys.exit(0)
 except Exception as e:
     print(f"[validate-review FAIL] {e}", file=sys.stderr)
@@ -49,66 +74,50 @@ PY
   fi
 fi
 
-# ---------- Fallback: validação em bash puro ----------
-say "python3+jsonschema indisponível — validando em bash"
+# ---------- Fallback: validacao em bash puro ----------
+say "python3+jsonschema indisponivel — validando em bash (gate-output-v1)"
 
 CONTENT="$(cat "$FILE")"
 
 case "$CONTENT" in
   "{"*"}"*) : ;;
-  *) fail "não parece objeto JSON" ;;
+  *) fail "nao parece objeto JSON" ;;
 esac
 
-REQUIRED=(slice_id verdict timestamp quality_checks findings next_action)
+REQUIRED=('$schema' gate slice lane agent mode verdict timestamp commit_hash \
+          isolation_context blocking_findings_count non_blocking_findings_count \
+          findings_by_severity findings)
 for f in "${REQUIRED[@]}"; do
   if ! echo "$CONTENT" | grep -q "\"$f\""; then
-    fail "campo obrigatório ausente: $f"
+    fail "campo gate-output-v1 ausente: $f"
   fi
 done
 
-VERDICT="$(echo "$CONTENT" | grep -o '"verdict"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)".*/\1/')"
+SCHEMA_VAL="$(echo "$CONTENT" | grep -oE '"\$schema"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)"$/\1/')"
+if [ "$SCHEMA_VAL" != "gate-output-v1" ]; then
+  fail "\$schema deve ser 'gate-output-v1' (achei '$SCHEMA_VAL')"
+fi
+
+GATE_VAL="$(echo "$CONTENT" | grep -oE '"gate"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)"$/\1/')"
+if [ "$GATE_VAL" != "$EXPECTED_GATE" ]; then
+  fail "gate deve ser '$EXPECTED_GATE' (achei '$GATE_VAL')"
+fi
+
+VERDICT="$(echo "$CONTENT" | grep -oE '"verdict"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)"$/\1/')"
 case "$VERDICT" in
-  approved|rejected) : ;;
-  *) fail "verdict inválido: '$VERDICT'" ;;
+  approved|rejected) say "verdict=$VERDICT" ;;
+  *) fail "verdict invalido: '$VERDICT'" ;;
 esac
 
-NEXT="$(echo "$CONTENT" | grep -o '"next_action"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)".*/\1/')"
-case "$NEXT" in
-  approve_pr|return_to_implementer|escalate_human) : ;;
-  *) fail "next_action inválido: '$NEXT'" ;;
-esac
-
-SLICE_ID="$(echo "$CONTENT" | grep -o '"slice_id"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)".*/\1/')"
-if ! echo "$SLICE_ID" | grep -qE '^slice-[0-9]{3}$'; then
-  fail "slice_id inválido: '$SLICE_ID'"
+BLOCKING="$(echo "$CONTENT" | grep -oE '"blocking_findings_count"[[:space:]]*:[[:space:]]*[0-9]+' | head -1 | grep -oE '[0-9]+$')"
+if [ "$VERDICT" = "approved" ] && [ "$BLOCKING" != "0" ]; then
+  fail "approved exige blocking_findings_count == 0 (achei $BLOCKING)"
 fi
 
-# Coerência
-if [ "$VERDICT" = "approved" ] && [ "$NEXT" != "approve_pr" ]; then
-  fail "approved exige next_action=approve_pr"
-fi
-if [ "$VERDICT" = "rejected" ] && [ "$NEXT" = "approve_pr" ]; then
-  fail "rejected não pode ter next_action=approve_pr"
+TS="$(echo "$CONTENT" | grep -oE '"timestamp"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)"$/\1/')"
+if ! echo "$TS" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}'; then
+  fail "timestamp invalido: '$TS' (esperado ISO-8601)"
 fi
 
-# approved não pode ter severity=blocker
-if [ "$VERDICT" = "approved" ]; then
-  if echo "$CONTENT" | grep -qE '"severity"[[:space:]]*:[[:space:]]*"blocker"'; then
-    fail "approved tem finding severity=blocker"
-  fi
-fi
-
-# Categorias válidas em quality_checks
-BAD_CATEGORIES="$(echo "$CONTENT" | grep -o '"category"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*"([^"]*)".*/\1/' | grep -vE '^(duplication|complexity|naming|security|simplicity|glossary|adr_compliance|dead_code)$' || true)"
-if [ -n "$BAD_CATEGORIES" ]; then
-  fail "categorias inválidas: $BAD_CATEGORIES"
-fi
-
-# Severidades válidas
-BAD_SEVERITIES="$(echo "$CONTENT" | grep -o '"severity"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*"([^"]*)".*/\1/' | grep -vE '^(blocker|major|minor)$' || true)"
-if [ -n "$BAD_SEVERITIES" ]; then
-  fail "severidades inválidas: $BAD_SEVERITIES"
-fi
-
-say "validado OK (fallback bash): $FILE"
+say "validado OK (fallback bash, gate-output-v1): $FILE"
 exit 0
