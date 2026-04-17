@@ -35,14 +35,14 @@ Nenhuma — pode ser executada a qualquer momento. Recomenda-se que o harness es
 
 ## Agentes
 
-- `governance` (modo: guide-audit) (budget: 15k tokens, modelo haiku) — executa com ferramentas read-only, roda os 9 checks de drift descritos em `.claude/agents/governance.md` (modo guide-audit).
+- `governance` (modo: guide-audit) (budget: 60k tokens, modelo opus) — executa com ferramentas read-only, roda os 9 checks de drift descritos em `.claude/agents/governance.md` (modo guide-audit).
 
 ## Erros e Recuperação
 
 | Cenário | Recuperação |
 |---|---|
 | Script `scripts/guide-check.sh` não existe | Verificar integridade do harness. Pode indicar que o scaffold inicial não foi concluído. |
-| Sub-agent `governance` (modo: guide-audit) falha ou excede budget (15k tokens) | Re-invocar. Se persistir, rodar os checks manualmente (leitura dos arquivos listados em `governance.md §Checks obrigatórios` modo guide-audit). |
+| Sub-agent `governance` (modo: guide-audit) falha ou excede budget (60k tokens) | Re-invocar. Se persistir, rodar os checks manualmente (leitura dos arquivos listados em `governance.md §Checks obrigatórios` modo guide-audit). |
 | Resultado vermelho (intervenção humana obrigatória) | Parar todo trabalho em progresso. Criar `docs/incidents/audit-<date>.md`. Invocar `/explain-slice` se houver slice ativo para traduzir o problema ao PM. |
 | Snapshots anteriores ausentes (primeiro run) | Gerar snapshot baseline sem diff. Próxima execução terá referência para comparação. |
 
