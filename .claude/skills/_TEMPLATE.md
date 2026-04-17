@@ -72,7 +72,7 @@ bash scripts/<script-da-skill>.sh "$@"
 
 | Sub-agent | Modo | Isolamento | Budget |
 |---|---|---|---|
-| `<agente>` | `<modo>` | worktree isolada / sandbox hook | <N>k tokens |
+| `<agente>` | `<modo>` | sandbox via `scripts/hooks/verifier-sandbox.sh` | <N>k tokens |
 
 (Ou: "Nenhum — executada pelo orquestrador." se a skill não spawn-a sub-agent.)
 
@@ -170,7 +170,7 @@ A skill não é considerada executada sem o artefato gravado/mensagem emitida. O
 - **Output:** `<path>` (schema formal se aplicável)
 - **Schema formal:** `docs/protocol/schemas/<schema>.schema.json`
 - **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §<N>` (se gate)
-- **Isolamento R3:** descrição do isolamento (worktree / sandbox hook / não aplicável)
+- **Isolamento R3:** descrição do isolamento (sandbox via `scripts/hooks/verifier-sandbox.sh` / não aplicável)
 - **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0` (se gate)
 - **Ordem no pipeline:** pré-requisito: `<skill anterior>`; próximo: `<skill posterior>`
 
