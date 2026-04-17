@@ -92,8 +92,9 @@ done
 # ---------------------------------------------------------------------------
 # 3. Extrai ACs — pelo menos 1, em sequência, sem buracos
 #    Harness v3: aceita bullets ('- **AC-001:** …') OU headings ('### AC-001 — …' com Gherkin Dado/Quando/Então).
+#    Protocolo v1.2.4 §10.1: aceita AC-NNN (legado) OU AC-NNN-XXX (canônico, sufixo alfanumérico).
 # ---------------------------------------------------------------------------
-AC_LINES="$(grep -nE '^(\s*-\s*\*?\*?AC-[0-9]+|###+[[:space:]]+\*?\*?AC-[0-9]+)' "$SPEC" || true)"
+AC_LINES="$(grep -nE '^(\s*-\s*\*?\*?AC-[0-9]+(-[A-Z0-9]+)?|###+[[:space:]]+\*?\*?AC-[0-9]+(-[A-Z0-9]+)?)' "$SPEC" || true)"
 AC_COUNT=0
 if [ -n "$AC_LINES" ]; then
   AC_COUNT="$(echo "$AC_LINES" | grep -c . || echo 0)"
@@ -105,14 +106,21 @@ if [ "$AC_COUNT" -lt 1 ]; then
 else
   ok "$AC_COUNT AC(s) encontrados"
 
-  # Sequência sem buracos
+  # Sequência sem buracos — compara apenas a parte numérica NNN (ignora sufixo -XXX quando presente)
   PREV=0
   GAP=0
   LAST_OK=0
+  LAST_SEEN=""
   while IFS= read -r line; do
     [ -z "$line" ] && continue
-    ID_RAW="$(echo "$line" | grep -oE 'AC-[0-9]+' | head -1 | sed -E 's/AC-0*//')"
+    ID_BASE="$(echo "$line" | grep -oE 'AC-[0-9]+' | head -1)"
+    [ -z "$ID_BASE" ] && continue
+    ID_RAW="$(echo "$ID_BASE" | sed -E 's/AC-0*//')"
     [ -z "$ID_RAW" ] && ID_RAW=0
+    # Deduplica: se o MESMO AC-NNN aparece com múltiplos sufixos (AC-001-A, AC-001-B), conta só a primeira ocorrência
+    if [ "$ID_RAW" -eq "$PREV" ]; then
+      continue
+    fi
     EXPECTED=$((PREV + 1))
     if [ "$ID_RAW" -ne "$EXPECTED" ]; then
       fail "AC fora de sequência — esperado AC-$(printf '%03d' "$EXPECTED"), achei AC-$(printf '%03d' "$ID_RAW")"
@@ -128,7 +136,7 @@ fi
 # ---------------------------------------------------------------------------
 # 4. ACs sem descrição
 # ---------------------------------------------------------------------------
-EMPTY_AC="$(grep -nE '^(\s*-\s*\*?\*?AC-[0-9]+\*?\*?:?\s*$|###+[[:space:]]+\*?\*?AC-[0-9]+\*?\*?\s*$)' "$SPEC" || true)"
+EMPTY_AC="$(grep -nE '^(\s*-\s*\*?\*?AC-[0-9]+(-[A-Z0-9]+)?\*?\*?:?\s*$|###+[[:space:]]+\*?\*?AC-[0-9]+(-[A-Z0-9]+)?\*?\*?\s*$)' "$SPEC" || true)"
 if [ -n "$EMPTY_AC" ]; then
   fail "AC(s) sem descrição:"
   echo "$EMPTY_AC" | sed 's/^/      /' >&2
@@ -137,7 +145,7 @@ fi
 # ---------------------------------------------------------------------------
 # 5. TODO/TBD/FIXME/... dentro dos ACs
 # ---------------------------------------------------------------------------
-if grep -nE '^(\s*-\s*\*?\*?AC-[0-9]+|###+[[:space:]]+\*?\*?AC-[0-9]+).*(TODO|TBD|FIXME|\.\.\.)' "$SPEC" >/dev/null; then
+if grep -nE '^(\s*-\s*\*?\*?AC-[0-9]+(-[A-Z0-9]+)?|###+[[:space:]]+\*?\*?AC-[0-9]+(-[A-Z0-9]+)?).*(TODO|TBD|FIXME|\.\.\.)' "$SPEC" >/dev/null; then
   fail "AC(s) com TODO/TBD/FIXME/... — todos devem ser concretos e testáveis agora"
 fi
 
