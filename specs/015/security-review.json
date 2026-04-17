@@ -1,0 +1,61 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "security-gate",
+  "slice": "015",
+  "lane": "L3",
+  "agent": "security-expert",
+  "mode": "security-gate",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T22:00:00Z",
+  "commit_hash": "d520acf",
+  "isolation_context": "slice-015-security-gate-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings": [],
+  "evidence": {
+    "owasp_checks": {
+      "A01_broken_access_control": "n/a (spike documental, sem rotas)",
+      "A02_cryptographic_failures": "pass (D-1 libsodium plano B registrado em stack-versions.md; ADR-0015 SQLCipher mantido)",
+      "A03_injection": "n/a (sem SQL executado)",
+      "A05_security_misconfiguration": "pass (package.json private:true, license UNLICENSED, engines node >=20 <21)",
+      "A06_vulnerable_components": "pass (versoes pinnadas exatas: react 18.3.1, ionic 8.2.6, capacitor 6.1.2, sqlite 6.0.2, vite 5.2.11)",
+      "A07_auth_failures": "n/a (spike nao toca auth)",
+      "A08_software_data_integrity": "pass (versoes exatas sem ranges permissivos ~/^, --force proibido; --legacy-peer-deps so com rationale)",
+      "A09_logging_failures": "pass (npm-install.log sem tokens; README warn tokens/credentials)",
+      "A10_ssrf": "n/a"
+    },
+    "owasp_categories_checked": 10,
+    "lgpd_checks": {
+      "personal_data_identified": true,
+      "legal_basis_documented": true,
+      "retention_policy_defined": true,
+      "audit_trail_present": true,
+      "pii_exposure_in_docs": "clean (api-endpoints.md:109-110 cita colunas PII genericamente — documento, email, telefone, endereco — sem valores reais; spec.md:§10 declara 100% sintetico)"
+    },
+    "sql_injection_vectors": [],
+    "xss_vectors": [],
+    "mass_assignment_unprotected": [],
+    "hardcoded_secrets": [],
+    "csrf_unprotected_routes": [],
+    "unauthorized_controller_methods": [],
+    "unscoped_queries": [],
+    "pii_logged_unmasked": [],
+    "composer_audit_high_critical": 0,
+    "rate_limiting_missing": [],
+    "secrets_scan": "clean (spike-inf007/** e docs/frontend/** sem tokens, api keys, credentials, bearer reais; unicas ocorrencias sao metadocumentais em README.md:43 e placeholders 'Bearer <sanctum-token>' em api-endpoints.md:88)",
+    "tenant_isolation": "verified (api-endpoints.md:109-110 declara tenant_id FK em clientes e contatos; plan.md passo 3 e spec AC-004 exigem tenant_id em todas tabelas espelhadas conforme ADR-0016)",
+    "supply_chain": {
+      "deps_pinned_exact": true,
+      "force_flag_prohibited": true,
+      "legacy_peer_deps_gated_by_rationale": true,
+      "private_true": true,
+      "node_engine_pinned": ">=20.0.0 <21.0.0"
+    },
+    "decision_transparency": {
+      "D1_sqlcipher_plan_b": "documentado (plan.md:§3 D-1 libsodium + PBKDF2; reversibilidade media)",
+      "D2_legacy_peer_deps_policy": "documentado (plan.md:§3 D-2 fallback ordenado; --force proibido)",
+      "cross_scope_backend_credentials": "nao acessadas (spike 100% doc + PoC vazio; spec.md:§10 explicita)"
+    }
+  }
+}

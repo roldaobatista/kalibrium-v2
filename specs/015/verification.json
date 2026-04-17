@@ -1,0 +1,69 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "verify",
+  "slice": "015",
+  "lane": "L3",
+  "agent": "qa-expert",
+  "mode": "verify",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T20:00:00Z",
+  "commit_hash": "d520acf",
+  "isolation_context": "slice-015-verify-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings": [],
+  "evidence": {
+    "ac_results": [
+      {
+        "ac": "AC-001",
+        "status": "pass",
+        "evidence": "tests/slice-015/SpikeInf007Test.php::AC-001: docs/frontend/api-endpoints.md existe + AC-001: api-endpoints.md mapeia auth, tenants e healthcheck — 2 testes passed; arquivo docs/frontend/api-endpoints.md confirma tabela de endpoints com metodos HTTP, headers Authorization/Bearer/Sanctum, secoes auth/tenants/healthcheck"
+      },
+      {
+        "ac": "AC-002",
+        "status": "pass",
+        "evidence": "tests/slice-015/SpikeInf007Test.php::AC-002: docs/frontend/stack-versions.md existe e declara versoes exatas + AC-002: PoC spike-inf007 possui evidencia de npm install sem erros — 2 testes passed; stack-versions.md declara React, TypeScript, Ionic, Capacitor, @capacitor-community/sqlite, SQLCipher, Vite com versoes semver; spike-inf007/package.json fixa versoes exatas; secao 'Evidencia npm install' presente inline"
+      },
+      {
+        "ac": "AC-003",
+        "status": "pass",
+        "evidence": "tests/slice-015/SpikeInf007Test.php::AC-003: stack-versions.md tem secao 'Riscos de plataforma' com verdict explicito — 1 teste passed; secao '## Riscos de plataforma' presente; verdict '(a) sem bloqueador conhecido' declarado explicitamente; menciona iOS 17, iOS 18, Android 14, Android 15"
+      },
+      {
+        "ac": "AC-004",
+        "status": "pass",
+        "evidence": "tests/slice-015/SpikeInf007Test.php::AC-004: api-endpoints.md tem secao 'Schema local' com tenant_id declarado — 1 teste passed; secao '## Schema local' presente em docs/frontend/api-endpoints.md:97; tenant_id declarado em 9 das 11 tabelas listadas conforme ADR-0016"
+      },
+      {
+        "ac": "AC-005",
+        "status": "pass",
+        "evidence": "tests/slice-015/SpikeInf007Test.php::AC-005: stack-versions.md tem secao 'Descarte' listando frontend antigo — 1 teste passed; secao '## Descarte' presente; references a resources/views, .blade.php, Livewire, resources/js; confirmacao explicita 'nao sera reaproveitado' presente"
+      },
+      {
+        "ac": "AC-006",
+        "status": "pass",
+        "evidence": "tests/slice-015/SpikeInf007Test.php::AC-006: stack-versions.md tem checklist 'Pre-condicoes E15-S02' com 6 itens — 1 teste passed; 7 itens de checklist encontrados (>= 6 exigidos); cobre versoes, auth, SQLCipher, descarte do frontend antigo"
+      }
+    ],
+    "dod_checklist": {
+      "tests_pass": true,
+      "lint_clean": true,
+      "types_ok": true,
+      "coverage_met": true,
+      "no_files_out_of_scope": true
+    },
+    "pest_exit_code": 0,
+    "pest_tests_passed": 8,
+    "pest_assertions_passed": 40,
+    "phpstan_errors": 0,
+    "pint_changes": 0,
+    "scope_check": {
+      "app_modified": false,
+      "routes_modified": false,
+      "database_modified": false,
+      "resources_modified": false,
+      "note": "git diff main...HEAD -- app/ routes/ database/ resources/ retornou vazio. Nenhum arquivo de producao alterado como parte deste slice. Slice e spike documental — unicas saidas sao docs/frontend/api-endpoints.md, docs/frontend/stack-versions.md, spike-inf007/, tests/slice-015/SpikeInf007Test.php e specs/015/."
+    }
+  }
+}
