@@ -129,7 +129,7 @@ Se a skill for um gate com dual-verifier (R11) ou loop de correção:
 
 ## Próximo passo
 
-Sugestão única e clara ao PM em R12 (regra: **sempre uma ação), dependente do verdict:
+Sugestão única e clara ao PM em R12 (regra: **sempre uma ação**), dependente do verdict:
 
 - Sucesso → `<comando único>`
 - Falha corrigível → `<comando de correção>`
