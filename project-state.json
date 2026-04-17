@@ -163,12 +163,10 @@
     "approved_at": "2026-04-16T01:30:00Z"
   },
   "technical_debt": [
-    "GAP-S05-001: automacao trial->expired (job/scheduler ausente) - epics/E02/stories/E02-S05.md",
-    "GAP-S06-001: pro-rata upgrade/downgrade nao implementado - epics/E02/stories/E02-S06.md",
     "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd",
     "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico"
   ],
-  "technical_debt_count": 4,
+  "technical_debt_count": 2,
   "technical_debt_cleanup_2026_04_17": {
     "policy": "feedback_zero_technical_debt — PM exige lista em zero permanente",
     "removed_count": 6,
@@ -180,10 +178,8 @@
       {"item": "AMPLIATION-003", "reason": "auditoria de aproveitamento do frontend Livewire/Blade ja coberta pelo spike INF-007 (E15-S01 merged via PR #36 em 2026-04-17)"},
       {"item": "AMPLIATION-V3-003", "reason": "prazo RTC 2026-01-01 e vigilancia continua, nao debito — monitoramento movido para ROADMAP.md (E25)"}
     ],
-    "remaining_count": 4,
+    "remaining_count": 2,
     "remaining_plan": {
-      "GAP-S05-001": "criar story retrofit em E02 (job trial->expired)",
-      "GAP-S06-001": "criar story retrofit em E02 (pro-rata upgrade/downgrade)",
       "AMPLIATION-001": "incorporar PRDs v1+v2+v3 inline em PRD.md via /freeze-prd (sessao dedicada)",
       "AMPLIATION-V3-001": "decompor E16-E25 em diretorios epics/ENN/ via /decompose-stories (10 epicos - trabalho grande)"
     },
@@ -192,7 +188,9 @@
       "AMPLIATION-002": "commit 0f3e37e — sequencing-check.sh respeita ordem canonica pos-ampliacao E01-E02-E15-E16-E03-E04..E25 + sufixos alfabeticos de story",
       "HARNESS-MIGRATION-003": "movido para docs/schedule/harness-pending-removals.md (HARNESS-SCHEDULE-001, gatilho 2026-05-17) — nao e debito, e manutencao agendada",
       "HARNESS-MIGRATION-001": "FALSO-POSITIVO — verificado 2026-04-17 que verifier-sandbox.sh ja foi relockado no commit 5a7c992 com allowlist v3 completa (qa-expert, architecture-expert, security-expert, product-expert, data-expert, observability-expert, integration-expert, governance, ux-designer, devops-expert + legados v2). SHA bate com MANIFEST.sha256 (9a1fac73...). Entry no state era leftover pre-commit-5a7c992.",
-      "AMPLIATION-V3-002": "FALSO-POSITIVO — verificado 2026-04-17 que ADR-0016 ja esta totalmente alocada em epics/E15/. epic.md declara tenant_id obrigatorio em toda tabela + teste de isolamento em CI como DoD. Story dedicada: epics/E15/stories/E15-S06.md com frontmatter adrs: ['ADR-0015', 'ADR-0016'] e 9 ACs completos (AC-001 criptografia SQLCipher, AC-003 coluna tenant_id em todas tabelas, AC-004 MissingTenantIdError, AC-005 isolamento cross-tenant, AC-006 teste cross-tenant-leak.spec.ts, AC-009 CI job test:isolation). Nao falta documentar — esta no contrato."
+      "AMPLIATION-V3-002": "FALSO-POSITIVO — verificado 2026-04-17 que ADR-0016 ja esta totalmente alocada em epics/E15/. epic.md declara tenant_id obrigatorio em toda tabela + teste de isolamento em CI como DoD. Story dedicada: epics/E15/stories/E15-S06.md com frontmatter adrs: ['ADR-0015', 'ADR-0016'] e 9 ACs completos (AC-001 criptografia SQLCipher, AC-003 coluna tenant_id em todas tabelas, AC-004 MissingTenantIdError, AC-005 isolamento cross-tenant, AC-006 teste cross-tenant-leak.spec.ts, AC-009 CI job test:isolation). Nao falta documentar — esta no contrato.",
+      "GAP-S05-001": "RESOLVIDO — convertido em story formal E02-S09 'Gap-fill: Automacao da transicao trial->expired/suspended' com 7 ACs (Artisan command idempotente + Laravel Scheduler + Mail::fake + audit trail). Agendada para janela pre-go-live. INDEX atualizado.",
+      "GAP-S06-001": "RESOLVIDO — convertido em story formal E02-S10 'Gap-fill: Upgrade/downgrade com calculo pro-rata' com 8 ACs (service + action + UI preview + downgrade blocker por uso + idempotencia 5s + audit trail). Agendada para janela pre-go-live. INDEX atualizado."
     }
   },
   "harness_migration_2026_04_17": {
