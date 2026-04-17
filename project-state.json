@@ -61,14 +61,26 @@
   },
   "execution": {
     "current_epic": "E15",
-    "current_story": "E15-S02",
-    "current_slice": null,
-    "slice_status": "completed-and-merged",
-    "last_green_commit": "101d922",
-    "active_branch": "feat/slice-016-scaffold-frontend",
+    "current_story": "E15-S03",
+    "current_slice": "017",
+    "slice_status": "spec-draft",
+    "last_green_commit": "99663f8",
+    "active_branch": "feat/slice-017-pwa-shell",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
+    "slice_017_pipeline": {
+      "story_contract": "epics/E15/stories/E15-S03.md (approved)",
+      "sequencing_check": "OK (R13+R14 — E15-S02 merged libera S03)",
+      "spec_draft": "specs/017/spec.md (14 ACs: 6 happy + 5 edge + 2 sec + 1 extra)",
+      "spec_audit": "pending",
+      "plan": "pending",
+      "plan_review": "pending",
+      "tests_draft": "pending",
+      "tests_draft_audit": "pending",
+      "implementer": "pending",
+      "gates": "pending"
+    },
     "slice_016_pipeline": {
       "draft_spec_mechanical": "ok (14 ACs AC-001..AC-014 sequenciais)",
       "audit_spec": "approved instance_03 (0 bloqueantes, 1 S4 HARNESS-MIGRATION-002)",
@@ -272,12 +284,12 @@
       "status": "backlog-p1"
     },
     "E15": {
-      "status": "in-progress-s01-s02-merged",
-      "notes": "E15-S01 + E15-S02 merged via PR #36 e PR #47. Proximo: E15-S03 (PWA Service Worker + manifest).",
+      "status": "in-progress-s03-started",
+      "notes": "E15-S01 + E15-S02 merged (PR #36/#47). S03 spec-draft em specs/017/ — pipeline de gates pre-impl comecando.",
       "stories": {
         "E15-S01": "merged",
         "E15-S02": "merged",
-        "E15-S03": "pending",
+        "E15-S03": "in-progress-spec-draft",
         "E15-S04": "pending",
         "E15-S05": "pending",
         "E15-S06": "pending",
@@ -437,11 +449,11 @@
     "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
   },
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos; B-029..B-032 novos apos slice 015)",
-  "state": "active-post-merge-016",
+  "state": "active-slice-017-spec-draft",
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "Iniciar E15-S03 (PWA Service Worker + manifest.webmanifest + instalabilidade offline). Pre-condicoes: sequencing-check --story E15-S03 (E15-S02 merged -> libera S03). Fluxo: /start-story E15-S03 -> /audit-spec -> /draft-plan -> /review-plan -> /draft-tests -> /audit-tests-draft -> builder:implementer -> pipeline 6 gates -> merge.",
+  "next_recommended_action": "Auditar specs/017/spec.md via /audit-spec 017 (qa-expert modo audit-spec em contexto isolado). Loop fixer->re-audit ate zero findings bloqueantes antes de /draft-plan 017.",
   "pending_audit": {
     "type": "comparativa-externa",
     "status": "completed",
