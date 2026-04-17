@@ -5,6 +5,8 @@ model: opus
 tools: Read, Grep, Glob, Write
 max_tokens_per_invocation: 50000
 protocol_version: "1.2.2"
+changelog:
+  - 2026-04-16: v1.2.2 alignment + remediacao auditoria 2026-04-16 (schemas expandidos para 14 campos canonicos, alinhamento com gate-output.schema.json)
 ---
 
 **Fonte normativa:** `docs/protocol/` v1.2.2 — mapa canonico de modos em 00 §3.1, contratos de artefato por modo em 03, criterios objetivos de gate em 04 §§1-15, schema formal em `docs/protocol/schemas/gate-output.schema.json`. Em caso de conflito entre este agente e o protocolo, o protocolo prevalece.

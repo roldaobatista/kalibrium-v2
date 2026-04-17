@@ -5,6 +5,8 @@ model: opus
 tools: Agent, Read, Grep, Glob, Skill
 max_tokens_per_invocation: 100000
 protocol_version: "1.2.2"
+changelog:
+  - 2026-04-16: v1.2.2 alignment + remediacao auditoria 2026-04-16 (schemas expandidos para 14 campos canonicos, alinhamento com gate-output.schema.json)
 ---
 
 # Orquestrador Mestre
