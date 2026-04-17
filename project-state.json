@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution-post-slice-015-merged",
-  "updated_at": "2026-04-17T14:45:00-04:00",
+  "updated_at": "2026-04-17T15:00:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -96,7 +96,7 @@
       "merged_at": "2026-04-17",
       "merge_commit": "8addb11",
       "auto_merge_armed": true,
-      "next_action": "Aguardar decisao PM sobre recuperacao dos artefatos de ampliacao (PRDs, ADR-0016, incidents) perdidos nas branches deletadas work/offline-discovery-2026-04-16 e feat/slice-015-spike-inf007. Commits ainda referenciados em reflog. Depois: /slice-report 015 + /retrospective 015 + /start-story E15-S02."
+      "next_action": "/slice-report 015 + /retrospective 015 + /start-story E15-S02. Recuperacao de artefatos de ampliacao ja realizada via PRs #38/#39/#40 (commits 5ce2126, a13fe36, 4d8c007)."
     }
   },
   "gates_status": {
@@ -166,10 +166,9 @@
     "AMPLIATION-V3-003: E25 tem prazo fixo antes de 2026-01-01 (RTC) - monitorar publicacao de NT da CGNFS-e",
     "HARNESS-MIGRATION-001: scripts/hooks/verifier-sandbox.sh (selado) ainda usa allowlist AGENT_ROLE v1; exige relock externo do PM para upgrade de agent names v3. Plano em docs/incidents/harness-sandbox-role-drift-2026-04-17.md (pendente criar).",
     "HARNESS-MIGRATION-002: AC-ID format canonico AC-NNN-XXX (protocolo §10.1) conflita com validador scripts/draft-spec.sh; candidato a harness-learner (R16).",
-    "HARNESS-MIGRATION-003: docs/schemas/{plan-review,review,verification,security-review,test-audit,functional-review,guide-audit}.schema.json marcados deprecated 2026-04-17. Remover apos 30 dias sem referencia.",
-    "AMPLIATION-RECOVERY-001: PRDs ampliacao v1+v2+v3, ADR-0016, incidents e audits externos NAO entraram em main (ficaram em branches deletadas work/offline-discovery-2026-04-16 tip 2bbce17 e feat/slice-015-spike-inf007 tip 7abe9c8). Cherry-pick recuperavel via reflog. Decisao PM pendente."
+    "HARNESS-MIGRATION-003: docs/schemas/{plan-review,review,verification,security-review,test-audit,functional-review,guide-audit}.schema.json marcados deprecated 2026-04-17. Remover apos 30 dias sem referencia."
   ],
-  "technical_debt_count": 16,
+  "technical_debt_count": 15,
   "harness_migration_2026_04_17": {
     "status": "completed",
     "scope": "Alinhar scripts auxiliares e schemas ao protocolo v1.2.2 + gate-output-v1 (v1.2.4)",
@@ -220,7 +219,7 @@
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "(1) PM decide entre recuperar artefatos de ampliacao via cherry-pick (2bbce17/7abe9c8) OU seguir direto para E15-S02. (2) Apos decisao: /slice-report 015 + /retrospective 015. (3) Proximo slice: /start-story E15-S02 (scaffold Capacitor desbloqueia paralelismo em S03-S06). (4) Monitorar E25 RTC 2026 (prazo fixo antes de 2026-01-01).",
+  "next_recommended_action": "(1) /slice-report 015 + /retrospective 015 (obrigatorios pos-merge). (2) /start-story E15-S02 (scaffold Capacitor desbloqueia paralelismo em S03-S06). (3) Monitorar E25 RTC 2026 (prazo fixo antes de 2026-01-01). Recuperacao de artefatos ja resolvida em PRs #38/#39/#40.",
   "pending_audit": {
     "type": "comparativa-externa",
     "status": "completed",
@@ -317,7 +316,8 @@
       "b99f43e docs(backlog): post-mvp-backlog"
     ],
     "principle_enforced": "PRD e aditivo - so amplia, nunca diminui (feedback_prd_only_grows.md)",
-    "merge_status_2026_04_17": "Artefatos NAO entraram em main via PR #36 (squash perdeu conteudo das branches deletadas). Recuperacao via cherry-pick 2bbce17/7abe9c8 pendente de decisao PM."
+    "merge_status_2026_04_17": "Artefatos recuperados em main via PR #38 (5ce2126 recupera 37 artefatos) + PR #39 (a13fe36 incorpora v1+v2+v3 nos docs principais) + PR #40 (4d8c007 union merge de 2bbce17 com 44 arquivos mais completos). Debito AMPLIATION-RECOVERY-001 resolvido.",
+    "recovery_prs": ["#38 (5ce2126)", "#39 (a13fe36)", "#40 (4d8c007)"]
   },
   "slice_015_merged_summary": {
     "pr": "https://github.com/roldaobatista/kalibrium-v2/pull/36",
@@ -327,6 +327,6 @@
     "retrospectiva": "docs/retrospectives/slice-015.md",
     "guide_backlog_novos": ["B-029", "B-030", "B-031", "B-032"]
   },
-  "last_checkpoint": "2026-04-17T14:45:00-04:00",
+  "last_checkpoint": "2026-04-17T15:00:00-04:00",
   "last_handoff": "docs/handoffs/latest.md"
 }
