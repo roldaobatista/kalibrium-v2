@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution",
-  "updated_at": "2026-04-16T13:30:00-04:00",
+  "updated_at": "2026-04-17T14:45:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "frozen",
@@ -37,14 +37,24 @@
     "documentation_gate": "e03-complete"
   },
   "execution": {
-    "current_epic": "E03",
-    "current_story": "E03-S02b",
-    "current_slice": null,
-    "slice_status": "not_started",
-    "last_green_commit": "c91c3d1",
+    "current_epic": "E15",
+    "current_story": "E15-S01",
+    "current_slice": "015",
+    "slice_status": "merged",
+    "last_green_commit": "8addb11",
     "consecutive_rejections": 0,
     "blocked": false,
-    "blocked_reason": null
+    "blocked_reason": null,
+    "slice_015_pipeline": {
+      "pr": "https://github.com/roldaobatista/kalibrium-v2/pull/36",
+      "merged_at": "2026-04-17",
+      "merge_commit": "8addb11",
+      "gates_approved": "5/5 (verify, code-review, security, audit-tests, functional) + 3/3 planning (spec-audit, plan-review, tests-draft-audit)",
+      "master_audit_dual_llm": "consenso pleno 2x Opus 4.7 em contextos isolados (politica 2026-04-17: GPT-5/Codex descontinuado)",
+      "trilha_A_opus": "approved (0 blocking, 9 S4, 1 S5)",
+      "trilha_B_opus": "approved (0 blocking, 2 S4, 1 S5)",
+      "next_action": "Aguardar decisao PM sobre recuperacao dos artefatos de ampliacao (PRDs, ADR-0016, incidents) perdidos nas branches deletadas work/offline-discovery-2026-04-16 e feat/slice-015-spike-inf007. Commits ainda referenciados em reflog. Depois: /start-story E15-S02."
+    }
   },
   "gates_status": {
     "spec_auditor": "approved",
