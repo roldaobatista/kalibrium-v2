@@ -1,6 +1,6 @@
 # 07 — Politica de Excecoes
 
-> Documento normativo. Versao 1.2.2 — 2026-04-16.
+> Documento normativo. versao 1.2.4 — 2026-04-16.
 > Changelog 1.2.2 (PATCH — meta-audit, L4-ready): secao 5.3 (alertas automaticos) — "Excecao E3 com deadline ultrapassado" nao promove severidade automaticamente; avaliacao e diferida ao governance (retrospective) conforme 01 §S4. Remove contradicao com regra de cascata diferida.
 > Changelog 1.2.1 (PATCH — meta-audit): secao 5.2 (auditoria periodica) agora enumera `E1-E10` (antes `E1-E9`, inconsistente com introducao de E10 em 1.2.0).
 > Changelog 1.2.0: categoria E10 adicionada (divergencia dual-LLM persistente apos 3 rodadas de reconciliacao). E5 corrigido: `lane` agora usa enum L1-L4 (antes `standard` era invalido). E3 atualizado: cascata S4→S3 no proximo slice removida, substituida por avaliacao do governance (retrospective) no fim do epico.

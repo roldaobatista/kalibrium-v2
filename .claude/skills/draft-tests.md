@@ -1,6 +1,6 @@
 ---
 description: Dispara o sub-agent builder (test-writer) para gerar testes red a partir de spec.md + plan.md aprovados. Valida pré-condições, spawna builder (test-writer), confirma que testes nascem vermelhos, e apresenta resultado ao PM em linguagem de produto (R12). Uso: /draft-tests NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog:
   - "2026-04-16 — quality audit fix SK-005R"
   - "2026-04-16 — ADR-0017 Mudanca 1: testes gerados com AC-ID rastreavel obrigatorio; proximo passo apos draft-tests e /audit-tests-draft NNN (nao mais direto para implementer)"
@@ -114,7 +114,7 @@ Próximo passo:
 - Não inventar testes para requisitos que não estão no spec
 - Até 5 ciclos automáticos de re-geração. Na 6ª falha consecutiva, escalar humano (R6)
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** `builder (test-writer)` — conforme mapa canonico 00 §3.1
 - **Gates produzidos:** n/a — skill de geracao de artefatos de teste, nao gate

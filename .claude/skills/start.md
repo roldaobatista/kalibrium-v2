@@ -1,6 +1,6 @@
 ---
 description: Skill de onboarding Dia 1 pro PM — mostra estado atual + decisões pendentes + menu de próximos passos em PT-BR. Use quando não souber o que fazer. Uso: /start.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit Cat C polishing + SK-006"
 ---
 
@@ -102,7 +102,7 @@ Sugestão dependente do estado:
 - Script `scripts/start.sh` retornou exit 0 (ou lógica equivalente inline)
 - PM viu: boas-vindas + estado atual + decisões pendentes + menu + dica contextual
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador apresenta onboarding ao PM).
 - **Gates produzidos:** não é gate; é ponto de entrada universal da skill-tree.

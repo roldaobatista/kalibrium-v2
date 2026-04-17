@@ -8,6 +8,16 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-033] ADR formal para política dual-LLM 2× Opus (não GPT-5) — RESOLVIDO 2026-04-17
+
+- **Origem:** decisão do PM em 2026-04-17 durante retomada do slice-015 (cancelou invocação Codex CLI no meio).
+- **Evidência:** `feedback_dual_llm_two_opus.md` + incidentes recorrentes com Codex CLI em Windows (sandbox `CreateProcessAsUserW failed: 5`, ChatGPT Plus não aceita `--model`, timeout eterno).
+- **Resolução:** PR #41 adiciona:
+  - `docs/adr/0020-dual-llm-policy-2x-opus.md` — ADR aceito, supersede ADR-0012 §Trilha B.
+  - `docs/operations/dual-llm-opus-setup.md` — guia canônico (prompt da Trilha B, consolidação, reconciliação, fallback).
+  - `docs/operations/codex-gpt5-setup.md` — marcado DEPRECATED com link para guia canônico; preservado como fallback documentado.
+- **Status:** resolvido.
+
 ### [B-025] Telemetria de tokens em todos os gates
 
 - **Origem:** retrospectiva do slice-011.
@@ -15,33 +25,37 @@ Itens resolvidos movem para o histórico no final.
 - **Ação:** atualizar `scripts/record-telemetry.sh` e schemas (`docs/schemas/*.schema.json`) para incluir `tokens_used` em todos os eventos de gate. Ajustar `slice-report.sh` para somar.
 - **Status:** aberto. Prioridade média; bloqueia análise de R8 (budget de tokens).
 
-### [B-029] Migrar scripts/merge-slice.sh para gate-output-v1 (protocolo v1.2.2)
+### [B-029] Migrar scripts/merge-slice.sh para gate-output-v1 (protocolo v1.2.4) — RESOLVIDO 2026-04-17
 
 - **Origem:** retrospectiva do slice-015.
 - **Evidência:** `scripts/merge-slice.sh` em main ainda exige schema legado (`slice_id`, `violations`, `findings`, `severity_summary`, `lgpd_checks`, `ac_coverage`, `ac_assessment`) enquanto `docs/protocol/schemas/gate-output.schema.json` v1.2.2 já é o canônico. Slice 015 precisou de patch bi-schema manual para merge acontecer.
 - **Ação:** migrar o validador Python embutido no merge-slice.sh para ler `gate`, `findings_by_severity`, `blocking_findings_count` do gate-output-v1. Propagar para os outros validadores (audit-spec, plan-review, validate-review, validate-verification).
-- **Status:** aberto. Prioridade alta; próximo slice com gate-output-v1 vai precisar da mesma gambiarra bi-schema.
+- **Resolução:** PR #40 (union merge de 2bbce17) trouxe a versão migrada do merge-slice.sh. Validador embutido em Python agora lê `gate`, `blocking_findings_count`, `findings_by_severity` do schema gate-output-v1. Confirmado: 9 refs ao schema novo, 0 ao legado. Protocolo bumpado para v1.2.4 (ADR-0017 `audit-tests-draft` incorporado).
+- **Status:** resolvido.
 
-### [B-030] `.gitattributes` forçando LF para arquivos hash-locked
+### [B-030] `.gitattributes` forçando LF para arquivos hash-locked — RESOLVIDO 2026-04-17
 
 - **Origem:** retrospectiva do slice-015.
 - **Evidência:** `sha256sum -c scripts/hooks/MANIFEST.sha256` falhou em ambiente Windows porque `autocrlf=true` converteu `MANIFEST.sha256` + `.sh` para CRLF, quebrando a verificação do `hooks-lock`. Normalização manual com `sed -i 's/\r$//'` foi necessária para destravar merge.
 - **Ação:** adicionar `.gitattributes` com `scripts/hooks/** text eol=lf`, `docs/protocol/schemas/** text eol=lf`, `*.sha256 text eol=lf binary`. Documentar em `docs/harness-limitations.md`.
-- **Status:** aberto. Prioridade alta; afeta todo desenvolvedor Windows.
+- **Resolução:** PR #41 adiciona em `.gitattributes`: `scripts/hooks/*.sh text eol=lf`, `scripts/hooks/MANIFEST.sha256 text eol=lf`, `*.sha256 text eol=lf`, `docs/protocol/schemas/*.json text eol=lf`, `*.md text eol=lf`. Devs que clonaram antes precisam rodar `git rm --cached -r . && git reset --hard` para re-aplicar normalizações. Limitação L-02 em `docs/harness-limitations.md`.
+- **Status:** resolvido.
 
-### [B-031] Hook para detectar branch desatualizada vs origin/main
+### [B-031] Hook para detectar branch desatualizada vs origin/main — PROPOSTA PRONTA (aguarda relock PM)
 
 - **Origem:** retrospectiva do slice-015.
 - **Evidência:** Branch `work/offline-discovery-2026-04-16` ficou pausada durante ampliação + migração protocolo v1.2.2. Quando tentamos merge do slice 015, conflitos em ~15 arquivos (incluindo arquivo selado `MANIFEST.sha256`) obrigaram abandono do PR #35 e criação de branch nova + cherry-pick.
 - **Ação:** adicionar check em `session-start.sh` (ou hook dedicado) que rode `git fetch origin main && git log --oneline origin/main..HEAD` e avise quando a branch atual está > N commits atrás de main (ou há commits em main que não estão na branch). Threshold sugerido: 10 commits.
-- **Status:** aberto. Prioridade média.
+- **Resolução parcial:** PR #41 entrega proposta completa em `scripts/staging/branch-sync-check.sh` + instruções PM em `docs/operations/relock-branch-sync-check.md`. Script verificado em working tree. Integração ao session-start.sh requer relock externo pelo PM (área selada).
+- **Status:** aguardando relock PM para mover de `scripts/staging/` para `scripts/hooks/`.
 
-### [B-032] Telemetria dos sub-agents isolados não chega ao .jsonl do slice
+### [B-032] Telemetria dos sub-agents isolados não chega ao .jsonl do slice — DOCUMENTADO 2026-04-17 (ainda aberto)
 
 - **Origem:** retrospectiva do slice-015.
 - **Evidência:** `docs/retrospectives/slice-015-report.md` saiu com `Commits: 0 | Approved: 0 | Rejected: 0 | Tokens totais: 0` apesar de 9 gates aprovados por sub-agents isolados (incluindo dual-LLM master-audit). O Agent tool em contexto isolado (worktree/subagent) provavelmente não tem acesso ao pipe de `.claude/telemetry/`.
 - **Ação:** investigar se `scripts/record-telemetry.sh` precisa ser invocado explicitamente pelos sub-agents ou se há forma de propagar via env var. Se ambiente isolado for o bloqueio, documentar em `docs/harness-limitations.md` e revisar expectativa de slice-report para slices com muitos sub-agents isolados.
-- **Status:** aberto. Prioridade média; afeta observabilidade sem bloquear pipeline.
+- **Documentação:** PR #41 adiciona seção L-03 em `docs/harness-limitations.md` descrevendo causa raiz (Agent tool subprocesso não herda env do projeto pai), impacto (slice-report.sh gera números zerados) e mitigações potenciais (passar SLICE_NNN+TELEMETRY_PATH no prompt do Agent OU consolidação pós-gate). Implementação fica para sessão dedicada.
+- **Status:** aberto — investigação concluída, mitigação pendente. Prioridade média.
 
 ### [B-026] Red-check estrito: rejeitar `markTestIncomplete()` em ac-to-test — RESOLVIDO 2026-04-15
 

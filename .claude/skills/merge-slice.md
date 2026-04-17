@@ -1,6 +1,6 @@
 ---
 description: Merge final do slice após todos os gates canônicos terem aprovado (verify, review, security-gate, audit-tests, functional-gate + master-audit + gates condicionais). Valida JSONs contra schema formal, prepara PR body e — se permissões de push estiverem liberadas — executa git push + gh pr create. Se o push ainda estiver selado, imprime o roteiro exato para o PM. Uso: /merge-slice NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /merge-slice
@@ -71,7 +71,7 @@ bash scripts/merge-slice.sh "$1"
 
 `scripts/hooks/` é selado pelo `hooks-lock.sh`. A skill precisa iterar durante o setup do harness; morou em `scripts/` para permitir edição sem `relock-harness.sh`. As validações de integridade continuam sendo feitas por hooks selados (`hooks-lock`, `settings-lock`).
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Validação canônica:** cada JSON de gate validado contra `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatórios, enum de `gate` com os 15 nomes canônicos).
 - **Gate names esperados (enum):** `verify`, `review`, `security-gate`, `audit-tests`, `functional-gate`, `data-gate` (condicional), `observability-gate` (condicional), `integration-gate` (condicional), `master-audit`.

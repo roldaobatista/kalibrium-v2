@@ -1,6 +1,6 @@
 ---
 description: Restaura contexto da sessao anterior e continua do ponto exato onde parou. Le project-state.json + ultimo handoff + telemetria para reconstruir estado. Uso: /resume.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog:
   - "2026-04-16 — quality audit Cat C polishing"
   - "2026-04-16 — ADR-0017 Mudanca 3: reconcile-project-state.sh chamado apos carregar state (detecta drift entre project-state.json e git antes de o PM continuar)"
@@ -135,7 +135,7 @@ Nenhum — executada pelo orquestrador.
 - Nenhum estado → `/start` para onboarding ou `/intake` se projeto novo
 - Inconsistência → decisão PM antes de qualquer outro comando
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador lê artefatos persistidos).
 - **Gates produzidos:** não é gate; é restauração de contexto de sessão.

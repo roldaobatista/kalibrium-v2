@@ -4,7 +4,7 @@ description: Especialista em qualidade — 6 modos de gate isolado (verify, audi
 model: sonnet
 tools: Read, Grep, Glob, Bash
 max_tokens_per_invocation: 50000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog:
   - 2026-04-16: v1.2.2 alignment + remediacao auditoria 2026-04-16 (schemas expandidos para 14 campos canonicos, alinhamento com gate-output.schema.json)
   - 2026-04-16: ADR-0017 Mudanca 1 — novo modo `audit-tests-draft` (6o modo) para auditar testes red antes da implementacao (fecha gap #0 da auditoria de fluxo 2026-04-16)

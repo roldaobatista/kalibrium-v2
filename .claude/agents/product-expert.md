@@ -4,7 +4,7 @@ description: Especialista de produto — descoberta, decomposicao e validacao fu
 model: sonnet
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 50000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix F-09 (schema obrigatorio do Story Contract frontmatter explicitado em decompose)"
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: Assistente guiado para converter descrição livre do PM (português) em specs/NNN/spec.md com ACs numerados e testáveis. Preenche contexto/jornada/ACs/fora-de-escopo e valida via scripts/draft-spec.sh. Resolve o hole de contrato P0-3 do meta-audit #2. Uso: /draft-spec NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
@@ -69,7 +69,7 @@ Nenhum — executada pelo orquestrador. O validador mecânico é `scripts/draft-
 | PM descreve requisito subjetivo/não-testável | Aplicar regra de ouro: pedir reformulação com exemplo de métrica objetiva. Não registrar AC até ser testável. |
 | PM não consegue descrever o comportamento desejado | Fazer perguntas de esclarecimento em linguagem R12. Se após 3 tentativas não houver clareza, registrar "spec em pausa" e encerrar. |
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (conversa interativa com PM, validador mecânico via script).
 - **Gates produzidos:** não é gate; precede `/audit-spec` (gate canonico de spec).

@@ -1,6 +1,6 @@
 ---
 description: Entrevista guiada de descoberta com o PM. Faz as 10 perguntas estrategicas que determinam arquitetura, infra, seguranca e custo. Produz intake-responses.md e dispara product-expert (discovery). Uso: /intake.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-005R"
 ---
 
@@ -131,7 +131,7 @@ Quer seguir para /freeze-prd ou ajustar algo?
 - PM quer ajustar → reexecutar perguntas especificas
 - PM nao sabe ainda → registrar pendencias e pausar
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** `product-expert (discovery)` — unica invocacao consolidada (glossario + modelo + riscos + NFRs no mesmo modo) conforme mapa canonico 00 §3.1 e `.claude/agents/product-expert.md §Modo 1: discovery`
 - **Gates produzidos:** n/a — skill de descoberta, nao gera gate JSON

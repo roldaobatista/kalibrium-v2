@@ -1,6 +1,6 @@
 ---
 description: Traduz proposta de mudanca no harness (harness-learner) para linguagem de produto (R12). Apresenta 3 secoes obrigatorias — "o que muda", "por que agora", "o que pode dar errado" — antes de PM decidir. ADR-0019 Mudanca 1.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — skill nova criada em ADR-0019 Mudanca 1 (fecha gap #1 da auditoria de fluxo 2026-04-16)"
 ---
 
@@ -117,7 +117,7 @@ Proxima etapa: voce autoriza esta mudanca?
 - **Nunca** aplicar mudanca sem o arquivo `pm-approval-ENN.md`. Este arquivo e a evidencia auditavel de que o PM consentiu.
 - PM tem direito de ouvir com mais detalhe tecnico se pedir. Oferecer isso, nao impor.
 
-## Conformidade com protocolo v1.2.2 + ADR-0019
+## Conformidade com protocolo v1.2.4 + ADR-0019
 
 - **Agents invocados:** nenhum (skill de orquestracao/comunicacao, nao de gate)
 - **Gate name:** n/a (esta skill e pos-gate, pre-commit)

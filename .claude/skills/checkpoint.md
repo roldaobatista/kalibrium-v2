@@ -1,6 +1,6 @@
 ---
 description: Salva estado completo do projeto em project-state.json e cria handoff em docs/handoffs/. Garante que qualquer nova sessao pode retomar via /resume. Usar antes de encerrar sessao ou em pontos importantes. Uso: /checkpoint.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
@@ -98,7 +98,7 @@ Nenhum — executada pelo orquestrador.
 - Encerrou → próxima sessão abre com `/resume`
 - Falha ao salvar → investigar disco/permissões antes de qualquer outro comando
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador persiste estado local).
 - **Gates produzidos:** não é gate; é ponto de salvamento para continuidade entre sessões.

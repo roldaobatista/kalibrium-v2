@@ -1,6 +1,6 @@
 ---
 description: Cria docs/retrospectives/slice-NNN.md combinando slice-report + template qualitativo. Tambem dispara retrospectiva de épico (governance retrospective) quando todos os slices do épico estão merged, gerando docs/retrospectives/epic-ENN.md + proposta harness-learner em docs/governance/harness-learner-ENN.md. OBRIGATÓRIA após cada slice concluído. Uso: /retrospective NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /retrospective
@@ -75,7 +75,7 @@ bash scripts/retrospective.sh "$1"
 - `governance` (modo: retrospective) — disparado automaticamente no fim de épico (R15). Gera `docs/retrospectives/epic-ENN.md`.
 - `governance` (modo: harness-learner) — disparado após retrospective de épico (R16, ADR-0012 E4). Gera `docs/governance/harness-learner-ENN.md` com até 3 propostas PATCH/MINOR.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Paths canônicos:**
   - Retrospectiva de slice: `docs/retrospectives/slice-NNN.md`

@@ -42,7 +42,7 @@ check_preconditions() {
     fail "spec.md não passa validação mecânica — rode /draft-spec $NNN"
   fi
 
-  # Harness v3 (protocolo v1.2.2): audit-spec é modo do qa-expert; qa-expert (modo audit-spec) legado foi consolidado.
+  # Harness v3 (protocolo v1.2.4): audit-spec é modo do qa-expert; qa-expert (modo audit-spec) legado foi consolidado.
   [ -f ".claude/agents/qa-expert.md" ] && ok "qa-expert (modo audit-spec) definido" || fail ".claude/agents/qa-expert.md ausente"
   [ -f ".claude/skills/audit-spec.md" ] && ok "skill audit-spec definida" || fail ".claude/skills/audit-spec.md ausente"
   [ -f "$SCHEMA" ] && ok "schema spec-audit disponível" || fail "$SCHEMA ausente"

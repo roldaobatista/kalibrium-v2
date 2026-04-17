@@ -1,6 +1,6 @@
 ---
 description: Invoca o sub-agent builder (fixer) para corrigir findings de qualquer gate canonico. Le apenas o JSON do gate rejeitado, aplica correcoes cirurgicas minimas, re-run do MESMO gate (nao pula). Uso: /fix NNN [gate].
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /fix
@@ -26,7 +26,7 @@ protocol_version: "1.2.2"
 ## Por que existe
 Quando um gate canonico rejeita um slice, alguem precisa corrigir. O `builder` (fixer) e separado do `builder` (implementer) para evitar vies de auto-revisao. O fixer le **apenas** findings estruturados do gate rejeitado (nunca outros gates) e aplica correcoes cirurgicas minimas.
 
-**Regras normativas (protocolo v1.2.2):**
+**Regras normativas (protocolo v1.2.4):**
 - Fixer recebe apenas findings do gate rejeitado, nao findings de outros gates.
 - Apos correcao, **re-run do MESMO gate** (nao pula para o proximo) — enforce em 04 §Zero-tolerance.
 - Escopo fechado: so corrige o que esta nos findings. Nao expande escopo.
@@ -119,7 +119,7 @@ Proximo passo: **re-run do MESMO gate** (nao pular).
 - Algum fix nao convergiu → reportar e sugerir escalacao
 - R6 ativo → bloquear e informar PM
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `builder (fixer)` — conforme mapa canonico 00 §3.1
 - **Input:** apenas o JSON do gate rejeitado especificado (nao agrega findings de outros gates)

@@ -1,6 +1,6 @@
 ---
 description: Monta verification-input/, spawn qa-expert (verify) (isolado por hook, sem worktree), valida JSON contra schema, atualiza R6, dispara relatorio PM-ready (G-11). Use apos AC-tests verdes. Uso: /verify-slice NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /verify-slice
@@ -114,7 +114,7 @@ bash scripts/verify-slice.sh "$1"
 |---|---|---|
 | `qa-expert` (modo: verify) | sandbox via `scripts/hooks/verifier-sandbox.sh` (read-only mount) | 25k tokens |
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `qa-expert (verify)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `verify`

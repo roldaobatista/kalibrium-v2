@@ -1,6 +1,6 @@
 ---
 description: Roda o governance (guide-audit) sub-agent e gera relatório de drift em docs/audits/. Use periodicamente (semanal ou ao fim de slice) e ao suspeitar de drift. Uso: /guide-check.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /guide-check
@@ -52,7 +52,7 @@ Nenhuma — pode ser executada a qualquer momento. Recomenda-se que o harness es
 - **Amarelo:** abrir item em `docs/guide-backlog.md` para endereçar no próximo slice.
 - **Vermelho:** **parar** qualquer trabalho em progresso. Abrir `docs/incidents/audit-<date>.md`. Humano decide.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `governance (guide-audit)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `guide-audit`

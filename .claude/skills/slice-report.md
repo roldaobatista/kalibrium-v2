@@ -1,6 +1,6 @@
 ---
 description: Gera relatório quantitativo de um slice a partir da telemetria (.claude/telemetry/slice-NNN.jsonl). Use após /verify-slice para ter os números antes da retrospectiva. Uso: /slice-report NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
@@ -80,7 +80,7 @@ Nenhum — executada pelo orquestrador.
 ## Handoff
 Output alimenta `/retrospective NNN`, que adiciona análise qualitativa em cima dos números.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador lê telemetria e agrega métricas).
 - **Gates produzidos:** não é gate; é relatório quantitativo derivado de telemetria.

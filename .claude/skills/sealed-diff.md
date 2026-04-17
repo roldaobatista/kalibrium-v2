@@ -1,6 +1,6 @@
 ---
 description: Verifica sob demanda se os arquivos selados do harness (settings.json, MANIFEST.sha256, git identity baseline) estão íntegros. Complementa o check automático do SessionStart — roda entre gates ou quando suspeitar de tampering. Uso: /sealed-diff.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
@@ -88,7 +88,7 @@ Nenhum — executada diretamente pelo orquestrador ativo.
 - Drift detectado → **não rodar relock antes de entender origem**; investigar + escalar PM se suspeito
 - Erro de execução → `/guide-check` para diagnóstico completo do harness
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador executa checks `--check` dos hooks selados).
 - **Gates produzidos:** não é gate de slice; é health-check do harness entre gates.

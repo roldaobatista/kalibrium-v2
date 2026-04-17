@@ -4,7 +4,7 @@ description: Engenheiro full-stack que escreve codigo — converte ACs em testes
 model: opus
 tools: Read, Edit, Write, Grep, Glob, Bash
 max_tokens_per_invocation: 80000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog:
   - "2026-04-16 — quality audit fix F-06 (ambiguidade de finding definida objetivamente em 4 condicoes)"
   - "2026-04-16 — ADR-0017 Mudanca 1: rastreabilidade AC-ID obrigatoria em test-writer + implementer (vinculacao AC <-> teste mecanicamente enforcada)"

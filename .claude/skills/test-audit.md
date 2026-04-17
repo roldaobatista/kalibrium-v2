@@ -1,6 +1,6 @@
 ---
 description: Roda auditoria independente de testes (isolado por hook, sem worktree). Monta test-audit-input/, spawn qa-expert (audit-tests), valida JSON contra schema. Verifica cobertura de ACs, edge cases e anti-patterns. Uso: /test-audit NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-A1 (Output no chat R12)"
 ---
 
@@ -94,7 +94,7 @@ Atualizar `project-state.json` gates_status.
 - `approved` → proximo gate (`/functional-review NNN`)
 - `rejected` → `/fix NNN audit-tests` → re-run `/test-audit NNN`
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `qa-expert (audit-tests)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `audit-tests`

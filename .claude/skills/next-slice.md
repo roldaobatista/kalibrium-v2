@@ -1,6 +1,6 @@
 ---
 description: Lê o PRD (ou roadmap se existir) e recomenda ao PM qual o próximo slice fazer, com justificativa em PT-BR. Modo wizard na primeira execução (constrói roadmap.md); modo consulta depois. Uso: /next-slice.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
@@ -228,7 +228,7 @@ Depois `/next-slice` volta pro modo wizard e constrói nova versão considerando
 - ADR bloqueante → `/adr NNNN` ou `/decide-stack` primeiro
 - Todos do roadmap concluídos → `/release-readiness`
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador lê docs de produto + roadmap).
 - **Gates produzidos:** não é gate; é recomendação R13/R14-aware de próxima execução.

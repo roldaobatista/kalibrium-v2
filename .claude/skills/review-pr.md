@@ -1,6 +1,6 @@
 ---
 description: Invoca o sub-agent architecture-expert (code-review) em contexto isolado INDEPENDENTE do qa-expert (verify). Monta review-input/, spawn do code-reviewer, valida review.json contra schema. Parte do modelo humano=PM (R11). Uso: /review-pr NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-A1 (Output no chat R12)"
 ---
 
@@ -69,7 +69,7 @@ bash scripts/review-slice.sh "$1"
 |---|---|---|
 | `architecture-expert` (modo: code-review) | sandbox via `scripts/hooks/verifier-sandbox.sh` (read-only mount) | 30k tokens |
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `architecture-expert (code-review)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `review`

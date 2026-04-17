@@ -1,6 +1,6 @@
 ---
 description: Roda gate de seguranca independente (isolado por hook, sem worktree). Monta security-review-input/, spawn security-expert (security-gate), valida JSON contra schema. Gate obrigatorio antes de merge. Uso: /security-review NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-A1 (Output no chat R12)"
 ---
 
@@ -103,7 +103,7 @@ Registrar em telemetria.
 - `rejected` → `/fix NNN security-gate` → re-run `/security-review NNN`
 - 6 rejeicoes consecutivas → R6 escalacao
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `security-expert (security-gate)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `security-gate`

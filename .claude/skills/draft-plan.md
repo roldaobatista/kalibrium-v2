@@ -1,6 +1,6 @@
 ---
 description: Dispara o sub-agent architecture-expert (modo: plan) para gerar plan.md a partir de spec.md auditado e aprovado. Depois exige /review-plan antes de qualquer aprovação do PM ou testes. Uso: /draft-plan NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-005R"
 ---
 
@@ -116,7 +116,7 @@ Próximo passo:
 - Se o architecture-expert gerar ADR, mencionar ao PM: "surgiu uma decisão que afeta o projeto todo — rode /decide-stack ou peça mais detalhes"
 - Até 5 ciclos automáticos de re-geração do plan. Na 6ª falha consecutiva, escalar humano (R6)
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** `architecture-expert (plan)` seguido por `architecture-expert (plan-review)` em contexto isolado — conforme mapa canonico 00 §3.1
 - **Gates produzidos:** `plan-review` (via `/review-plan` interno) — nome canonico enum do gate: `plan-review`

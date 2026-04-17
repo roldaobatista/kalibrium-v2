@@ -1,6 +1,6 @@
 ---
 description: Mostra ao PM o estado atual de todos os slices do Kalibrium em linguagem de produto (R12). Último evento, arquivos presentes, próximo passo sugerido. Use a qualquer momento pra se orientar. Uso: /where-am-i [NNN].
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
@@ -95,7 +95,7 @@ Sugestão contextual ao PM (sempre em R12):
 - Slice em "rejected" → aguardar builder (fixer) ou escalar se R6
 - Todos concluídos → `/release-readiness`
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador inspeciona `specs/` + telemetria).
 - **Gates produzidos:** não é gate; é visão de estado por slice.

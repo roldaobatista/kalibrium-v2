@@ -1,6 +1,6 @@
 # 08 — Metricas do Processo
 
-> Documento normativo. Versao 1.2.2 — 2026-04-16.
+> Documento normativo. versao 1.2.4 — 2026-04-16.
 > Changelog 1.2.2 (PATCH — meta-audit, L4-ready): M-C01/M-C02/M-C03 agora usam campo canonico `tokens_used` declarado em 03 §10.1 (antes divergiam em `tokens`, `input_tokens+output_tokens` e `tokens_verify/tokens_code_review/...` ad-hoc).
 > Changelog 1.2.1 (PATCH — meta-audit): M-H04 definicao agora enumera `E1-E10` (antes `E1-E9`, inconsistente com introducao de E10 em 1.2.0).
 > Changelog 1.2.0: M-V03 recalibrada — thresholds por trilha (L2/L3/L4) substituem threshold global irrealista que divergia da matematica de M-Q03 × M-V04.
