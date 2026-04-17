@@ -424,12 +424,12 @@ Todos seguem o schema base de gate (secao 8) com campos extras proprios.
 |---|---|
 | **Objetivo** | Validar cada AC do spec.md com teste executavel em Pest 4. |
 | **Owner** | builder (test-writer) |
-| **Reviewer** | qa-expert (audit-tests) (na Fase E) |
+| **Reviewer** | qa-expert (audit-tests-draft) (pre-implementacao — ADR-0017) + qa-expert (audit-tests) (na Fase E) |
 | **Input obrigatorio** | spec.md auditada + plan.md aprovado. |
-| **Output** | `tests/Feature/SliceNNN/*.php` e/ou `tests/Unit/SliceNNN/*.php` — Pest 4 PHP. Nomenclatura: `AC_NNN_XXX_DescricaoTest.php`. |
+| **Output** | `tests/Feature/SliceNNN/*.php` e/ou `tests/Unit/SliceNNN/*.php` — Pest 4 PHP. Nomenclatura: `AC_NNN_XXX_DescricaoTest.php`. **ADR-0017 Mudanca 1:** cada teste DEVE ter AC-ID rastreavel (nome do teste contem AC-NNN, OU docblock `@covers AC-NNN`, OU `describe('AC-NNN: ...')` agrupando). Testes auxiliares marcam `@helper` ou `@setup`. |
 | **Versionamento** | Git diff. Commit inicial: `test(slice-NNN): AC tests red`. Commit pos-green: `feat(slice-NNN): <descricao>`. |
-| **Criterio de aceitacao** | Toda AC do spec.md deve ter pelo menos 1 teste. Testes devem falhar (red) no commit inicial. Testes devem passar (green) apos implementacao. |
-| **Destino** | builder (implementer, faz green), qa-expert (audit-tests, valida cobertura). |
+| **Criterio de aceitacao** | Toda AC do spec.md deve ter pelo menos 1 teste rastreavel por AC-ID. Testes devem falhar (red) no commit inicial. Testes devem passar (green) apos implementacao. `audit-tests-draft` valida antes da implementacao (S7.1); `audit-tests` valida depois (Fase E). |
+| **Destino** | qa-expert (audit-tests-draft, valida vinculacao AC-ID) -> builder (implementer, faz green) -> qa-expert (audit-tests, valida cobertura e qualidade). |
 
 ### 5.2. Arquivos de codigo-fonte
 
@@ -500,17 +500,31 @@ Todos seguem o schema base de gate (secao 8) com campos extras proprios.
 | **Criterio de aceitacao** | `verdict: "approved"` somente se `blocking_findings_count == 0`. `secrets_scan_result` deve ser `clean`. |
 | **Destino** | orchestrator, governance (master-audit), merge-slice. |
 
+### 6.3b. tests-draft-audit.json (novo — ADR-0017 Mudança 1)
+
+| Campo | Valor |
+|---|---|
+| **Objetivo** | Registrar resultado da auditoria de testes red **antes** da implementacao. Valida vinculacao AC <-> teste e que testes estao realmente red. |
+| **Owner** | qa-expert (audit-tests-draft) |
+| **Reviewer** | governance (master-audit, indiretamente — tests-draft-audit.json nao entra no master-audit direto, mas a cadeia audit-tests-draft -> implementer -> verify -> audit-tests e auditada end-to-end pelo master) |
+| **Input obrigatorio** | `tests-draft-audit-input/spec.md` + `ac-list.json` + `test-files/` + `test-run-output.txt` (mostrando testes red). Fora deste escopo = input proibido (R3). |
+| **Output** | `specs/NNN/tests-draft-audit.json` — JSON com 14 campos canonicos conforme `gate-output.schema.json`. Campo `evidence` inclui: `ac_coverage_map` (AC-ID -> testes + trace_method), `test_run_summary` (total, red_as_expected, unexpectedly_passing, parse_errors), `unlinked_tests[]`, `trivial_assertions[]`, `duplicate_tests[]`. |
+| **Versionamento** | Sobrescrito a cada re-run. Historico via git log. |
+| **Criterio de aceitacao** | `verdict: "approved"` somente se `blocking_findings_count == 0` E `findings: []` (zero tolerance). Cada AC da spec deve ter teste rastreavel; cada teste nao-helper deve ter AC-ID; todos os testes devem estar red (unexpectedly_passing == 0). |
+| **Destino** | orchestrator (decide se invoca builder/implementer ou fixer), estado S7 -> S7.1 -> S8. |
+| **Ordem no pipeline** | S7 (testes red) -> audit-tests-draft -> S7.1 (approved) -> implementer. Pre-requisito para `S8` (implementacao). |
+
 ### 6.4. test-audit.json
 
 | Campo | Valor |
 |---|---|
-| **Objetivo** | Registrar resultado da auditoria de cobertura e qualidade de testes. |
+| **Objetivo** | Registrar resultado da auditoria de cobertura e qualidade de testes **apos implementacao** (Fase E — complementar ao audit-tests-draft da Fase D). |
 | **Owner** | qa-expert (audit-tests) |
 | **Reviewer** | governance (master-audit) (consolidacao) |
-| **Input obrigatorio** | review.json com `verdict: approved` + spec.md + todos os testes do slice. |
-| **Output** | `specs/NNN/test-audit.json` — JSON com mesmo schema base + campos extras: `ac_coverage` (mapa AC→teste), `edge_cases_covered`, `test_quality_score`. |
+| **Input obrigatorio** | review.json com `verdict: approved` + spec.md + todos os testes do slice + coverage-report. |
+| **Output** | `specs/NNN/test-audit.json` — JSON com mesmo schema base + campos extras: `ac_coverage` (mapa AC→teste), `edge_cases_covered`, `test_quality_score`, `line_coverage_percent`. |
 | **Versionamento** | Sobrescrito a cada re-run. Historico via git log. |
-| **Criterio de aceitacao** | `verdict: "approved"` somente se `blocking_findings_count == 0`. Toda AC do spec.md deve ter pelo menos 1 teste mapeado. |
+| **Criterio de aceitacao** | `verdict: "approved"` somente se `blocking_findings_count == 0`. Toda AC do spec.md deve ter pelo menos 1 teste mapeado. Note: audit-tests-draft (S7.1) ja validou vinculacao AC-ID antes; audit-tests foca em qualidade, cobertura de linhas e edge cases pos-verde. |
 | **Destino** | orchestrator, governance (master-audit), merge-slice. |
 
 ### 6.5. functional-review.json

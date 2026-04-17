@@ -108,6 +108,7 @@ Esta tabela e a **fonte unica de verdade** para nomes de agentes no protocolo. T
 | qa-expert | audit-spec | spec-auditor | sonnet |
 | qa-expert | audit-story | story-auditor | sonnet |
 | qa-expert | audit-planning | planning-auditor | sonnet |
+| qa-expert | audit-tests-draft | tests-draft-auditor | sonnet |
 | qa-expert | audit-tests | test-auditor | sonnet |
 | devops-expert | ci-design | (new) | sonnet |
 | devops-expert | docker | (new) | sonnet |
@@ -155,7 +156,7 @@ Define o formato, campos obrigatorios e criterios de validade de cada artefato p
 
 ## 7. Criterios objetivos de gate
 
-Define os criterios de aprovacao e rejeicao de cada gate (qa-expert verify, architecture-expert code-review, security-expert security-gate, qa-expert audit-tests, product-expert functional-gate, governance master-audit). Cada criterio deve ter input, output e evidencia. Governa a objetividade do pipeline de qualidade.
+Define os criterios de aprovacao e rejeicao de cada gate (qa-expert verify, architecture-expert code-review, security-expert security-gate, qa-expert audit-tests-draft, qa-expert audit-tests, product-expert functional-gate, governance master-audit). Cada criterio deve ter input, output e evidencia. Governa a objetividade do pipeline de qualidade.
 
 **Documento completo:** [`docs/protocol/04-criterios-gate.md`](04-criterios-gate.md)
 

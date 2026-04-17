@@ -87,6 +87,41 @@
         }
       }
     },
+    "epics_status": {
+      "type": "object",
+      "description": "Status canonico de cada epico (E01..ENN). Reconciliado contra git por scripts/reconcile-project-state.sh (ADR-0017 Mudanca 3).",
+      "patternProperties": {
+        "^E[0-9]+$": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "backlog",
+                "backlog-p1",
+                "backlog-new",
+                "backlog-new-v2",
+                "backlog-new-v3",
+                "decomposed",
+                "decomposed-audited-approved",
+                "in-progress",
+                "paused-for-ampliation",
+                "merged",
+                "archived"
+              ]
+            },
+            "notes": { "type": "string" },
+            "merged_slices": {
+              "type": "array",
+              "description": "Slices merged deste epico. Reconciliado contra git.",
+              "items": { "type": "string", "pattern": "^[0-9]{3}$" }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "handoff": {
       "type": "object",
       "properties": {

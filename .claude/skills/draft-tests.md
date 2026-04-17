@@ -1,7 +1,9 @@
 ---
 description: Dispara o sub-agent builder (test-writer) para gerar testes red a partir de spec.md + plan.md aprovados. Valida pré-condições, spawna builder (test-writer), confirma que testes nascem vermelhos, e apresenta resultado ao PM em linguagem de produto (R12). Uso: /draft-tests NNN.
 protocol_version: "1.2.2"
-changelog: "2026-04-16 — quality audit fix SK-005R"
+changelog:
+  - "2026-04-16 — quality audit fix SK-005R"
+  - "2026-04-16 — ADR-0017 Mudanca 1: testes gerados com AC-ID rastreavel obrigatorio; proximo passo apos draft-tests e /audit-tests-draft NNN (nao mais direto para implementer)"
 ---
 
 # /draft-tests
@@ -42,6 +44,14 @@ Spawna o sub-agent `builder` (modo: test-writer) (`.claude/agents/builder.md`) c
 - Prompt contendo o NNN do slice
 - O `builder` (modo: test-writer) lê spec.md + plan.md e gera testes em `tests/`
 
+**Instrucao obrigatoria ao test-writer (ADR-0017 Mudanca 1):**
+- Cada teste DEVE ter AC-ID rastreavel por um dos 3 metodos:
+  1. Nome do teste contem AC-ID (ex: `it('AC-001: retorna 422 quando ...', ...)`)
+  2. Docblock com `@covers AC-NNN`
+  3. `describe('AC-NNN: ...', ...)` agrupando testes correlatos
+- Testes auxiliares (helpers, setup) devem declarar `@helper` ou `@setup`
+- Nenhum teste "solto" (sem AC-ID e sem tag) sera aceito pelo gate `audit-tests-draft` subsequente
+
 ### Fase 3 — Confirmar testes vermelhos
 
 O `builder` (modo: test-writer) já roda cada teste e confirma que falham (red). Se algum nascer verde, é rejeitado pelo hook `post-edit-gate.sh`.
@@ -79,7 +89,7 @@ Próximo passo:
 **NUNCA** mostrar nomes de arquivo de teste, código-fonte, stack traces, ou exit codes ao PM.
 
 ## Handoff
-- **PM aceita** → commitar com `test(slice-NNN): AC tests red` e sugerir início da implementação
+- **PM aceita** → commitar com `test(slice-NNN): AC tests red` e orquestrador invoca **`/audit-tests-draft NNN`** automaticamente (ADR-0017 Mudanca 1). Implementer **nao** e invocado direto.
 - **PM pede ajuste** → re-disparar `builder` (modo: test-writer) com instruções adicionais
 - **PM quer pausar** → registrar estado e encerrar
 

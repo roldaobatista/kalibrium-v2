@@ -1,7 +1,9 @@
 ---
 description: Inicia implementacao de uma story aprovada. Valida Story Contract, cria slice(s) correspondente(s), atualiza project-state. Ponte entre planejamento e execucao. Uso: /start-story ENN-SNN.
 protocol_version: "1.2.2"
-changelog: "2026-04-16 — quality audit fix SK-005R"
+changelog:
+  - "2026-04-16 — quality audit fix SK-005R"
+  - "2026-04-16 — ADR-0017 Mudanca 2: docs-gate-check obrigatorio antes de criar slice (gate documental mecanicamente enforcado — fecha gap #7 da auditoria de fluxo 2026-04-16)"
 ---
 
 # /start-story
@@ -30,6 +32,12 @@ Apos `/decompose-stories` e aprovacao do Story Contract pelo PM.
    - e a primeira story do epico e o epico anterior MVP nao esta 100% `merged` (R14).
    - Paralelismo intra-epico permitido quando o Story Contract declara `dependencies: []` no frontmatter.
    - Bypass: `KALIB_SKIP_SEQUENCE="<motivo>"` registra incidente e autoriza.
+4b. **Docs-gate-check (ADR-0017 Mudanca 2):** `bash scripts/docs-gate-check.sh --story ENN-SNN` deve retornar exit 0. Gate bloqueia se:
+   - qualquer doc global obrigatorio esta ausente (`docs/product/PRD.md`, `personas.md`, `journeys.md`, `mvp-scope.md`, `nfr.md`, `constitution.md`, `TECHNICAL-DECISIONS.md`, `documentation-requirements.md`), OU
+   - se a story declara `ui: true` no frontmatter, qualquer doc de UI esta ausente (`sitemap.md`, `ui-flows.md`, `persona-scenarios.md`)
+   - Relatorio detalhado em `docs/audits/docs-gate-<story>-<ts>.json` quando falha.
+   - Orquestrador apresenta ao PM via `/explain-slice` em linguagem R12: "Nao posso iniciar esta story porque faltam N documentos obrigatorios. Quer que eu crie os documentos primeiro ou pular este gate com justificativa?"
+   - Bypass: `KALIB_SKIP_DOCS_GATE="<motivo>"` registra incidente.
 5. Nenhum slice ativo bloqueado por R6.
 6. Arquitetura congelada.
 
