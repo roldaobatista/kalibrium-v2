@@ -98,7 +98,7 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
   → product-expert (decompose) gera stories
   → /audit-stories ENN (automatico)
     → qa-expert (audit-story) valida
-    → se rejected: corrige + re-audita (ate 3x)
+    → se rejected: corrige + re-audita (5 ciclos automaticos; 6a escala PM)
     → se approved: apresenta ao PM
   → PM aprova/ajusta stories
   → /start-story ENN-SNN
