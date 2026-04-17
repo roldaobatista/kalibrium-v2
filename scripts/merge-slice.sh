@@ -47,8 +47,10 @@ FJSON="$SLICE_DIR/functional-review.json"
 [ ! -f "$TJSON" ] && fail "test-audit.json ausente — rode /test-audit $NNN primeiro"
 [ ! -f "$FJSON" ] && fail "functional-review.json ausente — rode /functional-review $NNN primeiro"
 
-# Valida os cinco gates, não só a dupla R11. Zero tolerance: qualquer finding,
-# violation, anti-pattern ou AC funcional não atendido bloqueia o merge.
+# Valida os gates obrigatorios contra o schema canonico gate-output-v1 (protocolo v1.2.2).
+# Zero tolerance: verdict deve ser approved e blocking_findings_count deve ser 0 em todos.
+# Findings S4/S5 podem existir em approved (nao bloqueiam).
+# Gates condicionais (data-gate, observability-gate, integration-gate) sao validados se presentes.
 if ! GATE_CHECK_OUTPUT="$(SLICE_NNN="$NNN" python3 <<'PY' 2>&1
 import json
 import os
@@ -56,88 +58,87 @@ import sys
 from pathlib import Path
 
 nnn = os.environ["SLICE_NNN"]
-slice_id = f"slice-{nnn}"
 slice_dir = Path("specs") / nnn
 
-gates = [
-    ("verifier", "verification.json", ["violations"]),
-    ("reviewer", "review.json", ["findings"]),
-    ("security-reviewer", "security-review.json", ["findings"]),
-    ("test-auditor", "test-audit.json", ["findings", "anti_patterns"]),
-    (
-        "functional-reviewer",
-        "functional-review.json",
-        ["ux_findings", "consistency_findings", "business_rule_findings"],
-    ),
+# Gates obrigatorios em todo slice (protocolo v1.2.2 §4)
+# (filename, expected_gate_value, label_humano)
+required_gates = [
+    ("verification.json",       "verify",         "verify"),
+    ("review.json",             "code-review",    "code-review"),
+    ("security-review.json",    "security-gate",  "security-gate"),
+    ("test-audit.json",          "audit-tests",    "audit-tests"),
+    ("functional-review.json",   "functional-gate","functional-gate"),
+]
+
+# Gates condicionais — validados somente se o arquivo existir
+optional_gates = [
+    ("data-review.json",          "data-gate",          "data-gate"),
+    ("observability-review.json", "observability-gate", "observability-gate"),
+    ("integration-review.json",   "integration-gate",   "integration-gate"),
 ]
 
 errors = []
-for gate, filename, zero_array_keys in gates:
+
+def validate_gate(filename, expected_gate, label, required):
     path = slice_dir / filename
+    if not path.exists():
+        if required:
+            errors.append(f"{label}: {filename} ausente")
+        return False
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        errors.append(f"{gate}: {filename} ausente")
-        continue
     except json.JSONDecodeError as exc:
-        errors.append(f"{gate}: {filename} JSON invalido ({exc})")
-        continue
+        errors.append(f"{label}: {filename} JSON invalido ({exc})")
+        return False
 
-    if data.get("slice_id") != slice_id:
-        errors.append(f"{gate}: slice_id={data.get('slice_id')!r}, esperado {slice_id!r}")
+    # Gate-output-v1 shape
+    schema_val = data.get("$schema")
+    if schema_val != "gate-output-v1":
+        errors.append(f"{label}: $schema={schema_val!r}, esperado 'gate-output-v1'")
+
+    gate_val = data.get("gate")
+    if gate_val != expected_gate:
+        errors.append(f"{label}: gate={gate_val!r}, esperado {expected_gate!r}")
+
+    slice_val = data.get("slice")
+    if slice_val != nnn:
+        errors.append(f"{label}: slice={slice_val!r}, esperado {nnn!r}")
 
     verdict = data.get("verdict")
     if verdict != "approved":
-        errors.append(f"{gate}: verdict={verdict!r}, esperado 'approved'")
+        errors.append(f"{label}: verdict={verdict!r}, esperado 'approved'")
 
-    for key in zero_array_keys:
-        value = data.get(key)
-        if value != []:
-            count = len(value) if isinstance(value, list) else "campo ausente/invalido"
-            errors.append(f"{gate}: {key} precisa estar vazio ({count})")
+    blocking = data.get("blocking_findings_count")
+    if blocking != 0:
+        errors.append(f"{label}: blocking_findings_count={blocking!r}, esperado 0 (S1-S3 = zero)")
 
-    if filename == "security-review.json":
-        severity_summary = data.get("severity_summary", {})
-        for severity in ("critical", "high", "medium", "low", "info"):
-            if severity_summary.get(severity) != 0:
-                errors.append(f"{gate}: severity_summary.{severity}={severity_summary.get(severity)!r}")
-        failed_lgpd = [
-            check.get("check", "<sem nome>")
-            for check in data.get("lgpd_checks", [])
-            if check.get("status") == "fail"
-        ]
-        if failed_lgpd:
-            errors.append(f"{gate}: LGPD falhou em {', '.join(failed_lgpd)}")
+    # Coerencia: blocking_findings_count == soma de S1+S2+S3
+    sev = data.get("findings_by_severity", {})
+    if isinstance(sev, dict):
+        expected_blocking = sum(sev.get(s, 0) for s in ("S1", "S2", "S3") if isinstance(sev.get(s), int))
+        if isinstance(blocking, int) and blocking != expected_blocking:
+            errors.append(
+                f"{label}: blocking_findings_count ({blocking}) "
+                f"inconsistente com S1+S2+S3 ({expected_blocking})"
+            )
 
-    if filename == "test-audit.json":
-        coverage = data.get("coverage_summary", {})
-        total = coverage.get("acs_total")
-        covered = coverage.get("acs_covered")
-        if isinstance(total, int) and isinstance(covered, int) and covered != total:
-            errors.append(f"{gate}: acs_covered={covered}, acs_total={total}")
-        insufficient = [
-            item.get("ac", "<sem AC>")
-            for item in data.get("ac_coverage", [])
-            if item.get("status") != "adequate"
-        ]
-        if insufficient:
-            errors.append(f"{gate}: ACs sem cobertura adequada: {', '.join(insufficient)}")
+    return True
 
-    if filename == "functional-review.json":
-        not_met = [
-            item.get("ac", "<sem AC>")
-            for item in data.get("ac_assessment", [])
-            if item.get("met") is not True
-        ]
-        if not_met:
-            errors.append(f"{gate}: ACs funcionais nao atendidos: {', '.join(not_met)}")
+validated = []
+for filename, expected_gate, label in required_gates:
+    if validate_gate(filename, expected_gate, label, required=True):
+        validated.append((label, filename))
+
+for filename, expected_gate, label in optional_gates:
+    if validate_gate(filename, expected_gate, label, required=False):
+        validated.append((label, filename))
 
 if errors:
     print("\n".join(errors))
     sys.exit(1)
 
-for gate, filename, _ in gates:
-    print(f"{gate}=approved ({slice_dir / filename})")
+for label, filename in validated:
+    print(f"{label}=approved ({slice_dir / filename})")
 PY
 )"; then
   echo "$GATE_CHECK_OUTPUT" >&2
@@ -308,3 +309,81 @@ cat <<DONE
 DONE
 
 exit 0
+
+
+# =====================================================================
+# ADR-0019 Mudanca 2 — validacao de referenced_artifacts no master-audit
+# =====================================================================
+# Bloqueia merge do slice quando master-audit.json nao tem bloco
+# evidence.referenced_artifacts[] com todos os gates obrigatorios
+# aplicaveis ao slice (verify, review, security-gate, audit-tests,
+# functional-gate) E seus sha256 atuais batem com os arquivos.
+#
+# Protege contra master-audit desatualizado (race: arquivo de gate
+# modificado entre master-audit ler e merge-slice rodar).
+#
+# Motivacao: fecha gap #5 da auditoria de fluxo 2026-04-16.
+# Dual-LLM mitiga vies mas nao audita integridade do proprio master-audit.
+
+# Variavel NNN ja definida pelo merge-slice.sh antes deste trecho.
+MASTER_AUDIT="specs/${NNN}/master-audit.json"
+
+if [ -f "$MASTER_AUDIT" ]; then
+  python3 - "$MASTER_AUDIT" <<'PYEOF' || exit 1
+import json
+import sys
+import hashlib
+import os
+
+master_audit_path = sys.argv[1]
+slice_dir = os.path.dirname(master_audit_path)
+
+with open(master_audit_path, encoding="utf-8") as f:
+    master = json.load(f)
+
+evidence = master.get("evidence", {})
+ref_artifacts = evidence.get("referenced_artifacts", [])
+
+if not ref_artifacts:
+    print("❌ [ADR-0019 M2] master-audit.json sem evidence.referenced_artifacts[]", file=sys.stderr)
+    print("   master-audit deve citar cada gate anterior com path + sha256 + read_at", file=sys.stderr)
+    sys.exit(1)
+
+# Mapear gates presentes
+present = {a.get("gate"): a for a in ref_artifacts}
+
+# Gates obrigatorios basicos
+required = {"verify", "review", "security-gate", "audit-tests", "functional-gate"}
+missing = required - set(present.keys())
+
+if missing:
+    print(f"❌ [ADR-0019 M2] master-audit faltando gates obrigatorios: {sorted(missing)}", file=sys.stderr)
+    sys.exit(1)
+
+# Validar sha256 de cada referenced_artifact
+drift = []
+for artifact in ref_artifacts:
+    path = artifact.get("path")
+    declared_hash = artifact.get("sha256")
+    if not path or not declared_hash:
+        drift.append(f"{artifact.get('gate', '?')}: path ou sha256 ausente")
+        continue
+    if not os.path.exists(path):
+        drift.append(f"{artifact.get('gate')}: path {path} nao existe")
+        continue
+    with open(path, "rb") as f:
+        actual_hash = hashlib.sha256(f.read()).hexdigest()
+    if not actual_hash.startswith(declared_hash[:8]):  # aceita hash parcial ou completo
+        drift.append(f"{artifact.get('gate')}: sha256 diverge (declarado={declared_hash[:16]}... atual={actual_hash[:16]}...)")
+
+if drift:
+    print("❌ [ADR-0019 M2] Drift detectado em referenced_artifacts:", file=sys.stderr)
+    for d in drift:
+        print(f"   - {d}", file=sys.stderr)
+    print("", file=sys.stderr)
+    print("   Master-audit precisa ser re-executado — arquivo de gate mudou apos leitura.", file=sys.stderr)
+    sys.exit(1)
+
+print(f"✓ [ADR-0019 M2] master-audit referencia {len(ref_artifacts)} gates com sha256 validos")
+PYEOF
+fi

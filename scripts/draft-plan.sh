@@ -95,34 +95,61 @@ elif [ "$MODE" = "--validate" ]; then
   [ ! -f "$PLAN" ] && { fail "$PLAN ausente — architect não gerou?"; echo ""; echo "[draft-plan FAIL]" >&2; exit 1; }
   ok "$PLAN existe"
 
-  # Placeholders do template ainda presentes
-  if grep -qE '<decisão>|<descrição>|<justificativa|<razão>|<path>|<risco' "$PLAN"; then
-    fail "placeholders do template ainda presentes (<decisão>, <descrição>, etc.)"
+  # Placeholders do template ainda presentes — apenas em celulas de tabela isoladas
+  # ou em linhas que nao tenham conteudo complementar (prose/code podem citar os termos).
+  if grep -qE '^\|\s*<(decisão|descrição|justificativa|razão|path|risco)[^>]*>\s*\|' "$PLAN" \
+     || grep -qE '^\s*-\s*<(decisão|descrição|justificativa|razão|path|risco)[^>]*>\s*$' "$PLAN"; then
+    fail "placeholders do template ainda presentes em tabela/bullet (<decisão>, <descrição>, etc.)"
   else
     ok "placeholders do template removidos"
   fi
 
-  # Seções obrigatórias
-  for section in "Decisões arquiteturais" "Mapeamento AC" "Riscos e mitigações"; do
-    if awk -v s="$section" '
-      BEGIN { found=0; nonempty=0 }
-      $0 ~ "^##[[:space:]]+" s { found=1; next }
-      found && /^##[[:space:]]/ { exit }
-      found && NF>=3 { nonempty=1 }
-      END { exit nonempty?0:1 }
-    ' "$PLAN"; then
-      ok "seção '$section' preenchida"
+  # Secoes obrigatorias. Harness v3: aceita sinonimos PT-BR usados pelas skills.
+  check_plan_section() {
+    local names="$1"
+    awk -v names="$names" '
+      BEGIN {
+        n = split(names, arr, "|")
+        found = 0; nonempty = 0
+      }
+      {
+        if (!found) {
+          for (i = 1; i <= n; i++) {
+            if ($0 ~ "^##[[:space:]]+([0-9]+\\.[[:space:]]+)?" arr[i]) { found = 1; next }
+          }
+        } else {
+          if ($0 ~ /^##[[:space:]]/) { exit }
+          if (NF >= 3) nonempty = 1
+        }
+      }
+      END { exit nonempty ? 0 : 1 }
+    ' "$PLAN"
+  }
+
+  declare -a PLAN_SECTIONS=(
+    "Decisões arquiteturais:Decisões arquiteturais|Decisões de design|Decisões"
+    "Mapeamento AC:Mapeamento AC|Critérios de .done.|Critérios de done|Mapeamento de ACs"
+    "Riscos e mitigações:Riscos e mitigações|Riscos"
+  )
+
+  for entry in "${PLAN_SECTIONS[@]}"; do
+    LABEL="${entry%%:*}"
+    NAMES="${entry#*:}"
+    if check_plan_section "$NAMES"; then
+      ok "seção '$LABEL' preenchida"
     else
-      fail "seção '$section' vazia ou ausente"
+      fail "seção '$LABEL' vazia ou ausente (aceito: $NAMES)"
     fi
   done
 
-  # Pelo menos 1 decisão (D1, D2, ...)
-  D_COUNT=$(grep -cE '^### D[0-9]+' "$PLAN" || echo 0)
+  # Pelo menos 1 decisao: aceita `### D1:`, `### D-1 —`, bullet `- **Decisão D-1**`, etc.
+  D_COUNT=$(grep -cE '^(###+[[:space:]]+D[-]?[0-9]+|[[:space:]]*-[[:space:]]+\*\*Decisão[[:space:]]+D[-]?[0-9]+)' "$PLAN" || echo 0)
+  D_COUNT=$(echo "$D_COUNT" | head -1 | tr -cd '0-9')
+  D_COUNT="${D_COUNT:-0}"
   if [ "$D_COUNT" -ge 1 ]; then
     ok "$D_COUNT decisão(ões) arquitetural(is)"
   else
-    fail "nenhuma decisão arquitetural (esperado ### D1: ...)"
+    fail "nenhuma decisão arquitetural (esperado ### D1: ... ou ### D-1 — ... ou bullet '- **Decisão D-1**')"
   fi
 
   # Mapeamento cobre ACs do spec

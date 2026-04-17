@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# master-audit.sh — prepara input package para master-auditor (ADR-0012 E2)
+# master-audit.sh — prepara input package para governance (mode=master-audit) (ADR-0012 E2)
 # e imprime instruções para o orquestrador invocar as duas trilhas dual-LLM.
 #
 # Uso: bash scripts/master-audit.sh NNN
@@ -97,10 +97,11 @@ Input package pronto em: $INPUT_DIR/
 
 Próximas ações (em paralelo quando possível):
 
-1. TRILHA A — Claude Opus 4.6 (master-auditor agent)
+1. TRILHA A — Claude Opus 4.6 (governance (mode=master-audit) agent)
    - Invoque via tool Agent:
-     subagent_type: master-auditor
-     prompt: <ver §Prompt canônico em .claude/agents/master-auditor.md>
+     subagent_type: governance
+     mode: master-audit
+     prompt: <ver §Prompt canônico em .claude/agents/governance.md (modo master-audit)>
    - O sandbox hook restringe reads a $INPUT_DIR/
    - Saída esperada: $INPUT_DIR/trail-opus.json
 
@@ -121,7 +122,7 @@ Próximas ações (em paralelo quando possível):
    - Ler $INPUT_DIR/trail-opus.json e $INPUT_DIR/trail-gpt5.json
    - Comparar verdicts:
      * Ambos approved + findings=[] → consenso approved → gravar specs/$SLICE_NNN/master-audit.json
-     * Ambos rejected → consenso rejected (findings mergeados) → invocar /fix NNN master-auditor
+     * Ambos rejected → consenso rejected (findings mergeados) → invocar /fix NNN master-audit
      * Divergentes → reconciliação (até 3 rodadas com mcp__codex__codex-reply / Agent SendMessage)
 
 4. PÓS-CONSOLIDAÇÃO:

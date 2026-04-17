@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://kalibrium.local/protocol/schemas/gate-output.schema.json",
   "title": "Kalibrium Gate Output",
-  "description": "Schema normativo para toda saida JSON de gate. Referenciado em docs/protocol/03-contrato-artefatos.md secao 8. Versao 1.2.3 — enum expandido com ux-gate e ci-gate (conforme mapa canonico 00 §3.1).",
+  "description": "Schema normativo para toda saida JSON de gate. Referenciado em docs/protocol/03-contrato-artefatos.md secao 8. Versao 1.2.4 — enum expandido com audit-tests-draft (ADR-0017 Mudanca 1, gate pre-implementacao que audita testes red antes da Fase D).",
   "type": "object",
   "required": [
     "$schema",
@@ -31,6 +31,7 @@
         "verify",
         "review",
         "security-gate",
+        "audit-tests-draft",
         "audit-tests",
         "functional-gate",
         "data-gate",

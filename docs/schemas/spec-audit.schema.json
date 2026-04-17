@@ -1,7 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Spec Audit Output",
-  "description": "Schema para output do spec-auditor agent",
+  "$comment": "DEPRECATED 2026-04-17 — substituido por docs/protocol/schemas/gate-output.schema.json (gate-output-v1, v1.2.4). Mantido somente para referencia historica dos handoffs 2026-04-13. Novos gates (protocolo v1.2.2) validam contra o canonico unificado. Nenhum script do harness deve mais referenciar este arquivo.",
+  "deprecated": true,
+  "title": "Spec Audit Output (DEPRECATED)",
+  "description": "[DEPRECATED] Schema legado v1 do spec-auditor. Protocolo v1.2.2 unificou todos os gates em gate-output-v1.",
   "type": "object",
   "required": ["schema_version", "slice_id", "audit_date", "verdict", "summary", "checks", "findings", "stats"],
   "properties": {

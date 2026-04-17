@@ -311,7 +311,8 @@ say '    isolation:     "worktree",'
 say '    description:   "Review estrutural slice-'"$NNN"'",'
 say '    prompt:        "Leia APENAS review-input/. Escreva'
 say '                    review-input/review.json seguindo'
-say '                    docs/schemas/review.schema.json. Sem prosa."'
+say '                    docs/protocol/schemas/gate-output.schema.json'
+say '                    (gate-output-v1, gate=review). Sem prosa."'
 say "  })"
 say ""
 say "  Após o reviewer gravar review.json, rode:"

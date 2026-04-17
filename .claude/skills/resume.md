@@ -1,7 +1,9 @@
 ---
 description: Restaura contexto da sessao anterior e continua do ponto exato onde parou. Le project-state.json + ultimo handoff + telemetria para reconstruir estado. Uso: /resume.
 protocol_version: "1.2.2"
-changelog: "2026-04-16 — quality audit Cat C polishing"
+changelog:
+  - "2026-04-16 — quality audit Cat C polishing"
+  - "2026-04-16 — ADR-0017 Mudanca 3: reconcile-project-state.sh chamado apos carregar state (detecta drift entre project-state.json e git antes de o PM continuar)"
 ---
 
 # /resume
@@ -33,6 +35,18 @@ Ler na seguinte ordem de prioridade:
 3. `.claude/telemetry/` — ultimo slice com atividade
 4. `git log --oneline -10` — commits recentes
 5. `git status` — working tree
+
+### 1b. Reconciliar project-state contra git (ADR-0017 Mudanca 3)
+
+```bash
+bash scripts/reconcile-project-state.sh --verbose
+```
+
+- **exit 0:** estado consistente, prosseguir
+- **exit 1:** drift bloqueante detectado — apresentar ao PM via R12:
+  > "Detectei que o estado do projeto diverge do que git mostra. Antes de continuar, preciso que voce confirme: [lista de divergencias em PT-BR]. Detalhe tecnico em `docs/audits/project-state-reconcile-*.json`."
+- **exit 2:** pre-requisito faltando (json invalido, schema ausente) — abortar /resume, reportar incidente
+- Drift informativo (avisos sem bloqueio): registrar em logs mas prosseguir
 
 ### 2. Carregar arquivos relevantes
 

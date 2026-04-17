@@ -175,7 +175,8 @@ Mensagens usando templates padrao (ver secao de comunicacao abaixo).
 | Spec auditada | `S5.1` | `/audit-spec` | spec.md sem findings | PM aprova spec |
 | Plan gerado | `S6` | `/draft-plan` | plan.md pronto | plan-reviewer aprova com findings [] |
 | Plan revisado | `S6.1` | `/review-plan` | plan-review.json approved | PM aprova plan |
-| Testes red | `S7` | `/draft-tests` | Testes falhando | Commit dos testes |
+| Testes red | `S7` | `/draft-tests` | Testes falhando com AC-ID rastreavel | Commit dos testes |
+| Testes red auditados | `S7.1` | `/audit-tests-draft` | tests-draft-audit.json approved com findings [] | qa-expert (audit-tests-draft) aprova em instancia isolada (ADR-0017) |
 | Implementacao | `S8` | builder/implementer | Testes verdes | Todos AC-tests passam |
 | Pipeline de gates | `S9` | `/verify-slice` | Todos gates approved | todos gates verdes |
 | Merge pronto | `S10` | `/merge-slice` | Slice mergeado | Merge concluido |
@@ -188,8 +189,9 @@ Mensagens usando templates padrao (ver secao de comunicacao abaixo).
 - `S0 -> S5` — Nao pode pular descoberta e ir direto para codigo
 - `S2 -> S7` — Nao pode gerar testes sem plano aprovado
 - `S6 -> S7` — Nao pode gerar testes sem plan-review.json aprovado, com proveniencia do `plan-reviewer` em contexto `isolated` e `findings: []`
+- `S7 -> S8` — **Nao pode pular S7.1** (ADR-0017 Mudanca 1). Implementer nao inicia sem `specs/NNN/tests-draft-audit.json` approved com `findings: []`
 - `S8 -> S10` — Nao pode mergear sem passar pelos gates
-- Qualquer `-> S8` sem `S7` completo — Nao pode implementar sem testes red
+- Qualquer `-> S8` sem `S7.1` completo — Nao pode implementar sem testes red auditados
 
 ---
 
@@ -227,7 +229,7 @@ Dois modos distintos do mesmo agente (ex: architecture-expert `plan` e architect
 | A — Descoberta | product-expert (discovery), ux-designer (research) | Serializado (domain -> nfr -> personas -> jornadas) |
 | B — Estrategia | architecture-expert (design), security-expert (threat-model), data-expert (modeling), integration-expert (strategy), observability-expert (strategy), devops-expert (ci-design), ux-designer (design) | Mix paralelo/serial |
 | C — Planejamento | product-expert (decompose) -> qa-expert (audit-planning / audit-story / audit-spec) -> architecture-expert (plan) -> architecture-expert (plan-review, instancia isolada) | Serializado com auditorias |
-| D — Execucao | architecture-expert (plan) -> builder (test-writer) -> builder (implementer) | Serializado |
+| D — Execucao | architecture-expert (plan) -> builder (test-writer) -> qa-expert (audit-tests-draft, instancia isolada — ADR-0017) -> builder (implementer) | Serializado |
 | E — Gates (L3 standard) | qa-expert (verify) -> architecture-expert (code-review) -> [security-expert (security-gate) + qa-expert (audit-tests) + product-expert (functional-gate)] paralelo + condicionais paralelos [data-expert (data-gate), observability-expert (observability-gate), integration-expert (integration-gate)] -> governance (master-audit, dual-LLM) | Parcial paralelo |
 | E — Correcao | builder (fixer) recebe apenas findings do gate rejeitado | Sob demanda |
 | E — Pre-review L4 | security-expert (spec-security), data-expert (review), integration-expert (strategy) | Antes da Fase D em trilha L4 |

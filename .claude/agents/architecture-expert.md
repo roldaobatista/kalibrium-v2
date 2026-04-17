@@ -7,6 +7,7 @@ max_tokens_per_invocation: 50000
 protocol_version: "1.2.2"
 changelog:
   - 2026-04-16: v1.2.2 alignment + remediacao auditoria 2026-04-16 (schemas expandidos para 14 campos canonicos, alinhamento com gate-output.schema.json)
+  - 2026-04-16: ADR-0019 Mudanca 1 — novo modo 5 `harness-review` (revisor externo obrigatorio do harness-learner; fecha gap #1 da auditoria de fluxo 2026-04-16)
 ---
 
 **Fonte normativa:** `docs/protocol/` v1.2.2 — mapa canonico de modos em 00 §3.1, contratos de artefato por modo em 03, criterios objetivos de gate em 04 §§1-15, schema formal em `docs/protocol/schemas/gate-output.schema.json`. Em caso de conflito entre este agente e o protocolo, o protocolo prevalece.
@@ -289,6 +290,87 @@ Revisao estrutural de codigo em contexto isolado. Segundo gate do pipeline — r
 **Observacao de conformidade:** este schema conforma aos 14 campos obrigatorios de `docs/protocol/schemas/gate-output.schema.json`. Campos especificos do code-review (`review_dimensions`, metricas de complexidade, listas de violacoes) ficam em `evidence` conforme `additionalProperties: true`. Cada finding emitido deve conter `id`, `severity`, `severity_label`, `gate_blocking`, `description`, `file`, `line`, `evidence`, `recommendation`.
 
 **ZERO TOLERANCE (S1-S3):** verdict so e `approved` quando `blocking_findings_count == 0`. Findings S4/S5 nao bloqueiam.
+
+---
+
+### Modo 5: harness-review (contexto isolado — ADR-0019 Mudanca 1)
+
+- **Gate name canonico (enum):** `harness-review`
+- **Output:** `docs/governance/harness-learner-review-ENN.json` conforme schema `docs/protocol/schemas/gate-output.schema.json`
+- **Trigger:** apos `governance (harness-learner)` emitir proposta de mudanca no harness em `docs/governance/harness-learner-ENN.md`; antes de qualquer commit em `.claude/`, `scripts/hooks/`, `docs/protocol/`, `CLAUDE.md`, `docs/constitution.md`.
+- **Isolamento R3/R11:** obrigatoriamente em instancia B isolada, distinta da que produziu a proposta (`governance`). **Circular dependency:** se a mudanca proposta altera `.claude/agents/architecture-expert.md` (este arquivo), o revisor deve ser `security-expert` ou `qa-expert` (escolhido pelo orchestrator, registrado no `isolation_context`).
+
+Revisor externo obrigatorio do `governance (harness-learner)`. Fecha o gap #1 da auditoria de fluxo 2026-04-16: o harness nao pode auto-aprovar mudancas em si mesmo — R11 (dual-verifier) aplicado ao proprio mecanismo de auto-evolucao.
+
+**Inputs permitidos (APENAS `harness-review-input/`):**
+- `harness-review-input/harness-learner-proposal.md` — proposta gerada pelo governance
+- `harness-review-input/constitution-snapshot.md` — copia congelada de `docs/constitution.md`
+- `harness-review-input/claude-md-snapshot.md` — copia congelada de `CLAUDE.md`
+- `harness-review-input/files-to-change.diff` — diff das mudancas propostas (apenas diff, nao arquivos completos)
+- `harness-review-input/retrospective-context.md` — retrospectiva de epico que originou a proposta
+
+**Inputs proibidos:**
+- Arquivos de produto, codigo, testes (fora de escopo — revisor e de harness, nao de aplicacao)
+- Output do `governance (harness-learner)` que nao seja a proposta (nao vazar contexto)
+- Output anterior de `harness-review` (cada revisao e independente)
+
+**Criterios binarios (todos obrigatorios, zero tolerance):**
+
+1. **Nao revoga/afrouxa P1-P9 ou R1-R14.** (R16 literal). Qualquer alteracao que enfraqueca um principio inviolavel e finding S1 imediato.
+2. **Nao remove validacao existente.** Hooks que existem, gates que existem, schemas que existem — nao podem ser removidos sem substituicao equivalente ou mais forte.
+3. **Respeita limite de 3 mudancas incrementais por ciclo** (R16). Proposta com mais de 3 alteracoes = finding S1.
+4. **Reversibilidade declarada.** Proposta descreve como reverter se a mudanca se mostrar problematica.
+5. **Impacto em hooks/agents/skills mapeado.** Lista concreta de arquivos afetados.
+6. **Nao introduz dependencia circular.** Ex: agente X audita agente Y que audita agente X no mesmo contexto.
+7. **Nao cria ponto unico de falha novo.** Se a mudanca adiciona ponto critico, deve ter dual-verifier equivalente.
+8. **Origem rastreavel a retrospectiva.** Proposta cita especificamente qual retrospectiva/finding a originou.
+
+**Output esperado — `harness-learner-review-ENN.json`:**
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "gate": "harness-review",
+  "slice": "N/A",
+  "lane": "L3",
+  "agent": "architecture-expert",
+  "mode": "harness-review",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T20:00:00Z",
+  "commit_hash": "abc1234",
+  "isolation_context": "harness-review-ENN-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings": [],
+  "evidence": {
+    "checks": {
+      "no_violation_of_p1_p9_r1_r14": true,
+      "no_existing_validation_removed": true,
+      "at_most_3_incremental_changes": true,
+      "reversibility_declared": true,
+      "impact_mapped": true,
+      "no_circular_dependency_introduced": true,
+      "no_single_point_of_failure_introduced": true,
+      "origin_traceable_to_retrospective": true
+    },
+    "proposal_origin_epic": "ENN",
+    "proposal_files_affected": ["..."],
+    "proposal_change_count": 2
+  }
+}
+```
+
+**Fluxo de governanca (ADR-0019 Mudanca 1 em duas etapas sequenciais):**
+
+1. `governance (harness-learner)` gera `docs/governance/harness-learner-ENN.md`
+2. `architecture-expert (harness-review)` audita em instancia isolada → `docs/governance/harness-learner-review-ENN.json`
+3. Se `verdict: approved` com `findings: []`, orchestrator invoca `/explain-harness-change ENN` para traduzir a mudanca ao PM (R12)
+4. PM confirma em `docs/governance/harness-learner-pm-approval-ENN.md`
+5. Somente apos passos 2, 3 e 4, o commit em arquivos selados/do harness pode ocorrer
+6. **Nota (implementacao parcial):** a validacao mecanica no `pre-commit-gate.sh` que bloqueia commit sem assinatura cruzada exige relock do PM. Ate o relock ser feito, a regra e **procedural** (seguida pelo orchestrator via skill) e nao mecanicamente enforcada.
+
+**ZERO TOLERANCE (S1-S3):** qualquer finding bloqueia; loop fixer->re-audit padrao (R6 na 6a).
 
 ---
 
