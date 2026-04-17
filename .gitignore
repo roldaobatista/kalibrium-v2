@@ -23,10 +23,21 @@ copilot-instructions.md
 .cursor/
 .continue/
 
-# ---------- Worktrees temporárias (verifier/reviewer) ----------
+# ---------- Worktrees temporárias (verifier/reviewer/gates) ----------
 verification-input/
 review-input/
+security-review-input/
+test-audit-input/
+functional-review-input/
+master-audit-input/
 .verify-*.tmp/
+
+# ---------- Staging temporário de merge (resolução de conflito) ----------
+scripts/staging/
+
+# ---------- Backups residuais de hooks (relock-harness.sh gera docs/incidents/) ----------
+scripts/hooks/*.bak-*
+scripts/*.bak-*
 
 # ---------- Telemetria efêmera ----------
 .claude/telemetry/*.jsonl
