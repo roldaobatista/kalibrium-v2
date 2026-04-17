@@ -1,5 +1,7 @@
 ---
 description: Verifica sob demanda se os arquivos selados do harness (settings.json, MANIFEST.sha256, git identity baseline) estão íntegros. Complementa o check automático do SessionStart — roda entre gates ou quando suspeitar de tampering. Uso: /sealed-diff.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
 # /sealed-diff
@@ -21,7 +23,7 @@ Consolida output num resumo verde/vermelho/amarelo.
 
 ## Por que importa
 
-O `SessionStart` hook (`session-start.sh`) já valida selos no início de cada sessão. Entre sessões longas ou cadeias de gates (verifier → reviewer → security → test-audit → functional), um arquivo selado pode ser tocado inadvertidamente (ex: edição manual sem relock, merge de branch, rebase). Sem check intermediário, só descobrimos o drift no próximo SessionStart — que pode ser horas depois.
+O `SessionStart` hook (`session-start.sh`) já valida selos no início de cada sessão. Entre sessões longas ou cadeias de gates (verify → review → security-gate → audit-tests → functional-gate → master-audit), um arquivo selado pode ser tocado inadvertidamente (ex: edição manual sem relock, merge de branch, rebase). Sem check intermediário, só descobrimos o drift no próximo SessionStart — que pode ser horas depois.
 
 `/sealed-diff` dá visibilidade mid-session, respeitando o modelo de enforcement por arquitetura:
 - **Não altera** nada — só lê e compara hashes.
@@ -73,3 +75,24 @@ Nenhum — executada diretamente pelo orquestrador ativo.
 - `docs/constitution.md` §4 R9 — zero bypass de gates.
 - `scripts/hooks/settings-lock.sh`, `scripts/hooks/hooks-lock.sh` — geradores canônicos dos hashes.
 - `scripts/hooks/session-start.sh` — onde esses mesmos checks rodam automaticamente no início da sessão.
+
+## Handoff
+
+- `SELOS OK` → prosseguir com fluxo normal (próximo gate/merge)
+- `DRIFT` → parar, investigar `docs/incidents/` e `git log`, seguir CLAUDE.md §9
+- `ERRO EXEC` → tratar como possível tampering; abrir incident file
+
+## Próximo passo
+
+- OK → continuar (próximo gate, merge, commit)
+- Drift detectado → **não rodar relock antes de entender origem**; investigar + escalar PM se suspeito
+- Erro de execução → `/guide-check` para diagnóstico completo do harness
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador executa checks `--check` dos hooks selados).
+- **Gates produzidos:** não é gate de slice; é health-check do harness entre gates.
+- **Output:** mensagem no chat (SELOS OK / DRIFT / ERRO) + exit code.
+- **Schema formal:** reutiliza hashes de `settings.json.sha256` e `MANIFEST.sha256`.
+- **Isolamento R3:** não aplicável (read-only do harness).
+- **Ordem no pipeline:** invocado entre gates de slice longo; antes de `/merge-slice` como sanity final.

@@ -1,5 +1,7 @@
 ---
 description: Skill de onboarding Dia 1 pro PM — mostra estado atual + decisões pendentes + menu de próximos passos em PT-BR. Use quando não souber o que fazer. Uso: /start.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit Cat C polishing + SK-006"
 ---
 
 # /start
@@ -84,3 +86,27 @@ Nenhuma — `/start` é o ponto de entrada universal. Funciona em qualquer estad
 Nenhum handoff automático — `/start` é puramente informativo. PM lê, decide, digita o próximo comando livremente.
 
 Se o agente principal detectar que o PM está visivelmente perdido (ex.: respondeu "e agora?", "não sei"), pode disparar `/start` proativamente.
+
+## Próximo passo
+
+Sugestão dependente do estado:
+
+- Projeto vazio → `/intake` ou `/decide-stack`
+- Slice ativo → `/where-am-i NNN` para detalhe + próximo comando do slice
+- ADR pendente → `/adr NNNN` ou aceitar rascunho existente
+- Sem pista → menu completo fica visível
+
+## Critério de saída (exit)
+
+`/start` é idempotente e não muta estado. Considera-se "executado com sucesso" quando:
+- Script `scripts/start.sh` retornou exit 0 (ou lógica equivalente inline)
+- PM viu: boas-vindas + estado atual + decisões pendentes + menu + dica contextual
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador apresenta onboarding ao PM).
+- **Gates produzidos:** não é gate; é ponto de entrada universal da skill-tree.
+- **Output:** mensagem R12 no chat — 4 seções fixas + dica contextual.
+- **Schema formal:** não aplicável (consome `/where-am-i` + varredura de ADRs).
+- **Isolamento R3:** não aplicável.
+- **Ordem no pipeline:** primeiro comando em Dia 1 ou após pausa longa; fallback universal para confusão.

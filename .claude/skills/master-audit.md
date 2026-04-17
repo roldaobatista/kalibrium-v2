@@ -1,5 +1,6 @@
 ---
-description: Consolidação dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI) das 5 trilhas de gate. Ativa master-auditor (ADR-0012 E2). Use como 4º passo da Fase E, após verifier/reviewer/security/test/functional todos approved. Uso: /master-audit NNN.
+description: Consolidação dual-LLM (Claude Opus 4.7 + gpt-5 via Codex CLI) das 5 trilhas de gate. Ativa governance (master-audit) (ADR-0012 E2). Use como 4º passo da Fase E, após verify/review/security-gate/audit-tests/functional-gate todos approved. Uso: /master-audit NNN.
+protocol_version: "1.2.2"
 ---
 
 # /master-audit
@@ -29,24 +30,24 @@ description: Consolidação dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI) das
 
 2. **Spawn paralelo de duas trilhas independentes** (princípio P3 + R11/ADR-0012 E2):
 
-   **Trilha A — Claude Opus 4.6:**
-   - Agent tool com `subagent_type: master-auditor` (contexto limpo, sandbox de leitura restrita a `master-audit-input/`)
+   **Trilha A — Claude Opus 4.7:**
+   - Agent tool com `subagent_type: governance` (contexto limpo, sandbox `workspace-write` restrita a `master-audit-input/`)
    - Produz `master-audit-input/trail-opus.json`
 
-   **Trilha B — GPT-5 via Codex CLI:**
+   **Trilha B — gpt-5 via Codex CLI:**
    - Método preferido: **Bash direto** (mais estável no Windows):
      ```bash
      cd master-audit-input && codex exec --sandbox workspace-write --skip-git-repo-check "<prompt>"
      ```
    - **IMPORTANTE:** em ChatGPT Plus auth NÃO passar `--model` (default = gpt-5).
-     Flags `--model gpt-5`, `--model gpt-5.4`, `--model o1-mini` falham com "not supported when using Codex with a ChatGPT account".
+     Flags `--model gpt-5`, `--model o1-mini` falham com "not supported when using Codex with a ChatGPT account".
    - Método alternativo: `mcp__codex__codex` com `sandbox: "workspace-write"`, `cwd: master-audit-input/`, SEM passar model. Pode sofrer `CreateProcessAsUserW failed: 5` no Windows — ver `docs/operations/codex-gpt5-setup.md`.
    - Produz `master-audit-input/trail-gpt5.json`
 
    **Regras de simetria** (para garantir independência genuína):
    - Prompts idênticos em estrutura e conteúdo
    - Nenhuma trilha lê o output da outra
-   - Cada trilha emite JSON validado contra `docs/schemas/master-audit-trail.schema.json`
+   - Cada trilha emite JSON validado contra `docs/protocol/schemas/gate-output.schema.json`
 
 3. **Consolidação pelo orquestrador:**
    - Se **ambas as trilhas** retornam `verdict: approved` com `findings: []` → **consenso approved**
@@ -72,7 +73,7 @@ description: Consolidação dual-LLM (Claude Opus 4.6 + GPT-5 via Codex CLI) das
    {"event":"master-audit","timestamp":"...","verdict":"approved","trails":2,"reconciliation_rounds":0,"tokens_opus":..., "tokens_gpt5":...}
    ```
 
-7. **Aplica R6:** 6ª rejeição consecutiva do master-auditor no mesmo slice → `escalate_human` + incident file + bloqueia fixer.
+7. **Aplica R6:** 6ª rejeição consecutiva do `governance` (modo: master-audit) no mesmo slice → `escalate_human` + incident file + bloqueia fixer.
 
 8. **Dispara relatório PM-ready** (G-11) via `scripts/explain-slice.sh` quando:
    - Verdict for `escalate_human`
@@ -92,7 +93,7 @@ O script monta o input package, invoca as duas trilhas em paralelo via tools do 
 **Caso consenso approved:**
 ```
 [master-audit] input package montado em master-audit-input/
-[master-audit] invocando trilha A (Opus 4.6) + trilha B (GPT-5.4) em paralelo...
+[master-audit] invocando trilha A (Opus 4.7) + trilha B (gpt-5) em paralelo...
 [master-audit] trilha A concluída: verdict=approved, findings=[]
 [master-audit] trilha B concluída: verdict=approved, findings=[]
 [master-audit] ✓ consenso approved — merge autorizado (next_action=merge)
@@ -131,20 +132,31 @@ O script monta o input package, invoca as duas trilhas em paralelo via tools do 
 | Trilha GPT-5 falha (erro de MCP, cota, model indisponível) | Retry 1x com fallback para model default da config Codex. Se falhar, escalar. |
 | JSON emitido por alguma trilha fora do schema | Rejeitar output, re-spawnar a trilha com prompt reforçado. Se 3 falhas de schema, escalar. |
 | Divergência persiste após 3 rodadas de reconciliação | Criar incident file, gerar relatório PM via R12, aguardar decisão humana. |
-| Ambas trilhas rejected com findings idênticos | Consenso rejected — orquestrador invoca `/fix NNN master-auditor`, loop padrão até findings=[] ou R6. |
+| Ambas trilhas rejected com findings idênticos | Consenso rejected — orquestrador invoca `/fix NNN master-audit`, loop padrão até findings=[] ou R6. |
 | Custo explosivo (>800k tokens combinados) | Registrar em telemetria como outlier; continuar mas alertar na próxima retrospectiva. |
 
 ## Agentes
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `master-auditor` (trilha Opus) | sandbox via `verifier-sandbox.sh`, input restrito a `master-audit-input/` | 80k tokens |
-| GPT-5 (trilha Codex) | `mcp__codex__codex` sandbox read-only, cwd = `master-audit-input/` | 80k tokens |
+| `governance` (modo: master-audit, trilha Opus 4.7) | sandbox `workspace-write` via `verifier-sandbox.sh`, input restrito a `master-audit-input/` | 80k tokens |
+| gpt-5 (trilha Codex) | `mcp__codex__codex` sandbox `workspace-write`, cwd = `master-audit-input/` (Windows exige write; em Linux/Mac pode-se usar `read-only`, mas padronizamos `workspace-write` para consistencia cross-platform) | 80k tokens |
 
 ## Cross-ref
 
 - `docs/adr/0012-constitution-amendment-autonomy-dual-llm.md` §E2, §E5
 - `docs/constitution.md §R11` (emendada), §R15, §R16
-- `.claude/agents/master-auditor.md`
+- `.claude/agents/governance.md`
 - `docs/audits/external/master-audit-smoke-test-2026-04-15.json` (primeiro smoke-test documentado)
-- `docs/schemas/master-audit.schema.json` (quando criado — item de backlog)
+- `docs/protocol/schemas/gate-output.schema.json` (schema canonico unificado de gate)
+
+## Conformidade com protocolo v1.2.2
+
+- **Agent invocado:** `governance (master-audit)` — conforme mapa canonico 00 §3.1 (dual-LLM: Opus + GPT-5)
+- **Gate name (enum):** `master-audit`
+- **Output:** `specs/NNN/master-audit.json`
+- **Schema:** `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios)
+- **Criterios objetivos:** `docs/protocol/04-criterios-gate.md §9`
+- **Isolamento R3:** cada trilha roda em instancia isolada com `isolation_context` unico (Opus e GPT-5 nao veem output um do outro)
+- **Reconciliacao dual-LLM:** protocolo formal em 04 §9.4; se divergencia persistir apos 3 rodadas, E10 (master-audit-pm-decision.json) resolve via PM
+- **Zero-tolerance:** `verdict: approved` somente com `blocking_findings_count == 0` em ambas trilhas

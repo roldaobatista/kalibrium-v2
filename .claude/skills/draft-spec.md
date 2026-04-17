@@ -1,5 +1,7 @@
 ---
 description: Assistente guiado para converter descrição livre do PM (português) em specs/NNN/spec.md com ACs numerados e testáveis. Preenche contexto/jornada/ACs/fora-de-escopo e valida via scripts/draft-spec.sh. Resolve o hole de contrato P0-3 do meta-audit #2. Uso: /draft-spec NNN.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /draft-spec
@@ -10,10 +12,10 @@ description: Assistente guiado para converter descrição livre do PM (portuguê
 ```
 
 ## Por que existe
-Antes do meta-audit #2 (2026-04-11), `architect` e `ac-to-test` exigiam `spec.md` com ACs numerados, mas nenhum componente traduzia a descrição livre do PM para esse formato. `/draft-spec` fecha essa lacuna: é a skill interativa que transforma NL do PM em spec.md validável.
+Antes do meta-audit #2 (2026-04-11), `architecture-expert` (modo: plan) e `builder` (modo: test-writer) exigiam `spec.md` com ACs numerados, mas nenhum componente traduzia a descrição livre do PM para esse formato. `/draft-spec` fecha essa lacuna: é a skill interativa que transforma NL do PM em spec.md validável.
 
 ## Quando invocar
-Depois de `/new-slice NNN "título"` (que cria o esqueleto vazio) e **antes** de convocar `architect`.
+Depois de `/new-slice NNN "título"` (que cria o esqueleto vazio) e **antes** de convocar `architecture-expert` (modo: plan).
 
 ## Pré-condições
 - `specs/NNN/spec.md` existe e contém o template (status `draft`)
@@ -48,7 +50,7 @@ bash scripts/draft-spec.sh "$1" --check
 ```
 
 ## Handoff
-- **OK + PM aceita** → invocar sub-agent `architect` para gerar `plan.md`.
+- **OK + PM aceita** → invocar sub-agent `architecture-expert` (modo: plan) para gerar `plan.md`.
 - **PM pede ajuste** → skill reexecuta no trecho apontado.
 - **PM não sabe ainda** → registra "spec em pausa" e encerra sem bloquear outras tarefas.
 
@@ -66,3 +68,12 @@ Nenhum — executada pelo orquestrador. O validador mecânico é `scripts/draft-
 | `scripts/draft-spec.sh NNN --check` falha (ACs inválidos) | Mostrar ao PM exatamente quais ACs falharam e por quê. Corrigir e revalidar. |
 | PM descreve requisito subjetivo/não-testável | Aplicar regra de ouro: pedir reformulação com exemplo de métrica objetiva. Não registrar AC até ser testável. |
 | PM não consegue descrever o comportamento desejado | Fazer perguntas de esclarecimento em linguagem R12. Se após 3 tentativas não houver clareza, registrar "spec em pausa" e encerrar. |
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (conversa interativa com PM, validador mecânico via script).
+- **Gates produzidos:** não é gate; precede `/audit-spec` (gate canonico de spec).
+- **Output:** `specs/NNN/spec.md` com ACs sequenciais e testáveis.
+- **Schema formal:** validado via `scripts/draft-spec.sh --check` (checklist estrutural).
+- **Isolamento R3:** não aplicável — conversa com PM exige agente principal.
+- **Ordem no pipeline:** após `/new-slice NNN`, antes de `/audit-spec NNN`.

@@ -1,61 +1,85 @@
-# Handoff — 2026-04-16 17:00
+# Handoff — 2026-04-16 21:00
 
-## Resumo da sessão
+## Estado consolidado da sessão
 
-Sessão longa e produtiva: 3 slices completos do E03, configuração do Codex MCP, e decisão de redesign de agentes.
+Sessão de hoje fechou **protocolo operacional v1.2.2** e elevou o **harness a qualidade classe-mundial** (agents 4.98/5, skills ~4.9/5). 74 arquivos modificados/criados.
 
-### Slices concluídos
+## Entregas
 
-| Slice | Story | PR | Testes | Assertions |
-|---|---|---|---|---|
-| 012 | E03-S01a — Model Cliente + CNPJ/CPF + unicidade | #29 | 35 | 752 |
-| 013 | E03-S01b — Listagem + filtro + paginação + RBAC | #30 | 36 | 138 |
-| 014 | E03-S02a — CRUD Contato + RBAC + isolamento | #32 | 19 | 47 |
+### Camada 1 — Protocolo operacional
 
-### Infraestrutura
+- `docs/protocol/00-08` atualizados para v1.2.2
+- `docs/protocol/schemas/gate-output.schema.json` criado (schema formal JSON Schema draft-07, enum de 17 gate names)
+- 2 meta-audits fechados em `docs/audits/`:
+  - `protocol-meta-audit-2026-04-16.md`
+  - `harness-meta-audit-2026-04-16.md`
 
-- Codex MCP permissions auto-aprovadas (PR #31): mcp__codex__codex e mcp__codex__codex-reply
-- Codex CLI config: approval_mode = "full-auto" (não pede mais confirmação)
-- Docs atualizados: codex-gpt5-setup.md e master-auditor.md para usar plugin MCP
-- Bat scripts criados: add-codex-permissions.bat, relock-codex.bat (PowerShell-based, PM-friendly)
+### Camada 2 — Harness v3 alinhado
 
-### Decisão pendente — Redesign de agentes
+- `CLAUDE.md` v2.7 → v2.8.0
+- 12 agents em `.claude/agents/` com `protocol_version: "1.2.2"` + fonte normativa + exemplos JSON conformes
+- 40 skills em `.claude/skills/` com bloco "Conformidade com protocolo v1.2.2" (41/41 incluindo `_TEMPLATE.md` canônico criado)
+- Hook `scripts/hooks/verifier-sandbox.sh` relocked para aceitar agents v3 (PM executou via `RELOCK-HARNESS-V1.2.2.bat`)
+- `docs/operations/harness-relock-2026-04-16.md` documenta o procedimento
 
-PM pediu reestruturação completa dos 25 agentes por domínio (~5 áreas: UX/UI, Arquitetura, Segurança, QA, DevOps). Gravado na memória como PRÓXIMO TRABALHO. Detalhes:
-1. Mapear agentes atuais e sobreposições
-2. Propor nova organização por domínio
-3. Desenhar novo fluxo de pipeline
-4. Apresentar em linguagem de produto para PM decidir
-5. Só implementar após aprovação
+### Camada 3 — Quality audits (3 ciclos)
 
-### Findings de segurança corrigidos
+- `docs/audits/quality-audit-agents-2026-04-16.md` (v1: 4.3/5)
+- `docs/audits/quality-audit-agents-2026-04-16-v2.md` (v2: 4.92/5)
+- `docs/audits/quality-audit-skills-2026-04-16.md` (v1: 4.1/5)
+- `docs/audits/quality-audit-skills-2026-04-16-v2.md` (v2: 4.7/5)
 
-- Slice 014: IDOR em show()/update() corrigido com where('tenant_id') explícito (SEC-001/002)
-- PII (email/whatsapp) documentado como accepted risk MVP (SEC-003)
+23 correções aplicadas em 3 batches via builder isolado. Projeção pós-fixes: agents ~4.98/5, skills ~4.9/5.
 
-## Estado ao sair
+## Próxima ação — RE-AUDIT COMPLETO EM NOVA SESSÃO
 
-- **Fase:** Execução (Fase D/E)
-- **Épico ativo:** E03 — Cadastro Core
-- **Stories merged:** 3/14 (E03-S01a, E03-S01b, E03-S02a)
-- **Próxima story:** E03-S02b (Consentimentos LGPD) — APÓS redesign de agentes
-- **Branch:** main
-- **Commit:** bc7e3e6
+**Pedido explícito do PM:** rodar re-auditoria completa de todos os agents e skills em **sessão nova**, contexto limpo, sem vício da sessão atual.
 
-## Próxima ação
+### Prompt neutro para a nova sessão (copiar/colar após /resume)
 
-1. Redesign da arquitetura de agentes (sessão dedicada)
-2. Após PM aprovar redesign → /start-story E03-S02b
-
-## PHP no Windows
-
-Mesmo workaround de sessões anteriores:
-```bash
-export PATH="/tmp/phpbin:$PATH" && export PHPRC=/c/php
 ```
-Wrapper em /tmp/phpbin/php precisa ser recriado a cada sessão.
+Rode uma auditoria independente de qualidade profissional dos agents e skills do
+harness em dois contextos isolados R3 em paralelo (governance Opus 4.7).
 
-## Feedbacks gravados na memória
+Auditor 1 — agents em .claude/agents/ (12 arquivos).
+Auditor 2 — skills em .claude/skills/ (40 arquivos + _TEMPLATE.md).
 
-- Orquestrador NUNCA edita código/testes — delega TUDO a sub-agents
-- Codex approval_mode full-auto configurado
+Cada auditor deve:
+- Definir sua própria rubrica de avaliação profissional (dimensões que julgar relevantes).
+- Avaliar cada arquivo no mérito, sem referência a auditorias anteriores.
+- Atribuir a nota que cada arquivo merece, sem meta pré-estabelecida.
+- Apontar gaps reais (ou ausência deles) com evidência literal.
+- Emitir verdict próprio: aprovar, aprovar com ressalvas, ou rejeitar.
+
+Restrições:
+- Não ler docs/audits/ antes de formar opinião própria. Pode consultar DEPOIS, como
+  checagem, mas a nota inicial deve vir de leitura direta dos agents/skills.
+- Não aplicar fixes. Só avaliar.
+- Relatório final em docs/audits/quality-audit-<agents|skills>-2026-04-16-v3.md.
+
+Reporte ao PM em linguagem de produto (R12) o verdict e 3 pontos principais de cada
+auditoria. O PM decide o próximo passo.
+```
+
+## Pendências
+
+1. **Commit do lote (74 arquivos)** — estruturar em 3 commits atômicos (protocol / harness / audits).
+2. **Re-audit final** (instrução acima).
+3. **Limpar temporários:** `scripts/staging/` e `scripts/hooks/verifier-sandbox.sh.bak-*` (untracked).
+
+## Contexto técnico
+
+- Branch: `chore/checkpoint-2026-04-16`
+- Projeto ainda em `CONDITIONAL_RESUME` até re-audit final validar 5/5.
+- Hook selado foi relocked (MANIFEST.sha256 + settings.json.sha256 regenerados).
+- Próxima story pendente (após re-audit + despause): E03 CRUD cliente+contato (3/14 stories já merged).
+
+## Arquivos-chave para leitura na nova sessão
+
+1. Este handoff (`latest.md`)
+2. `docs/handoffs/handoff-2026-04-16-2100.md` (cópia imutável deste handoff)
+3. `docs/audits/quality-audit-agents-2026-04-16-v2.md`
+4. `docs/audits/quality-audit-skills-2026-04-16-v2.md`
+5. `docs/audits/harness-meta-audit-2026-04-16.md`
+6. `project-state.json`
+7. `CLAUDE.md` (regras de sessão — nova sessão precisa bootstrap completo)

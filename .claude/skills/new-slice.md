@@ -1,5 +1,7 @@
 ---
 description: Cria esqueleto de um slice novo em specs/NNN/ com spec.md, plan.md e tasks.md a partir dos templates. Use quando for iniciar trabalho em um slice novo. Uso: /new-slice NNN "título do slice".
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /new-slice
@@ -59,5 +61,14 @@ Após criação bem-sucedida:
    - ACs numerados (AC-001, AC-002, ...)
    - Fora de escopo
    - Dependências
-2. Quando aprovado, invocar sub-agent `architect` para gerar `plan.md`.
-3. Nunca pular para `ac-to-test` ou `implementer` antes de spec + plan aprovados.
+2. Quando aprovado, invocar sub-agent `architecture-expert` (modo: plan) para gerar `plan.md` (conforme mapa canonico 00 §3.1).
+3. Nunca pular para `builder` (modo: test-writer) ou `builder` (modo: implementer) antes de spec + plan aprovados.
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** nenhum (orquestrador invoca scaffold script).
+- **Gates produzidos:** não é gate; é scaffold de diretório + metadados.
+- **Output:** `specs/NNN/{spec.md,plan.md,tasks.md}` em status `draft`.
+- **Schema formal:** templates em `docs/templates/{spec.md,plan.md,tasks.md}`.
+- **Isolamento R3:** não aplicável (sem sub-agent).
+- **Ordem no pipeline:** precede `/draft-spec NNN` e invocação de `architecture-expert (plan)`.

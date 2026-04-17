@@ -1,5 +1,7 @@
 ---
-description: Entrevista guiada de descoberta com o PM. Faz as 10 perguntas estrategicas que determinam arquitetura, infra, seguranca e custo. Produz intake-responses.md e dispara domain-analyst + nfr-analyst. Uso: /intake.
+description: Entrevista guiada de descoberta com o PM. Faz as 10 perguntas estrategicas que determinam arquitetura, infra, seguranca e custo. Produz intake-responses.md e dispara product-expert (discovery). Uso: /intake.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005R"
 ---
 
 # /intake
@@ -87,10 +89,9 @@ PM: <nome>
 ### Fase 3 — Disparo de sub-agents
 
 Apos registrar respostas:
-1. Spawn `domain-analyst` para produzir glossario, modelo de dominio, riscos, suposicoes.
-2. Spawn `nfr-analyst` para produzir NFRs estruturados.
+1. Spawn `product-expert` (modo: discovery) — **unica invocacao consolidada** que produz, num so output package, glossario + modelo de dominio + riscos + suposicoes + NFRs estruturados com metricas mensuraveis.
 
-Ambos em **sequencia** (domain-analyst primeiro, pois nfr-analyst usa o glossario).
+Nao ha modo `nfr-analysis` separado no mapa canonico v1.2.2 — os NFRs sao entregaveis do mesmo modo `discovery` conforme `.claude/agents/product-expert.md §Modo 1: discovery`.
 
 ### Fase 4 — Resumo ao PM
 
@@ -114,19 +115,29 @@ Quer seguir para /freeze-prd ou ajustar algo?
 ```
 
 ## Agentes
-- `domain-analyst` — produz glossario, modelo de dominio, riscos e suposicoes (serializado, executa primeiro)
-- `nfr-analyst` — produz NFRs estruturados com metricas mensuraveis (serializado, executa apos domain-analyst)
+- `product-expert` (modo: discovery) — unica invocacao consolidada que produz glossario, modelo de dominio, riscos, suposicoes E NFRs estruturados com metricas mensuraveis. Substitui v2 `domain-analyst` + `nfr-analyst` (fusao em v3 — um modo, um agente, um output package contendo `domain/glossary.md`, `domain/model.md`, `docs/nfrs/nfrs.md`). Nao ha invocacao separada de NFR — esta dentro do escopo unico de `discovery` conforme `.claude/agents/product-expert.md §Modo 1: discovery`.
 
 ## Erros e Recuperacao
 
 | Erro | Recuperacao |
 |---|---|
 | PM nao responde a uma pergunta (nao sabe) | Registrar como "pendente" no intake-responses.md. Prosseguir com as demais. Revisitar antes de `/freeze-prd`. |
-| `domain-analyst` falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
-| `nfr-analyst` falha porque glossario nao existe | Garantir que `domain-analyst` completou com sucesso antes de spawnar `nfr-analyst`. Reexecutar domain-analyst se necessario. |
+| `product-expert` (modo: discovery) falha ou produz output incompleto (qualquer dos artefatos: glossario, modelo, riscos, NFRs) | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
+| `product-expert` (modo: discovery) produz glossario mas NFRs incompletos | Re-spawnar mesmo modo com prompt reforcado focando apenas em NFRs faltantes — nao ha modo separado. |
 | PM contradiz respostas anteriores durante a entrevista | Parar, apresentar a contradicao em linguagem R12, pedir esclarecimento antes de registrar. |
 
 ## Handoff
 - PM satisfeito → `/freeze-prd`
 - PM quer ajustar → reexecutar perguntas especificas
 - PM nao sabe ainda → registrar pendencias e pausar
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** `product-expert (discovery)` — unica invocacao consolidada (glossario + modelo + riscos + NFRs no mesmo modo) conforme mapa canonico 00 §3.1 e `.claude/agents/product-expert.md §Modo 1: discovery`
+- **Gates produzidos:** n/a — skill de descoberta, nao gera gate JSON
+- **Output:** `docs/product/intake-responses.md` (markdown R12) + artefatos subsequentes em `docs/domain/` via sub-agents
+- **Schema formal:** nao aplicavel (skill nao produz gate output)
+- **Isolamento R3:** nao aplicavel — entrevista interativa com PM roda no contexto principal do orquestrador
+- **Zero-tolerance:** nao aplicavel (sem verdict)
+- **Ordem no pipeline:** pre-requisito: nenhuma (primeira skill do fluxo); proximo: `/freeze-prd`
+- **Referencia normativa:** `CLAUDE.md §6 Fase A`; `docs/constitution.md §2 P1` (contexto precede decisao tecnica)

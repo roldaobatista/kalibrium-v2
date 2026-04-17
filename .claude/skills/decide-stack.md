@@ -1,5 +1,7 @@
 ---
 description: Gera recomendação completa de stack (ADR-0001) em linguagem de produto para decisão do humano PM. Substitui a sessão técnica de 2h do guia original. R10+R12 enforcement. Uso: /decide-stack.
+protocol_version: "1.2.2"
+changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
 # /decide-stack
@@ -12,7 +14,9 @@ Esta skill é usada **uma única vez no Dia 1** para criar `docs/adr/0001-stack-
 
 ## Uso
 ```
-/decide-stack
+/decide-stack            # gera ADR-0001 em status `proposed` com recomendacao + 3 opcoes
+/decide-stack --confirm  # apos PM marcar "aceito" no ADR, confirma e persiste status `accepted`
+                         # destrava block-project-init.sh e registra decisao em docs/TECHNICAL-DECISIONS.md
 ```
 
 ## Pré-condições
@@ -99,7 +103,11 @@ bash scripts/decide-stack.sh "$@"
 ✅ "Laravel — base do projeto em PHP, mais antiga mas super comum no Brasil, fácil de achar quem mexe, já tem pronto quase tudo que precisamos (login, envio de e-mail, fila de tarefas em segundo plano). As telas se atualizam sozinhas sem precisar do usuário apertar F5."
 
 ## Agentes
-Nenhum — executada pelo orquestrador.
+
+- **`architecture-expert` (modo: `design`)** — invocado pelo orquestrador para produzir o conteudo tecnico da recomendacao (trade-offs, alternativas, reversibilidade, consequencias). Gera a secao tecnica do ADR-0001 conforme formato decisao-contexto-alternativas-consequencias definido em `.claude/agents/architecture-expert.md §Modo 1: design`.
+- **Orquestrador** — traduz a saida tecnica do `architecture-expert` para linguagem de produto (R12) e monta o arquivo final `docs/adr/0001-stack-choice.md` com recomendacao forte + 3 opcoes em PT-BR. Tambem aplica `--confirm` apos PM marcar a escolha.
+
+**Separacao de responsabilidade:** `architecture-expert` domina a decisao tecnica (qual stack, por que, com quais trade-offs); o orquestrador nao inventa arquitetura — apenas traduz R12 e orquestra o fluxo. A decisao final e do PM.
 
 ## Erros e Recuperação
 
@@ -109,3 +117,12 @@ Nenhum — executada pelo orquestrador.
 | `docs/adr/0001-stack-choice.md` já existe | Abortar e informar que a stack já foi decidida. Sugerir revisão via ADR formal se quiser mudar. |
 | PM não entende as opções apresentadas | Reformular usando analogias do cotidiano (R12 reforçada). Oferecer "quer conversar mais antes de decidir". |
 | `scripts/decide-stack.sh` falha na execução | Verificar se o script existe e tem permissão de execução. Gerar o ADR manualmente se o script estiver indisponível. |
+
+## Conformidade com protocolo v1.2.2
+
+- **Agents invocados:** `architecture-expert` (modo: `design`) gera o conteudo tecnico da recomendacao (trade-offs, alternativas, reversibilidade); orquestrador traduz para R12 e monta o ADR. PM decide.
+- **Gates produzidos:** nao e gate de pipeline de slice; e scaffold de ADR-0001 com recomendacao forte. ADR-0001 segue formato ADR padrao (nao segue `gate-output.schema.json`).
+- **Output:** `docs/adr/0001-stack-choice.md` em status `proposed` + decisao em aberto. Apos `--confirm`, status passa para `accepted`.
+- **Schema formal:** template ADR + secao "Sua decisao" em linguagem R12. Conteudo tecnico aderente a `.claude/agents/architecture-expert.md §Modo 1: design`.
+- **Isolamento R3:** nao aplicavel como gate (ADR-0001 nao e emitido em contexto isolado porque nao e gate do pipeline de slice). O `architecture-expert` no modo `design` nao produz JSON de gate — produz markdown tecnico.
+- **Ordem no pipeline:** apos `/freeze-prd`; precede `/freeze-architecture`.
