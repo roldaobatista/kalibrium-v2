@@ -4,11 +4,11 @@ protocol_version: "1.2.2"
 changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
-# /status
+# /project-status
 
 ## Uso
 ```
-/status
+/project-status
 ```
 
 ## Por que existe
