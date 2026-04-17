@@ -31,7 +31,14 @@ FAILURES=0
 # ============================================================
 say "Scan 1/4: composer audit..."
 
-AUDIT_OUTPUT=$(composer audit 2>&1)
+# Git Bash on Windows: wrapper /c/ProgramData/ComposerSetup/bin/composer chama
+# php com path estilo unix que php.exe nao resolve. Preferir composer.bat
+# quando existir (alinhado com scripts/mechanical-gates.sh gate 4).
+if command -v composer.bat >/dev/null 2>&1; then
+  AUDIT_OUTPUT=$(composer.bat audit 2>&1)
+else
+  AUDIT_OUTPUT=$(composer audit 2>&1)
+fi
 AUDIT_EXIT=$?
 
 if [ $AUDIT_EXIT -ne 0 ]; then

@@ -103,8 +103,21 @@
         "AC-013": "verde (routes/web.php sem view())",
         "AC-014": "verde (capacitor.config.ts sem server.url)"
       },
-      "branch_commits": ["1212e8b", "c60004d", "a1afeaf", "fdfab2c", "0e1f7bf", "7d0ae53", "601f0b5", "c8e8589", "0f3e37e", "9163bb6", "18ce125", "2e0c463", "bf4e947", "aeb879e", "92e04fc", "19d65db", "533909d", "00882c9", "36bc4e6"],
-      "pending": "pipeline de 5 gates (verify + code-review + security + test-audit + functional) + master-audit dual-LLM 2x Opus 4.7"
+      "branch_commits": ["1212e8b", "c60004d", "a1afeaf", "fdfab2c", "0e1f7bf", "7d0ae53", "601f0b5", "c8e8589", "0f3e37e", "9163bb6", "18ce125", "2e0c463", "bf4e947", "aeb879e", "92e04fc", "19d65db", "533909d", "00882c9", "36bc4e6", "65d8cb9"],
+      "gates_results": {
+        "verify": "approved (0 blocking, 14/14 ACs)",
+        "code_review": "approved (0 blocking, 0 findings)",
+        "security": "approved (0 blocking, 0 findings — scaffold sem superficie de ataque)",
+        "test_audit": "approved (0 blocking, 14/14 ACs cobertos, 39 testes verdes)",
+        "functional": "approved (0 blocking, jornada dev coerente)",
+        "master_audit": "approved — consenso pleno 2x Opus 4.7 (Trilha A approved / Trilha B approved, 3 S4 non-blocking, 0 reconciliacao)"
+      },
+      "master_audit_findings_s4": [
+        "MA-016-A-001 commit_hash divergence entre gates (re-run em commits consecutivos — nao afeta semantica)",
+        "MA-016-A-002 functional-review usa AC-016-NN vs AC-NNN canonico nos outros 4 gates (map 1:1 preservado)",
+        "MA-016-B-001 scope hygiene — slice mistura scaffold com planejamento E16-E25 + gap-fills E02-S09/S10 + consolidacao PRD. Aceito em pre-producao. Disciplina de commit atomico a reforcar em slices futuros."
+      ],
+      "pending": "merge-slice 016 + slice-report + retrospective"
     },
     "previous_execution": {
       "current_epic": "E03",
