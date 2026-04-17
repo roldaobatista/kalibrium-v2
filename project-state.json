@@ -163,10 +163,9 @@
     "approved_at": "2026-04-16T01:30:00Z"
   },
   "technical_debt": [
-    "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd",
-    "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico"
+    "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd"
   ],
-  "technical_debt_count": 2,
+  "technical_debt_count": 1,
   "technical_debt_cleanup_2026_04_17": {
     "policy": "feedback_zero_technical_debt — PM exige lista em zero permanente",
     "removed_count": 6,
@@ -178,10 +177,9 @@
       {"item": "AMPLIATION-003", "reason": "auditoria de aproveitamento do frontend Livewire/Blade ja coberta pelo spike INF-007 (E15-S01 merged via PR #36 em 2026-04-17)"},
       {"item": "AMPLIATION-V3-003", "reason": "prazo RTC 2026-01-01 e vigilancia continua, nao debito — monitoramento movido para ROADMAP.md (E25)"}
     ],
-    "remaining_count": 2,
+    "remaining_count": 1,
     "remaining_plan": {
-      "AMPLIATION-001": "incorporar PRDs v1+v2+v3 inline em PRD.md via /freeze-prd (sessao dedicada)",
-      "AMPLIATION-V3-001": "decompor E16-E25 em diretorios epics/ENN/ via /decompose-stories (10 epicos - trabalho grande)"
+      "AMPLIATION-001": "incorporar PRDs v1+v2+v3 inline em PRD.md via /freeze-prd (sessao dedicada)"
     },
     "resolved_in_session": {
       "HARNESS-MIGRATION-002": "commit c8e8589 — draft-spec.sh aceita AC-NNN-XXX (backward-compat com AC-NNN)",
@@ -190,7 +188,8 @@
       "HARNESS-MIGRATION-001": "FALSO-POSITIVO — verificado 2026-04-17 que verifier-sandbox.sh ja foi relockado no commit 5a7c992 com allowlist v3 completa (qa-expert, architecture-expert, security-expert, product-expert, data-expert, observability-expert, integration-expert, governance, ux-designer, devops-expert + legados v2). SHA bate com MANIFEST.sha256 (9a1fac73...). Entry no state era leftover pre-commit-5a7c992.",
       "AMPLIATION-V3-002": "FALSO-POSITIVO — verificado 2026-04-17 que ADR-0016 ja esta totalmente alocada em epics/E15/. epic.md declara tenant_id obrigatorio em toda tabela + teste de isolamento em CI como DoD. Story dedicada: epics/E15/stories/E15-S06.md com frontmatter adrs: ['ADR-0015', 'ADR-0016'] e 9 ACs completos (AC-001 criptografia SQLCipher, AC-003 coluna tenant_id em todas tabelas, AC-004 MissingTenantIdError, AC-005 isolamento cross-tenant, AC-006 teste cross-tenant-leak.spec.ts, AC-009 CI job test:isolation). Nao falta documentar — esta no contrato.",
       "GAP-S05-001": "RESOLVIDO — convertido em story formal E02-S09 'Gap-fill: Automacao da transicao trial->expired/suspended' com 7 ACs (Artisan command idempotente + Laravel Scheduler + Mail::fake + audit trail). Agendada para janela pre-go-live. INDEX atualizado.",
-      "GAP-S06-001": "RESOLVIDO — convertido em story formal E02-S10 'Gap-fill: Upgrade/downgrade com calculo pro-rata' com 8 ACs (service + action + UI preview + downgrade blocker por uso + idempotencia 5s + audit trail). Agendada para janela pre-go-live. INDEX atualizado."
+      "GAP-S06-001": "RESOLVIDO — convertido em story formal E02-S10 'Gap-fill: Upgrade/downgrade com calculo pro-rata' com 8 ACs (service + action + UI preview + downgrade blocker por uso + idempotencia 5s + audit trail). Agendada para janela pre-go-live. INDEX atualizado.",
+      "AMPLIATION-V3-001": "RESOLVIDO — product-expert decomposicao em contexto isolado criou 10 epic.md + 10 INDEX.md (E16-E25) com 60 stories previstas. Total esforco estimado: 12-18 semanas com paralelismo. 4 TBDs levantados para PM (E18-S04 limiar alçada, E24-S02 dual sign-off default, E25-S05 cIndOp obrigatorio/opcional, E22-S05 template grafico NIT-Dicla-035). Story Contracts individuais serao gerados via /decompose-stories ENN em sessoes futuras."
     }
   },
   "harness_migration_2026_04_17": {
