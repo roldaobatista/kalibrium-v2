@@ -8,6 +8,20 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-034] `audit-spec` deve alertar para ACs que exigem destruição de feature sem substituto agendado
+
+- **Origem:** retrospectiva do slice-016 (`docs/retrospectives/slice-016.md` §"Gates que deveriam ter disparado e não dispararam").
+- **Evidência:** ACs AC-008 e AC-013 do slice 016 exigiam "zero Blade fora de /emails/" e "routes/web.php sem `view()`" — ou seja, destruição do frontend Livewire/Blade. O substituto funcional (API de auth consumida pelo SPA) só nasce em E15-S07. Os três auditores pré-impl (`audit-spec`, `plan-review`, `audit-tests-draft`) não pegaram essa dependência temporal porque avaliaram coerência interna do slice, não cross-slice. PM teve de escalar via "Opção A/B/C" durante a implementação.
+- **Ação:** estender checklist do `qa-expert` modo `audit-spec` (ADR/skill + prompt) com verificação explícita: "quando um AC exige remoção de feature existente em produção (comando `rm`, assertiva de ausência, `remove`, `delete`, `não deve existir`), o auditor deve perguntar: (a) existe substituto funcional pronto?; (b) o slice aceita regressão temporária? se não há resposta explícita, finding S2 mínimo bloqueia o gate".
+- **Status:** aberto. Prioridade média.
+
+### [B-035] Template `ac-tests.sh` canônico para slices frontend-only (Node + Playwright)
+
+- **Origem:** retrospectiva do slice-016 (`docs/retrospectives/slice-016.md` §"Gates que dispararam em falso" + §"Mudanças propostas").
+- **Evidência:** `mechanical-gates.sh` Gate 1 exige `tests/slice-NNN/` formato Pest, mas slice 016 é 100% frontend (Node+Playwright, zero PHP). Solução ad-hoc: `tests/slice-016/ac-tests.sh` como bridge shell delegando para `npm run test:scaffold && npm run test:e2e`. Fix aplicado no commit `65d8cb9` (+ update em `scripts/test-scope.php` para aceitar o padrão). Sem template, próximo slice frontend vai refazer do zero.
+- **Ação:** criar `templates/slice-ac-tests-frontend.sh` (template cru) e documentar em `docs/development-guide.md` quando usar (slice sem PHP tocado, stack frontend-only). Considerar auto-geração pelo `/new-slice NNN` quando o slice declarar `stack: frontend` no frontmatter da spec.
+- **Status:** aberto. Prioridade baixa — só bloqueia o primeiro slice frontend futuro.
+
 ### [B-033] ADR formal para política dual-LLM 2× Opus (não GPT-5) — RESOLVIDO 2026-04-17
 
 - **Origem:** decisão do PM em 2026-04-17 durante retomada do slice-015 (cancelou invocação Codex CLI no meio).
