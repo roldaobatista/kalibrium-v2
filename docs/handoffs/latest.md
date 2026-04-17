@@ -1,59 +1,37 @@
-# Handoff — 2026-04-16 22:00 — Ampliação PRD v1+v2+v3 consolidada
+# Handoff — 2026-04-16 — ADRs 0017 + 0019 implementados proceduralmente; 0018 aceito mas não iniciado
 
-## Resumo da sessão
+## Resumo curto
 
-Sessão executou **três rodadas aditivas de ampliação do PRD** no mesmo dia, preservando 100% do escopo anterior conforme princípio `feedback_prd_only_grows.md`:
+PM pediu mapa do fluxo + investigação de gaps. Sub-agent em contexto isolado encontrou **9 gaps novos** (+ 1 já identificado pelo PM), agrupados em 3 ADRs aceitos e implementados em ordem.
 
-- **v1 offline-first sistêmico** (já estava na branch antes desta sessão, commitada junto com v2+v3).
-- **v2 pós-auditoria comparativa externa** contra `C:\PROJETOS\KALIBRIUM SAAS` + `C:\PROJETOS\sistema`.
-- **v3 pós-re-auditoria independente em contexto isolado** (R3/R11) — auditor separado, não viu a primeira auditoria nem o PRD v2.
+- **ADR-0017** `accepted` — auditoria early-stage (gaps #0, #7, #9) — **3 Mudanças procedurais COMPLETAS**
+- **ADR-0019** `accepted (Mudança 3 em duas camadas)` — robustez loop gates + harness-learner (gaps #1, #5, #6) — **3 Mudanças procedurais COMPLETAS**
+- **ADR-0018** `accepted (prospectivo)` — auditoria fases iniciais (gaps #2, #3, #4, #8) — **NÃO INICIADO** (aplicará a partir de ADR-0020 e próximas descobertas)
 
-Todos os 8+2 gaps de alto impacto aceitos pelo PM como MVP. Produção confirmada para 2026 (E25 RTC 2026 com prazo fixo).
+## Detalhes completos
+
+Ver **`docs/handoffs/handoff-2026-04-16-adr-017-018-019.md`** — handoff detalhado com:
+- Lista completa de arquivos modificados/criados (24 arquivos, nenhum selado)
+- 3 pendências que exigem relock do PM (session-start.sh, pre-commit-gate.sh, merge-slice.sh)
+- Testes já realizados (docs-gate-check e reconcile funcionais)
+- Smoke test end-to-end pendente (aguardando E03-S04)
+- Plano de commits atômicos sugerido (4 commits)
 
 ## Estado ao sair
 
 - **Branch atual:** `work/offline-discovery-2026-04-16`
-- **Últimos 3 commits (atômicos):**
-  - `b99f43e` docs(backlog): post-mvp-backlog com 16 itens diferidos
-  - `fcec058` docs(product): ampliação PRD v1+v2+v3 (21 arquivos)
-  - `454d687` docs(audits): auditoria comparativa externa + re-auditoria independente (3 arquivos)
-- **Working tree:** `project-state.json` (M) + handoffs (M + ?? este arquivo + ?? sessão anterior) + 5 arquivos do PM (INSTALAR-ATALHO.bat, scripts/* — não meus).
+- **Último commit:** `aaba0bc chore(checkpoint): estado pos-ampliacao v3` (sem commits novos — aguardando revisão do PM)
+- **Working tree:** 24 arquivos modificados ou criados + 5 arquivos do PM já existentes (não meus)
 - **Nada perdido.**
+- **Arquivos selados:** nenhum foi tocado. Nenhum relock executado nesta sessão.
 
-## Números finais acumulados
+## Próximo passo único
 
-| Indicador | Original 2026-04-12 | Após v1+v2+v3 |
-|---|---|---|
-| REQs MVP | 29 | **80** (+33 v1 + 8 v2 + 10 v3) |
-| Personas primárias | 3 | **9** (+5 v1 + 1 v2) |
-| Jornadas detalhadas | 5 | **17** (+6 v1 + 3 v2 + 3 v3) |
-| Épicos totais | 14 | **25** (+6 v1 + 3 v2 + 2 v3) |
-| Épicos MVP P0 | 8 | **19** |
-| ADRs | 15 | **16** |
-| Stories MVP (estimativa) | ~63 | **~175** |
-| Itens post-MVP backlog | 0 | **16** (todos com gatilho) |
+Rodar `/resume` na próxima sessão. Recomendação em ordem:
 
-## Próxima ação recomendada
+1. **(a)** Executar 3 relocks do PM em terminal externo (ativa enforcement mecânico) — `KALIB_RELOCK_AUTHORIZED=1 bash scripts/relock-harness.sh`
+2. **(b)** Smoke test — iniciar E03-S04 para validar fluxo completo
+3. **(c)** Atualizar CLAUDE.md e protocolo com ADR-0019 (regras já nos agents, falta documentação)
+4. **(d)** Começar ADR-0018 (prospectivo, não urgente)
 
-**Em nova sessão:**
-
-1. `/resume` — restaura este estado.
-2. `/project-status` — visão R12 do estado para o PM.
-3. **Validar ADR-0016** antes de iniciar qualquer trabalho técnico em E15 (afeta schema, não opcional).
-4. **`/decompose-stories E15`** — PWA Shell Offline-First + Capacitor.
-5. Auditoria de planejamento de E15 via planning-auditor isolado.
-6. Spike INF-007 (reaproveitamento técnico de E01/E02/E03).
-7. Execução story por story.
-
-**Paralelo contínuo:** monitorar E25 RTC 2026 (prazo fixo < 2026-01-01).
-
-## Handoff completo
-
-`docs/handoffs/handoff-2026-04-16-2200-ampliacao-v3.md`
-
-## Metadata
-
-- Autor: orchestrator (Claude Opus 4.7, sessão isolada — 2h)
-- Data: 2026-04-16T21:59:00-04:00
-- Commits atômicos: 3
-- Princípio confirmado: PRD só amplia (R1 validado)
+Commits atômicos sugeridos (4) detalhados no handoff completo.
