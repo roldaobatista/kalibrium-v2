@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "discovery-ampliation",
-  "updated_at": "2026-04-16T21:59:00-04:00",
+  "phase": "planning-e15-approved",
+  "updated_at": "2026-04-16T23:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -32,16 +32,16 @@
   },
   "planning": {
     "epics_total": 25,
-    "epics_decomposed": 2,
+    "epics_decomposed": 3,
     "epics_mvp": 19,
     "epics_post_mvp": 4,
     "epics_future": 2,
-    "stories_total": 22,
+    "stories_total": 32,
     "stories_total_estimated_after_ampliation_v1": 125,
     "stories_total_estimated_after_ampliation_v2": 150,
     "stories_total_estimated_after_ampliation_v3": 175,
-    "stories_with_contract": 22,
-    "stories_audited": 22,
+    "stories_with_contract": 32,
+    "stories_audited": 32,
     "prd_gaps_resolved": true,
     "new_reqs_v1": 33,
     "new_reqs_v2": 8,
@@ -51,19 +51,46 @@
     "post_mvp_backlog": "docs/product/post-mvp-backlog.md (16 itens diferidos + gatilhos de reentrada)",
     "planning_audit_roadmap": "needs-reaudit-after-ampliation-v3",
     "planning_audit_E01": "approved",
+    "planning_audit_E15": "approved-round-2 (3 findings corrigidos: F-E15-001 S2, F-E15-002 S2, F-E15-003 S3)",
     "story_audit_E01": "approved",
     "story_audit_E03": "approved",
+    "story_audit_E15": "approved-round-2",
     "documentation_gate": "e03-complete-but-frontend-refactor-required"
   },
   "execution": {
-    "current_epic": "E03",
-    "current_story": "E03-S02b",
-    "current_slice": null,
-    "slice_status": "paused-for-ampliation",
+    "current_epic": "E15",
+    "current_story": "E15-S01",
+    "current_slice": "015",
+    "slice_status": "merged-pending-auto-merge-pr35",
     "last_green_commit": "622428c",
     "consecutive_rejections": 0,
-    "blocked": true,
-    "blocked_reason": "Discovery gap offline-first resolvido via 3 rodadas de ampliacao 2026-04-16 (v1+v2+v3). E03 stories restantes pausadas; retomada depende de: (1) PM aprovou ampliacao em 2026-04-16, (2) E15 (PWA shell) decomposto e implementado, (3) E16 (sync engine) decomposto e implementado, (4) E21-E25 decompostos (v2 + v3 novos epicos), (5) ADR-0016 implementada antes de E15 (afeta schema), (6) auditoria tecnica de reaproveitamento de E01/E02/E03. Frontend antigo sera descartado conforme ADR-0015."
+    "blocked": false,
+    "blocked_reason": null,
+    "previous_execution": {
+      "current_epic": "E03",
+      "current_story": "E03-S02b",
+      "reason_paused": "paused-for-ampliation; retomada apos E15+E16 completos"
+    },
+    "slice_015_pipeline": {
+      "spec_approved": true,
+      "plan_approved": true,
+      "tests_red_drafted": true,
+      "tests_red_audited": true,
+      "implementation_complete": true,
+      "pest_status": "8 passed, 40 assertions",
+      "mechanical_gates": "all passed (test+phpstan+pint+composer-audit)",
+      "gate_verify": "approved (0 blocking, 0 total)",
+      "gate_review": "approved (0 blocking, 2 S4)",
+      "gate_security": "approved (0 blocking, 0 total)",
+      "gate_audit_tests": "approved (0 blocking, 1 S4 herdado)",
+      "gate_functional": "approved (0 blocking, 2 S4)",
+      "master_audit_trilha_A_opus": "approved (0 blocking, 9 S4, 1 S5)",
+      "master_audit_trilha_B_opus": "approved (0 blocking, 2 S4, 1 S5) - politica 2026-04-17: dual-LLM = 2x Opus 4.7 em contextos isolados (GPT-5 descontinuado)",
+      "dual_llm_consensus": "full - ambas trilhas Opus approved, zero divergencia, zero reconciliacao",
+      "pr_url": "https://github.com/roldaobatista/kalibrium-v2/pull/35",
+      "auto_merge_armed": true,
+      "next_action": "Aguardar auto-merge completar. Depois /slice-report 015 + /retrospective 015."
+    }
   },
   "gates_status": {
     "spec_auditor": "approved",
@@ -91,7 +118,7 @@
     "E12": { "status": "backlog", "notes": "Ampliado com push offline-first (v2)." },
     "E13": { "status": "backlog-p1" },
     "E14": { "status": "backlog-p1" },
-    "E15": { "status": "backlog-new", "notes": "NOVO v1 - PWA Shell Offline-First + Capacitor. Foundational. Depende de ADR-0015 + ADR-0016." },
+    "E15": { "status": "decomposed-audited-approved", "notes": "NOVO v1 - PWA Shell Offline-First + Capacitor. Foundational. Depende de ADR-0015 + ADR-0016. 10 stories com Story Contract + INDEX.md. Auditoria de planejamento approved round 2 (zero findings). Proximo: /start-story E15-S01 (spike INF-007)." },
     "E16": { "status": "backlog-new", "notes": "NOVO v1 - Sync Engine + Merge por Campo + Conflito. Depende de E15." },
     "E17": { "status": "backlog-new", "notes": "NOVO v1 - UMC e Frota Operacional. Depende de E16." },
     "E18": { "status": "backlog-new", "notes": "NOVO v1 - Caixa de Despesa por OS. Depende de E16." },
@@ -129,15 +156,63 @@
     "AMPLIATION-003: Frontend antigo Livewire/Blade de E01/E02/E03 sera descartado; auditoria de aproveitamento pendente em spike INF-007",
     "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico",
     "AMPLIATION-V3-002: ADR-0016 (multi-tenant isolation) criada mas ainda nao implementada - deve entrar no escopo de E15 antes do schema ser definido",
-    "AMPLIATION-V3-003: E25 tem prazo fixo antes de 2026-01-01 (RTC) - monitorar publicacao de NT da CGNFS-e"
+    "AMPLIATION-V3-003: E25 tem prazo fixo antes de 2026-01-01 (RTC) - monitorar publicacao de NT da CGNFS-e",
+    "HARNESS-MIGRATION-001: scripts/hooks/verifier-sandbox.sh (selado) ainda usa allowlist AGENT_ROLE v1 (verifier|reviewer|security-reviewer|test-auditor|functional-reviewer); nao impacta funcionamento atual (Agent tool nao passa AGENT_ROLE). Exige relock externo do PM quando houver upgrade do sandboxing para agent names v3 (qa-expert etc). Plano em docs/incidents/harness-sandbox-role-drift-2026-04-17.md (pendente criar).",
+    "HARNESS-MIGRATION-002: AC-ID format canonico AC-NNN-XXX (protocolo §10.1) conflita com validador scripts/draft-spec.sh que aceita sequencia AC-001..AC-NNN; candidato a harness-learner (R16). Specs atuais usam formato legado AC-NNN sem prefixo de slice.",
+    "HARNESS-MIGRATION-003: docs/schemas/{plan-review,review,verification,security-review,test-audit,functional-review,guide-audit}.schema.json marcados deprecated 2026-04-17. Remover em sessao futura apos 30 dias sem referencia."
   ],
-  "technical_debt_count": 12,
+  "technical_debt_count": 15,
+  "harness_migration_2026_04_17": {
+    "status": "completed",
+    "scope": "Alinhar scripts auxiliares e schemas ao protocolo v1.2.2 + gate-output-v1 (v1.2.4)",
+    "changes": {
+      "validators_migrated": [
+        "scripts/audit-spec.sh",
+        "scripts/validate-verification.sh",
+        "scripts/validate-review.sh",
+        "scripts/plan-review.sh",
+        "scripts/merge-slice.sh"
+      ],
+      "prompts_updated": [
+        "scripts/verify-slice.sh (linha 274)",
+        "scripts/review-slice.sh (linha 314)"
+      ],
+      "legacy_references_cleaned": [
+        "scripts/audit-spec.sh (spec-auditor -> qa-expert modo audit-spec)",
+        "scripts/master-audit.sh (master-auditor -> governance modo master-audit)",
+        "scripts/plan-review.sh (plan-reviewer -> architecture-expert modo plan-review)",
+        "scripts/draft-tests.sh (plan-reviewer -> architecture-expert modo plan-review)",
+        "scripts/security-scan.sh (security-reviewer -> security-expert modo security-gate)",
+        "scripts/install-postgres-mcp.sh (agents v1 -> v3)"
+      ],
+      "schemas_deprecated": [
+        "docs/schemas/spec-audit.schema.json",
+        "docs/schemas/plan-review.schema.json",
+        "docs/schemas/review.schema.json",
+        "docs/schemas/verification.schema.json",
+        "docs/schemas/security-review.schema.json",
+        "docs/schemas/test-audit.schema.json",
+        "docs/schemas/functional-review.schema.json",
+        "docs/schemas/guide-audit.schema.json"
+      ],
+      "schemas_kept_canonical": [
+        "docs/protocol/schemas/gate-output.schema.json (v1.2.4 gate-output-v1)"
+      ],
+      "schemas_not_gates_kept": [
+        "docs/schemas/project-state.schema.json",
+        "docs/schemas/telemetry.schema.json"
+      ]
+    },
+    "smoke_tests_passed": 6,
+    "policy_change": "approved agora exige blocking_findings_count == 0 (S1-S3 zerados); S4/S5 podem existir em approved conforme protocolo v1.2.2 §1",
+    "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
+  },
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos)",
-  "state": "paused-for-ampliation-approved",
-  "paused": true,
+  "state": "slice-015-merge-armado-pr35",
+  "paused": false,
   "paused_reason": "Tres rodadas de ampliacao concluidas (v1 offline-first + v2 auditoria comparativa + v3 re-auditoria independente). PM aprovou todas. 80 REQs, 9 personas, 17 jornadas, 25 epicos (19 MVP), 16 ADRs. Aguardando decomposicao de E15 via /decompose-stories em nova sessao.",
-  "active_epic": "E03 (pausado)",
-  "next_recommended_action": "NOVA SESSAO: (1) Validar ADR-0016 antes de iniciar E15 (afeta decisao de schema). (2) /decompose-stories E15 (PWA Shell Offline-First). (3) Auditoria de planejamento de E15 (planning-auditor isolado). (4) Spike INF-007 (reaproveitamento tecnico de E01/E02/E03). (5) Execucao story por story. Monitorar em paralelo: E25 RTC 2026 tem prazo fixo antes de 2026-01-01.",
+  "active_epic": "E15",
+  "next_recommended_action": "(1) ADR-0016 VALIDADA (aceita 2026-04-16). (2) E15 DECOMPOSTA (10 stories + INDEX). (3) PLANNING AUDIT APPROVED round 2 (3 findings S2/S3 corrigidos). (4) PROXIMO: /start-story E15-S01 (spike INF-007 - auditoria de reaproveitamento E01/E02/E03 + validacao final de versoes de pacotes). (5) Apos S01: scaffold Capacitor (S02) desbloqueia paralelismo em S03/S04/S05/S06. Monitorar em paralelo: E25 RTC 2026 tem prazo fixo antes de 2026-01-01. Debito AMPLIATION-V3-001 parcialmente resolvido (E15 done; E16-E25 ainda sem diretorio).",
   "pending_audit": {
     "type": "comparativa-externa",
     "status": "completed",
@@ -228,6 +303,6 @@
     ],
     "principle_enforced": "PRD e aditivo - so amplia, nunca diminui (feedback_prd_only_grows.md)"
   },
-  "last_checkpoint": "2026-04-16T21:59:00-04:00",
-  "last_handoff": "docs/handoffs/handoff-2026-04-16-2200-ampliacao-v3.md"
+  "last_checkpoint": "2026-04-17T04:30:00-04:00",
+  "last_handoff": "docs/handoffs/handoff-2026-04-17-slice-015-em-gates.md"
 }
