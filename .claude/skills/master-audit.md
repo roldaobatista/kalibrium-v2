@@ -1,5 +1,5 @@
 ---
-description: Consolidação dual-LLM (Claude Opus 4.7 + GPT-5 via Codex CLI) das 5 trilhas de gate. Ativa governance (master-audit) (ADR-0012 E2). Use como 4º passo da Fase E, após verify/review/security-gate/audit-tests/functional-gate todos approved. Uso: /master-audit NNN.
+description: Consolidação dual-LLM (Claude Opus 4.7 + gpt-5 via Codex CLI) das 5 trilhas de gate. Ativa governance (master-audit) (ADR-0012 E2). Use como 4º passo da Fase E, após verify/review/security-gate/audit-tests/functional-gate todos approved. Uso: /master-audit NNN.
 protocol_version: "1.2.2"
 ---
 
@@ -30,17 +30,17 @@ protocol_version: "1.2.2"
 
 2. **Spawn paralelo de duas trilhas independentes** (princípio P3 + R11/ADR-0012 E2):
 
-   **Trilha A — Claude Opus 4.6:**
-   - Agent tool com `subagent_type: governance` (contexto limpo, sandbox de leitura restrita a `master-audit-input/`)
+   **Trilha A — Claude Opus 4.7:**
+   - Agent tool com `subagent_type: governance` (contexto limpo, sandbox `workspace-write` restrita a `master-audit-input/`)
    - Produz `master-audit-input/trail-opus.json`
 
-   **Trilha B — GPT-5 via Codex CLI:**
+   **Trilha B — gpt-5 via Codex CLI:**
    - Método preferido: **Bash direto** (mais estável no Windows):
      ```bash
      cd master-audit-input && codex exec --sandbox workspace-write --skip-git-repo-check "<prompt>"
      ```
    - **IMPORTANTE:** em ChatGPT Plus auth NÃO passar `--model` (default = gpt-5).
-     Flags `--model gpt-5`, `--model gpt-5.4`, `--model o1-mini` falham com "not supported when using Codex with a ChatGPT account".
+     Flags `--model gpt-5`, `--model o1-mini` falham com "not supported when using Codex with a ChatGPT account".
    - Método alternativo: `mcp__codex__codex` com `sandbox: "workspace-write"`, `cwd: master-audit-input/`, SEM passar model. Pode sofrer `CreateProcessAsUserW failed: 5` no Windows — ver `docs/operations/codex-gpt5-setup.md`.
    - Produz `master-audit-input/trail-gpt5.json`
 
@@ -93,7 +93,7 @@ O script monta o input package, invoca as duas trilhas em paralelo via tools do 
 **Caso consenso approved:**
 ```
 [master-audit] input package montado em master-audit-input/
-[master-audit] invocando trilha A (Opus 4.6) + trilha B (GPT-5.4) em paralelo...
+[master-audit] invocando trilha A (Opus 4.7) + trilha B (gpt-5) em paralelo...
 [master-audit] trilha A concluída: verdict=approved, findings=[]
 [master-audit] trilha B concluída: verdict=approved, findings=[]
 [master-audit] ✓ consenso approved — merge autorizado (next_action=merge)
@@ -139,8 +139,8 @@ O script monta o input package, invoca as duas trilhas em paralelo via tools do 
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `governance` (modo: master-audit, trilha Opus) | sandbox via `verifier-sandbox.sh`, input restrito a `master-audit-input/` | 80k tokens |
-| GPT-5 (trilha Codex) | `mcp__codex__codex` sandbox read-only, cwd = `master-audit-input/` | 80k tokens |
+| `governance` (modo: master-audit, trilha Opus 4.7) | sandbox `workspace-write` via `verifier-sandbox.sh`, input restrito a `master-audit-input/` | 80k tokens |
+| gpt-5 (trilha Codex) | `mcp__codex__codex` sandbox `workspace-write`, cwd = `master-audit-input/` (Windows exige write; em Linux/Mac pode-se usar `read-only`, mas padronizamos `workspace-write` para consistencia cross-platform) | 80k tokens |
 
 ## Cross-ref
 
