@@ -142,19 +142,50 @@ Revisao estrutural de plan.md. Roda em **contexto isolado** — recebe apenas o 
 - Specs de outros slices (exceto referencia de estilo)
 
 #### Output esperado
-- `specs/NNN/plan-review.json` com schema:
+- `specs/NNN/plan-review.json` conforme schema `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios):
   ```json
   {
-    "slice": "NNN",
+    "$schema": "gate-output-v1",
     "gate": "plan-review",
-    "verdict": "approved" | "rejected",
+    "slice": "NNN",
+    "lane": "L1|L2|L3|L4",
+    "agent": "architecture-expert",
+    "mode": "plan-review",
+    "verdict": "approved|rejected",
+    "timestamp": "2026-04-16T11:30:00Z",
+    "commit_hash": "abc1234",
+    "isolation_context": "slice-NNN-plan-review-instance-01",
+    "blocking_findings_count": 0,
+    "non_blocking_findings_count": 0,
+    "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
     "findings": [],
-    "summary": "string",
-    "timestamp": "ISO-8601"
+    "evidence": {
+      "checks": {
+        "ac_to_module_mapping_complete": true,
+        "alternatives_documented": true,
+        "reversibility_declared": true,
+        "adr_backed_where_needed": true,
+        "adr_0001_consistency": true,
+        "no_invented_requirements": true,
+        "eager_loading_strategy_declared": true,
+        "middleware_pipeline_explicit": true,
+        "risks_with_mitigations": true,
+        "cross_slice_dependencies_explicit": true,
+        "migrations_safe_patterns": true,
+        "controllers_are_routers": true
+      },
+      "acs_mapped_count": 8,
+      "decisions_without_alternatives": [],
+      "decisions_without_reversibility": [],
+      "eloquent_relations_without_eager_loading": [],
+      "routes_without_middleware": [],
+      "summary": "resumo do gate plan-review"
+    }
   }
   ```
-- Cada finding (se houver) tem: `id`, `severity` (critical/major/minor), `location` (file:section), `description`, `evidence`, `recommendation`
-- **ZERO findings** para aprovacao — qualquer finding resulta em `rejected`
+- Cada finding tem campos minimos do schema: `id` (pattern `^F-[0-9]+$`), `severity` (S1-S5), `severity_label` (blocker/critical/major/minor/advisory), `gate_blocking` (boolean), `description`, `file` (nullable), `line` (nullable), `evidence`, `recommendation`
+- **Observacao de conformidade:** este schema conforma aos 14 campos obrigatorios de `docs/protocol/schemas/gate-output.schema.json`. Campos especificos do plan-review ficam em `evidence.checks` conforme `additionalProperties: true` do bloco `evidence`.
+- **ZERO TOLERANCE (S1-S3):** verdict so e `approved` quando `blocking_findings_count == 0`. Findings S4/S5 nao bloqueiam.
 
 #### Checklist de revisao de plano
 1. Cada AC do spec.md esta mapeado a pelo menos um arquivo/modulo no plan.
@@ -210,26 +241,33 @@ Revisao estrutural de codigo em contexto isolado. Segundo gate do pipeline — r
 - Middleware em todas as rotas novas
 - Complexidade ciclomatica (< 10 por metodo)
 
-#### Output esperado — `review.json`
+#### Output esperado — `review.json` (conforme `docs/protocol/schemas/gate-output.schema.json`)
 ```json
 {
+  "$schema": "gate-output-v1",
+  "gate": "code-review",
   "slice": "NNN",
-  "gate": "review",
+  "lane": "L1|L2|L3|L4",
   "agent": "architecture-expert",
-  "verdict": "approved | rejected",
+  "mode": "code-review",
+  "verdict": "approved|rejected",
+  "timestamp": "2026-04-16T16:00:00Z",
+  "commit_hash": "abc1234",
+  "isolation_context": "slice-NNN-code-review-instance-01",
   "blocking_findings_count": 0,
   "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
   "findings": [],
-  "review_dimensions": {
-    "architecture_follows_plan": true,
-    "responsibilities_clear": true,
-    "no_code_smells": true,
-    "patterns_correct": true,
-    "tenant_isolation": true,
-    "error_handling": true,
-    "adr_adherence": true
-  },
   "evidence": {
+    "review_dimensions": {
+      "architecture_follows_plan": true,
+      "responsibilities_clear": true,
+      "no_code_smells": true,
+      "patterns_correct": true,
+      "tenant_isolation": true,
+      "error_handling": true,
+      "adr_adherence": true
+    },
     "max_cyclomatic_complexity": 7,
     "max_class_length": 180,
     "max_method_length": 32,
@@ -240,11 +278,13 @@ Revisao estrutural de codigo em contexto isolado. Segundo gate do pipeline — r
     "business_logic_in_controllers": [],
     "routes_without_middleware": [],
     "unused_imports": [],
-    "adr_adherence_checked": ["ADR-0001", "ADR-0002"]
-  },
-  "timestamp": "ISO8601"
+    "adr_adherence_checked": ["ADR-0001", "ADR-0002"],
+    "summary": "resumo do gate code-review"
+  }
 }
 ```
+
+**Observacao de conformidade:** este schema conforma aos 14 campos obrigatorios de `docs/protocol/schemas/gate-output.schema.json`. Campos especificos do code-review (`review_dimensions`, metricas de complexidade, listas de violacoes) ficam em `evidence` conforme `additionalProperties: true`. Cada finding emitido deve conter `id`, `severity`, `severity_label`, `gate_blocking`, `description`, `file`, `line`, `evidence`, `recommendation`.
 
 **ZERO TOLERANCE (S1-S3):** verdict so e `approved` quando `blocking_findings_count == 0`. Findings S4/S5 nao bloqueiam.
 
