@@ -52,7 +52,6 @@ describe('AC-007: npm run lint exits 0 with zero errors on clean scaffold', () =
 describe('AC-012: npm run lint detects violation in src/__lint_check__.tsx and recovers after removal', () => {
     const CONTENT_WITH_VIOLATION =
         '// AC-012 seed: unused variable violation. Removed by test afterwards.\n' +
-        '/* eslint-disable-next-line -- intentionally left off; the next line must violate */\n' +
         'const unused_variable_for_ac_012: number = 42;\n' +
         'export {};\n';
 
