@@ -240,7 +240,13 @@ if [ "$ERRORS" -eq 0 ]; then
   ESCAPED_MSG="$(printf '%s' "$FULL_MSG" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')"
 
   printf '{"systemMessage":"%s"}\n' "$ESCAPED_MSG"
-  exit 0
+  
+# B-031 — aviso de branch desatualizada vs origin/main (não-bloqueante)
+if [ -x "$SCRIPT_DIR/branch-sync-check.sh" ]; then
+  bash "$SCRIPT_DIR/branch-sync-check.sh" || true
+fi
+
+exit 0
 else
   echo "[session-start] $ERRORS erro(s) — abortando sessão" >&2
   echo "Corrija os erros acima antes de continuar." >&2
