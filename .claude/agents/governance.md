@@ -101,35 +101,45 @@ Arquivo `specs/NNN/master-audit.json`:
 
 ```json
 {
-  "slice_id": "slice-NNN",
+  "$schema": "gate-output-v1",
   "gate": "master-audit",
+  "slice": "NNN",
+  "lane": "L1|L2|L3|L4",
+  "agent": "governance",
+  "mode": "master-audit",
   "verdict": "approved|rejected",
-  "timestamp": "ISO-8601",
-  "provenance": {
-    "agent": "governance",
-    "mode": "master-audit",
-    "context": "isolated",
-    "model_primary": "claude-opus",
-    "model_secondary": "gpt-5"
+  "timestamp": "2026-04-16T12:00:00Z",
+  "commit_hash": "abcdef1234567",
+  "isolation_context": "slice-NNN-master-audit-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {
+    "S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0
   },
-  "trail_primary": {
-    "model": "claude-opus",
-    "verdict": "approved|rejected",
-    "findings": [],
-    "summary": "resumo da trilha primaria"
-  },
-  "trail_secondary": {
-    "model": "gpt-5",
-    "verdict": "approved|rejected",
-    "findings": [],
-    "summary": "resumo da trilha secundaria"
-  },
-  "reconciliation_rounds": 0,
-  "consensus": true,
   "findings": [],
-  "summary": "resumo consolidado"
+  "evidence": {
+    "dual_llm": {
+      "trail_primary": {
+        "model": "claude-opus",
+        "verdict": "approved|rejected",
+        "findings": [],
+        "summary": "resumo da trilha primaria"
+      },
+      "trail_secondary": {
+        "model": "gpt-5",
+        "verdict": "approved|rejected",
+        "findings": [],
+        "summary": "resumo da trilha secundaria"
+      },
+      "reconciliation_rounds": 0,
+      "consensus": true
+    },
+    "consolidated_summary": "resumo consolidado apos consenso dual-LLM"
+  }
 }
 ```
+
+**Observacao de conformidade:** este schema conforma aos 14 campos obrigatorios de `docs/protocol/schemas/gate-output.schema.json`. Extensoes dual-LLM (`trail_primary`, `trail_secondary`, `reconciliation_rounds`, `consensus`) ficam sob `evidence.dual_llm` conforme `additionalProperties: true` do bloco `evidence` (schema linhas 128-132).
 
 #### Protocolo dual-LLM (conforme `docs/protocol/00-protocolo-operacional.md §5`)
 
@@ -297,27 +307,44 @@ Arquivo `docs/audits/guide-audit-YYYY-MM-DD.json`:
 
 ```json
 {
+  "$schema": "gate-output-v1",
   "gate": "guide-audit",
-  "verdict": "healthy|warning|critical",
-  "timestamp": "ISO-8601",
-  "provenance": {
-    "agent": "governance",
-    "mode": "guide-audit",
-    "context": "isolated"
-  },
-  "checks": [
-    {
-      "id": "GA-001",
-      "category": "forbidden-files",
-      "status": "pass|fail",
-      "description": "descricao do check",
-      "evidence": "arquivo encontrado ou comando executado"
-    }
-  ],
+  "slice": "N/A",
+  "lane": "L3",
+  "agent": "governance",
+  "mode": "guide-audit",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T18:00:00Z",
+  "commit_hash": "abc1234",
+  "isolation_context": "guide-audit-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
   "findings": [],
-  "summary": "resumo de saude do harness"
+  "evidence": {
+    "harness_checks": [
+      {
+        "id": "GA-001",
+        "category": "forbidden-files",
+        "status": "pass|fail",
+        "description": "descricao do check",
+        "evidence": "arquivo encontrado ou comando executado"
+      }
+    ],
+    "health_level": "healthy|warning|critical",
+    "forbidden_files_found": [],
+    "settings_lock_status": "pass",
+    "hooks_lock_status": "pass",
+    "missing_agents": [],
+    "missing_skills": [],
+    "unauthorized_mcps": [],
+    "orphan_hooks_in_settings": [],
+    "summary": "resumo de saude do harness"
+  }
 }
 ```
+
+**Observacao de conformidade:** este schema conforma aos 14 campos obrigatorios de `docs/protocol/schemas/gate-output.schema.json` e replica o exemplo oficial de `docs/protocol/04-criterios-gate.md §15.3`. O `verdict` usa o enum canonico `approved|rejected`; a granularidade `healthy|warning|critical` fica preservada em `evidence.health_level`. O campo `slice` usa `"N/A"` (conforme exemplo oficial §15.3) para auditorias nao associadas a slice especifico. A lista `checks` (antes top-level como `checks`) fica em `evidence.harness_checks` conforme `additionalProperties: true` do bloco `evidence`.
 
 ### Categorias de check do guide-audit
 
