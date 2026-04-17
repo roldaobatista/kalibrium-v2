@@ -1,50 +1,69 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution",
-  "updated_at": "2026-04-16T13:30:00-04:00",
+  "phase": "discovery-ampliation",
+  "updated_at": "2026-04-16T21:59:00-04:00",
   "discovery": {
     "intake_complete": true,
-    "prd_status": "frozen",
+    "prd_status": "em-ampliacao",
     "nfr_status": "frozen",
     "domain_model_exists": true,
     "glossary_exists": true,
     "risks_documented": true,
-    "assumptions_reviewed": true
+    "assumptions_reviewed": true,
+    "ampliation_incident": "docs/incidents/discovery-gap-offline-2026-04-16.md",
+    "ampliation_documents": [
+      "docs/product/PRD-ampliacao-2026-04-16.md (v1 offline-first sistemico)",
+      "docs/product/PRD-ampliacao-2026-04-16-v2.md (v2 pos-auditoria comparativa externa)",
+      "docs/product/PRD-ampliacao-2026-04-16-v3.md (v3 pos-re-auditoria independente)"
+    ]
   },
   "strategy": {
-    "architecture_status": "frozen",
-    "adrs_count": 5,
+    "architecture_status": "em-ampliacao",
+    "adrs_count": 16,
     "threat_model_exists": true,
-    "deploy_profile_exists": false
+    "deploy_profile_exists": false,
+    "new_adrs_pending": [
+      "ADR-0017 sync engine PowerSync vs ElectricSQL (apos PoC E16)",
+      "ADR-0018 push offline-first APNs vs FCM",
+      "ADR-0019 distribuicao App Store/Play Store"
+    ],
+    "new_adrs_created_v3": ["ADR-0016 isolamento multi-tenant (row-level + RLS nas 10 tabelas criticas)"]
   },
   "planning": {
-    "epics_total": 14,
+    "epics_total": 25,
     "epics_decomposed": 2,
-    "epics_mvp": 12,
-    "epics_post_mvp": 2,
+    "epics_mvp": 19,
+    "epics_post_mvp": 4,
+    "epics_future": 2,
     "stories_total": 22,
+    "stories_total_estimated_after_ampliation_v1": 125,
+    "stories_total_estimated_after_ampliation_v2": 150,
+    "stories_total_estimated_after_ampliation_v3": 175,
     "stories_with_contract": 22,
     "stories_audited": 22,
     "prd_gaps_resolved": true,
-    "new_frs_added": 48,
-    "total_frs": 200,
+    "new_reqs_v1": 33,
+    "new_reqs_v2": 8,
+    "new_reqs_v3": 10,
+    "total_reqs_mvp": 80,
     "total_modules": 45,
-    "planning_audit_roadmap": "approved",
+    "post_mvp_backlog": "docs/product/post-mvp-backlog.md (16 itens diferidos + gatilhos de reentrada)",
+    "planning_audit_roadmap": "needs-reaudit-after-ampliation-v3",
     "planning_audit_E01": "approved",
     "story_audit_E01": "approved",
     "story_audit_E03": "approved",
-    "documentation_gate": "e03-complete"
+    "documentation_gate": "e03-complete-but-frontend-refactor-required"
   },
   "execution": {
     "current_epic": "E03",
     "current_story": "E03-S02b",
     "current_slice": null,
-    "slice_status": "not_started",
-    "last_green_commit": "c91c3d1",
+    "slice_status": "paused-for-ampliation",
+    "last_green_commit": "622428c",
     "consecutive_rejections": 0,
-    "blocked": false,
-    "blocked_reason": null
+    "blocked": true,
+    "blocked_reason": "Discovery gap offline-first resolvido via 3 rodadas de ampliacao 2026-04-16 (v1+v2+v3). E03 stories restantes pausadas; retomada depende de: (1) PM aprovou ampliacao em 2026-04-16, (2) E15 (PWA shell) decomposto e implementado, (3) E16 (sync engine) decomposto e implementado, (4) E21-E25 decompostos (v2 + v3 novos epicos), (5) ADR-0016 implementada antes de E15 (afeta schema), (6) auditoria tecnica de reaproveitamento de E01/E02/E03. Frontend antigo sera descartado conforme ADR-0015."
   },
   "gates_status": {
     "spec_auditor": "approved",
@@ -58,49 +77,31 @@
     "master_auditor": "approved"
   },
   "epics_status": {
-    "E01": {
-      "status": "merged",
-      "stories": {
-        "E01-S01": "merged",
-        "E01-S02": "merged",
-        "E01-S03": "merged",
-        "E01-S04": "merged",
-        "E01-S05": "merged",
-        "E01-S06": "merged"
-      }
-    },
-    "E02": {
-      "status": "merged",
-      "stories": {
-        "E02-S01": "merged",
-        "E02-S02": "merged",
-        "E02-S03": "merged",
-        "E02-S04": "merged",
-        "E02-S05": "merged",
-        "E02-S06": "merged",
-        "E02-S07": "merged",
-        "E02-S08": "merged"
-      }
-    },
-    "E03": {
-      "status": "in_progress",
-      "stories": {
-        "E03-S01a": "merged",
-        "E03-S01b": "merged",
-        "E03-S02a": "merged",
-        "E03-S02b": "draft",
-        "E03-S03a": "draft",
-        "E03-S03b": "draft",
-        "E03-S04a": "draft",
-        "E03-S04b": "draft",
-        "E03-S05a": "draft",
-        "E03-S05b": "draft",
-        "E03-S06a": "draft",
-        "E03-S06b": "draft",
-        "E03-S07a": "draft",
-        "E03-S07b": "draft"
-      }
-    }
+    "E01": { "status": "merged", "notes": "Backend Laravel aproveitado. Frontend Blade descartado (ADR-0015)." },
+    "E02": { "status": "merged", "notes": "Core auth aproveitado. Ampliacao via E15: JWT long-lived + device binding + biometria + wipe remoto." },
+    "E03": { "status": "paused-for-ampliation", "notes": "Modelo de dados + regras aproveitados. Frontend refeito em E15+. Stories drafts pausadas." },
+    "E04": { "status": "backlog", "notes": "Ampliado com estados de campo + equipe. Depende de E15+E16." },
+    "E05": { "status": "backlog", "notes": "Ampliado com modo campo (6 dominios incluindo rodoviaria)." },
+    "E06": { "status": "backlog" },
+    "E07": { "status": "backlog", "notes": "Ampliado com estado preparada-offline + ciclo de rejeicao (v2) + retencoes corretas (v2)." },
+    "E08": { "status": "backlog" },
+    "E09": { "status": "backlog" },
+    "E10": { "status": "backlog" },
+    "E11": { "status": "backlog", "notes": "Ampliado com custo real/OS + ocupacao UMC." },
+    "E12": { "status": "backlog", "notes": "Ampliado com push offline-first (v2)." },
+    "E13": { "status": "backlog-p1" },
+    "E14": { "status": "backlog-p1" },
+    "E15": { "status": "backlog-new", "notes": "NOVO v1 - PWA Shell Offline-First + Capacitor. Foundational. Depende de ADR-0015 + ADR-0016." },
+    "E16": { "status": "backlog-new", "notes": "NOVO v1 - Sync Engine + Merge por Campo + Conflito. Depende de E15." },
+    "E17": { "status": "backlog-new", "notes": "NOVO v1 - UMC e Frota Operacional. Depende de E16." },
+    "E18": { "status": "backlog-new", "notes": "NOVO v1 - Caixa de Despesa por OS. Depende de E16." },
+    "E19": { "status": "backlog-new", "notes": "NOVO v1 - Estoque Multinivel. Depende de E16." },
+    "E20": { "status": "backlog-new", "notes": "NOVO v1 - CRM Offline do Vendedor. Depende de E16." },
+    "E21": { "status": "backlog-new-v2", "notes": "NOVO v2 - Compliance Fiscal (retransmissao NFS-e + retencoes) + LGPD titular + Backup + Push. Depende de E07 + E12." },
+    "E22": { "status": "backlog-new-v2", "notes": "NOVO v2 - SPC + Drift + Qualidade Metrologica ISO 17025. Depende de E05." },
+    "E23": { "status": "backlog-new-v2", "notes": "NOVO v2 - Revalidacao Proativa + Engajamento Cliente Recorrente. Depende de E20 + E12." },
+    "E24": { "status": "backlog-new-v3", "notes": "NOVO v3 - Operacao Robusta + Qualidade ISO 17025 Ampliada (competencia + dual sign-off + suspensao retroativa + re-despacho + preventiva + garantia + round-robin). Depende de E04 + E22 + ADR-0016." },
+    "E25": { "status": "backlog-new-v3", "notes": "NOVO v3 - Reforma Tributaria 2026 (IBS/CBS/cIndOp). Producao 2026 confirmada pelo PM; prazo fixo antes de 2026-01-01. Depende de E07." }
   },
   "pending_epic_retrospective": null,
   "epic_retrospective_E02": {
@@ -118,33 +119,115 @@
   },
   "technical_debt": [
     "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
-    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md — RESOLVED (repo public)",
-    "secret CI_DB_PASSWORD — RESOLVED (cadastrada 2026-04-16)",
-    "GAP-S05-001: automação trial→expired (job/scheduler ausente) — epics/E02/stories/E02-S05.md",
-    "GAP-S06-001: pro-rata upgrade/downgrade não implementado — epics/E02/stories/E02-S06.md",
-    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md — RESOLVED (chave rotacionada, opção B aceita)"
+    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md - RESOLVED (repo public)",
+    "secret CI_DB_PASSWORD - RESOLVED (cadastrada 2026-04-16)",
+    "GAP-S05-001: automacao trial->expired (job/scheduler ausente) - epics/E02/stories/E02-S05.md",
+    "GAP-S06-001: pro-rata upgrade/downgrade nao implementado - epics/E02/stories/E02-S06.md",
+    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md - RESOLVED",
+    "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd",
+    "AMPLIATION-002: sequencing-check.sh (R13/R14) precisa ajustar ordem E03->E15->E16->E04+ e incluir E21-E25",
+    "AMPLIATION-003: Frontend antigo Livewire/Blade de E01/E02/E03 sera descartado; auditoria de aproveitamento pendente em spike INF-007",
+    "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico",
+    "AMPLIATION-V3-002: ADR-0016 (multi-tenant isolation) criada mas ainda nao implementada - deve entrar no escopo de E15 antes do schema ser definido",
+    "AMPLIATION-V3-003: E25 tem prazo fixo antes de 2026-01-01 (RTC) - monitorar publicacao de NT da CGNFS-e"
   ],
-  "technical_debt_count": 6,
+  "technical_debt_count": 12,
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos)",
-  "state": "active",
-  "paused": false,
-  "paused_reason": null,
-  "active_epic": "E03",
-  "next_recommended_action": "redesign de agentes (PM pediu reestruturação por domínio) → depois /start-story E03-S02b",
-  "current_phase": "execution",
+  "state": "paused-for-ampliation-approved",
+  "paused": true,
+  "paused_reason": "Tres rodadas de ampliacao concluidas (v1 offline-first + v2 auditoria comparativa + v3 re-auditoria independente). PM aprovou todas. 80 REQs, 9 personas, 17 jornadas, 25 epicos (19 MVP), 16 ADRs. Aguardando decomposicao de E15 via /decompose-stories em nova sessao.",
+  "active_epic": "E03 (pausado)",
+  "next_recommended_action": "NOVA SESSAO: (1) Validar ADR-0016 antes de iniciar E15 (afeta decisao de schema). (2) /decompose-stories E15 (PWA Shell Offline-First). (3) Auditoria de planejamento de E15 (planning-auditor isolado). (4) Spike INF-007 (reaproveitamento tecnico de E01/E02/E03). (5) Execucao story por story. Monitorar em paralelo: E25 RTC 2026 tem prazo fixo antes de 2026-01-01.",
+  "pending_audit": {
+    "type": "comparativa-externa",
+    "status": "completed",
+    "brief": "docs/audits/BRIEF-auditoria-comparativa-externa.md",
+    "sources": ["C:\\PROJETOS\\KALIBRIUM SAAS", "C:\\PROJETOS\\sistema"],
+    "reports": [
+      "docs/audits/comparativa-externa-2026-04-16.md (primeira auditoria)",
+      "docs/audits/comparativa-externa-reaudit-2026-04-16.md (re-auditoria independente em contexto isolado)"
+    ],
+    "requested_at": "2026-04-16T22:45:00Z",
+    "completed_at": "2026-04-16T21:55:00-04:00"
+  },
+  "current_phase": "discovery-ampliation-complete",
   "master_auditor_status": "active",
   "harness": {
-    "agents": 25,
-    "opus_agents": 12,
-    "sonnet_agents": 13,
+    "agents": 12,
+    "opus_agents": 4,
+    "sonnet_agents": 8,
     "haiku_agents": 0,
-    "skills": 39,
+    "skills": 40,
     "hooks": 17,
-    "schemas": 10,
+    "schemas": 13,
     "model_policy_commit": "7cf1b1a",
     "last_relock_commit": "a84371f",
-    "codex_gpt5_guide": "docs/operations/codex-gpt5-setup.md"
+    "codex_gpt5_guide": "docs/operations/codex-gpt5-setup.md",
+    "quality_baseline": {
+      "date": "2026-04-16",
+      "agents_score": 4.97,
+      "skills_score": 4.96,
+      "consolidated_score": 4.97,
+      "verdict": "approved 5/5 (zero ressalvas, 12/12 agents + 41/41 skills approve)",
+      "audit_method": "dual-LLM R3 isolado",
+      "gaps_remediated": 15,
+      "commits_total": 23,
+      "merged_via_pr": "https://github.com/roldaobatista/kalibrium-v2/pull/34"
+    }
   },
-  "last_checkpoint": "2026-04-16T16:30:00Z",
-  "last_handoff": "docs/handoffs/handoff-2026-04-16-0430.md"
+  "ampliation_2026_04_16": {
+    "status": "completed-v3",
+    "rounds": 3,
+    "v1": {
+      "trigger": "PM feedback 'nosso trabalho e 90% offline'",
+      "incident": "docs/incidents/discovery-gap-offline-2026-04-16.md",
+      "new_reqs": 33,
+      "new_personas": 5,
+      "new_journeys": 6,
+      "new_epics": ["E15", "E16", "E17", "E18", "E19", "E20"],
+      "new_adrs": ["ADR-0015"]
+    },
+    "v2": {
+      "trigger": "PM solicitou auditoria comparativa externa (brief 2026-04-16)",
+      "audit_report": "docs/audits/comparativa-externa-2026-04-16.md",
+      "new_reqs": 8,
+      "new_personas": 1,
+      "new_journeys": 3,
+      "new_epics": ["E21", "E22", "E23"],
+      "prd_document": "docs/product/PRD-ampliacao-2026-04-16-v2.md"
+    },
+    "v3": {
+      "trigger": "PM solicitou re-auditoria isolada apos v2",
+      "audit_report": "docs/audits/comparativa-externa-reaudit-2026-04-16.md",
+      "new_reqs": 10,
+      "new_personas": 0,
+      "persona_refinements": ["Persona 1 Marcelo com dimensao CFO/Diretoria"],
+      "new_journeys": 3,
+      "new_epics": ["E24", "E25"],
+      "new_adrs": ["ADR-0016 isolamento multi-tenant"],
+      "post_mvp_additions": 3,
+      "prd_document": "docs/product/PRD-ampliacao-2026-04-16-v3.md"
+    },
+    "consolidated": {
+      "reqs_original": 29,
+      "reqs_final": 80,
+      "personas_original": 3,
+      "personas_final": 9,
+      "journeys_original": 5,
+      "journeys_final": 17,
+      "epics_original": 14,
+      "epics_final": 25,
+      "adrs_original": 15,
+      "adrs_final": 16,
+      "producao_confirmada_2026": true
+    },
+    "commits": [
+      "454d687 docs(audits)",
+      "fcec058 docs(product): ampliacao PRD v1+v2+v3",
+      "b99f43e docs(backlog): post-mvp-backlog"
+    ],
+    "principle_enforced": "PRD e aditivo - so amplia, nunca diminui (feedback_prd_only_grows.md)"
+  },
+  "last_checkpoint": "2026-04-16T21:59:00-04:00",
+  "last_handoff": "docs/handoffs/handoff-2026-04-16-2200-ampliacao-v3.md"
 }

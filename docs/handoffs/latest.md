@@ -1,85 +1,59 @@
-# Handoff — 2026-04-16 21:00
+# Handoff — 2026-04-16 22:00 — Ampliação PRD v1+v2+v3 consolidada
 
-## Estado consolidado da sessão
+## Resumo da sessão
 
-Sessão de hoje fechou **protocolo operacional v1.2.2** e elevou o **harness a qualidade classe-mundial** (agents 4.98/5, skills ~4.9/5). 74 arquivos modificados/criados.
+Sessão executou **três rodadas aditivas de ampliação do PRD** no mesmo dia, preservando 100% do escopo anterior conforme princípio `feedback_prd_only_grows.md`:
 
-## Entregas
+- **v1 offline-first sistêmico** (já estava na branch antes desta sessão, commitada junto com v2+v3).
+- **v2 pós-auditoria comparativa externa** contra `C:\PROJETOS\KALIBRIUM SAAS` + `C:\PROJETOS\sistema`.
+- **v3 pós-re-auditoria independente em contexto isolado** (R3/R11) — auditor separado, não viu a primeira auditoria nem o PRD v2.
 
-### Camada 1 — Protocolo operacional
+Todos os 8+2 gaps de alto impacto aceitos pelo PM como MVP. Produção confirmada para 2026 (E25 RTC 2026 com prazo fixo).
 
-- `docs/protocol/00-08` atualizados para v1.2.2
-- `docs/protocol/schemas/gate-output.schema.json` criado (schema formal JSON Schema draft-07, enum de 17 gate names)
-- 2 meta-audits fechados em `docs/audits/`:
-  - `protocol-meta-audit-2026-04-16.md`
-  - `harness-meta-audit-2026-04-16.md`
+## Estado ao sair
 
-### Camada 2 — Harness v3 alinhado
+- **Branch atual:** `work/offline-discovery-2026-04-16`
+- **Últimos 3 commits (atômicos):**
+  - `b99f43e` docs(backlog): post-mvp-backlog com 16 itens diferidos
+  - `fcec058` docs(product): ampliação PRD v1+v2+v3 (21 arquivos)
+  - `454d687` docs(audits): auditoria comparativa externa + re-auditoria independente (3 arquivos)
+- **Working tree:** `project-state.json` (M) + handoffs (M + ?? este arquivo + ?? sessão anterior) + 5 arquivos do PM (INSTALAR-ATALHO.bat, scripts/* — não meus).
+- **Nada perdido.**
 
-- `CLAUDE.md` v2.7 → v2.8.0
-- 12 agents em `.claude/agents/` com `protocol_version: "1.2.2"` + fonte normativa + exemplos JSON conformes
-- 40 skills em `.claude/skills/` com bloco "Conformidade com protocolo v1.2.2" (41/41 incluindo `_TEMPLATE.md` canônico criado)
-- Hook `scripts/hooks/verifier-sandbox.sh` relocked para aceitar agents v3 (PM executou via `RELOCK-HARNESS-V1.2.2.bat`)
-- `docs/operations/harness-relock-2026-04-16.md` documenta o procedimento
+## Números finais acumulados
 
-### Camada 3 — Quality audits (3 ciclos)
+| Indicador | Original 2026-04-12 | Após v1+v2+v3 |
+|---|---|---|
+| REQs MVP | 29 | **80** (+33 v1 + 8 v2 + 10 v3) |
+| Personas primárias | 3 | **9** (+5 v1 + 1 v2) |
+| Jornadas detalhadas | 5 | **17** (+6 v1 + 3 v2 + 3 v3) |
+| Épicos totais | 14 | **25** (+6 v1 + 3 v2 + 2 v3) |
+| Épicos MVP P0 | 8 | **19** |
+| ADRs | 15 | **16** |
+| Stories MVP (estimativa) | ~63 | **~175** |
+| Itens post-MVP backlog | 0 | **16** (todos com gatilho) |
 
-- `docs/audits/quality-audit-agents-2026-04-16.md` (v1: 4.3/5)
-- `docs/audits/quality-audit-agents-2026-04-16-v2.md` (v2: 4.92/5)
-- `docs/audits/quality-audit-skills-2026-04-16.md` (v1: 4.1/5)
-- `docs/audits/quality-audit-skills-2026-04-16-v2.md` (v2: 4.7/5)
+## Próxima ação recomendada
 
-23 correções aplicadas em 3 batches via builder isolado. Projeção pós-fixes: agents ~4.98/5, skills ~4.9/5.
+**Em nova sessão:**
 
-## Próxima ação — RE-AUDIT COMPLETO EM NOVA SESSÃO
+1. `/resume` — restaura este estado.
+2. `/project-status` — visão R12 do estado para o PM.
+3. **Validar ADR-0016** antes de iniciar qualquer trabalho técnico em E15 (afeta schema, não opcional).
+4. **`/decompose-stories E15`** — PWA Shell Offline-First + Capacitor.
+5. Auditoria de planejamento de E15 via planning-auditor isolado.
+6. Spike INF-007 (reaproveitamento técnico de E01/E02/E03).
+7. Execução story por story.
 
-**Pedido explícito do PM:** rodar re-auditoria completa de todos os agents e skills em **sessão nova**, contexto limpo, sem vício da sessão atual.
+**Paralelo contínuo:** monitorar E25 RTC 2026 (prazo fixo < 2026-01-01).
 
-### Prompt neutro para a nova sessão (copiar/colar após /resume)
+## Handoff completo
 
-```
-Rode uma auditoria independente de qualidade profissional dos agents e skills do
-harness em dois contextos isolados R3 em paralelo (governance Opus 4.7).
+`docs/handoffs/handoff-2026-04-16-2200-ampliacao-v3.md`
 
-Auditor 1 — agents em .claude/agents/ (12 arquivos).
-Auditor 2 — skills em .claude/skills/ (40 arquivos + _TEMPLATE.md).
+## Metadata
 
-Cada auditor deve:
-- Definir sua própria rubrica de avaliação profissional (dimensões que julgar relevantes).
-- Avaliar cada arquivo no mérito, sem referência a auditorias anteriores.
-- Atribuir a nota que cada arquivo merece, sem meta pré-estabelecida.
-- Apontar gaps reais (ou ausência deles) com evidência literal.
-- Emitir verdict próprio: aprovar, aprovar com ressalvas, ou rejeitar.
-
-Restrições:
-- Não ler docs/audits/ antes de formar opinião própria. Pode consultar DEPOIS, como
-  checagem, mas a nota inicial deve vir de leitura direta dos agents/skills.
-- Não aplicar fixes. Só avaliar.
-- Relatório final em docs/audits/quality-audit-<agents|skills>-2026-04-16-v3.md.
-
-Reporte ao PM em linguagem de produto (R12) o verdict e 3 pontos principais de cada
-auditoria. O PM decide o próximo passo.
-```
-
-## Pendências
-
-1. **Commit do lote (74 arquivos)** — estruturar em 3 commits atômicos (protocol / harness / audits).
-2. **Re-audit final** (instrução acima).
-3. **Limpar temporários:** `scripts/staging/` e `scripts/hooks/verifier-sandbox.sh.bak-*` (untracked).
-
-## Contexto técnico
-
-- Branch: `chore/checkpoint-2026-04-16`
-- Projeto ainda em `CONDITIONAL_RESUME` até re-audit final validar 5/5.
-- Hook selado foi relocked (MANIFEST.sha256 + settings.json.sha256 regenerados).
-- Próxima story pendente (após re-audit + despause): E03 CRUD cliente+contato (3/14 stories já merged).
-
-## Arquivos-chave para leitura na nova sessão
-
-1. Este handoff (`latest.md`)
-2. `docs/handoffs/handoff-2026-04-16-2100.md` (cópia imutável deste handoff)
-3. `docs/audits/quality-audit-agents-2026-04-16-v2.md`
-4. `docs/audits/quality-audit-skills-2026-04-16-v2.md`
-5. `docs/audits/harness-meta-audit-2026-04-16.md`
-6. `project-state.json`
-7. `CLAUDE.md` (regras de sessão — nova sessão precisa bootstrap completo)
+- Autor: orchestrator (Claude Opus 4.7, sessão isolada — 2h)
+- Data: 2026-04-16T21:59:00-04:00
+- Commits atômicos: 3
+- Princípio confirmado: PRD só amplia (R1 validado)
