@@ -116,16 +116,15 @@ Quer seguir para /freeze-prd ou ajustar algo?
 ```
 
 ## Agentes
-- `product-expert` (modo: discovery) — produz glossario, modelo de dominio, riscos e suposicoes (serializado, executa primeiro) — substitui v2 `domain-analyst`
-- `product-expert` (modo: discovery/NFR) — produz NFRs estruturados com metricas mensuraveis (serializado, executa apos product-expert discovery) — substitui v2 `nfr-analyst`
+- `product-expert` (modo: discovery) — unica invocacao consolidada que produz glossario, modelo de dominio, riscos, suposicoes E NFRs estruturados com metricas mensuraveis. Substitui v2 `domain-analyst` + `nfr-analyst` (fusao em v3 — um modo, um agente, um output package contendo `domain/glossary.md`, `domain/model.md`, `docs/nfrs/nfrs.md`). Nao ha invocacao separada de NFR — esta dentro do escopo unico de `discovery` conforme `.claude/agents/product-expert.md §Modo 1: discovery`.
 
 ## Erros e Recuperacao
 
 | Erro | Recuperacao |
 |---|---|
 | PM nao responde a uma pergunta (nao sabe) | Registrar como "pendente" no intake-responses.md. Prosseguir com as demais. Revisitar antes de `/freeze-prd`. |
-| `product-expert` (modo: discovery) falha ou produz output incompleto | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
-| `product-expert` (modo: discovery/NFR) falha porque glossario nao existe | Garantir que `product-expert` (modo: discovery) completou com sucesso antes de spawnar `product-expert` (modo: discovery/NFR). Reexecutar `product-expert` (modo: discovery) se necessario. |
+| `product-expert` (modo: discovery) falha ou produz output incompleto (qualquer dos artefatos: glossario, modelo, riscos, NFRs) | Re-spawnar com contexto adicional do intake. Fazer até 5 ciclos automáticos; na 6ª falha consecutiva, escalar humano (R6). |
+| `product-expert` (modo: discovery) produz glossario mas NFRs incompletos | Re-spawnar mesmo modo com prompt reforcado focando apenas em NFRs faltantes — nao ha modo separado. |
 | PM contradiz respostas anteriores durante a entrevista | Parar, apresentar a contradicao em linguagem R12, pedir esclarecimento antes de registrar. |
 
 ## Handoff
@@ -135,7 +134,7 @@ Quer seguir para /freeze-prd ou ajustar algo?
 
 ## Conformidade com protocolo v1.2.2
 
-- **Agents invocados:** `product-expert (discovery)` serializado com `product-expert (discovery/NFR)` — conforme mapa canonico 00 §3.1
+- **Agents invocados:** `product-expert (discovery)` — unica invocacao consolidada (glossario + modelo + riscos + NFRs no mesmo modo) conforme mapa canonico 00 §3.1 e `.claude/agents/product-expert.md §Modo 1: discovery`
 - **Gates produzidos:** n/a — skill de descoberta, nao gera gate JSON
 - **Output:** `docs/product/intake-responses.md` (markdown R12) + artefatos subsequentes em `docs/domain/` via sub-agents
 - **Schema formal:** nao aplicavel (skill nao produz gate output)
