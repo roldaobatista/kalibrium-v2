@@ -24,37 +24,59 @@ Um tecnico abre o Kalibrium no Chrome Android pela primeira vez em uma area com 
 
 ## Acceptance Criteria
 
-### Happy path
+> **Nota de organizacao:** os ACs estao em sequencia numerica continua (AC-001..AC-008) para satisfazer o validador mecanico `scripts/draft-spec.sh`. Cada AC-NNN happy pode ter variantes `-A` (edge case) logo em seguida. Os dois ultimos (AC-007, AC-008) sao requisitos de seguranca classificados inline.
 
-- **AC-001 — App instalavel no Chrome desktop.** Dado que o usuario acessa a URL do Kalibrium em `https://localhost` (via `mkcert`) no Chrome, quando o Chrome detecta criterios de PWA (HTTPS + manifest valido + service worker registrado), entao `window.matchMedia('(display-mode: standalone)').matches` retorna `true` apos instalacao via `beforeinstallprompt`. Verificado em `tests/e2e/pwa-install.spec.ts`.
+### AC-001 — App instalavel no Chrome desktop (happy)
 
-- **AC-002 — Rota `/login` carrega offline apos primeira visita.** Dado que o usuario acessou o app pelo menos uma vez com rede (cache populado), quando o teste Playwright invoca `page.context().setOffline(true)` e navega para `/`, entao a tela de login renderiza sem erro de rede e sem tela branca em menos de 2 segundos. Verificado em `tests/e2e/pwa-offline.spec.ts`.
+Dado que o usuario acessa a URL do Kalibrium em `https://localhost` (via `mkcert`) no Chrome, quando o Chrome detecta criterios de PWA (HTTPS + manifest valido + service worker registrado), entao `window.matchMedia('(display-mode: standalone)').matches` retorna `true` apos instalacao via `beforeinstallprompt`. Verificado em `tests/e2e/pwa-install.spec.ts`.
 
-- **AC-003 — `manifest.json` valido e completo.** Dado que o build foi gerado via `npm run build`, quando se executa `cat dist/manifest.webmanifest | jq '{name, short_name, start_url, display, icons_count: (.icons|length)}'`, entao `name == "Kalibrium"`, `short_name == "Kalibrium"`, `start_url == "/"`, `display == "standalone"` e `icons_count >= 3`.
+### AC-001-A — App nao-instalavel em HTTP puro (edge)
 
-- **AC-004 — Icones existem nos 3 tamanhos obrigatorios.** Dado que o build foi gerado, quando se executa `ls dist/icons/`, entao existem `icon-192.png` (192x192 PNG), `icon-512.png` (512x512 PNG) e `icon-512-maskable.png` (512x512 PNG com area segura de 80%).
+Dado que o usuario acessa via `http://` (sem TLS), quando o Chrome avalia criterios de PWA, entao o evento `beforeinstallprompt` NAO dispara e a UI nao expoe botao de instalar. Verificado em `tests/e2e/pwa-install.spec.ts` navegando para `http://localhost:5173` com assert `beforeinstallprompt` nao disparou em 5s.
 
-- **AC-005 — Service Worker registrado e ativo.** Dado que o app esta servido em HTTPS (ou localhost), quando se abre a pagina e espera o primeiro load completar, entao `navigator.serviceWorker.controller !== null` e o SW aparece com status `activated` em `registrations[0].active.state`. Verificado via Playwright `page.evaluate()`.
+### AC-002 — Rota `/login` carrega offline apos primeira visita (happy)
 
-- **AC-006 — Lighthouse PWA score >= 85 em CI (>= 90 em producao).** Dado que o build esta servido em `https://localhost` via `npx serve dist`, quando se executa `npx lighthouse https://localhost --only-categories=pwa --output=json --quiet`, entao `.categories.pwa.score >= 0.85`. Threshold relaxado de 90 para 85 em CI por variabilidade documentada no risco #2.
+Dado que o usuario acessou o app pelo menos uma vez com rede (cache populado), quando o teste Playwright invoca `page.context().setOffline(true)` e navega para `/`, entao a tela de login renderiza sem erro de rede e sem tela branca em menos de 2 segundos. Verificado em `tests/e2e/pwa-offline.spec.ts`.
 
-### Edge cases e erros (obrigatorios)
+### AC-002-A — Segunda visita sem cache popula offline em menos de 5s (edge)
 
-- **AC-001a — App nao-instalavel em HTTP puro.** Dado que o usuario acessa via `http://` (sem TLS), quando o Chrome avalia criterios de PWA, entao o evento `beforeinstallprompt` NAO dispara e a UI nao expoe botao de instalar. Verificado em `tests/e2e/pwa-install.spec.ts` navegando para `http://localhost:5173` com assert `beforeinstallprompt` nao disparou em 5s.
+Dado que o usuario ja abriu a pagina com rede uma vez, quando ele reabre o app com rede desligada (sem nunca ter ficado online desde o primeiro load), entao a tela de login renderiza em menos de 5s (tolerando SW warmup) — nao travar, nao cair para tela branca indefinida.
 
-- **AC-002a — Segunda visita sem cache popula offline em menos de 5s.** Dado que o usuario ja abriu a pagina com rede uma vez, quando ele reabre o app com rede desligada (sem nunca ter ficado online desde o primeiro load), entao a tela de login renderiza em menos de 5s (tolerando SW warmup) — nao travar, nao cair para tela branca indefinida.
+### AC-003 — `manifest.webmanifest` valido e completo (happy)
 
-- **AC-004a — Icone 512-maskable tem area segura correta.** Dado o icone `icon-512-maskable.png`, quando se inspeciona o pixel central (256,256), entao o pixel nao e transparente (RGBA.a >= 254) e o pixel do canto (10,10) pode ser transparente ou colorido (fora da area segura). Fail rapido se o icone foi gerado sem padding de 80%.
+Dado que o build foi gerado via `npm run build`, quando se executa `cat dist/manifest.webmanifest | jq '{name, short_name, start_url, display, icons_count: (.icons|length)}'`, entao `name == "Kalibrium"`, `short_name == "Kalibrium"`, `start_url == "/"`, `display == "standalone"` e `icons_count >= 3`.
 
-- **AC-005a — SW nao quebra se `navigator.serviceWorker` indisponivel.** Dado um navegador legado sem suporte a SW (simulado via `Object.defineProperty(navigator, 'serviceWorker', { value: undefined })` antes do load), quando o app carrega, entao nao lanca exception, o console nao registra `Uncaught TypeError`, e a UI base renderiza em modo degradado (sem PWA install prompt).
+### AC-004 — Icones existem nos 3 tamanhos obrigatorios (happy)
 
-- **AC-006a — Lighthouse ainda passa se `robots.txt` for 404.** Dado que `robots.txt` esteja ausente do build, quando Lighthouse roda, entao score PWA continua >= 0.85 (robots.txt nao afeta categoria PWA do Lighthouse v11+; este AC protege contra regressao se upgradar Lighthouse).
+Dado que o build foi gerado, quando se executa `ls dist/icons/`, entao existem `icon-192.png` (192x192 PNG), `icon-512.png` (512x512 PNG) e `icon-512-maskable.png` (512x512 PNG com area segura de 80%).
 
-### Seguranca (obrigatorio)
+### AC-004-A — Icone 512-maskable tem area segura correta (edge)
 
-- **AC-SEC-001 — Cache nao intercepta rotas `/api/*`.** Dado o codigo-fonte do service worker (gerado por vite-plugin-pwa ou escrito em `src/sw.ts`), quando se inspeciona o SW em runtime via `sw.fetch` handlers, entao **nenhum handler** intercepta rotas que casem com `/^\/api\//`. Verificado por (a) `grep -rE '["\x27]/api' dist/sw.js` retornar zero matches e (b) teste Playwright que faz um `fetch('/api/dummy')` com rede offline e verifica que a request falha (nao ha resposta cacheada). Protege contra vazamento de dados entre tenants.
+Dado o icone `icon-512-maskable.png`, quando se inspeciona o pixel central (256,256), entao o pixel nao e transparente (RGBA.a >= 254) e o pixel do canto (10,10) pode ser transparente ou colorido (fora da area segura). Fail rapido se o icone foi gerado sem padding de 80%.
 
-- **AC-SEC-002 — Cache limpa versao antiga em upgrade.** Dado que uma nova versao do SW foi publicada (detectavel via `VITE_APP_VERSION` no nome do cache), quando o usuario recarrega, entao `caches.keys()` nao contem mais o nome da versao antiga apos `activate` do novo SW. Protege contra uso de assets obsoletos que referenciem APIs removidas.
+### AC-005 — Service Worker registrado e ativo (happy)
+
+Dado que o app esta servido em HTTPS (ou localhost), quando se abre a pagina e espera o primeiro load completar, entao `navigator.serviceWorker.controller !== null` e o SW aparece com status `activated` em `registrations[0].active.state`. Verificado via Playwright `page.evaluate()`.
+
+### AC-005-A — SW nao quebra se `navigator.serviceWorker` indisponivel (edge)
+
+Dado um navegador legado sem suporte a SW (simulado via `Object.defineProperty(navigator, 'serviceWorker', { value: undefined })` antes do load), quando o app carrega, entao nao lanca exception, o console nao registra `Uncaught TypeError`, e a UI base renderiza em modo degradado (sem PWA install prompt).
+
+### AC-006 — Lighthouse PWA score >= 85 em CI (>= 90 em producao) (happy)
+
+Dado que o build esta servido em `https://localhost` via `npx serve dist`, quando se executa `npx lighthouse https://localhost --only-categories=pwa --output=json --quiet`, entao `.categories.pwa.score >= 0.85`. Threshold relaxado de 90 para 85 em CI por variabilidade documentada no risco #2.
+
+### AC-006-A — Lighthouse ainda passa se `robots.txt` for 404 (edge)
+
+Dado que `robots.txt` esteja ausente do build, quando Lighthouse roda, entao score PWA continua >= 0.85 (robots.txt nao afeta categoria PWA do Lighthouse v11+; este AC protege contra regressao se upgradar Lighthouse).
+
+### AC-007 — Cache nao intercepta rotas `/api/*` (seguranca)
+
+Dado o codigo-fonte do service worker (gerado por vite-plugin-pwa ou escrito em `src/sw.ts`), quando se inspeciona o SW em runtime via `sw.fetch` handlers, entao **nenhum handler** intercepta rotas que casem com `/^\/api\//`. Verificado por (a) `grep -rE '["\x27]/api' dist/sw.js` retornar zero matches e (b) teste Playwright que faz um `fetch('/api/dummy')` com rede offline e verifica que a request falha (nao ha resposta cacheada). Protege contra vazamento de dados entre tenants.
+
+### AC-008 — Cache limpa versao antiga em upgrade (seguranca)
+
+Dado que uma nova versao do SW foi publicada (detectavel via `VITE_APP_VERSION` no nome do cache), quando o usuario recarrega, entao `caches.keys()` nao contem mais o nome da versao antiga apos `activate` do novo SW. Protege contra uso de assets obsoletos que referenciem APIs removidas.
 
 ## Fora de escopo
 
@@ -84,6 +106,7 @@ Um tecnico abre o Kalibrium no Chrome Android pela primeira vez em uma area com 
 ## Notas do PM (humano)
 
 - Spec gerada a partir do Story Contract `epics/E15/stories/E15-S03.md` com 7 ACs happy + 5 edge + 2 seguranca = 14 ACs totais.
-- AC-007 do contrato (cache nao vaza entre tenants) foi renumerado como **AC-SEC-001** para alinhar com convencao do template (secao `Seguranca`).
+- O AC de seguranca #7 do contrato (cache nao vaza entre tenants) virou item sequencial **AC-007** com classificacao "seguranca" inline para respeitar o validador mecanico `scripts/draft-spec.sh` (que exige sequencia 001..NNN sem prefixos AC-SEC).
+- Um AC de seguranca extra (AC-008 cache cleanup em upgrade) foi adicionado com a mesma convencao.
 - Threshold Lighthouse relaxado em CI (0.85 vs 0.90 em producao) com justificativa inline no AC-006 + risco #2.
 - Recomenda-se `/audit-spec 017` a seguir.
