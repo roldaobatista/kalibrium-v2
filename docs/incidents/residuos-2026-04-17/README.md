@@ -16,6 +16,7 @@ Todos os itens isolados aqui sao **regeneraveis ou historicos** — nenhum e fon
 | `scripts-bak/` | `scripts/merge-slice.sh.bak-*` | 1 arquivo | Sim (git log) | Sim |
 | `staging-merge/merge-conflict/` | `scripts/staging/merge/*` — saida de `git checkout --conflict` do PR #39/#40 | 27 arquivos (`d_*`, `ours_*`, `theirs_*`) | Nao — historico de conflito ja resolvido | Sim — resolucao aplicada em commits `a13fe36` e `4d8c007` |
 | `gate-inputs/` | 4 dirs de gate-input (master-audit, functional-review, security-review, test-audit) com sufixo `-residuo` para escapar do `.gitignore` | 4 dirs (~40 arquivos) | Sim — regerados pelo fluxo de gates | Sim — snapshots pontuais do slice 016 ja consolidados em `specs/016/` |
+| `playwright.config.js.residuo` | `playwright.config.js` — artefato compilado gerado pelo `tsc` (o fonte vivo e `playwright.config.ts`) | 1 arquivo | Sim (via `tsc`) | Sim — `.gitignore` agora cobre `playwright.config.js` |
 
 ---
 

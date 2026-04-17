@@ -101,4 +101,5 @@ test-results/
 # TypeScript build artifacts (gerados pelo tsc -b)
 *.tsbuildinfo
 playwright.config.d.ts
+playwright.config.js
 vite.config.d.ts
