@@ -1,0 +1,160 @@
+{
+  "version": "1.0.0",
+  "project": "kalibrium-v2",
+  "phase": "execution",
+  "updated_at": "2026-04-17T14:45:00-04:00",
+  "discovery": {
+    "intake_complete": true,
+    "prd_status": "frozen",
+    "nfr_status": "frozen",
+    "domain_model_exists": true,
+    "glossary_exists": true,
+    "risks_documented": true,
+    "assumptions_reviewed": true
+  },
+  "strategy": {
+    "architecture_status": "frozen",
+    "adrs_count": 5,
+    "threat_model_exists": true,
+    "deploy_profile_exists": false
+  },
+  "planning": {
+    "epics_total": 14,
+    "epics_decomposed": 2,
+    "epics_mvp": 12,
+    "epics_post_mvp": 2,
+    "stories_total": 22,
+    "stories_with_contract": 22,
+    "stories_audited": 22,
+    "prd_gaps_resolved": true,
+    "new_frs_added": 48,
+    "total_frs": 200,
+    "total_modules": 45,
+    "planning_audit_roadmap": "approved",
+    "planning_audit_E01": "approved",
+    "story_audit_E01": "approved",
+    "story_audit_E03": "approved",
+    "documentation_gate": "e03-complete"
+  },
+  "execution": {
+    "current_epic": "E15",
+    "current_story": "E15-S01",
+    "current_slice": "015",
+    "slice_status": "merged",
+    "last_green_commit": "8addb11",
+    "consecutive_rejections": 0,
+    "blocked": false,
+    "blocked_reason": null,
+    "slice_015_pipeline": {
+      "pr": "https://github.com/roldaobatista/kalibrium-v2/pull/36",
+      "merged_at": "2026-04-17",
+      "merge_commit": "8addb11",
+      "gates_approved": "5/5 (verify, code-review, security, audit-tests, functional) + 3/3 planning (spec-audit, plan-review, tests-draft-audit)",
+      "master_audit_dual_llm": "consenso pleno 2x Opus 4.7 em contextos isolados (politica 2026-04-17: GPT-5/Codex descontinuado)",
+      "trilha_A_opus": "approved (0 blocking, 9 S4, 1 S5)",
+      "trilha_B_opus": "approved (0 blocking, 2 S4, 1 S5)",
+      "next_action": "Aguardar decisao PM sobre recuperacao dos artefatos de ampliacao (PRDs, ADR-0016, incidents) perdidos nas branches deletadas work/offline-discovery-2026-04-16 e feat/slice-015-spike-inf007. Commits ainda referenciados em reflog. Depois: /start-story E15-S02."
+    }
+  },
+  "gates_status": {
+    "spec_auditor": "approved",
+    "plan": "approved",
+    "plan_review": "approved",
+    "verifier": "approved",
+    "reviewer": "approved",
+    "security_reviewer": "approved",
+    "test_auditor": "approved",
+    "functional_reviewer": "approved",
+    "master_auditor": "approved"
+  },
+  "epics_status": {
+    "E01": {
+      "status": "merged",
+      "stories": {
+        "E01-S01": "merged",
+        "E01-S02": "merged",
+        "E01-S03": "merged",
+        "E01-S04": "merged",
+        "E01-S05": "merged",
+        "E01-S06": "merged"
+      }
+    },
+    "E02": {
+      "status": "merged",
+      "stories": {
+        "E02-S01": "merged",
+        "E02-S02": "merged",
+        "E02-S03": "merged",
+        "E02-S04": "merged",
+        "E02-S05": "merged",
+        "E02-S06": "merged",
+        "E02-S07": "merged",
+        "E02-S08": "merged"
+      }
+    },
+    "E03": {
+      "status": "in_progress",
+      "stories": {
+        "E03-S01a": "merged",
+        "E03-S01b": "merged",
+        "E03-S02a": "merged",
+        "E03-S02b": "draft",
+        "E03-S03a": "draft",
+        "E03-S03b": "draft",
+        "E03-S04a": "draft",
+        "E03-S04b": "draft",
+        "E03-S05a": "draft",
+        "E03-S05b": "draft",
+        "E03-S06a": "draft",
+        "E03-S06b": "draft",
+        "E03-S07a": "draft",
+        "E03-S07b": "draft"
+      }
+    }
+  },
+  "pending_epic_retrospective": null,
+  "epic_retrospective_E02": {
+    "verdict": "approved",
+    "iteration": 2,
+    "findings_total": 8,
+    "findings_resolved": 5,
+    "findings_accepted_debt": 3,
+    "findings_open": 0,
+    "report": "docs/retrospectives/epic-E02-retrospective.md",
+    "harness_learner_executed": true,
+    "harness_learner_changes": ["B-023", "B-026", "B-027"],
+    "harness_learner_report": "docs/retrospectives/harness-learner-E02.md",
+    "approved_at": "2026-04-16T01:30:00Z"
+  },
+  "technical_debt": [
+    "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
+    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md — RESOLVED (repo public)",
+    "secret CI_DB_PASSWORD — RESOLVED (cadastrada 2026-04-16)",
+    "GAP-S05-001: automação trial→expired (job/scheduler ausente) — epics/E02/stories/E02-S05.md",
+    "GAP-S06-001: pro-rata upgrade/downgrade não implementado — epics/E02/stories/E02-S06.md",
+    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md — RESOLVED (chave rotacionada, opção B aceita)"
+  ],
+  "technical_debt_count": 6,
+  "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos)",
+  "state": "active",
+  "paused": false,
+  "paused_reason": null,
+  "active_epic": "E03",
+  "next_recommended_action": "redesign de agentes (PM pediu reestruturação por domínio) → depois /start-story E03-S02b",
+  "current_phase": "execution",
+  "master_auditor_status": "active",
+  "harness": {
+    "agents": 25,
+    "opus_agents": 12,
+    "sonnet_agents": 13,
+    "haiku_agents": 0,
+    "skills": 39,
+    "hooks": 17,
+    "schemas": 10,
+    "model_policy_commit": "7cf1b1a",
+    "last_relock_commit": "a84371f",
+    "codex_gpt5_guide": "docs/operations/codex-gpt5-setup.md"
+  },
+  "last_checkpoint": "2026-04-16T16:30:00Z",
+  "last_handoff": "docs/handoffs/handoff-2026-04-16-0430.md"
+}
