@@ -12,7 +12,7 @@ changelog: "2026-04-16 — quality audit fix SK-A1 (Output no chat R12)"
 ```
 
 ## Por que existe
-Seguranca nao pode ser avaliada pelo mesmo agente que implementou. O `security-expert` (modo: security-gate) opera em worktree isolada, sem acesso ao contexto do builder (implementer), e avalia OWASP top 10, LGPD, secrets e input validation.
+Seguranca nao pode ser avaliada pelo mesmo agente que implementou. O `security-expert` (modo: security-gate) opera em sandbox via `scripts/hooks/verifier-sandbox.sh`, sem acesso ao contexto do builder (implementer), e avalia OWASP top 10, LGPD, secrets e input validation.
 
 ## Quando invocar
 Apos `/verify-slice NNN` retornar `approved`. Parte do pipeline de gates antes do merge.
@@ -83,7 +83,7 @@ Registrar em telemetria.
 | Cenário | Recuperação |
 |---|---|
 | `verification.json` ou `review.json` não existe ou não está `approved` | Rodar `/verify-slice NNN` e `/review-pr NNN` primeiro. Security review é o 3o gate. |
-| Worktree isolada falha ao ser criada | Verificar que não há worktrees órfãs (`git worktree list`). Limpar com `git worktree prune`. |
+| Sandbox via `verifier-sandbox.sh` falha ao ser criada | Verificar espaço em disco e permissões de `$TMPDIR`. Tentar novamente. Se persistir, reportar erro ao PM. |
 | `security-review.json` não passa validação do schema | Descartar output inválido e re-executar o `security-expert` (modo: security-gate). Se persistir, verificar schema em `docs/protocol/schemas/gate-output.schema.json`. |
 | `docs/security/threat-model.md` não existe | Alertar PM que threat model é necessário. Criar esqueleto mínimo antes de prosseguir. |
 

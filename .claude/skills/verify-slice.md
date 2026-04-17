@@ -105,7 +105,7 @@ bash scripts/verify-slice.sh "$1"
 |---|---|
 | AC-tests não estão todos verdes | Abortar. Implementer deve corrigir testes antes de verificar. Sugerir rodar testes filtrados do slice. |
 | `verification.json` não passa na validação contra schema (R4) | Re-spawn `qa-expert` (modo: verify). Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
-| Worktree isolada falha ao ser criada | Verificar espaço em disco e estado do git. Tentar novamente. Se persistir, reportar erro ao PM. |
+| Sandbox via `verifier-sandbox.sh` falha ao ser criada | Verificar espaço em disco e permissões de `$TMPDIR`. Tentar novamente. Se persistir, reportar erro ao PM. |
 | `qa-expert` (modo: verify) rejeita pela 6ª vez consecutiva (R6) | Criar incident file automaticamente, bloquear implementer, gerar relatório PM via `scripts/explain-slice.sh`. Aguardar decisão humana. |
 
 ## Agentes

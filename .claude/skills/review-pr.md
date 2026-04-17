@@ -61,7 +61,7 @@ bash scripts/review-slice.sh "$1"
 | `verification.json` não existe ou não tem `verdict: approved` | Abortar. Rodar `/verify-slice NNN` primeiro — code-review nunca roda antes do `qa-expert` (modo: verify). |
 | `review.json` não passa na validação contra schema | Re-spawn `architecture-expert` (modo: code-review). Se falhar 5 vezes consecutivas, escalar humano na 6ª (R6). |
 | `architecture-expert` (modo: code-review) reprova pela 6ª vez consecutiva (R6) | Criar incident file, bloquear implementer, invocar `/explain-slice NNN` para traduzir ao PM. |
-| Worktree isolada falha ao ser criada | Verificar espaço em disco e estado do git. Tentar novamente. Se persistir, reportar erro ao PM. |
+| Sandbox via `verifier-sandbox.sh` falha ao ser criada | Verificar espaço em disco e permissões de `$TMPDIR`. Tentar novamente. Se persistir, reportar erro ao PM. |
 
 ## Agentes
 
