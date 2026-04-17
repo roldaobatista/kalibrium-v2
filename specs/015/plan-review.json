@@ -1,0 +1,166 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "plan-review",
+  "slice": "015",
+  "lane": "L3",
+  "agent": "architecture-expert",
+  "mode": "plan-review",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T21:30:00Z",
+  "commit_hash": "d520acf",
+  "isolation_context": "slice-015-plan-review-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 2,
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 2,
+    "S5": 0
+  },
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "AC-001 do spec exige 'formato de payload e resposta de exemplo' por endpoint, mas o passo 2 do plan descreve 'request body esperado' e 'response' sem mencionar explicitamente que exemplos concretos (JSON sample) devem constar do inventario. A verificacao mecanica de AC-001 na secao 7 tambem apenas conta '## ' cabecalhos, nao valida presenca de exemplos.",
+      "file": "specs/015/plan.md",
+      "line": 32,
+      "evidence": "plan.md:32 diz 'extrair: request body esperado (FormRequest ou DTO), response (Resource ou array), status codes'; spec.md:41 exige 'formato de payload e resposta de exemplo'. Gap de redacao, nao de escopo.",
+      "recommendation": "Adicionar no passo 2 instrucao explicita para incluir exemplo JSON (request + response) para cada endpoint, e complementar a verificacao mecanica de AC-001 com um grep que confirme a presenca de blocos de codigo ```json no documento."
+    },
+    {
+      "id": "F-002",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "O criterio global do slice (secao 7, final) usa 'git diff --name-only main...HEAD' com allowlist regex. O regex atual permite 'spike-inf007/' sem exigir barra final, nao lista 'docs/handoffs/' e nao lista '.gitignore' na raiz caso o executor queira adicionar 'spike-inf007/node_modules' globalmente. Baixo risco porque o proprio spike adiciona '.gitignore' local em spike-inf007/, mas a verificacao e fragil.",
+      "file": "specs/015/plan.md",
+      "line": 118,
+      "evidence": "plan.md:118 — regex 'grep -vE \"^(docs/frontend/|spike-inf007/|specs/015/|project-state.json)\"'. Caminhos legitimos auxiliares (ex: atualizacao de docs/handoffs apos merge) fariam a verificacao falhar.",
+      "recommendation": "Refinar allowlist para '^(docs/frontend/|spike-inf007/|specs/015/|docs/handoffs/|project-state\\.json$)' e documentar que a verificacao roda antes do commit de handoff, nao depois."
+    }
+  ],
+  "evidence": {
+    "checks": {
+      "ac_to_module_mapping_complete": true,
+      "alternatives_documented": true,
+      "reversibility_declared": true,
+      "adr_backed_where_needed": true,
+      "adr_0001_consistency": true,
+      "no_invented_requirements": true,
+      "eager_loading_strategy_declared": true,
+      "middleware_pipeline_explicit": true,
+      "risks_with_mitigations": true,
+      "cross_slice_dependencies_explicit": true,
+      "migrations_safe_patterns": true,
+      "controllers_are_routers": true
+    },
+    "spike_specific_checks": {
+      "no_production_code_written": true,
+      "no_app_routes_database_resources_touched": true,
+      "rollback_trivial_declared": true,
+      "sealed_files_respected": true,
+      "legacy_peer_deps_policy_explicit": true,
+      "all_6_acs_mapped_to_verification": true,
+      "decisions_candidate_to_adr_documented": true,
+      "risks_include_spike_specific_items": true
+    },
+    "acs_mapped_count": 6,
+    "acs_mapped": {
+      "AC-001": "plan.md §2 passo 2 + §4 api-endpoints.md + §7 AC-001 row",
+      "AC-002": "plan.md §2 passo 5 + §4 spike-inf007/npm-install.log + §7 AC-002 row",
+      "AC-003": "plan.md §2 passo 6 + §3 D-1 + §7 AC-003 row",
+      "AC-004": "plan.md §2 passo 3 + §4 api-endpoints.md (Schema local) + §7 AC-004 row",
+      "AC-005": "plan.md §2 passo 7 + §4 stack-versions.md (Descarte) + §7 AC-005 row",
+      "AC-006": "plan.md §2 passo 8 + §4 stack-versions.md (Pre-condicoes E15-S02) + §7 AC-006 row"
+    },
+    "decisions_without_alternatives": [],
+    "decisions_without_reversibility": [],
+    "decisions_audited": {
+      "D-1": {
+        "alternatives_considered": true,
+        "reversibility": "media",
+        "plan_b_declared": "SQLite puro + libsodium por-campo + PBKDF2 do JWT"
+      },
+      "D-2": {
+        "alternatives_considered": true,
+        "reversibility": "facil",
+        "fallback_order": "warning > overrides > --legacy-peer-deps > emenda ADR-0015"
+      },
+      "D-3": {
+        "alternatives_considered": true,
+        "reversibility": "facil",
+        "rationale": "OpenAPI formal e desproporcional pre-E15-S02; Markdown suficiente"
+      }
+    },
+    "adr_consistency": {
+      "ADR-0015": "plan respeita versoes declaradas; se bloqueador emergir, plan explicitamente recomenda emenda via /adr ao inves de improvisar",
+      "ADR-0016": "plan exige coluna tenant_id em cada tabela espelhada (passo 3) e schema local (AC-004)"
+    },
+    "eloquent_relations_without_eager_loading": [],
+    "routes_without_middleware": [],
+    "invented_requirements": [],
+    "scope_discipline": {
+      "forbidden_paths_explicit": true,
+      "forbidden_paths_list": ["app/", "resources/", "routes/", "database/", ".claude/", "scripts/hooks/", "docs/protocol/", "docs/constitution.md", "CLAUDE.md", "ADR-0015", "ADR-0016"],
+      "allowed_paths_list": ["docs/frontend/api-endpoints.md", "docs/frontend/stack-versions.md", "spike-inf007/"]
+    },
+    "risk_coverage": {
+      "risks_from_spec": ["R1", "R2", "R3"],
+      "new_risks_from_plan": ["R4 (ambiente Node)", "R5 (issues GitHub voláteis)", "R6 (inventario desatualiza)"],
+      "all_risks_have_mitigation": true
+    },
+    "rollback_plan": {
+      "declared": true,
+      "trivial": true,
+      "git_revert_sufficient": true,
+      "plan_b_by_outcome_declared": true,
+      "cases_covered": ["A tudo verde", "B bloqueador SQLCipher", "C conflito peer deps", "D endpoints insuficientes"]
+    },
+    "done_criteria_mechanical": {
+      "all_6_acs_have_mechanical_check": true,
+      "checks_executable_in_shell": true,
+      "global_gate_check_exists": true
+    },
+    "security_review": {
+      "no_pii_in_poc": true,
+      "no_secrets_committed": true,
+      "public_github_only": true,
+      "gitignore_prevents_node_modules": true,
+      "legacy_peer_deps_not_masking": true
+    },
+    "contract_completeness": {
+      "sections_present": [
+        "1 Contexto e objetivo tecnico",
+        "2 Abordagem",
+        "3 Decisoes de design",
+        "4 Arquivos a criar / alterar",
+        "5 Riscos e mitigacoes",
+        "6 Rollback / plano B",
+        "7 Criterios de done",
+        "8 Dependencias externas",
+        "9 Observabilidade",
+        "10 Seguranca",
+        "Rastreabilidade"
+      ],
+      "all_sections_filled": true
+    },
+    "feasibility_assessment": {
+      "8_steps_executable_in_order": true,
+      "no_forward_dependency_on_later_steps": true,
+      "step_by_step_audit": {
+        "step_1_grep_routes": "independente — roda primeiro",
+        "step_2_document_endpoints": "depende de passo 1 ✓",
+        "step_3_mirror_tables": "independente de 1-2 mas usa ADR-0016 (input) ✓",
+        "step_4_create_poc": "independente ✓",
+        "step_5_npm_install": "depende de passo 4 (package.json) ✓",
+        "step_6_github_issues": "independente ✓",
+        "step_7_describe_legacy": "independente ✓",
+        "step_8_checklist_consolidation": "depende de todos os anteriores ✓"
+      }
+    },
+    "summary": "Plan.md do slice 015 aprovado. Todos os 6 ACs do spec tem mapeamento claro para passos da abordagem, arquivos a criar e verificacao mecanica. Escopo de spike rigorosamente preservado: nenhum arquivo de producao tocado, allowlist explicita, arquivos selados respeitados. Decisoes D-1/D-2/D-3 tem alternativas e reversibilidade declaradas. Nenhum AC inventado alem do spec. ADR-0015 e ADR-0016 honradas (versoes exatas + coluna tenant_id por tabela). Riscos do spec absorvidos e 3 riscos operacionais novos adicionados com mitigacao. Rollback trivial via git revert, 4 cenarios pos-spike planejados. Politica de --legacy-peer-deps com ordem de fallback explicita evita mascaramento. Identificados 2 findings S4 nao bloqueantes: (F-001) redacao do passo 2 nao enfatiza exemplos JSON concretos exigidos por AC-001; (F-002) allowlist regex do gate global pode ser fragil para caminhos auxiliares. Ambos sao refinamentos opcionais. Verdict: approved."
+  }
+}

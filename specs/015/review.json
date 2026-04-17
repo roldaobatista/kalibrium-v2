@@ -1,0 +1,162 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "code-review",
+  "slice": "015",
+  "lane": "L3",
+  "agent": "architecture-expert",
+  "mode": "code-review",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T22:30:00Z",
+  "commit_hash": "d520acf",
+  "isolation_context": "slice-015-review-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 2,
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 2,
+    "S5": 0
+  },
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "O arquivo `spike-inf007/npm-install.log` eh declarado como entregavel em `specs/015/plan.md` secao 4 (tabela 'A criar') e referenciado pelo teste AC-002 em `tests/slice-015/SpikeInf007Test.php:135`, mas a validacao AC-002 passa por causa do OR logico (secao 'Evidencia npm install' inline em stack-versions.md). Se o arquivo existe mas contem apenas justificativa (conforme README.md:15), o conteudo deve deixar explicito que eh placeholder — caso contrario um future reader pode interpretar o nome do arquivo como evidencia real de execucao bem-sucedida.",
+      "file": "spike-inf007/README.md",
+      "line": 15,
+      "evidence": "README.md:15 diz 'Se o arquivo contém apenas a justificativa de ambiente sem execução, E15-S02 deve substituí-lo por um log real.' — redacao aceitavel, mas o nome `npm-install.log` sem prefixo/sufixo (ex: `.placeholder`) pode gerar confusao. Rastreabilidade e simplicidade (P5/P7) ficam marginalmente afetadas.",
+      "recommendation": "Em E15-S02, ou renomear para `spike-inf007/npm-install.log.placeholder` ate a captura real, ou garantir que a primeira linha do arquivo atual seja `# PLACEHOLDER — npm install nao executado neste spike. Ver stack-versions.md secao 'Ambiente do PoC'.` Nao bloqueia o gate — a secao inline satisfaz AC-002 via OR."
+    },
+    {
+      "id": "F-002",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "`docs/frontend/api-endpoints.md` declara na tabela 'Auth (E02)' que varios endpoints sao servidos por 'closure inline (`routes/web.php:67`)' etc., mas o paragrafo introdutorio (linha 7) afirma 'Fonte primaria: routes/web.php + controllers'. A referencia `line:67` e demais numeros de linha em closures e um snapshot volatil — se routes/web.php mudar uma linha, os ponteiros ficam errados. A secao 'Validade' ja declara snapshot de HEAD, mas as refs numericas nao ganham robustez adicional.",
+      "file": "docs/frontend/api-endpoints.md",
+      "line": 22,
+      "evidence": "api-endpoints.md:22-31 — 'closure inline (`routes/web.php:67`)', 'routes/web.php:168', 'routes/web.php:418'. Pequeno refactor em routes/web.php invalida estes ponteiros silenciosamente. O spec AC-001 nao exige numeros de linha, apenas URL+metodo+headers+payload+response.",
+      "recommendation": "Em E15-S02 substituir `routes/web.php:67` por ancora mais estavel (ex: `Route::post('/auth/login', ...)` literal ou nome simbolico), ou simplesmente remover os numeros de linha. Nao bloqueia o gate porque a secao 'Validade' ja avisa que o snapshot eh do HEAD e AC-001 nao exige ancora estavel."
+    }
+  ],
+  "evidence": {
+    "review_dimensions": {
+      "architecture_follows_plan": true,
+      "responsibilities_clear": true,
+      "no_code_smells": true,
+      "patterns_correct": true,
+      "tenant_isolation": true,
+      "error_handling": true,
+      "adr_adherence": true
+    },
+    "max_cyclomatic_complexity": 2,
+    "max_class_length": 0,
+    "max_method_length": 52,
+    "duplications_found": 0,
+    "god_classes": [],
+    "fat_controllers": [],
+    "raw_sql_without_binding": [],
+    "business_logic_in_controllers": [],
+    "routes_without_middleware": [],
+    "unused_imports": [],
+    "adr_adherence_checked": ["ADR-0015", "ADR-0016"],
+    "artifacts_reviewed": {
+      "docs/frontend/api-endpoints.md": {
+        "markdown_tables_valid": true,
+        "required_sections_present": ["Endpoints", "Schema local"],
+        "auth_mapped": true,
+        "tenants_mapped": true,
+        "healthcheck_mapped": true,
+        "schema_local_declares_tenant_id": true,
+        "tenant_id_declared_count": "9 de 11 tabelas espelhadas (tenants e users sao casos especiais documentados)",
+        "adr_0016_rationale_present": true,
+        "traceability_to_spec_plan": true,
+        "typos_found": 0
+      },
+      "docs/frontend/stack-versions.md": {
+        "markdown_tables_valid": true,
+        "required_sections_present": ["Ambiente do PoC", "Versoes validadas", "Riscos de plataforma", "Descarte", "Pre-condicoes E15-S02", "Decisoes de design do spike"],
+        "sqlcipher_verdict_explicit": "(a) sem bloqueador conhecido — preliminar",
+        "verdict_preliminar_flagged": true,
+        "escape_hatch_to_plan_b_documented": true,
+        "descarte_lists_blade_livewire_js_css": true,
+        "checklist_items_count": 7,
+        "checklist_items_required_min": 6,
+        "checklist_items_with_owner": 2,
+        "decisions_reversibility_declared": ["D-1 media", "D-2 facil", "D-3 facil"],
+        "typos_found": 0
+      },
+      "spike-inf007/package.json": {
+        "private_true": true,
+        "versions_match_adr_0015": true,
+        "engine_node_constrained": ">=20.0.0 <21.0.0",
+        "no_unnecessary_deps": true,
+        "no_production_deps_leaked": true,
+        "scripts_minimal": true,
+        "declared_packages": ["react 18.3.1", "react-dom 18.3.1", "@ionic/react 8.2.6", "@ionic/react-router 8.2.6", "@capacitor/core 6.1.2", "@capacitor/ios 6.1.2", "@capacitor/android 6.1.2", "@capacitor-community/sqlite 6.0.2", "@capacitor/cli 6.1.2", "@vitejs/plugin-react 4.3.0", "typescript 5.4.5", "vite 5.2.11"]
+      },
+      "spike-inf007/README.md": {
+        "explains_disposable": true,
+        "explains_does_not_become_production": true,
+        "explains_reproduction_steps": true,
+        "fallback_order_documented": true,
+        "forbid_force_declared": true
+      },
+      "spike-inf007/.gitignore": {
+        "ignores_node_modules": true,
+        "ignores_dist": true,
+        "ignores_vite_cache": true
+      },
+      "tests/slice-015/SpikeInf007Test.php": {
+        "ac_id_traceability": "cada test() contem AC-NNN + @covers AC-NNN + group('ac-NNN')",
+        "assertions_semantically_meaningful": true,
+        "no_test_duplication": true,
+        "strict_types_declared": true,
+        "psr12_compliant": true,
+        "no_hardcoded_paths": true,
+        "helper_repoRoot_isolated": true
+      }
+    },
+    "constitution_adherence": {
+      "P1_gate_objective_preceded_opinion": true,
+      "P2_test_before_code": "testes red criados pre-artefato, auditados e depois green via artefatos",
+      "P5_single_source_of_truth": "nenhum arquivo proibido R1 criado (.cursorrules, AGENTS.md etc.)",
+      "P7_verification_before_affirmation": "verification.json previo mostra pest_exit_code=0, 8 testes passed, 40 assertions",
+      "P9_zero_bypass": true
+    },
+    "adr_consistency": {
+      "ADR-0015": "spike-inf007/package.json fixa versoes exatas (React 18.3.1, TypeScript 5.4.5, Ionic 8.2.6, Capacitor 6.1.2, sqlite 6.0.2, Vite 5.2.11) alinhadas a ADR-0015; stack-versions.md registra decisao D-1 de manter ADR-0015 como esta",
+      "ADR-0016": "api-endpoints.md secao 'Schema local' declara tenant_id em cada tabela espelhada conforme ADR-0016; notas criticas reforcam enforcement local offline (RLS nao se aplica)"
+    },
+    "scope_discipline": {
+      "no_production_code_touched": true,
+      "no_sealed_files_touched": true,
+      "artifacts_only_in_allowlist": true,
+      "allowed_paths": ["docs/frontend/", "spike-inf007/", "tests/slice-015/", "specs/015/"]
+    },
+    "security_check": {
+      "no_hardcoded_secrets_in_poc": true,
+      "no_tokens_in_package_json": true,
+      "no_pii_in_artifacts": true,
+      "node_modules_gitignored": true,
+      "no_private_registry_leakage": true
+    },
+    "simplicity_check": {
+      "features_match_6_acs": true,
+      "no_feature_creep": true,
+      "no_speculative_generalization": true
+    },
+    "traceability_check": {
+      "api_endpoints_md_references_spec": true,
+      "api_endpoints_md_references_adrs": true,
+      "stack_versions_md_references_spec": true,
+      "stack_versions_md_references_plan": true,
+      "stack_versions_md_references_adrs": true,
+      "spike_readme_references_all": true
+    },
+    "summary": "Code-review do slice 015 APROVADO. Artefatos documentais (docs/frontend/api-endpoints.md, docs/frontend/stack-versions.md) sao completos, bem estruturados em Markdown valido, com todas as secoes exigidas pelos testes AC-001 a AC-006. spike-inf007/package.json declara versoes exatas de ADR-0015 com engine Node constrained e private:true; sem dependencias excedentes. README.md do PoC eh explicito sobre descartabilidade e reproducao. .gitignore cobre node_modules+dist+cache Vite. Testes PHP em tests/slice-015/ sao limpos, PSR-12, strict_types, com rastreabilidade AC-ID completa (nome+docblock+group) conforme ADR-0017 Mudanca 1. Nenhum arquivo de producao tocado (confirmado pelo verification.json scope_check). Aderencia a ADR-0015 (versoes) e ADR-0016 (tenant_id por tabela) validada. Principios P1/P2/P5/P7/P9 respeitados. Dois findings S4 nao bloqueantes identificados: (F-001) nome do arquivo npm-install.log pode confundir future readers se for placeholder sem prefixo; (F-002) referencias numericas a routes/web.php:NNN sao snapshot volatil. Ambos sao refinamentos opcionais para E15-S02. Zero findings S1-S3. Verdict: approved."
+  }
+}

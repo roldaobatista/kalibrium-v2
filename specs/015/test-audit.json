@@ -1,0 +1,80 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "audit-tests",
+  "slice": "015",
+  "lane": "L3",
+  "agent": "qa-expert",
+  "mode": "audit-tests",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T21:00:00Z",
+  "commit_hash": "d520acf",
+  "isolation_context": "slice-015-audit-tests-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 1,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 1, "S5": 0},
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "S4",
+      "severity_label": "low",
+      "gate_blocking": false,
+      "description": "Redundância de file_exists() no teste AC-002 de npm-install (tests/slice-015/SpikeInf007Test.php:139-143): o arquivo stack-versions.md já foi verificado no teste AC-002 anterior (linha 99). Se o arquivo não existir, ambos os testes falham pela mesma causa raiz, gerando ruído diagnóstico desnecessário. Não afeta a validade das assertions nem a rastreabilidade AC-ID. Finding herdado do audit-tests-draft F-001 — sem regressão identificada.",
+      "evidence": "tests/slice-015/SpikeInf007Test.php:139-143 — file_exists($stackVersionsPath) interno; idem linha 99 no teste de versões do mesmo AC."
+    }
+  ],
+  "evidence": {
+    "checks": {
+      "every_ac_has_test": true,
+      "tests_match_ac_intent": true,
+      "no_flaky_tests": true,
+      "no_empty_assertions": true,
+      "coverage_threshold_met": true,
+      "edge_cases_covered": true,
+      "no_implementation_testing": true
+    },
+    "ac_coverage_map": {
+      "AC-001": [
+        "tests/slice-015/SpikeInf007Test.php::AC-001: docs/frontend/api-endpoints.md existe",
+        "tests/slice-015/SpikeInf007Test.php::AC-001: api-endpoints.md mapeia auth, tenants e healthcheck"
+      ],
+      "AC-002": [
+        "tests/slice-015/SpikeInf007Test.php::AC-002: docs/frontend/stack-versions.md existe e declara versoes exatas",
+        "tests/slice-015/SpikeInf007Test.php::AC-002: PoC spike-inf007 possui evidencia de npm install sem erros"
+      ],
+      "AC-003": [
+        "tests/slice-015/SpikeInf007Test.php::AC-003: stack-versions.md tem secao Riscos de plataforma com verdict explicito"
+      ],
+      "AC-004": [
+        "tests/slice-015/SpikeInf007Test.php::AC-004: api-endpoints.md tem secao Schema local com tenant_id declarado"
+      ],
+      "AC-005": [
+        "tests/slice-015/SpikeInf007Test.php::AC-005: stack-versions.md tem secao Descarte listando frontend antigo"
+      ],
+      "AC-006": [
+        "tests/slice-015/SpikeInf007Test.php::AC-006: stack-versions.md tem checklist Pre-condicoes E15-S02 com 6 itens"
+      ]
+    },
+    "traceability_mechanism": "triple — name_contains_ac_id + @covers docblock + ->group('ac-NNN')",
+    "total_tests": 8,
+    "total_assertions": 40,
+    "pest_exit_code": 0,
+    "line_coverage_percent": "n/a — spike documental: nenhuma lógica PHP de produção; coverage não aplicável conforme critério do gate",
+    "assertion_density_min": 5,
+    "integration_level": "filesystem-only — zero Http::fake(), zero Model::factory(), zero DB queries. Correto para spike documental.",
+    "orphan_acs": [],
+    "order_dependent_tests": [],
+    "trivial_assertions": [],
+    "flaky_tests": [],
+    "skipped_tests": [],
+    "todo_tests": [],
+    "duplicate_tests": [],
+    "ac_intent_validation": {
+      "AC-001": "Testes verificam existência do arquivo E presença de conteúdo mandatório (auth/tenants/healthcheck, método HTTP, headers de autenticação). Assertions diretas sobre conteúdo do artefato — sem testar implementação. Verde: docs/frontend/api-endpoints.md confirmado em verification.json.",
+      "AC-002": "Testes verificam presença dos 7 pacotes obrigatórios por regex individual (React, TypeScript, Ionic, Capacitor, @capacitor-community/sqlite, SQLCipher, Vite) + semver declarado + evidência de npm install (aceita log OU seção inline). Lógica OR explícita no código alinha com flexibilidade prevista em plan.md §4. Verde: stack-versions.md:28-45 confirma todos os 7 pacotes com versões semver.",
+      "AC-003": "Teste verifica seção '## Riscos de plataforma' + verdict binário '(a) sem bloqueador' ou '(b) bloqueador identificado' + menção a iOS 17+/Android 14+. Assertions concretas e alinhadas ao AC. Verde: stack-versions.md:74 declara '(a) sem bloqueador conhecido'; seção existe; iOS 17/18 e Android 14/15 mencionados.",
+      "AC-004": "Teste verifica seção '## Schema local' + presença de tenant_id + tabela candidata a mirror. Verde: api-endpoints.md:97 contém seção Schema local; tenant_id declarado em 9 de 11 tabelas; tabelas clientes/contatos/users/tenants presentes.",
+      "AC-005": "Teste verifica seção '## Descarte' + referência a resources/views/.blade.php/Livewire + referência a resources/js + confirmação explícita de não-reaproveitamento via regex. Verde: stack-versions.md:84-113 contém seção Descarte com todos os elementos exigidos.",
+      "AC-006": "Teste verifica seção 'Pré-condições E15-S02' + extração do bloco por regex + contagem de itens de checklist (>= 6) + presença dos 4 temas obrigatórios (versões, auth, SQLCipher, descarte). Verde: 7 itens encontrados (>=6); temas auth/SQLCipher/versões/descarte presentes no bloco."
+    }
+  }
+}

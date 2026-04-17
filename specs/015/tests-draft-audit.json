@@ -1,0 +1,90 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "audit-tests-draft",
+  "slice": "015",
+  "lane": "L3",
+  "agent": "qa-expert",
+  "mode": "audit-tests-draft",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T20:00:00Z",
+  "commit_hash": "d520acf",
+  "isolation_context": "slice-015-audit-tests-draft-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 1,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 1, "S5": 0},
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "S4",
+      "severity_label": "low",
+      "gate_blocking": false,
+      "description": "Teste AC-002 ('PoC spike-inf007 possui evidencia de npm install sem erros') executa file_exists() em stack-versions.md internamente para verificar evidencia inline. Essa verificacao de existencia do arquivo e semanticamente redundante com o teste anterior de AC-002 ('existe e declara versoes exatas'), que ja cobre existencia do mesmo arquivo. A semantica dos dois testes e distinta (versoes vs evidencia npm), mas o file_exists() interno cria acoplamento desnecessario — se o arquivo nao existir, ambos os testes falham pela mesma razao raiz, gerando ruido diagnostico.",
+      "evidence": "tests/slice-015/SpikeInf007Test.php:139-143 — file_exists($stackVersionsPath) dentro do teste de evidencia npm; tests/slice-015/SpikeInf007Test.php:97-100 — file_exists($path) no teste de versoes, mesmo arquivo."
+    }
+  ],
+  "evidence": {
+    "checks": {
+      "every_ac_has_test": true,
+      "every_test_references_ac": true,
+      "tests_are_red": true,
+      "assertions_have_semantic_meaning": true,
+      "mocks_respect_ac_integration_level": true,
+      "no_duplicate_tests": true,
+      "edge_cases_from_spec_covered": true
+    },
+    "ac_coverage_map": {
+      "AC-001": {
+        "tests": [
+          "tests/slice-015/SpikeInf007Test.php::AC-001: docs/frontend/api-endpoints.md existe",
+          "tests/slice-015/SpikeInf007Test.php::AC-001: api-endpoints.md mapeia auth, tenants e healthcheck"
+        ],
+        "trace_method": "name_contains_ac_id + docblock_covers + group_ac_001"
+      },
+      "AC-002": {
+        "tests": [
+          "tests/slice-015/SpikeInf007Test.php::AC-002: docs/frontend/stack-versions.md existe e declara versoes exatas",
+          "tests/slice-015/SpikeInf007Test.php::AC-002: PoC spike-inf007 possui evidencia de npm install sem erros"
+        ],
+        "trace_method": "name_contains_ac_id + docblock_covers + group_ac_002"
+      },
+      "AC-003": {
+        "tests": [
+          "tests/slice-015/SpikeInf007Test.php::AC-003: stack-versions.md tem secao Riscos de plataforma com verdict explicito"
+        ],
+        "trace_method": "name_contains_ac_id + docblock_covers + group_ac_003"
+      },
+      "AC-004": {
+        "tests": [
+          "tests/slice-015/SpikeInf007Test.php::AC-004: api-endpoints.md tem secao Schema local com tenant_id declarado"
+        ],
+        "trace_method": "name_contains_ac_id + docblock_covers + group_ac_004"
+      },
+      "AC-005": {
+        "tests": [
+          "tests/slice-015/SpikeInf007Test.php::AC-005: stack-versions.md tem secao Descarte listando frontend antigo"
+        ],
+        "trace_method": "name_contains_ac_id + docblock_covers + group_ac_005"
+      },
+      "AC-006": {
+        "tests": [
+          "tests/slice-015/SpikeInf007Test.php::AC-006: stack-versions.md tem checklist Pre-condicoes E15-S02 com 6 itens"
+        ],
+        "trace_method": "name_contains_ac_id + docblock_covers + group_ac_006"
+      }
+    },
+    "test_run_summary": {
+      "total_tests": 8,
+      "red_as_expected": 8,
+      "unexpectedly_passing": 0,
+      "parse_errors": 0,
+      "red_reason": "docs/frontend/ e spike-inf007/ inexistentes — confirmado por ls: DIR_NOT_FOUND em ambos. Todos os testes falham em file_exists() na primeira assertion, que e falha pre-implementacao por ausencia de artefatos, nao erro de sintaxe ou infra."
+    },
+    "phpunit_testsuite_registered": true,
+    "phpunit_testsuite_entry": "phpunit.xml linha 45: <directory>tests/slice-015</directory>",
+    "integration_level": "filesystem-only — zero Http::fake(), zero Model::factory(), zero DB queries. Correto para spike documental.",
+    "unlinked_tests": [],
+    "trivial_assertions": [],
+    "duplicate_tests": [],
+    "traceability_mechanism": "triple — name_contains_ac_id + @covers docblock + ->group('ac-NNN')"
+  }
+}
