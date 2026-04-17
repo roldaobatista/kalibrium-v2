@@ -106,10 +106,29 @@ state = json.loads(Path(state_path).read_text(encoding="utf-8"))
 epics_status = state.get("epics_status") or {}
 
 def epic_stories(epic_code):
+    """Retorna dict de stories do epico. None significa 'epico nao decomposto
+    ainda' (diferente de {} que seria 'sem stories cadastradas')."""
     e = epics_status.get(epic_code)
     if not e:
         return None
+    if "stories" not in e:
+        return None
     return e.get("stories") or {}
+
+def epic_done(epic_code):
+    """True se o epico esta 100% concluido OU pausado intencionalmente.
+    - status merged/completed => concluido
+    - todas stories merged => concluido
+    - status em KALIBRIUM_BYPASS_STATUSES => pausa autorizada (libera cadeia)"""
+    status = epic_status(epic_code)
+    if status in ("merged", "completed"):
+        return True
+    if status in KALIBRIUM_BYPASS_STATUSES:
+        return True
+    stories = epic_stories(epic_code)
+    if not stories:
+        return False
+    return all(st == "merged" for st in stories.values())
 
 def epic_status(epic_code):
     e = epics_status.get(epic_code)
@@ -117,30 +136,89 @@ def epic_status(epic_code):
         return None
     return e.get("status")
 
+# Ordem canonica dos epicos MVP pos-ampliacao v3 (2026-04-17).
+# Fonte: docs/product/roadmap.md §7 + mvp-scope §8 (decisao PM 2026-04-16):
+#   "pausar E03 ate que E15 + E16 estejam prontos — E15/E16 sao foundational
+#    para toda UI/sync pos-ampliacao, e E03 sera retomado com frontend novo".
+# Por isso E03 fica DEPOIS de E15/E16 na ordem canonica pos-ampliacao.
+# Epicos E13, E14 sao post-MVP (fora da lista).
+KALIBRIUM_MVP_ORDER = [
+    "E01", "E02",                      # Fundacao: backend API + auth
+    "E15", "E16",                      # Foundational pos-ampliacao: PWA shell + sync engine
+    "E03",                             # CRUD cliente (retomado com frontend novo apos E15/E16)
+    "E04", "E05", "E06", "E07", "E08", # MVP original: fluxo/calibracao/NFSe/financeiro/relatorios
+    "E09", "E10", "E11", "E12",        # MVP original: dashboard/planos/OS/notificacoes
+    "E17", "E18", "E19", "E20",        # Ampliacao v1: UMC/caixa/estoque/CRM vendedor
+    "E21", "E22", "E23",               # Ampliacao v2: compliance/SPC/revalidacao
+    "E24", "E25",                      # Ampliacao v3: ISO 17025+ / reforma tributaria
+]
+
+# Status especiais que NAO bloqueiam (epico foi pausado/desviado por decisao do PM).
+# Usado pelo epic_done() para tratar o epico como "liberado" na cadeia de ordem.
+KALIBRIUM_BYPASS_STATUSES = {"paused-for-ampliation"}
+
 def mvp_epics():
-    """Lista codigos de epicos MVP do mvp-scope.md. Fallback para E01..E12."""
+    """Lista codigos de epicos MVP na ordem canonica.
+    Prioriza docs/product/mvp-scope.md se ele declarar uma lista explicita,
+    senao usa KALIBRIUM_MVP_ORDER. Fallback legado: E01..E12."""
     try:
         text = Path(mvp_path).read_text(encoding="utf-8")
     except FileNotFoundError:
-        return [f"E{i:02d}" for i in range(1, 13)]
-    codes = re.findall(r"\bE(\d{2})\b", text)
-    codes = sorted(set(codes))
-    # filtrar apenas MVP (01..12 por padrao do Kalibrium)
-    mvp = [f"E{c}" for c in codes if 1 <= int(c) <= 12]
-    return mvp or [f"E{i:02d}" for i in range(1, 13)]
+        return list(KALIBRIUM_MVP_ORDER)
+    # Se o mvp-scope.md declarar "MVP ORDER:" ou "## Ordem canonica", respeita
+    explicit = re.search(r"(?ms)^##\s+Ordem canonica.*?\n(.+?)(?:\n##|\Z)", text)
+    if explicit:
+        codes = re.findall(r"\bE(\d{2})\b", explicit.group(1))
+        ordered = []
+        seen = set()
+        for c in codes:
+            code = f"E{c}"
+            if code not in seen:
+                ordered.append(code); seen.add(code)
+        if ordered:
+            return ordered
+    # Senao usa a ordem canonica hard-coded (aditiva: nao diminui do que ja existia)
+    return list(KALIBRIUM_MVP_ORDER)
 
 def previous_epic(code):
+    """Retorna o epico anterior na ordem MVP canonica (nao a ordem numerica).
+    Pos-ampliacao: apos E03 vem E15, depois E16, so entao E04. Epicos fora
+    do MVP caem em fallback numerico."""
+    order = mvp_epics()
+    if code in order:
+        idx = order.index(code)
+        if idx == 0:
+            return None
+        return order[idx - 1]
+    # Fallback numerico para epicos nao-MVP (E13, E14)
     num = int(code[1:])
     if num <= 1:
         return None
     return f"E{num - 1:02d}"
 
 def story_number(story_code):
-    m = re.match(r"E\d{2}-S(\d+)$", story_code)
+    """Extrai numero base da story, aceitando sufixo alfabetico opcional.
+    Ex.: E03-S01 -> 1, E03-S01a -> 1, E03-S02b -> 2."""
+    m = re.match(r"E\d{2}-S(\d+)[A-Za-z]?$", story_code)
     return int(m.group(1)) if m else None
+
+def story_suffix(story_code):
+    """Retorna sufixo alfabetico da story ou ''. Ex.: E03-S01a -> 'a'."""
+    m = re.match(r"E\d{2}-S\d+([A-Za-z])?$", story_code)
+    return (m.group(1) or "") if m else ""
 
 def epic_of_story(story_code):
     return story_code.split("-")[0]
+
+def all_previous_blocking_epics(code):
+    """Retorna todos os epicos MVP anteriores a `code` na ordem canonica
+    que NAO estao `done` (considerando bypass paused-for-ampliation).
+    Vazio => cadeia anterior toda resolvida."""
+    order = mvp_epics()
+    if code not in order:
+        return []
+    idx = order.index(code)
+    return [e for e in order[:idx] if not epic_done(e)]
 
 def load_story_dependencies(story_code):
     """Le dependencies declaradas no frontmatter da story contract.
@@ -179,18 +257,23 @@ def main():
             sys.exit(3)
         epic = epic_of_story(story)
 
-        # R14 primeiro: se for primeira story do epico, validar epico anterior
+        # R14: se for primeira story do epico, validar TODA a cadeia anterior
+        # (nao so o imediatamente anterior — bypass/paused pula o epico mas a
+        # cadeia de dependencias continua valendo).
         if num == 1 and epic in mvp_epics():
-            prev = previous_epic(epic)
-            if prev and prev in mvp_epics():
-                prev_stories = epic_stories(prev)
-                if prev_stories is None:
-                    print(f"[sequencing-check BLOCK-R14] epico anterior {prev} nao registrado em project-state.json[epics_status]", file=sys.stderr)
-                    sys.exit(2)
-                pending = [s for s, st in prev_stories.items() if st != "merged"]
-                if pending:
-                    print(f"[sequencing-check BLOCK-R14] epico {prev} tem {len(pending)} story(s) pendentes antes de iniciar {epic}: {', '.join(sorted(pending))}", file=sys.stderr)
-                    sys.exit(2)
+            blocking = all_previous_blocking_epics(epic)
+            if blocking:
+                details = []
+                for b in blocking:
+                    st = epic_status(b) or "desconhecido"
+                    stories = epic_stories(b)
+                    if stories is None:
+                        details.append(f"{b}(nao-decomposto/{st})")
+                    else:
+                        pending = [s for s, v in stories.items() if v != "merged"]
+                        details.append(f"{b}({len(pending)}-pendentes)")
+                print(f"[sequencing-check BLOCK-R14] {epic} bloqueado — epicos anteriores na ordem canonica pos-ampliacao ainda abertos: {', '.join(details)}", file=sys.stderr)
+                sys.exit(2)
 
         # R13: stories anteriores do mesmo epico
         deps = load_story_dependencies(story)
@@ -223,20 +306,21 @@ def main():
         if epic not in mvp_epics():
             print(f"[sequencing-check OK] {epic} nao e MVP, R14 nao se aplica")
             sys.exit(0)
-        prev = previous_epic(epic)
-        if prev is None or prev not in mvp_epics():
-            print(f"[sequencing-check OK] {epic} e o primeiro MVP ou anterior e pre-MVP")
+        blocking = all_previous_blocking_epics(epic)
+        if not blocking:
+            print(f"[sequencing-check OK] {epic} liberado (R14)")
             sys.exit(0)
-        prev_stories = epic_stories(prev)
-        if prev_stories is None:
-            print(f"[sequencing-check BLOCK-R14] epico anterior {prev} nao registrado em project-state.json[epics_status]", file=sys.stderr)
-            sys.exit(2)
-        pending = [s for s, st in prev_stories.items() if st != "merged"]
-        if pending:
-            print(f"[sequencing-check BLOCK-R14] epico {prev} tem pendencias: {', '.join(sorted(pending))}", file=sys.stderr)
-            sys.exit(2)
-        print(f"[sequencing-check OK] {epic} liberado (R14)")
-        sys.exit(0)
+        details = []
+        for b in blocking:
+            st = epic_status(b) or "desconhecido"
+            stories = epic_stories(b)
+            if stories is None:
+                details.append(f"{b}(nao-decomposto/{st})")
+            else:
+                pending = [s for s, v in stories.items() if v != "merged"]
+                details.append(f"{b}({len(pending)}-pendentes)")
+        print(f"[sequencing-check BLOCK-R14] {epic} bloqueado — epicos anteriores na ordem canonica ainda abertos: {', '.join(details)}", file=sys.stderr)
+        sys.exit(2)
 
     print(f"[sequencing-check FAIL] modo desconhecido: {mode}", file=sys.stderr)
     sys.exit(3)
