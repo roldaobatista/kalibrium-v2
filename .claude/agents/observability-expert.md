@@ -147,10 +147,11 @@ Valida que o slice implementa observabilidade adequada: logs estruturados, healt
       "no_n_plus_1_undetected": true
     },
     "log_quality": {
-      "structured_count": 0,
-      "unstructured_count": 0,
+      "structured_log_ratio": 0.98,
       "pii_violations": []
     }
+    // structured_log_ratio: float em [0.0, 1.0] — threshold >= 0.95
+    //   (ratio de log calls estruturadas / total de log calls no slice; < 0.95 bloqueia gate)
   }
 }
 ```
