@@ -21,9 +21,11 @@ const LINT_SEED = path.join(SRC_DIR, '__lint_check__.tsx');
 const NPM_CMD = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
 
 function runNpm(args) {
+    // shell: true no Windows porque Node 24 (pós CVE-2024-27980) recusa
+    // executar .cmd sem shell; em Unix `shell: true` é inócuo.
     return spawnSync(NPM_CMD, args, {
         cwd: REPO_ROOT,
-        shell: false,
+        shell: true,
         encoding: 'utf8',
         env: { ...process.env, CI: '1' },
         timeout: 180_000,

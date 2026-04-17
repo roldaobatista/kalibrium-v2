@@ -26,7 +26,7 @@ describe('AC-003: Capacitor iOS platform added and syncable (macOS only)', { ski
         // and returns non-zero. Treat "already exists" as acceptable.
         const res = spawnSync(NPX_CMD, ['cap', 'add', 'ios'], {
             cwd: REPO_ROOT,
-            shell: false,
+            shell: true,
             encoding: 'utf8',
             timeout: 600_000,
             env: { ...process.env },
@@ -42,7 +42,7 @@ describe('AC-003: Capacitor iOS platform added and syncable (macOS only)', { ski
     test('AC-003: npx cap sync ios exits with code 0', () => {
         const res = spawnSync(NPX_CMD, ['cap', 'sync', 'ios'], {
             cwd: REPO_ROOT,
-            shell: false,
+            shell: true,
             encoding: 'utf8',
             timeout: 600_000,
             env: { ...process.env },

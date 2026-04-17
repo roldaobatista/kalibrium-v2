@@ -63,7 +63,8 @@ test.describe('AC-009: npm run dev announces port occupation (edge of AC-001)', 
 
         const child = spawn(cmd, ['run', 'dev'], {
             cwd,
-            shell: false,
+            // shell: true no Windows (Node 24 CVE-2024-27980 endureceu spawn de .cmd)
+            shell: true,
             env: { ...process.env, CI: '1' },
         });
 

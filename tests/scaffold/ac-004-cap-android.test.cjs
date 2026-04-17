@@ -5,7 +5,7 @@
 
 'use strict';
 
-const { describe, test } = require('node:test');
+const { describe, test, before } = require('node:test');
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
@@ -14,13 +14,35 @@ const os = require('node:os');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const ANDROID_DIR = path.join(REPO_ROOT, 'android');
+const DIST_DIR = path.join(REPO_ROOT, 'dist');
 const NPX_CMD = os.platform() === 'win32' ? 'npx.cmd' : 'npx';
+const NPM_CMD = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
 
 describe('AC-004: Capacitor Android platform added and syncable', () => {
+    before(() => {
+        // cap sync android exige dist/ com index.html. ac-002-build-web limpa
+        // dist/ no seu teardown, logo aqui garantimos que o build existe
+        // antes de rodar o sync (independente da ordem dos testes).
+        if (!fs.existsSync(path.join(DIST_DIR, 'index.html'))) {
+            const res = spawnSync(NPM_CMD, ['run', 'build'], {
+                cwd: REPO_ROOT,
+                shell: true,
+                encoding: 'utf8',
+                timeout: 180_000,
+                env: { ...process.env, CI: '1' },
+            });
+            if (res.status !== 0) {
+                throw new Error(
+                    `Pré-condição AC-004 falhou: npm run build status=${res.status}\n${res.stdout}\n${res.stderr}`,
+                );
+            }
+        }
+    });
+
     test('AC-004: npx cap add android exits with code 0 (or already exists)', () => {
         const res = spawnSync(NPX_CMD, ['cap', 'add', 'android'], {
             cwd: REPO_ROOT,
-            shell: false,
+            shell: true,
             encoding: 'utf8',
             timeout: 600_000,
             env: { ...process.env },
@@ -36,7 +58,7 @@ describe('AC-004: Capacitor Android platform added and syncable', () => {
     test('AC-004: npx cap sync android exits with code 0', () => {
         const res = spawnSync(NPX_CMD, ['cap', 'sync', 'android'], {
             cwd: REPO_ROOT,
-            shell: false,
+            shell: true,
             encoding: 'utf8',
             timeout: 600_000,
             env: { ...process.env },

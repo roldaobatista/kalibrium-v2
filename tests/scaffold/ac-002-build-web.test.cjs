@@ -20,9 +20,10 @@ const SRC_DIR = path.join(REPO_ROOT, 'src');
 const NPM_CMD = os.platform() === 'win32' ? 'npm.cmd' : 'npm';
 
 function runNpm(args, opts = {}) {
+    // shell: true no Windows (Node 24+ CVE-2024-27980 endureceu spawn de .cmd).
     return spawnSync(NPM_CMD, args, {
         cwd: REPO_ROOT,
-        shell: false,
+        shell: true,
         encoding: 'utf8',
         env: { ...process.env, CI: '1' },
         timeout: 180_000,
