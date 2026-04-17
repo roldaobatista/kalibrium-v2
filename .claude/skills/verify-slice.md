@@ -112,7 +112,7 @@ bash scripts/verify-slice.sh "$1"
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `qa-expert` (modo: verify) | worktree isolada | 25k tokens |
+| `qa-expert` (modo: verify) | sandbox via `scripts/hooks/verifier-sandbox.sh` (read-only mount) | 25k tokens |
 
 ## Conformidade com protocolo v1.2.2
 

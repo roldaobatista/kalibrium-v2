@@ -88,7 +88,7 @@ Atualizar `project-state.json` gates_status.
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `qa-expert` (modo: audit-tests) | worktree isolada | 25k tokens |
+| `qa-expert` (modo: audit-tests) | sandbox via `scripts/hooks/verifier-sandbox.sh` (read-only mount) | 25k tokens |
 
 ## Handoff
 - `approved` → proximo gate (`/functional-review NNN`)
