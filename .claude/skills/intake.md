@@ -89,10 +89,9 @@ PM: <nome>
 ### Fase 3 — Disparo de sub-agents
 
 Apos registrar respostas:
-1. Spawn `product-expert` (modo: discovery) para produzir glossario, modelo de dominio, riscos, suposicoes.
-2. Spawn `product-expert` (modo: discovery/NFR) para produzir NFRs estruturados.
+1. Spawn `product-expert` (modo: discovery) — **unica invocacao consolidada** que produz, num so output package, glossario + modelo de dominio + riscos + suposicoes + NFRs estruturados com metricas mensuraveis.
 
-Ambos em **sequencia** (product-expert (discovery) primeiro para glossário, pois product-expert (discovery/NFR) usa o glossario).
+Nao ha modo `nfr-analysis` separado no mapa canonico v1.2.2 — os NFRs sao entregaveis do mesmo modo `discovery` conforme `.claude/agents/product-expert.md §Modo 1: discovery`.
 
 ### Fase 4 — Resumo ao PM
 
