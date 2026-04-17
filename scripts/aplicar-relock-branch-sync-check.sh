@@ -27,8 +27,10 @@ cd "$REPO_ROOT"
 say()  { echo "[relock-bsc] $*"; }
 fail() { echo "[relock-bsc FAIL] $*" >&2; exit 1; }
 
-# Pré-condições
-[ "${KALIB_RELOCK_AUTHORIZED:-0}" = "1" ] || fail "KALIB_RELOCK_AUTHORIZED=1 é obrigatório (use o .bat)"
+# Autorização: vem do próprio ato de rodar o .bat (cmd.exe não propaga env
+# vars confiavelmente para bash.exe no Git Bash; padrão usado pelo script
+# gêmeo aplicar-relock-adr-0017-0019.sh é exportar a var antes do relock).
+# A autorização real vem da TTY + digitação literal RELOCK em relock-harness.sh.
 
 SRC="scripts/staging/branch-sync-check.sh"
 DST="scripts/hooks/branch-sync-check.sh"
@@ -100,6 +102,7 @@ fi
 # 4. Rodar relock-harness.sh
 say "invocando relock-harness.sh (você precisará digitar RELOCK)..."
 echo ""
+export KALIB_RELOCK_AUTHORIZED=1
 if ! bash scripts/relock-harness.sh; then
   say "relock-harness.sh falhou (exit $?)"
   say "você pode reverter com: mv $SS.bak-$TS $SS"
