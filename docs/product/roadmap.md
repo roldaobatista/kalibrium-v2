@@ -1,21 +1,28 @@
 # Roadmap de slices - Kalibrium MVP
 
-**Versao:** 1 (inicial)
-**Data:** 2026-04-12
-**Construido por:** /next-slice wizard
-**Base:** PRD congelado, escopo MVP, jornadas, personas, `epics/ROADMAP.md`, ADR-0001 e ADR-0002
+**Versao:** 2 (ampliada 2026-04-16)
+**Data:** 2026-04-12 (original) + 2026-04-16 (ampliação offline-first)
+**Construido por:** /next-slice wizard + ampliação manual
+**Base:** PRD congelado → **EM REVISÃO** (ver `docs/incidents/discovery-gap-offline-2026-04-16.md`), escopo MVP ampliado, jornadas 1-11, 8 personas, `epics/ROADMAP.md` ampliado (20 épicos), ADR-0001 (backend) e ADR-0015 (stack offline-first mobile)
+**Backup v1 original:** `roadmap-backup-2026-04-16.md`
+
+## 🔄 STATUS 2026-04-16
+
+Este roadmap foi **ampliado** após discovery de offline-first sistêmico. Os slices 001-014 já executados (merged) permanecem válidos no backend. O frontend de todos esses slices será refeito em stack nova (ver ADR-0015).
+
+**Decisão do PM em 2026-04-16:** pausar a execução de slices de E03 (015, 016+ estão em planejamento) até que E15 (PWA shell offline-first) + E16 (sync engine) estejam prontos. Esses dois novos épicos precisam ser decompostos em stories e implementados **antes** de retomar os slices de negócio (E04+).
 
 ## Convencoes
 
 - Ordem reflete dependencias hard, nao preferencia subjetiva.
 - Codigo `DOMAIN-NNN` e semantico; `specs/NNN/` e posicional.
-- `specs/001` a `specs/005` ja foram usados para E01, setup e infraestrutura.
-- E01 ainda tem um slice pendente: Frontend base (Vite 8 + Tailwind CSS 4 + Livewire 4 + Alpine.js).
+- `specs/001` a `specs/014` ja foram usados (E01 completo + E02 completo + E03 stories 001a-003a).
 - `specs/900` e smoke test de harness, nao e slice de produto.
 - ADRs bloqueantes devem ser decididos antes do slice iniciar.
 - Slices com UI tambem dependem do pacote documental do epico correspondente: wireframes, ERD, API contracts, user flows e migrations spec.
+- **Novo 2026-04-16:** slices de frontend (com UI) a partir de 015+ usam stack nova (PWA + Ionic + Capacitor) conforme ADR-0015. Stories anteriores tinham frontend Livewire/Blade que será descartado.
 
-## Lista ordenada
+## Lista ordenada (original — slices 001-014)
 
 ### 0. INF-006 - Frontend base do sistema
 
@@ -125,84 +132,98 @@
 - **O que entrega:** cadastro de padroes de referencia, validade/rastreabilidade e procedimentos de calibracao versionados
 - **Por que nessa ordem:** a calibracao so pode usar padroes vigentes e procedimentos definidos.
 
-### 7. FLX-001 - Nova ordem de servico
+---
 
-- **NNN sugerido:** 015
-- **Dominio:** FLX
-- **Epico base:** E04 - Ordens de Servico e Fluxo Operacional
-- **Depende de:** MET-002
-- **ADRs bloqueantes:** nenhum
-- **Outros bloqueios:** documentacao por epico E04 antes de implementar UI
-- **Tamanho:** medio
-- **O que entrega:** criacao de OS a partir de cliente, instrumento, procedimento, prazo e tecnico responsavel
-- **Por que nessa ordem:** este e o primeiro ponto em que o laboratorio registra um pedido real.
+## 🔄 INSERIDO EM 2026-04-16 — NOVOS SLICES FOUNDATIONAL ANTES DE E04+
 
-### 8. FLX-002 - Agenda, fila e status da OS
+Antes de prosseguir com FLX-001 (slice 015, criação de OS), **E15 e E16 precisam ser decompostos em stories e implementados**. Isso reverte a intenção original de seguir para E04 logo após E03, mas é inevitável: sem PWA shell + sync engine, a OS não vai funcionar offline, e o negócio real do cliente exige offline.
+
+### 7a. INF-007 — Spike técnico: auditoria de reaproveitamento E01/E02/E03
+
+- **NNN sugerido:** 015 (mudança: este era FLX-001 antes; agora é spike técnico)
+- **Dominio:** INF
+- **Epico base:** E15 - PWA Shell Offline-First (pré-trabalho)
+- **Depende de:** ADR-0015 aprovada
+- **ADRs bloqueantes:** ADR-0015
+- **Tamanho:** pequeno (1-2 dias de spike)
+- **O que entrega:** relatório técnico do que de E01/E02/E03 é aproveitável (backend, rotas, modelos, migrations, auth) e o que precisa ser refeito (frontend Livewire/Blade descartado, sessão → JWT long-lived, device binding, biometria).
+- **Por que primeiro:** sem este relatório, E15 pode duplicar trabalho já feito ou perder aproveitamento.
+
+### 7b. INF-008 — E15-S01: scaffold do projeto PWA (React + Ionic + Capacitor)
 
 - **NNN sugerido:** 016
-- **Dominio:** FLX
-- **Epico base:** E04 - Ordens de Servico e Fluxo Operacional
-- **Depende de:** FLX-001
-- **ADRs bloqueantes:** ADR-0003 se notificacoes assíncronas forem implementadas neste slice
-- **Outros bloqueios:** documentacao por epico E04 antes de implementar UI
+- **Dominio:** INF / PWA
+- **Epico base:** E15
+- **Depende de:** INF-007 (spike)
 - **Tamanho:** medio
-- **O que entrega:** agendamento, fila do tecnico, status da OS e checklist operacional
-- **Por que nessa ordem:** depois de criar o pedido, o laboratorio precisa saber quem faz o que e quando.
+- **O que entrega:** projeto frontend novo (React + TS + Ionic + Capacitor) buildando para web/iOS/Android; CI configurado; deploy de ambiente de teste.
 
-### 9. MET-003 - Execucao de calibracao na bancada
+### 7c. SEG-004 — E15-S02: auth JWT long-lived + refresh + device binding + biometria
 
 - **NNN sugerido:** 017
-- **Dominio:** MET
-- **Epico base:** E05 - Laboratorio e Calibracao
-- **Depende de:** FLX-002
-- **ADRs bloqueantes:** nenhum tecnico adicional conhecido
-- **Outros bloqueios:** documentacao por epico E05 antes de implementar UI; PD-003/ASS-018 antes de usar planilha de procedimento como base formal
-- **Tamanho:** grande
-- **O que entrega:** tela de bancada para registrar pontos medidos, condicoes ambientais e padroes usados
-- **Por que nessa ordem:** e o primeiro slice que tira o tecnico da anotacao em papel/planilha solta.
+- **Dominio:** SEG
+- **Epico base:** E15 (complementa E02)
+- **Depende de:** INF-008
+- **ADRs bloqueantes:** ADR-0015
+- **Tamanho:** medio-grande
+- **O que entrega:** login com JWT (7-14 dias), refresh transparente, device binding (primeiro login aprovado pelo admin), biometria via Capacitor Biometric, WebAuthn fallback.
 
-### 10. MET-004 - Incerteza, historico tecnico e lacres/selos
+### 7d. SEG-005 — E15-S03: criptografia local + wipe remoto
 
 - **NNN sugerido:** 018
-- **Dominio:** MET
-- **Epico base:** E05 - Laboratorio e Calibracao
-- **Depende de:** MET-003
-- **ADRs bloqueantes:** nenhum tecnico adicional conhecido
-- **Outros bloqueios:** PD-003/ASS-018 para calculo de incerteza via planilha; consultor de metrologia para casos de referencia
-- **Tamanho:** grande
-- **O que entrega:** calculo de incerteza, historico do instrumento, lacres/selos e bloqueio de padrao vencido
-- **Por que nessa ordem:** sem incerteza e rastreabilidade, o certificado nao tem valor metrologico.
+- **Dominio:** SEG
+- **Epico base:** E15
+- **Depende de:** SEG-004
+- **Tamanho:** medio
+- **O que entrega:** SQLite + SQLCipher criptografado localmente; fluxo de wipe remoto (admin aciona pelo backend, próxima abertura do app limpa dados).
 
-### 11. CMP-001 - Aprovacao, certificado e entrega ao cliente
+### 7e. SYN-001 — E16-S01: PoC técnico sync engine (PowerSync vs ElectricSQL vs custom)
 
 - **NNN sugerido:** 019
-- **Dominio:** CMP
-- **Epico base:** E06 - Certificado de Calibracao; E09 - Portal do Cliente Final; E12 - Comunicacao
-- **Depende de:** MET-004
-- **ADRs bloqueantes:** ADR-0003 (filas/background jobs), ADR-0005 (storage de documentos)
-- **Outros bloqueios:** PD-003/ASS-012 para regra final de cancelamento/substituicao do certificado; consultor de metrologia para formato de certificado
-- **Tamanho:** grande
-- **O que entrega:** aprovacao pelo gerente, certificado PDF numerado, link seguro de download e log de acesso
-- **Por que nessa ordem:** o cliente paga pelo certificado; esse e o documento final da operacao tecnica.
+- **Dominio:** SYN
+- **Epico base:** E16
+- **Depende de:** SEG-005 + INF-008
+- **Tamanho:** grande (spike técnico com escolha)
+- **O que entrega:** PoC das 3 opções com dataset realista (500 clientes + 8 OS + 30 dias histórico); ADR-0016 criada com decisão; integração do escolhido no projeto.
 
-### 12. FIS-001 - NFS-e, contas a receber e painel minimo
+### 7f+ — E16 restante (stories S02 a S12)
 
-- **NNN sugerido:** 020
-- **Dominio:** FIS
-- **Epico base:** E07 - Fiscal; E08 - Financeiro; E11 - Dashboard Operacional
-- **Depende de:** CMP-001
-- **ADRs bloqueantes:** ADR-0003 (filas/background jobs), ADR-0009 (provedor fiscal)
-- **Outros bloqueios:** consultor fiscal para Rondonopolis/MT antes de go-live fiscal
-- **Tamanho:** grande
-- **O que entrega:** NFS-e apos certificado aprovado, titulo a receber, baixa manual e painel minimo de pedidos/recebiveis
-- **Por que nessa ordem:** fecha a jornada de receita do MVP: calibracao concluida, certificado entregue, nota emitida e cobranca registrada.
+- **NNN sugerido:** 020-030
+- **Dominio:** SYN
+- **Epico base:** E16
+- **Tamanho:** variado
+- **O que entrega:** merge por campo, detecção de conflito, tela de resolução, fila local observável, modo avião forçado, audit log, tempo real online, sync silenciosa.
+
+### 8+. Slices originais (FLX-001, FLX-002, MET-003, MET-004, CMP-001, FIS-001) — renumerados
+
+Os slices originais **não foram removidos**, apenas empurrados para depois de E15+E16. Ordem preservada, numeração posicional (`specs/NNN`) vai depender de onde E15/E16 param.
+
+- **FLX-001 — Nova ordem de serviço** (era slice 015): agora vai depender de E16 merged. Ganhará capacidade offline: criação de OS offline, atribuição de equipe (até 5 pessoas), modo bancada/campo-veículo/campo-UMC.
+- **FLX-002 — Agenda, fila e status da OS** (era slice 016): ampliado com estados de campo (deslocamento iniciado, chegou cliente, saiu cliente, sincronizando).
+- **MET-003 — Execução de calibração na bancada** (era slice 017): mantém escopo original (bancada). Versão campo fica em slice separado da E05 ampliado.
+- **MET-003b (novo) — Execução de calibração em campo** — similar a MET-003 mas offline-capable, com foto do selo, assinatura do cliente, padrões da UMC ou veículo operacional.
+- **MET-004 — Incerteza, histórico técnico e lacres/selos** — mantém escopo, cálculo já é offline-capable (roda no dispositivo).
+- **CMP-001 — Aprovação, certificado e entrega ao cliente** — ampliado: certificado pode ser gerado offline em campo e transmitido na sync.
+- **FIS-001 — NFS-e, contas a receber e painel mínimo** — ampliado: NFS-e pode ser "preparada offline" quando gestor em campo sem sinal.
 
 ## Proximo slice recomendado agora
 
-Slices mergeados ate 2026-04-15: 001..009 (E01 completo + E02 parcial ate S06).
+**Antes da ampliação de 2026-04-16**: TEN-003 (E03-S01) ou continuação de E03 no slice 013+. Esses já foram executados (slices 012, 013, 014 mergidos).
 
-O proximo slice e **SEG-002 - Base legal LGPD + consentimentos (E02-S07)** em `specs/010`.
-Em seguida, **SEG-003 - Testes de isolamento cross-tenant (E02-S08)** em `specs/011` fecha o E02.
-So apos `epics_status.E02 = merged` e que TEN-003 (E03-S01) pode iniciar — enforce mecanico em `scripts/sequencing-check.sh`.
+**Após ampliação de 2026-04-16:** o próximo slice é **INF-007 — spike técnico de auditoria de E01/E02/E03**. Isso deve rodar ainda nesta sessão ou na próxima, antes de decompor E15 em stories formais.
 
-Regra de sequenciamento (ADR-0011 / R13 + R14): nenhuma story novo pode iniciar se stories anteriores do mesmo epico nao estao `merged`; primeiro slice de um epico MVP so inicia se o epico anterior tem todas as stories `merged` em `project-state.json[epics_status]`.
+**Sequência recomendada imediata:**
+1. PM aprova o roadmap ampliado (este arquivo + `epics/ROADMAP.md`).
+2. `/decompose-stories E15` — decompor E15 em stories.
+3. Auditoria de planejamento do E15.
+4. Spike técnico (slice INF-007) em paralelo à aprovação das stories de E15.
+5. Execução de E15 story por story com auditoria dual (verifier + reviewer + master-audit).
+6. `/decompose-stories E16` após E15 merged.
+7. E16 execução.
+8. Reabertura de E04 com frontend novo.
+
+## Regras de sequenciamento
+
+Regra de sequenciamento (ADR-0011 / R13 + R14): nenhuma story nova pode iniciar se stories anteriores do mesmo épico não estão `merged`; primeiro slice de um épico MVP só inicia se o épico anterior tem todas as stories `merged` em `project-state.json[epics_status]`.
+
+**Nota importante 2026-04-16:** a ordem inter-épico do MVP foi **reordenada**. E15 e E16 foram inseridos entre E03 e E04 (não substituindo — inserindo). E04-E14 permanecem em ordem, mas agora dependem de E16 ter sido merged. O `scripts/sequencing-check.sh` pode precisar ser ajustado para refletir a nova ordem (isso é tarefa de harness, fora deste roadmap).

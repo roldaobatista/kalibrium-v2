@@ -1,5 +1,13 @@
 # Kalibrium — Product Requirements Document (PRD)
 
+> 🔄 **STATUS 2026-04-16: EM REVISÃO — AMPLIAÇÃO EM CURSO.** O conteúdo atual está correto mas **incompleto**: operação de campo, UMC (Unidade Móvel de Calibração), veículos operacionais e offline-first sistêmico não foram capturados no intake original. O PRD está sendo **ampliado** (não substituído) — tudo que já está documentado permanece; capítulos novos são adicionados.
+>
+> **Ampliação documentada em arquivo dedicado:** [`docs/product/PRD-ampliacao-2026-04-16.md`](PRD-ampliacao-2026-04-16.md) — 16 capítulos novos (modos de operação, offline-first, UMC/frota, caixa de despesa por OS, estoque multinível, CRM vendedor, segurança mobile, sync engine, 33 REQs novos, 6 épicos novos no roadmap). Os dois arquivos devem ser lidos juntos até que o PRD seja re-congelado.
+>
+> Ver também: [`docs/incidents/discovery-gap-offline-2026-04-16.md`](../incidents/discovery-gap-offline-2026-04-16.md) (incidente que motivou) e [`docs/adr/0015-stack-offline-first-mobile.md`](../adr/0015-stack-offline-first-mobile.md) (ADR de stack nova).
+>
+> Nenhum slice novo deve ser iniciado até a ampliação ser concluída e o PRD re-congelado.
+
 > **Diretrizes editoriais deste PRD:** [`docs/governance/prd-editorial-guide.md`](../governance/prd-editorial-guide.md) — mapa de canonicalidade, regras de resolução de conflitos, matriz de rastreabilidade e consolidações obrigatórias de leitura.
 > **Backup do PRD compactado anterior:** [`docs/product/PRD-compactado-backup-2026-04-11.md`](PRD-compactado-backup-2026-04-11.md).
 > **Origem do conteúdo canônico:** `ideia.md` movido para o repo em 2026-04-11 (commit `c320505`).
