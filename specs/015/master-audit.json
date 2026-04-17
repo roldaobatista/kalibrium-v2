@@ -1,0 +1,120 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "master-audit",
+  "slice": "015",
+  "lane": "L3",
+  "agent": "governance",
+  "mode": "master-audit",
+  "verdict": "approved",
+  "timestamp": "2026-04-16T23:30:00Z",
+  "commit_hash": "d520acf",
+  "isolation_context": "slice-015-master-audit-opus-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 10,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 9, "S5": 1},
+  "findings": [],
+  "evidence": {
+    "dual_llm": {
+      "trail_primary": {
+        "model": "claude-opus-4-7",
+        "verdict": "approved",
+        "findings": [],
+        "summary": "Trilha A (Opus): todos os 5 gates obrigatorios (verify, review, security-gate, audit-tests, functional-gate) + 3 gates de planejamento (spec-audit, plan-review, tests-draft-audit) aprovaram com blocking_findings_count=0. Zero findings S1-S3 em qualquer gate. 9 findings S4 (minor) e 1 S5 (advisory) distribuidos como refinamentos opcionais para E15-S02 — nenhum bloqueia merge. Escopo de spike rigorosamente preservado (verification.json confirma git diff main...HEAD -- app/ routes/ database/ resources/ vazio). Rastreabilidade AC-001..AC-006 → 8 testes Pest verdes (40 assertions, exit 0) → artefatos documentais concretos (docs/frontend/api-endpoints.md, docs/frontend/stack-versions.md, spike-inf007/). Aderencia ADR-0015 (versoes pinnadas) e ADR-0016 (tenant_id por tabela) validada. Principios P1/P2/P5/P7/P9 respeitados. Todos os JSONs conformam gate-output-v1."
+      },
+      "trail_secondary": {
+        "model": "claude-opus-4-7",
+        "verdict": "approved",
+        "findings_count": 3,
+        "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 2, "S5": 1},
+        "blocking_findings_count": 0,
+        "output_path": "specs/015/master-audit-trail-b.json",
+        "isolation_context": "slice-015-master-audit-opus-trailB-instance-01",
+        "summary": "Trilha B (Opus 4.7, instancia isolada) — politica atualizada 2026-04-17: dual-LLM = 2x Opus 4.7 em contextos isolados. GPT-5/Codex descontinuado. Trilha B re-executou Pest independente (8 passed, 40 assertions), verificou AC coverage ADR-0017, escopo disciplinado (git diff vazio), zero-tolerance upstream. Veredito approved com 3 findings S4/S5 nao bloqueantes (npm install diferido, verdict SQLCipher preliminar, checklist 7 itens vs 6). Consenso pleno com Trilha A."
+      },
+      "reconciliation_rounds": 0,
+      "consensus": true,
+      "consensus_note": "Consenso dual-LLM pleno: ambas trilhas Opus (A e B) aprovaram independentemente com blocking_findings_count=0. Zero divergencia de verdict. Policy change 2026-04-17: Trilha B migrou de GPT-5/Codex para Opus 4.7 em contexto isolado (worktree/subagente separado)."
+    },
+    "consolidated_summary": "Slice 015 (Spike INF-007) aprovado pela trilha primaria Opus com zero findings bloqueantes em todos os 8 gates auditados. Findings nao-bloqueantes (9 S4 + 1 S5) sao refinamentos opcionais concentrados em: (a) placeholder de npm-install.log que deve ser substituido por log real no primeiro passo de E15-S02 [F-001 functional, F-001 code-review]; (b) issues SQLCipher sem numero/data por ausencia de acesso web durante o spike — verdict (a) preliminar ja sinalizado [F-002 functional]; (c) referencias numericas voláteis a routes/web.php:NNN em api-endpoints.md [F-002 code-review]; (d) redundância de file_exists() no teste AC-002 [F-001 tests-draft + F-001 audit-tests, herdado sem regressao]; (e) redacao do plan sobre exemplos JSON e allowlist regex [F-001/F-002 plan-review]; (f) formato de AC-ID 'AC-001..AC-006' por debito harness conhecido [F-1 spec-audit]; (g) S5 advisory glossary nao acessivel em instancia isolada [F-2 spec-audit]. Todos tem recomendacao concreta para E15-S02. Rastreabilidade AC→teste→artefato integra e sem contradicao entre gates.",
+    "cross_gate_consistency": {
+      "all_gates_approved": true,
+      "total_blocking_findings_across_gates": 0,
+      "total_s1_s2_s3_findings": 0,
+      "total_s4_findings": 9,
+      "total_s5_findings": 1,
+      "pest_exit_code": 0,
+      "pest_tests_passed": 8,
+      "pest_assertions_passed": 40,
+      "phpstan_errors": 0,
+      "pint_changes": 0,
+      "scope_leak_detected": false,
+      "scope_verification_command": "git diff main...HEAD --stat -- app/ routes/ database/ resources/",
+      "scope_verification_result": "vazio",
+      "ac_coverage_complete": true,
+      "acs_with_tests": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006"],
+      "acs_orphan": [],
+      "adr_adherence": {
+        "ADR-0015": "versoes pinnadas em spike-inf007/package.json alinhadas; plano B D-1 documentado",
+        "ADR-0016": "tenant_id declarado em 9 de 11 tabelas espelhadas; tenants/users sao casos especiais documentados"
+      },
+      "protocol_v1_2_2_conformance": "todos os 9 JSONs seguem gate-output-v1 com 14 campos obrigatorios",
+      "s4_inheritance_chain": "F-001 tests-draft-audit (redundancia file_exists) → F-001 test-audit (herdado, sem regressao) — consistencia confirmada"
+    },
+    "referenced_artifacts": [
+      {
+        "gate": "audit-spec",
+        "path": "specs/015/spec-audit.json",
+        "sha256": "fbf652da3097778b7b78d8941a0d3102398bc5f1e52ad9f71ede66038108707a",
+        "read_at": "2026-04-16T23:30:00Z"
+      },
+      {
+        "gate": "plan-review",
+        "path": "specs/015/plan-review.json",
+        "sha256": "bd56bc7c80b7fe335e5200c13768504ff60586bb90afbdfb116d5196a3a899e4",
+        "read_at": "2026-04-16T23:30:00Z"
+      },
+      {
+        "gate": "audit-tests-draft",
+        "path": "specs/015/tests-draft-audit.json",
+        "sha256": "a06716591ec074db965ef05b7c6a66e9f8c819eb1f6175fea387181365b2c8f9",
+        "read_at": "2026-04-16T23:30:00Z"
+      },
+      {
+        "gate": "verify",
+        "path": "specs/015/verification.json",
+        "sha256": "49d91c7b7b9d53fa9997fdb45d8b52c17736da723f24326856db82b625743b2c",
+        "read_at": "2026-04-16T23:30:00Z"
+      },
+      {
+        "gate": "code-review",
+        "path": "specs/015/review.json",
+        "sha256": "57221b4be7c32defa3e2caffc1649ebb52d0bd898f5fa2ad6d8936316628177d",
+        "read_at": "2026-04-16T23:30:00Z"
+      },
+      {
+        "gate": "security-gate",
+        "path": "specs/015/security-review.json",
+        "sha256": "3fb3e3f5a5e380a10d75aed8143d054a483e5c4c5231c5b7da12691cb2436e0e",
+        "read_at": "2026-04-16T23:30:00Z"
+      },
+      {
+        "gate": "audit-tests",
+        "path": "specs/015/test-audit.json",
+        "sha256": "36a184c3664af571c95a3686f3594d958e14da3758ae58bdea9c9a19fd1ddce7",
+        "read_at": "2026-04-16T23:30:00Z"
+      },
+      {
+        "gate": "functional-gate",
+        "path": "specs/015/functional-review.json",
+        "sha256": "fc3bf16cd91549a28f0f362749036984aa9e0be2fc2bd0ea904bed67d31c0912",
+        "read_at": "2026-04-16T23:30:00Z"
+      }
+    ],
+    "conditional_gates_skipped": {
+      "data-gate": "nao aplicavel — spike documental sem migrations (trigger 04 §8 nao ativado)",
+      "observability-gate": "nao aplicavel — spike sem logging/metrics de producao (trigger 04 §8 nao ativado)",
+      "integration-gate": "nao aplicavel — spike sem APIs externas/webhooks ativos (trigger 04 §8 nao ativado)",
+      "ux-gate": "nao aplicavel — spike sem UI (trigger 04 §8 nao ativado)"
+    }
+  }
+}
