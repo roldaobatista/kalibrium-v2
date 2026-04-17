@@ -17,6 +17,11 @@
 | [0008](adr/0008-codex-cli-orchestrator.md) | Codex CLI como orquestrador alternativo exclusivo | accepted | 2026-04-12 | Harness |
 | [0004](adr/0004-estrategia-de-identidade-e-autenticacao.md) | Estratégia de identidade e autenticação | accepted | 2026-04-13 | Identidade e autenticação |
 | [0010](adr/0010-constitution-amendment-r6-gate-threshold.md) | Alterar R6 para 5 ciclos automáticos e escalação na 6ª rejeição | accepted | 2026-04-14 | Harness |
+| [0017](adr/0017-auditoria-early-stage.md) | Auditoria early-stage (testes red, gate documental, integridade de estado) | accepted | 2026-04-16 | Harness / Pipeline |
+| [0018](adr/0018-auditoria-fases-iniciais.md) | Auditoria independente nas fases iniciais (PRD, ADRs, UX, api-contracts) | accepted (prospectivo) | 2026-04-16 | Harness / Pipeline |
+| [0019](adr/0019-robustez-loop-gates-harness-learner.md) | Robustez do loop de gates e do harness-learner (meta-audit, fixer scope, revisor cruzado) | accepted (Mudança 3 em duas camadas) | 2026-04-16 | Harness / Pipeline |
+
+> Nota: ADRs 0011-0016 existem em `docs/adr/` mas ainda não estão indexados aqui (drift do índice — relacionado ao gap #9 da auditoria 2026-04-16, endereçado pelo ADR-0017 Mudança 3).
 
 ## Decisões Pendentes
 
