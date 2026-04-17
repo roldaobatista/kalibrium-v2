@@ -32,9 +32,6 @@ functional-review-input/
 master-audit-input/
 .verify-*.tmp/
 
-# ---------- Staging temporário de merge (resolução de conflito) ----------
-scripts/staging/
-
 # ---------- Backups residuais de hooks (relock-harness.sh gera docs/incidents/) ----------
 scripts/hooks/*.bak-*
 scripts/*.bak-*
