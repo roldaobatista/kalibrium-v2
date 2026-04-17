@@ -188,8 +188,10 @@ Validacao de migrations e queries implementadas. Roda em **contexto isolado** â€
       "migrations_reversible": true,
       "missing_indexes": [],
       "n_plus_1_queries": [],
-      "tenant_id_coverage": "100%"
+      "tenant_id_coverage_ratio": 1.0
     }
+    // tenant_id_coverage_ratio: float em [0.0, 1.0] â€” threshold obrigatorio >= 1.0
+    //   (toda tabela de negocio multi-tenant deve ter tenant_id; cobertura < 100% bloqueia gate)
   }
   ```
 - Cada finding segue severidade S1-S5 conforme `docs/protocol/01-sistema-severidade.md`
