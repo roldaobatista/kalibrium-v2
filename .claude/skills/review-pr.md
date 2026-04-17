@@ -67,7 +67,7 @@ bash scripts/review-slice.sh "$1"
 
 | Sub-agent | Isolamento | Budget |
 |---|---|---|
-| `architecture-expert` (modo: code-review) | worktree isolada | 30k tokens |
+| `architecture-expert` (modo: code-review) | sandbox via `scripts/hooks/verifier-sandbox.sh` (read-only mount) | 30k tokens |
 
 ## Conformidade com protocolo v1.2.2
 

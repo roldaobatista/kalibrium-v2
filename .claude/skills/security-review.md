@@ -89,7 +89,7 @@ Registrar em telemetria.
 
 ## Agentes
 
-- **security-expert** (modo: security-gate) — executado em worktree isolada, sem acesso ao contexto do builder. Emite `security-review.json`.
+- **security-expert** (modo: security-gate) — executado em sandbox via `scripts/hooks/verifier-sandbox.sh` (read-only mount), sem acesso ao contexto do builder. Emite `security-review.json`.
 
 ## Pré-condições
 

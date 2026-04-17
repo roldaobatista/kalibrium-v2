@@ -94,7 +94,7 @@ Atualizar `project-state.json` gates_status.
 
 ## Agentes
 
-- `product-expert` (modo: functional-gate) (budget: 25k tokens) — executa em worktree isolada, avalia ACs do ponto de vista de produto/UX. Emite `functional-review.json`.
+- `product-expert` (modo: functional-gate) (budget: 25k tokens) — executa em sandbox via `scripts/hooks/verifier-sandbox.sh` (read-only mount), avalia ACs do ponto de vista de produto/UX. Emite `functional-review.json`.
 
 ## Handoff
 - `approved` (todos os gates) → `/merge-slice NNN`
