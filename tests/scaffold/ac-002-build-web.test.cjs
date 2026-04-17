@@ -103,6 +103,12 @@ describe('AC-010: npm run build fails with non-zero exit when there is a type er
         if (fs.existsSync(TYPE_CHECK_FILE)) {
             fs.unlinkSync(TYPE_CHECK_FILE);
         }
+        // Limpa caches do tsc para que testes subsequentes (AC-007 lint)
+        // nao tentem abrir o seed removido via cache obsoleto.
+        for (const cache of ['tsconfig.tsbuildinfo', 'tsconfig.node.tsbuildinfo', '.eslintcache']) {
+            const p = path.join(REPO_ROOT, cache);
+            if (fs.existsSync(p)) fs.unlinkSync(p);
+        }
         if (!hadSrcBefore && fs.existsSync(SRC_DIR)) {
             // Only remove src/ if we created it here AND it is empty.
             const leftover = fs.readdirSync(SRC_DIR);
