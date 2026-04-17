@@ -5,7 +5,9 @@ model: opus
 tools: Read, Edit, Write, Grep, Glob, Bash
 max_tokens_per_invocation: 80000
 protocol_version: "1.2.2"
-changelog: "2026-04-16 — quality audit fix F-06 (ambiguidade de finding definida objetivamente em 4 condicoes)"
+changelog:
+  - "2026-04-16 — quality audit fix F-06 (ambiguidade de finding definida objetivamente em 4 condicoes)"
+  - "2026-04-16 — ADR-0017 Mudanca 1: rastreabilidade AC-ID obrigatoria em test-writer + implementer (vinculacao AC <-> teste mecanicamente enforcada)"
 ---
 
 **Fonte normativa:** `docs/protocol/` v1.2.2 — mapa canonico de modos em 00 §3.1, contratos de artefato por modo em 03, criterios objetivos de gate em 04 §§1-15, schema formal em `docs/protocol/schemas/gate-output.schema.json`. Builder nao emite artefatos de gate (nao aparece no enum de gates do schema); consome findings S1-S3 de gates para aplicar correcoes no modo fixer. Em caso de conflito entre este agente e o protocolo, o protocolo prevalece.
@@ -102,6 +104,38 @@ Converte ACs do spec em testes red (Pest PHP). Os testes **DEVEM** falhar na pri
 - Factory definitions podem ser criadas se necessarias para o teste
 - Migrations podem ser criadas se o teste precisa de schema — mas somente schema, sem logica de negocio
 
+#### Rastreabilidade AC-ID obrigatoria (ADR-0017 Mudanca 1)
+
+Cada teste gerado neste modo **DEVE** ter vinculacao rastreavel a um AC-ID da spec. A validacao posterior pelo gate `audit-tests-draft` (qa-expert modo 5) e mecanica — teste sem vinculacao gera finding S1 ou S2.
+
+Metodos de vinculacao aceitos (qualquer um serve, mas pelo menos um e obrigatorio):
+
+1. **Nome do teste contem AC-ID** (recomendado, mais explicito):
+   ```php
+   it('AC-001: retorna 422 quando tenant_id ausente', function () { ... });
+   it('test_ac_002_cliente_criado_com_tenant_correto', function () { ... });
+   ```
+
+2. **Docblock do teste com `@covers AC-NNN`**:
+   ```php
+   /**
+    * @covers AC-003
+    */
+   it('cliente pode ser deletado apenas pelo owner do tenant', function () { ... });
+   ```
+
+3. **`describe` block agrupa por AC-ID** (todos os `it()` dentro herdam a vinculacao):
+   ```php
+   describe('AC-004: isolamento entre tenants', function () {
+       it('usuario do tenant A nao ve cliente do tenant B', function () { ... });
+       it('tentativa de acesso cross-tenant retorna 404', function () { ... });
+   });
+   ```
+
+**Testes auxiliares legitimos** (helpers, setup, fixtures) que nao cobrem AC direto devem declarar `@helper` ou `@setup` no docblock — auditor aceita como nao-cobertura mas registra em `unlinked_tests` com categoria `helper`.
+
+**Nenhum teste "solto"** sem AC-ID nem tag `@helper`/`@setup` sera aceito. Test-writer que emitir arquivo com teste sem rastreabilidade sera rejeitado pelo `audit-tests-draft` e volta pelo loop fixer.
+
 ---
 
 ### Modo 2: implementer
@@ -145,6 +179,16 @@ Faz testes red ficarem green, task por task conforme `specs/NNN/plan.md`. Cada E
 - **N+1 queries:** sempre usar `with()` / `load()` em queries que listam entidades com relacoes.
 - **Tenant isolation:** toda query em sistema multi-tenant deve ter scope de tenant. Testar isolamento.
 
+#### Pre-condicao de invocacao (ADR-0017 Mudanca 1)
+
+Implementer **nao inicia** se:
+
+1. `specs/NNN/tests-draft-audit.json` nao existir, OU
+2. `tests-draft-audit.json` existir mas com `verdict != "approved"`, OU
+3. `tests-draft-audit.json` existir com `findings != []` (qualquer finding pendente).
+
+O orquestrador valida a pre-condicao antes de invocar implementer. Caso algum teste seja "solto" (sem AC-ID e sem tag `@helper`/`@setup`), implementer **recusa mecanicamente** o arquivo de teste e reporta ao orquestrador — nao tenta "adivinhar" a qual AC o teste pertence. Retorno padronizado: `{"status": "refused", "reason": "test_without_ac_id_trace", "files": [...]}`.
+
 ---
 
 ### Modo 3: fixer
@@ -181,6 +225,14 @@ Recebe findings estruturados de qualquer gate (qa-expert:verify, architecture-ex
 - **Nao refatorar:** correcao nao e oportunidade de refactor. Minimo necessario.
 - **Nao expandir testes:** se o finding nao e sobre teste, nao adicionar/alterar testes (exceto se a correcao invalida um teste existente).
 - **Evidencia de correcao:** para cada finding, descrever no commit message o que foi corrigido e por que.
+- **Declaracao de expansao de escopo (ADR-0019 Mudanca 3 — Camada 1):** se o fix LEGITIMAMENTE precisar tocar arquivos fora do `affected_files` declarado nos findings (ex: refactor colateral obrigatorio, dependencia transversal), o fixer DEVE emitir um arquivo `docs/governance/fix-scope-expansion-NNN-<gate>.md` ANTES de commitar, com:
+  - Lista de arquivos extras tocados
+  - Justificativa de por que eram inevitaveis
+  - Mapeamento de quais findings cada arquivo extra atende (ou se e side-effect)
+  - Risco avaliado (qual gate anterior poderia ter sua aprovacao invalidada? — ex: `review` pode precisar reanalise)
+  - Nao emitir esse arquivo quando o escopo expandido for apenas de lint/formato (whitelist: `composer.lock`, `package-lock.json`, imports auto-reorganizados pela IDE, `phpcs.cache`, `.phpunit.cache/`)
+  - A ausencia do arquivo quando houve expansao e finding S2 na proxima retrospectiva
+  - **Por ora, sem re-run automatico de gates anteriores** (Camada 2 fica condicional a retrospectiva futura — ver ADR-0019 Mudanca 3)
 
 #### Definicao objetiva de "finding ambiguo" (F-06)
 

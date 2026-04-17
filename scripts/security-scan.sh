@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # security-scan.sh — Scans mecanicos de seguranca.
-# Roda ANTES do security-reviewer (agente LLM).
+# Roda ANTES do security-expert (modo security-gate, agente LLM).
 # Se qualquer scan falhar, o agente NAO e spawnado.
 #
 # Uso: bash scripts/security-scan.sh [NNN]

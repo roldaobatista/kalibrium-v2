@@ -1,9 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Security Review Output",
+  "$comment": "DEPRECATED 2026-04-17 — substituido por docs/protocol/schemas/gate-output.schema.json (gate-output-v1, v1.2.4). Mantido somente para referencia historica. Novos gates (protocolo v1.2.2) validam contra o canonico unificado. Nenhum script do harness deve mais referenciar este arquivo.",
+  "deprecated": true,
+  "title": "[DEPRECATED] Security Review Output",
   "description": "Output estruturado do security-reviewer agent",
   "type": "object",
-  "required": ["slice_id", "verdict", "timestamp", "severity_summary", "findings", "lgpd_checks", "next_action"],
+  "required": [
+    "slice_id",
+    "verdict",
+    "timestamp",
+    "severity_summary",
+    "findings",
+    "lgpd_checks",
+    "next_action"
+  ],
   "properties": {
     "slice_id": {
       "type": "string",
@@ -11,7 +21,10 @@
     },
     "verdict": {
       "type": "string",
-      "enum": ["approved", "rejected"]
+      "enum": [
+        "approved",
+        "rejected"
+      ]
     },
     "timestamp": {
       "type": "string",
@@ -19,29 +32,96 @@
     },
     "severity_summary": {
       "type": "object",
-      "required": ["critical", "high", "medium", "low", "info"],
+      "required": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ],
       "properties": {
-        "critical": { "type": "integer", "minimum": 0 },
-        "high": { "type": "integer", "minimum": 0 },
-        "medium": { "type": "integer", "minimum": 0 },
-        "low": { "type": "integer", "minimum": 0 },
-        "info": { "type": "integer", "minimum": 0 }
+        "critical": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "high": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "medium": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "low": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "info": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "findings": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "severity", "category", "file", "description"],
+        "required": [
+          "id",
+          "severity",
+          "category",
+          "file",
+          "description"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^SEC-\\d{3}$" },
-          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "info"] },
-          "category": { "type": "string", "enum": ["injection", "broken_auth", "sensitive_data", "xxe", "broken_access_control", "security_misconfiguration", "xss", "insecure_deserialization", "vulnerable_components", "insufficient_logging", "lgpd", "secrets", "input_validation"] },
-          "file": { "type": "string" },
-          "line": { "type": "integer", "minimum": 1 },
-          "description": { "type": "string" },
-          "recommendation": { "type": "string" },
-          "owasp": { "type": "string" }
+          "id": {
+            "type": "string",
+            "pattern": "^SEC-\\d{3}$"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "injection",
+              "broken_auth",
+              "sensitive_data",
+              "xxe",
+              "broken_access_control",
+              "security_misconfiguration",
+              "xss",
+              "insecure_deserialization",
+              "vulnerable_components",
+              "insufficient_logging",
+              "lgpd",
+              "secrets",
+              "input_validation"
+            ]
+          },
+          "file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          },
+          "owasp": {
+            "type": "string"
+          }
         }
       }
     },
@@ -49,17 +129,35 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["check", "status"],
+        "required": [
+          "check",
+          "status"
+        ],
         "properties": {
-          "check": { "type": "string" },
-          "status": { "type": "string", "enum": ["pass", "fail", "not_applicable"] },
-          "evidence": { "type": "string" }
+          "check": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail",
+              "not_applicable"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          }
         }
       }
     },
     "next_action": {
       "type": "string",
-      "enum": ["approved", "return_to_fixer", "escalate_human"]
+      "enum": [
+        "approved",
+        "return_to_fixer",
+        "escalate_human"
+      ]
     }
   }
 }

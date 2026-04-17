@@ -69,9 +69,12 @@ Nota: a aprovacao de plan e automatica (auto-approval) quando qa-expert (audit-s
 
 | Atividade | PM | product-expert | ux-designer | architecture-expert | data-expert | security-expert | qa-expert | devops-expert | observability-expert | integration-expert | builder | governance | orchestrator |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Escrita de testes (red) | I | — | — | — | — | — | C | — | — | — | R | — | A |
+| Escrita de testes (red) com AC-ID | I | — | — | — | — | — | C | — | — | — | R | — | A |
+| Gate audit-tests-draft (pre-impl) | I | — | — | — | — | — | R | — | — | — | — | — | A |
 | Implementacao (green) | I | — | — | C | C | — | — | — | — | — | R | — | A |
 | Commit | — | — | — | — | — | — | — | — | — | — | R | — | A |
+
+Nota Fase D (ADR-0017 Mudanca 1): o gate `audit-tests-draft` roda ANTES da implementacao (estado S7.1), valida que testes red tem AC-ID rastreavel e estao realmente red. Implementer nao inicia sem este gate approved com findings [].
 
 ---
 
@@ -122,8 +125,10 @@ Mesmo com isolamento por instancia, as seguintes combinacoes sao proibidas em qu
 |----------|-----------------|
 | product-expert (decompose) — spec.md | qa-expert (audit-spec) — somente se o mesmo agente fisico/modelo tiver produzido e auditado; solucao: invocacoes sempre em instancias isoladas |
 | architecture-expert (plan) — plan.md | architecture-expert (plan-review) — exige instancia isolada R3 |
+| builder (test-writer) — testes red com AC-ID | qa-expert (audit-tests-draft) do mesmo slice — exige instancia isolada R3 (ADR-0017) |
 | builder (implementer) — codigo/testes | qa-expert (verify), architecture-expert (code-review), qa-expert (audit-tests) |
 | qa-expert (verify) | qa-expert (audit-tests) do mesmo slice — exige instancia isolada R3 |
+| qa-expert (audit-tests-draft) | qa-expert (audit-tests) do mesmo slice — exige instancia isolada R3 (ambos auditam testes mas em momentos diferentes: pre e pos implementacao) |
 | architecture-expert (plan) — plan.md | architecture-expert (code-review) do mesmo slice se plan.md for input direto — exige instancia isolada R3 |
 | security-expert (threat-model) | security-expert (security-gate) do mesmo slice se threat-model for input direto — exige instancia isolada R3 |
 

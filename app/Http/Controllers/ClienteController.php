@@ -41,7 +41,7 @@ final class ClienteController extends Controller
                     ->orWhereRaw('nome_fantasia ILIKE ?', [$searchTerm]);
 
                 // Only add documento filter if there are digits in the search
-                $digits = preg_replace('/\D+/', '', ltrim($digitsOnly, '%'));
+                $digits = preg_replace('/\D+/', '', ltrim($digitsOnly, '%')) ?? '';
                 $digits = rtrim($digits, '%');
                 if ($digits !== '') {
                     $q->orWhereRaw('documento ILIKE ?', [$digitsOnly]);

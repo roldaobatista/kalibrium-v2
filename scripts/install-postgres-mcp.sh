@@ -113,7 +113,7 @@ else
 import sys, pathlib
 path = pathlib.Path(sys.argv[1])
 content = path.read_text(encoding='utf-8')
-new_row = "| `postgres` | Introspecção de schema, RLS policies e migrations em PostgreSQL. Usado por data-modeler, verifier, security-reviewer para validações de LGPD/RLS sem parsing manual de output de psql. Ref: ADR-0012. |\n"
+new_row = "| `postgres` | Introspecção de schema, RLS policies e migrations em PostgreSQL. Usado por data-expert, qa-expert (modo verify) e security-expert (modo security-gate) para validações de LGPD/RLS sem parsing manual de output de psql. Ref: ADR-0012. |\n"
 anchor = "| `codex` |"
 lines = content.splitlines(keepends=True)
 out = []

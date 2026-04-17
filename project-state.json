@@ -1,40 +1,61 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution",
+  "phase": "execution-post-slice-015-merged",
   "updated_at": "2026-04-17T14:45:00-04:00",
   "discovery": {
     "intake_complete": true,
-    "prd_status": "frozen",
+    "prd_status": "em-ampliacao",
     "nfr_status": "frozen",
     "domain_model_exists": true,
     "glossary_exists": true,
     "risks_documented": true,
-    "assumptions_reviewed": true
+    "assumptions_reviewed": true,
+    "ampliation_incident": "docs/incidents/discovery-gap-offline-2026-04-16.md",
+    "ampliation_documents": [
+      "docs/product/PRD-ampliacao-2026-04-16.md (v1 offline-first sistemico)",
+      "docs/product/PRD-ampliacao-2026-04-16-v2.md (v2 pos-auditoria comparativa externa)",
+      "docs/product/PRD-ampliacao-2026-04-16-v3.md (v3 pos-re-auditoria independente)"
+    ]
   },
   "strategy": {
-    "architecture_status": "frozen",
-    "adrs_count": 5,
+    "architecture_status": "em-ampliacao",
+    "adrs_count": 16,
     "threat_model_exists": true,
-    "deploy_profile_exists": false
+    "deploy_profile_exists": false,
+    "new_adrs_pending": [
+      "ADR-0017 sync engine PowerSync vs ElectricSQL (apos PoC E16)",
+      "ADR-0018 push offline-first APNs vs FCM",
+      "ADR-0019 distribuicao App Store/Play Store"
+    ],
+    "new_adrs_created_v3": ["ADR-0016 isolamento multi-tenant (row-level + RLS nas 10 tabelas criticas)"]
   },
   "planning": {
-    "epics_total": 14,
-    "epics_decomposed": 2,
-    "epics_mvp": 12,
-    "epics_post_mvp": 2,
-    "stories_total": 22,
-    "stories_with_contract": 22,
-    "stories_audited": 22,
+    "epics_total": 25,
+    "epics_decomposed": 3,
+    "epics_mvp": 19,
+    "epics_post_mvp": 4,
+    "epics_future": 2,
+    "stories_total": 32,
+    "stories_total_estimated_after_ampliation_v1": 125,
+    "stories_total_estimated_after_ampliation_v2": 150,
+    "stories_total_estimated_after_ampliation_v3": 175,
+    "stories_with_contract": 32,
+    "stories_audited": 32,
     "prd_gaps_resolved": true,
-    "new_frs_added": 48,
-    "total_frs": 200,
+    "new_reqs_v1": 33,
+    "new_reqs_v2": 8,
+    "new_reqs_v3": 10,
+    "total_reqs_mvp": 80,
     "total_modules": 45,
-    "planning_audit_roadmap": "approved",
+    "post_mvp_backlog": "docs/product/post-mvp-backlog.md (16 itens diferidos + gatilhos de reentrada)",
+    "planning_audit_roadmap": "needs-reaudit-after-ampliation-v3",
     "planning_audit_E01": "approved",
+    "planning_audit_E15": "approved-round-2 (3 findings corrigidos: F-E15-001 S2, F-E15-002 S2, F-E15-003 S3)",
     "story_audit_E01": "approved",
     "story_audit_E03": "approved",
-    "documentation_gate": "e03-complete"
+    "story_audit_E15": "approved-round-2",
+    "documentation_gate": "e03-complete-but-frontend-refactor-required"
   },
   "execution": {
     "current_epic": "E15",
@@ -45,15 +66,37 @@
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
+    "previous_execution": {
+      "current_epic": "E03",
+      "current_story": "E03-S02b",
+      "reason_paused": "paused-for-ampliation; retomada apos E15+E16 completos"
+    },
     "slice_015_pipeline": {
-      "pr": "https://github.com/roldaobatista/kalibrium-v2/pull/36",
-      "merged_at": "2026-04-17",
-      "merge_commit": "8addb11",
+      "spec_approved": true,
+      "plan_approved": true,
+      "tests_red_drafted": true,
+      "tests_red_audited": true,
+      "implementation_complete": true,
+      "pest_status": "8 passed, 40 assertions",
+      "mechanical_gates": "all passed (test+phpstan+pint+composer-audit)",
+      "gate_verify": "approved (0 blocking, 0 total)",
+      "gate_review": "approved (0 blocking, 2 S4)",
+      "gate_security": "approved (0 blocking, 0 total)",
+      "gate_audit_tests": "approved (0 blocking, 1 S4 herdado)",
+      "gate_functional": "approved (0 blocking, 2 S4)",
       "gates_approved": "5/5 (verify, code-review, security, audit-tests, functional) + 3/3 planning (spec-audit, plan-review, tests-draft-audit)",
       "master_audit_dual_llm": "consenso pleno 2x Opus 4.7 em contextos isolados (politica 2026-04-17: GPT-5/Codex descontinuado)",
+      "master_audit_trilha_A_opus": "approved (0 blocking, 9 S4, 1 S5)",
+      "master_audit_trilha_B_opus": "approved (0 blocking, 2 S4, 1 S5)",
       "trilha_A_opus": "approved (0 blocking, 9 S4, 1 S5)",
       "trilha_B_opus": "approved (0 blocking, 2 S4, 1 S5)",
-      "next_action": "Aguardar decisao PM sobre recuperacao dos artefatos de ampliacao (PRDs, ADR-0016, incidents) perdidos nas branches deletadas work/offline-discovery-2026-04-16 e feat/slice-015-spike-inf007. Commits ainda referenciados em reflog. Depois: /start-story E15-S02."
+      "dual_llm_consensus": "full - ambas trilhas Opus approved, zero divergencia, zero reconciliacao",
+      "pr_url": "https://github.com/roldaobatista/kalibrium-v2/pull/36",
+      "pr_previous_abandoned": "https://github.com/roldaobatista/kalibrium-v2/pull/35 (closed/abandoned)",
+      "merged_at": "2026-04-17",
+      "merge_commit": "8addb11",
+      "auto_merge_armed": true,
+      "next_action": "Aguardar decisao PM sobre recuperacao dos artefatos de ampliacao (PRDs, ADR-0016, incidents) perdidos nas branches deletadas work/offline-discovery-2026-04-16 e feat/slice-015-spike-inf007. Commits ainda referenciados em reflog. Depois: /slice-report 015 + /retrospective 015 + /start-story E15-S02."
     }
   },
   "gates_status": {
@@ -68,49 +111,31 @@
     "master_auditor": "approved"
   },
   "epics_status": {
-    "E01": {
-      "status": "merged",
-      "stories": {
-        "E01-S01": "merged",
-        "E01-S02": "merged",
-        "E01-S03": "merged",
-        "E01-S04": "merged",
-        "E01-S05": "merged",
-        "E01-S06": "merged"
-      }
-    },
-    "E02": {
-      "status": "merged",
-      "stories": {
-        "E02-S01": "merged",
-        "E02-S02": "merged",
-        "E02-S03": "merged",
-        "E02-S04": "merged",
-        "E02-S05": "merged",
-        "E02-S06": "merged",
-        "E02-S07": "merged",
-        "E02-S08": "merged"
-      }
-    },
-    "E03": {
-      "status": "in_progress",
-      "stories": {
-        "E03-S01a": "merged",
-        "E03-S01b": "merged",
-        "E03-S02a": "merged",
-        "E03-S02b": "draft",
-        "E03-S03a": "draft",
-        "E03-S03b": "draft",
-        "E03-S04a": "draft",
-        "E03-S04b": "draft",
-        "E03-S05a": "draft",
-        "E03-S05b": "draft",
-        "E03-S06a": "draft",
-        "E03-S06b": "draft",
-        "E03-S07a": "draft",
-        "E03-S07b": "draft"
-      }
-    }
+    "E01": { "status": "merged", "notes": "Backend Laravel aproveitado. Frontend Blade descartado (ADR-0015).", "stories": { "E01-S01": "merged", "E01-S02": "merged", "E01-S03": "merged", "E01-S04": "merged", "E01-S05": "merged", "E01-S06": "merged" } },
+    "E02": { "status": "merged", "notes": "Core auth aproveitado. Ampliacao via E15: JWT long-lived + device binding + biometria + wipe remoto.", "stories": { "E02-S01": "merged", "E02-S02": "merged", "E02-S03": "merged", "E02-S04": "merged", "E02-S05": "merged", "E02-S06": "merged", "E02-S07": "merged", "E02-S08": "merged" } },
+    "E03": { "status": "paused-for-ampliation", "notes": "Modelo de dados + regras aproveitados. Frontend refeito em E15+. Stories drafts pausadas.", "stories": { "E03-S01a": "merged", "E03-S01b": "merged", "E03-S02a": "merged", "E03-S02b": "draft", "E03-S03a": "draft", "E03-S03b": "draft", "E03-S04a": "draft", "E03-S04b": "draft", "E03-S05a": "draft", "E03-S05b": "draft", "E03-S06a": "draft", "E03-S06b": "draft", "E03-S07a": "draft", "E03-S07b": "draft" } },
+    "E04": { "status": "backlog", "notes": "Ampliado com estados de campo + equipe. Depende de E15+E16." },
+    "E05": { "status": "backlog", "notes": "Ampliado com modo campo (6 dominios incluindo rodoviaria)." },
+    "E06": { "status": "backlog" },
+    "E07": { "status": "backlog", "notes": "Ampliado com estado preparada-offline + ciclo de rejeicao (v2) + retencoes corretas (v2)." },
+    "E08": { "status": "backlog" },
+    "E09": { "status": "backlog" },
+    "E10": { "status": "backlog" },
+    "E11": { "status": "backlog", "notes": "Ampliado com custo real/OS + ocupacao UMC." },
+    "E12": { "status": "backlog", "notes": "Ampliado com push offline-first (v2)." },
+    "E13": { "status": "backlog-p1" },
+    "E14": { "status": "backlog-p1" },
+    "E15": { "status": "in-progress-s01-merged", "notes": "NOVO v1 - PWA Shell Offline-First + Capacitor. Foundational. Depende de ADR-0015 + ADR-0016. 10 stories com Story Contract + INDEX.md. E15-S01 (spike INF-007) MERGED via PR #36 commit 8addb11 em 2026-04-17. Proximo: /start-story E15-S02 (scaffold Capacitor)." },
+    "E16": { "status": "backlog-new", "notes": "NOVO v1 - Sync Engine + Merge por Campo + Conflito. Depende de E15." },
+    "E17": { "status": "backlog-new", "notes": "NOVO v1 - UMC e Frota Operacional. Depende de E16." },
+    "E18": { "status": "backlog-new", "notes": "NOVO v1 - Caixa de Despesa por OS. Depende de E16." },
+    "E19": { "status": "backlog-new", "notes": "NOVO v1 - Estoque Multinivel. Depende de E16." },
+    "E20": { "status": "backlog-new", "notes": "NOVO v1 - CRM Offline do Vendedor. Depende de E16." },
+    "E21": { "status": "backlog-new-v2", "notes": "NOVO v2 - Compliance Fiscal (retransmissao NFS-e + retencoes) + LGPD titular + Backup + Push. Depende de E07 + E12." },
+    "E22": { "status": "backlog-new-v2", "notes": "NOVO v2 - SPC + Drift + Qualidade Metrologica ISO 17025. Depende de E05." },
+    "E23": { "status": "backlog-new-v2", "notes": "NOVO v2 - Revalidacao Proativa + Engajamento Cliente Recorrente. Depende de E20 + E12." },
+    "E24": { "status": "backlog-new-v3", "notes": "NOVO v3 - Operacao Robusta + Qualidade ISO 17025 Ampliada. Depende de E04 + E22 + ADR-0016." },
+    "E25": { "status": "backlog-new-v3", "notes": "NOVO v3 - Reforma Tributaria 2026 (IBS/CBS/cIndOp). Producao 2026 confirmada pelo PM; prazo fixo antes de 2026-01-01. Depende de E07." }
   },
   "pending_epic_retrospective": null,
   "epic_retrospective_E02": {
@@ -128,33 +153,180 @@
   },
   "technical_debt": [
     "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
-    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md — RESOLVED (repo public)",
-    "secret CI_DB_PASSWORD — RESOLVED (cadastrada 2026-04-16)",
-    "GAP-S05-001: automação trial→expired (job/scheduler ausente) — epics/E02/stories/E02-S05.md",
-    "GAP-S06-001: pro-rata upgrade/downgrade não implementado — epics/E02/stories/E02-S06.md",
-    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md — RESOLVED (chave rotacionada, opção B aceita)"
+    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md - RESOLVED (repo public)",
+    "secret CI_DB_PASSWORD - RESOLVED (cadastrada 2026-04-16)",
+    "GAP-S05-001: automacao trial->expired (job/scheduler ausente) - epics/E02/stories/E02-S05.md",
+    "GAP-S06-001: pro-rata upgrade/downgrade nao implementado - epics/E02/stories/E02-S06.md",
+    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md - RESOLVED",
+    "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd",
+    "AMPLIATION-002: sequencing-check.sh (R13/R14) precisa ajustar ordem E03->E15->E16->E04+ e incluir E21-E25",
+    "AMPLIATION-003: Frontend antigo Livewire/Blade de E01/E02/E03 sera descartado; auditoria de aproveitamento pendente em spike INF-007",
+    "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico",
+    "AMPLIATION-V3-002: ADR-0016 (multi-tenant isolation) criada mas ainda nao implementada - deve entrar no escopo de E15 antes do schema ser definido",
+    "AMPLIATION-V3-003: E25 tem prazo fixo antes de 2026-01-01 (RTC) - monitorar publicacao de NT da CGNFS-e",
+    "HARNESS-MIGRATION-001: scripts/hooks/verifier-sandbox.sh (selado) ainda usa allowlist AGENT_ROLE v1; exige relock externo do PM para upgrade de agent names v3. Plano em docs/incidents/harness-sandbox-role-drift-2026-04-17.md (pendente criar).",
+    "HARNESS-MIGRATION-002: AC-ID format canonico AC-NNN-XXX (protocolo §10.1) conflita com validador scripts/draft-spec.sh; candidato a harness-learner (R16).",
+    "HARNESS-MIGRATION-003: docs/schemas/{plan-review,review,verification,security-review,test-audit,functional-review,guide-audit}.schema.json marcados deprecated 2026-04-17. Remover apos 30 dias sem referencia.",
+    "AMPLIATION-RECOVERY-001: PRDs ampliacao v1+v2+v3, ADR-0016, incidents e audits externos NAO entraram em main (ficaram em branches deletadas work/offline-discovery-2026-04-16 tip 2bbce17 e feat/slice-015-spike-inf007 tip 7abe9c8). Cherry-pick recuperavel via reflog. Decisao PM pendente."
   ],
-  "technical_debt_count": 6,
-  "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos)",
-  "state": "active",
+  "technical_debt_count": 16,
+  "harness_migration_2026_04_17": {
+    "status": "completed",
+    "scope": "Alinhar scripts auxiliares e schemas ao protocolo v1.2.2 + gate-output-v1 (v1.2.4)",
+    "changes": {
+      "validators_migrated": [
+        "scripts/audit-spec.sh",
+        "scripts/validate-verification.sh",
+        "scripts/validate-review.sh",
+        "scripts/plan-review.sh",
+        "scripts/merge-slice.sh"
+      ],
+      "prompts_updated": [
+        "scripts/verify-slice.sh (linha 274)",
+        "scripts/review-slice.sh (linha 314)"
+      ],
+      "legacy_references_cleaned": [
+        "scripts/audit-spec.sh (spec-auditor -> qa-expert modo audit-spec)",
+        "scripts/master-audit.sh (master-auditor -> governance modo master-audit)",
+        "scripts/plan-review.sh (plan-reviewer -> architecture-expert modo plan-review)",
+        "scripts/draft-tests.sh (plan-reviewer -> architecture-expert modo plan-review)",
+        "scripts/security-scan.sh (security-reviewer -> security-expert modo security-gate)",
+        "scripts/install-postgres-mcp.sh (agents v1 -> v3)"
+      ],
+      "schemas_deprecated": [
+        "docs/schemas/spec-audit.schema.json",
+        "docs/schemas/plan-review.schema.json",
+        "docs/schemas/review.schema.json",
+        "docs/schemas/verification.schema.json",
+        "docs/schemas/security-review.schema.json",
+        "docs/schemas/test-audit.schema.json",
+        "docs/schemas/functional-review.schema.json",
+        "docs/schemas/guide-audit.schema.json"
+      ],
+      "schemas_kept_canonical": [
+        "docs/protocol/schemas/gate-output.schema.json (v1.2.4 gate-output-v1)"
+      ],
+      "schemas_not_gates_kept": [
+        "docs/schemas/project-state.schema.json",
+        "docs/schemas/telemetry.schema.json"
+      ]
+    },
+    "smoke_tests_passed": 6,
+    "policy_change": "approved agora exige blocking_findings_count == 0 (S1-S3 zerados); S4/S5 podem existir em approved conforme protocolo v1.2.2 §1",
+    "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
+  },
+  "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos; B-029..B-032 novos apos slice 015)",
+  "state": "active-post-merge-015",
   "paused": false,
   "paused_reason": null,
-  "active_epic": "E03",
-  "next_recommended_action": "redesign de agentes (PM pediu reestruturação por domínio) → depois /start-story E03-S02b",
-  "current_phase": "execution",
+  "active_epic": "E15",
+  "next_recommended_action": "(1) PM decide entre recuperar artefatos de ampliacao via cherry-pick (2bbce17/7abe9c8) OU seguir direto para E15-S02. (2) Apos decisao: /slice-report 015 + /retrospective 015. (3) Proximo slice: /start-story E15-S02 (scaffold Capacitor desbloqueia paralelismo em S03-S06). (4) Monitorar E25 RTC 2026 (prazo fixo antes de 2026-01-01).",
+  "pending_audit": {
+    "type": "comparativa-externa",
+    "status": "completed",
+    "brief": "docs/audits/BRIEF-auditoria-comparativa-externa.md",
+    "sources": ["C:\\PROJETOS\\KALIBRIUM SAAS", "C:\\PROJETOS\\sistema"],
+    "reports": [
+      "docs/audits/comparativa-externa-2026-04-16.md (primeira auditoria)",
+      "docs/audits/comparativa-externa-reaudit-2026-04-16.md (re-auditoria independente em contexto isolado)"
+    ],
+    "requested_at": "2026-04-16T22:45:00Z",
+    "completed_at": "2026-04-16T21:55:00-04:00"
+  },
+  "current_phase": "execution-post-slice-015",
   "master_auditor_status": "active",
+  "dual_llm_policy": {
+    "effective_date": "2026-04-17",
+    "policy": "2x Opus 4.7 em contextos isolados R3/R11",
+    "previous_policy": "Opus 4.7 (trilha A) + GPT-5/Codex (trilha B)",
+    "reason": "GPT-5/Codex descontinuado; 2x Opus em instancias isoladas garante R3/R11 com equivalencia de resultado",
+    "supersedes_note": "docs/operations/codex-gpt5-setup.md pendente atualizar para refletir politica 2x Opus"
+  },
   "harness": {
-    "agents": 25,
-    "opus_agents": 12,
-    "sonnet_agents": 13,
+    "agents": 12,
+    "opus_agents": 4,
+    "sonnet_agents": 8,
     "haiku_agents": 0,
-    "skills": 39,
+    "skills": 40,
     "hooks": 17,
-    "schemas": 10,
+    "schemas": 13,
     "model_policy_commit": "7cf1b1a",
     "last_relock_commit": "a84371f",
-    "codex_gpt5_guide": "docs/operations/codex-gpt5-setup.md"
+    "codex_gpt5_guide": "docs/operations/codex-gpt5-setup.md",
+    "quality_baseline": {
+      "date": "2026-04-16",
+      "agents_score": 4.97,
+      "skills_score": 4.96,
+      "consolidated_score": 4.97,
+      "verdict": "approved 5/5 (zero ressalvas, 12/12 agents + 41/41 skills approve)",
+      "audit_method": "dual-LLM R3 isolado",
+      "gaps_remediated": 15,
+      "commits_total": 23,
+      "merged_via_pr": "https://github.com/roldaobatista/kalibrium-v2/pull/34"
+    }
   },
-  "last_checkpoint": "2026-04-16T16:30:00Z",
-  "last_handoff": "docs/handoffs/handoff-2026-04-16-0430.md"
+  "ampliation_2026_04_16": {
+    "status": "completed-v3",
+    "rounds": 3,
+    "v1": {
+      "trigger": "PM feedback 'nosso trabalho e 90% offline'",
+      "incident": "docs/incidents/discovery-gap-offline-2026-04-16.md",
+      "new_reqs": 33,
+      "new_personas": 5,
+      "new_journeys": 6,
+      "new_epics": ["E15", "E16", "E17", "E18", "E19", "E20"],
+      "new_adrs": ["ADR-0015"]
+    },
+    "v2": {
+      "trigger": "PM solicitou auditoria comparativa externa (brief 2026-04-16)",
+      "audit_report": "docs/audits/comparativa-externa-2026-04-16.md",
+      "new_reqs": 8,
+      "new_personas": 1,
+      "new_journeys": 3,
+      "new_epics": ["E21", "E22", "E23"],
+      "prd_document": "docs/product/PRD-ampliacao-2026-04-16-v2.md"
+    },
+    "v3": {
+      "trigger": "PM solicitou re-auditoria isolada apos v2",
+      "audit_report": "docs/audits/comparativa-externa-reaudit-2026-04-16.md",
+      "new_reqs": 10,
+      "new_personas": 0,
+      "persona_refinements": ["Persona 1 Marcelo com dimensao CFO/Diretoria"],
+      "new_journeys": 3,
+      "new_epics": ["E24", "E25"],
+      "new_adrs": ["ADR-0016 isolamento multi-tenant"],
+      "post_mvp_additions": 3,
+      "prd_document": "docs/product/PRD-ampliacao-2026-04-16-v3.md"
+    },
+    "consolidated": {
+      "reqs_original": 29,
+      "reqs_final": 80,
+      "personas_original": 3,
+      "personas_final": 9,
+      "journeys_original": 5,
+      "journeys_final": 17,
+      "epics_original": 14,
+      "epics_final": 25,
+      "adrs_original": 15,
+      "adrs_final": 16,
+      "producao_confirmada_2026": true
+    },
+    "commits": [
+      "454d687 docs(audits)",
+      "fcec058 docs(product): ampliacao PRD v1+v2+v3",
+      "b99f43e docs(backlog): post-mvp-backlog"
+    ],
+    "principle_enforced": "PRD e aditivo - so amplia, nunca diminui (feedback_prd_only_grows.md)",
+    "merge_status_2026_04_17": "Artefatos NAO entraram em main via PR #36 (squash perdeu conteudo das branches deletadas). Recuperacao via cherry-pick 2bbce17/7abe9c8 pendente de decisao PM."
+  },
+  "slice_015_merged_summary": {
+    "pr": "https://github.com/roldaobatista/kalibrium-v2/pull/36",
+    "merge_commit": "8addb11",
+    "merged_at": "2026-04-17",
+    "pr_abandoned": "https://github.com/roldaobatista/kalibrium-v2/pull/35 (closed)",
+    "retrospectiva": "docs/retrospectives/slice-015.md",
+    "guide_backlog_novos": ["B-029", "B-030", "B-031", "B-032"]
+  },
+  "last_checkpoint": "2026-04-17T14:45:00-04:00",
+  "last_handoff": "docs/handoffs/latest.md"
 }

@@ -1,6 +1,6 @@
 ---
 name: governance
-description: Agente de governanca e qualidade — master-audit dual-LLM, retrospectiva pos-epico, harness-learner e auditoria periodica de drift
+description: Agente de governanca e qualidade — master-audit dual-LLM (com referenced_artifacts obrigatorio — ADR-0019 Mudanca 2), retrospectiva pos-epico, harness-learner (com revisor externo obrigatorio — ADR-0019 Mudanca 1) e auditoria periodica de drift
 model: opus
 tools: Read, Grep, Glob, Bash, mcp__codex__codex, mcp__codex__codex-reply
 max_tokens_per_invocation: 60000
@@ -134,12 +134,63 @@ Arquivo `specs/NNN/master-audit.json`:
       "reconciliation_rounds": 0,
       "consensus": true
     },
-    "consolidated_summary": "resumo consolidado apos consenso dual-LLM"
+    "consolidated_summary": "resumo consolidado apos consenso dual-LLM",
+    "referenced_artifacts": [
+      {
+        "gate": "verify",
+        "path": "specs/NNN/verification.json",
+        "sha256": "abc123...",
+        "read_at": "2026-04-16T20:00:00Z"
+      },
+      {
+        "gate": "review",
+        "path": "specs/NNN/review.json",
+        "sha256": "def456...",
+        "read_at": "2026-04-16T20:00:15Z"
+      },
+      {
+        "gate": "security-gate",
+        "path": "specs/NNN/security-review.json",
+        "sha256": "...",
+        "read_at": "..."
+      },
+      {
+        "gate": "audit-tests",
+        "path": "specs/NNN/test-audit.json",
+        "sha256": "...",
+        "read_at": "..."
+      },
+      {
+        "gate": "functional-gate",
+        "path": "specs/NNN/functional-review.json",
+        "sha256": "...",
+        "read_at": "..."
+      }
+    ]
   }
 }
 ```
 
-**Observacao de conformidade:** este schema conforma aos 14 campos obrigatorios de `docs/protocol/schemas/gate-output.schema.json`. Extensoes dual-LLM (`trail_primary`, `trail_secondary`, `reconciliation_rounds`, `consensus`) ficam sob `evidence.dual_llm` conforme `additionalProperties: true` do bloco `evidence` (schema linhas 128-132).
+**Observacao de conformidade:** este schema conforma aos 14 campos obrigatorios de `docs/protocol/schemas/gate-output.schema.json`. Extensoes dual-LLM (`trail_primary`, `trail_secondary`, `reconciliation_rounds`, `consensus`) e `referenced_artifacts` ficam sob `evidence` conforme `additionalProperties: true` do bloco `evidence`.
+
+#### Bloco evidence.referenced_artifacts OBRIGATORIO (ADR-0019 Mudanca 2)
+
+Fecha o gap #5 da auditoria de fluxo 2026-04-16: master-audit deve provar mecanicamente que LEU cada gate anterior, nao apenas que chegou a um verdict.
+
+**Regras:**
+1. Para cada gate obrigatorio aplicavel ao slice (verify, review, security-gate, audit-tests, functional-gate), DEVE haver uma entrada em `referenced_artifacts[]` com:
+   - `gate`: nome canonico do gate (conforme enum do schema)
+   - `path`: caminho do arquivo lido (ex: `specs/NNN/verification.json`)
+   - `sha256`: hash SHA-256 do conteudo do arquivo no momento da leitura (prova integridade — se o arquivo mudou depois, hash nao bate mais)
+   - `read_at`: timestamp ISO-8601 UTC da leitura
+
+2. Para cada gate condicional ativo no slice (data-gate, observability-gate, integration-gate, ux-gate), aplicar a mesma regra. Se o gate nao foi ativado (nao aplicavel), pode ser omitido — mas a ausencia deve ser justificavel via triggers condicionais em 04 §8-9.
+
+3. Se `referenced_artifacts[]` estiver vazio ou faltar gate obrigatorio, merge-slice DEVE bloquear. **Nota (implementacao parcial):** a validacao mecanica no `merge-slice.sh` exige relock do PM. Ate o relock ocorrer, a regra e **procedural** (master-audit agent emite o bloco corretamente) e nao mecanicamente enforcada pelo hook.
+
+4. Hash sha256 pode ser calculado via `shasum -a 256 <path>` ou equivalente. O objetivo e detectar racing (gate anterior foi modificado entre o master-audit ler e o merge-slice rodar).
+
+5. Se apos relock o hook `merge-slice.sh` detectar hash divergente (arquivo mudou depois da leitura do master-audit), master-audit deve ser re-executado. Este e o mecanismo que protege contra "master-audit desatualizado".
 
 #### Protocolo dual-LLM (conforme `docs/protocol/00-protocolo-operacional.md §5`)
 

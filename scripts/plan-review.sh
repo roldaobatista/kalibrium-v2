@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# plan-review.sh — valida o gate obrigatório de plan-reviewer antes dos testes.
+# plan-review.sh — valida o gate obrigatório de architecture-expert (modo plan-review) antes dos testes.
 #
 # Uso:
-#   bash scripts/plan-review.sh NNN --check     (pré-condições para plan-reviewer)
+#   bash scripts/plan-review.sh NNN --check     (pré-condições para architecture-expert (modo plan-review))
 #   bash scripts/plan-review.sh NNN --validate  (estrutura JSON mínima)
 #   bash scripts/plan-review.sh NNN --approved  (aprovado com findings [])
 
@@ -47,119 +47,98 @@ ok()   { echo "  ✓ $*"; }
 validate_review_json() {
   local require_approved="$1"
 
-  "$PYTHON_BIN" - "$REVIEW" "$require_approved" <<'PY'
+  # Protocolo v1.2.2: valida contra gate-output-v1.
+  # Politica zero-tolerance: approved exige blocking_findings_count == 0 (S1-S3).
+  "$PYTHON_BIN" - "$REVIEW" "$require_approved" "$NNN" "$REPO_ROOT" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-path = Path(sys.argv[1])
+audit_path = Path(sys.argv[1])
 require_approved = sys.argv[2] == "1"
+expected_slice = sys.argv[3]
+repo_root = Path(sys.argv[4])
+schema_path = repo_root / "docs" / "protocol" / "schemas" / "gate-output.schema.json"
+
 errors = []
 
-if not path.exists():
-    print(f"  ✗ {path} ausente", file=sys.stderr)
+if not audit_path.exists():
+    print(f"  ✗ {audit_path} ausente", file=sys.stderr)
     sys.exit(1)
 
 try:
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(audit_path.read_text(encoding="utf-8"))
 except Exception as exc:
-    print(f"  ✗ JSON inválido: {exc}", file=sys.stderr)
+    print(f"  ✗ JSON invalido: {exc}", file=sys.stderr)
     sys.exit(1)
 
-required = ["schema_version", "slice_id", "review_date", "provenance", "verdict", "summary", "checks", "findings", "stats"]
-for key in required:
-    if key not in data:
-        errors.append(f"campo obrigatório ausente: {key}")
+# jsonschema rigoroso se disponivel
+try:
+    import jsonschema
+    with schema_path.open(encoding="utf-8") as f:
+        schema = json.load(f)
+    jsonschema.validate(data, schema)
+except ImportError:
+    pass
+except Exception as exc:
+    errors.append(f"schema gate-output-v1: {exc}")
 
-expected_slice = f"slice-{path.parent.name}"
-if data.get("schema_version") != "1.0.0":
-    errors.append("schema_version deve ser 1.0.0")
-if data.get("slice_id") != expected_slice:
-    errors.append(f"slice_id deve ser {expected_slice}")
+# Checagem manual dos campos top-level (complementa schema)
+required_top = [
+    "$schema", "gate", "slice", "lane", "agent", "mode", "verdict",
+    "timestamp", "commit_hash", "isolation_context",
+    "blocking_findings_count", "non_blocking_findings_count",
+    "findings_by_severity", "findings",
+]
+for key in required_top:
+    if key not in data:
+        errors.append(f"campo gate-output-v1 ausente: {key}")
+
+if data.get("$schema") != "gate-output-v1":
+    errors.append(f"$schema deve ser 'gate-output-v1' (achei '{data.get('$schema')}')")
+if data.get("gate") != "plan-review":
+    errors.append(f"gate deve ser 'plan-review' (achei '{data.get('gate')}')")
+if data.get("slice") != expected_slice:
+    errors.append(f"slice deve ser '{expected_slice}' (achei '{data.get('slice')}')")
 if data.get("verdict") not in {"approved", "rejected"}:
     errors.append("verdict deve ser approved ou rejected")
 
-provenance = data.get("provenance")
-if not isinstance(provenance, dict):
-    errors.append("provenance deve ser objeto")
-else:
-    if provenance.get("agent") != "plan-reviewer":
-        errors.append("provenance.agent deve ser plan-reviewer")
-    if provenance.get("context") != "isolated":
-        errors.append("provenance.context deve ser isolated")
+# Coerencia blocking_findings_count vs findings_by_severity
+sev = data.get("findings_by_severity", {})
+if isinstance(sev, dict):
+    for s in ("S1", "S2", "S3", "S4", "S5"):
+        if not isinstance(sev.get(s), int):
+            errors.append(f"findings_by_severity.{s} deve ser inteiro")
+    if all(isinstance(sev.get(s), int) for s in ("S1", "S2", "S3")):
+        expected_blocking = sev["S1"] + sev["S2"] + sev["S3"]
+        if data.get("blocking_findings_count") != expected_blocking:
+            errors.append(
+                f"blocking_findings_count ({data.get('blocking_findings_count')}) "
+                f"inconsistente com S1+S2+S3 ({expected_blocking})"
+            )
 
-expected_checks = [
-    "ac_coverage",
-    "architectural_decisions",
-    "technical_feasibility",
-    "risks_mitigations",
-    "security",
-    "simplicity",
-]
-checks = data.get("checks", {})
-if not isinstance(checks, dict):
-    errors.append("checks deve ser objeto")
-else:
-    for check in expected_checks:
-        value = checks.get(check)
-        if not isinstance(value, dict):
-            errors.append(f"check ausente ou inválido: {check}")
-            continue
-        if value.get("status") not in {"pass", "fail"}:
-            errors.append(f"{check}.status deve ser pass ou fail")
-        if not isinstance(value.get("details"), str) or value.get("details") == "":
-            errors.append(f"{check}.details deve ser string não vazia")
-
+# Politica zero-tolerance
 findings = data.get("findings", [])
-if not isinstance(findings, list):
-    errors.append("findings deve ser array")
-else:
-    for index, finding in enumerate(findings, start=1):
-        if not isinstance(finding, dict):
-            errors.append(f"finding {index} deve ser objeto")
-            continue
-        for key in ["id", "severity", "category", "location", "description", "recommendation"]:
-            if key not in finding:
-                errors.append(f"finding {index} sem campo {key}")
-        if finding.get("severity") not in {"critical", "major", "minor"}:
-            errors.append(f"finding {index} com severity inválida")
-
-stats = data.get("stats", {})
-if not isinstance(stats, dict):
-    errors.append("stats deve ser objeto")
-else:
-    for key in ["total_checks", "passed", "failed", "findings_critical", "findings_major", "findings_minor"]:
-        if not isinstance(stats.get(key), int):
-            errors.append(f"stats.{key} deve ser inteiro")
+if data.get("verdict") == "rejected" and not findings:
+    errors.append("rejected exige pelo menos um finding")
+if data.get("verdict") == "approved" and data.get("blocking_findings_count") != 0:
+    errors.append("approved exige blocking_findings_count == 0")
 
 if require_approved:
     if data.get("verdict") != "approved":
-        errors.append("verdict deve ser approved")
-    if findings != []:
-        errors.append("findings deve ser [] para liberar /draft-tests")
-    if isinstance(checks, dict):
-        failed_checks = [
-            name for name in expected_checks
-            if isinstance(checks.get(name), dict) and checks[name].get("status") != "pass"
-        ]
-        if failed_checks:
-            errors.append("checks com status fail: " + ", ".join(failed_checks))
-    if isinstance(stats, dict):
-        if stats.get("failed") != 0:
-            errors.append("stats.failed deve ser 0")
-        for key in ["findings_critical", "findings_major", "findings_minor"]:
-            if stats.get(key) != 0:
-                errors.append(f"stats.{key} deve ser 0")
+        errors.append("verdict deve ser approved para liberar /draft-tests")
+    if data.get("blocking_findings_count") != 0:
+        errors.append("approved exige blocking_findings_count == 0 para liberar /draft-tests")
 
 if errors:
     for error in errors:
-        print(f"  ✗ {error}", file=sys.stderr)
+        sys.stderr.write(f"  [FAIL] {error}\n")
     sys.exit(1)
 
-print("  ✓ plan-review.json válido")
-print("  ✓ provenance do plan-reviewer em contexto isolado")
+sys.stdout.write("  [OK] plan-review.json valido (gate-output-v1)\n")
+sys.stdout.write(f"  [OK] isolation_context: {data.get('isolation_context', 'N/A')}\n")
 if require_approved:
-    print("  ✓ plan-review aprovado com findings []")
+    sys.stdout.write("  [OK] plan-review aprovado com blocking_findings_count == 0\n")
 PY
 }
 
@@ -193,7 +172,7 @@ case "$MODE" in
 
     echo ""
     if [ "$ERR" -eq 0 ]; then
-      echo "[plan-review] OK — pré-condições atendidas, pronto para disparar plan-reviewer"
+      echo "[plan-review] OK — pré-condições atendidas, pronto para disparar architecture-expert (modo plan-review)"
       exit 0
     fi
     echo "[plan-review FAIL] corrija os itens acima" >&2
