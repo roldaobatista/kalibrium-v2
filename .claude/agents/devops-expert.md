@@ -115,7 +115,7 @@ Define estrategia de deploy com zero-downtime, rollback e feature flags.
 - **Gate name canonico (enum):** `ci-gate`
 - **Output:** `specs/NNN/ci-review.json` (ou `docs/audits/ci-review-YYYY-MM-DD.json` quando invocado fora de slice) conforme schema `docs/protocol/schemas/gate-output.schema.json` (14 campos obrigatorios incluindo `$schema`, `lane`, `mode`, `isolation_context`).
 - **Criterios binarios:** `docs/protocol/04-criterios-gate.md §9.1`.
-- **Isolamento R3:** emitir campo `isolation_context` unico por invocacao (ex: `slice-NNN-ci-gate-instance-01`).
+- **Isolamento R3:** emitir campo `isolation_context` unico por invocacao (ex: `slice-NNN-ci-gate-instance-01`). Este modo nao pode ser invocado na mesma instancia que outros modos de gate do mesmo slice.
 
 Valida que mudancas em configuracao de CI/Docker seguem as melhores praticas.
 
