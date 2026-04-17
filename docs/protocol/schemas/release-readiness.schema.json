@@ -1,0 +1,334 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kalibrium.local/protocol/schemas/release-readiness.schema.json",
+  "title": "Kalibrium Release Readiness Output v1",
+  "description": "Schema normativo para saidas JSON da skill /release-readiness — meta-gate de release que valida o PROJETO INTEIRO (todos os epicos MVP) antes do deploy. NAO pertence ao enum canonico de gates do pipeline de slice (docs/protocol/00 §3.1 lista 15 gates; release-readiness e meta-gate agregador, nao um deles). Diferente de gate-output.schema.json (gates de slice) e de harness-audit-v1.schema.json (guardrails R1/R3/R16): este schema agrega resultados de todos os slices + verificacoes de projeto (seguranca, documentacao, operacao) em um verdict binario ready|not_ready para o PM. Versao 1.0.0 — formalizado em 2026-04-16 (gap D8 auditoria de qualidade v5).",
+  "type": "object",
+  "required": [
+    "$schema",
+    "release_id",
+    "timestamp",
+    "verdict",
+    "pillars",
+    "findings_count",
+    "findings",
+    "summary"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "release-readiness-v1",
+      "description": "Identificador fixo do schema. Permite que validators detectem o tipo de artefato e distingam de gate-output ou harness-audit."
+    },
+    "release_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9._-]+$",
+      "description": "Identificador unico do release candidato (ex: v1.0.0-mvp, release-2026-04-30). Livre mas sem espacos nem caracteres especiais."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 com timezone UTC (ex: 2026-04-30T18:00:00Z). Momento em que o relatorio foi gerado."
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "not_ready"
+      ],
+      "description": "Resultado binario do meta-gate. ready = todos os 6 pilares ok + zero findings bloqueantes; not_ready = qualquer pilar com status != ok OU qualquer finding S1-S3. Diferente de approved|rejected (gates de slice) e de pass|fail (harness audits) porque este e meta-gate de release."
+    },
+    "commit_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{7,40}$",
+      "description": "Hash do commit candidato a release (main@HEAD normalmente). Opcional mas recomendado para rastreabilidade."
+    },
+    "pillars": {
+      "type": "object",
+      "required": [
+        "produto",
+        "qualidade",
+        "testes",
+        "seguranca",
+        "documentacao",
+        "operacao"
+      ],
+      "description": "Status de cada um dos 6 pilares do checklist de release. Cada pilar agrega multiplos checks objetivos.",
+      "properties": {
+        "produto": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ok", "pending", "blocked"],
+              "description": "ok = todos os epicos MVP merged + PRD frozen; pending = algum item em progresso; blocked = rejeicao R6 pendente."
+            },
+            "epics_completed": {"type": "integer", "minimum": 0},
+            "epics_total": {"type": "integer", "minimum": 0},
+            "stories_merged": {"type": "integer", "minimum": 0},
+            "stories_total": {"type": "integer", "minimum": 0},
+            "prd_frozen": {"type": "boolean"},
+            "r6_escalations_pending": {"type": "integer", "minimum": 0},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "qualidade": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ok", "pending", "blocked"],
+              "description": "ok = todos os slices com todos os gates approved e zero findings S1-S3; blocked = qualquer finding S1-S3 pendente."
+            },
+            "slices_verified": {"type": "integer", "minimum": 0},
+            "slices_code_reviewed": {"type": "integer", "minimum": 0},
+            "slices_security_reviewed": {"type": "integer", "minimum": 0},
+            "slices_test_audited": {"type": "integer", "minimum": 0},
+            "slices_functional_reviewed": {"type": "integer", "minimum": 0},
+            "slices_master_audited": {"type": "integer", "minimum": 0},
+            "findings_s1_s3_open": {"type": "integer", "minimum": 0},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "testes": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ok", "pending", "blocked"],
+              "description": "ok = suite full verde + cobertura 100% de ACs + E2E criticos passam."
+            },
+            "full_suite_green": {"type": "boolean"},
+            "ac_coverage_pct": {"type": "number", "minimum": 0, "maximum": 100},
+            "e2e_critical_passing": {"type": "boolean"},
+            "tests_total": {"type": "integer", "minimum": 0},
+            "tests_failing": {"type": "integer", "minimum": 0},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "seguranca": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ok", "pending", "blocked"],
+              "description": "ok = threat model atualizado + sem secrets + deps sem CVE critico + LGPD checklist completo."
+            },
+            "threat_model_updated": {"type": "boolean"},
+            "secrets_clean": {"type": "boolean"},
+            "critical_vulnerabilities": {"type": "integer", "minimum": 0},
+            "lgpd_checklist_complete": {"type": "boolean"},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "documentacao": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ok", "pending", "blocked"],
+              "description": "ok = README + ADRs + API docs + runbook + changelog todos presentes e atualizados."
+            },
+            "readme_updated": {"type": "boolean"},
+            "adrs_accepted": {"type": "boolean"},
+            "api_docs_present": {"type": "boolean"},
+            "runbook_present": {"type": "boolean"},
+            "changelog_generated": {"type": "boolean"},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        "operacao": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ok", "pending", "blocked"],
+              "description": "ok = healthcheck + logs estruturados + backup + rollback testado + migrations testadas em banco limpo."
+            },
+            "healthcheck_functional": {"type": "boolean"},
+            "structured_logs": {"type": "boolean"},
+            "backup_configured": {"type": "boolean"},
+            "rollback_tested": {"type": "boolean"},
+            "env_vars_documented": {"type": "boolean"},
+            "migrations_clean_db_tested": {"type": "boolean"},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "findings_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Contagem total de findings emitidos. Se 0, verdict DEVE ser ready."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Lista de itens pendentes/bloqueantes encontrados na validacao de release. Vazio quando verdict = ready.",
+      "items": {
+        "type": "object",
+        "required": [
+          "pillar",
+          "severity",
+          "description",
+          "recommendation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^RR-[0-9]+$",
+            "description": "Identificador do finding (ex: RR-001)."
+          },
+          "pillar": {
+            "type": "string",
+            "enum": [
+              "produto",
+              "qualidade",
+              "testes",
+              "seguranca",
+              "documentacao",
+              "operacao"
+            ],
+            "description": "Qual dos 6 pilares o finding pertence."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["S1", "S2", "S3", "S4", "S5"],
+            "description": "Severidade conforme docs/protocol/01-sistema-severidade.md. S1-S3 bloqueiam release; S4-S5 sao informativos."
+          },
+          "description": {
+            "type": "string",
+            "description": "Descricao humana detalhada do item pendente (ex: 'slice-015 com security-review pendente')."
+          },
+          "recommendation": {
+            "type": "string",
+            "description": "Acao recomendada ao PM (ex: 'Rodar /security-review 015' ou 'Criar runbook em docs/ops/runbook.md')."
+          },
+          "slice": {
+            "type": ["string", "null"],
+            "description": "Slice especifico envolvido (quando aplicavel). Formato NNN."
+          },
+          "path": {
+            "type": ["string", "null"],
+            "description": "Caminho do arquivo envolvido (quando aplicavel)."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "automatic_validations": {
+      "type": "object",
+      "description": "Resultados das validacoes automaticas executadas durante release-readiness (suite de testes full, scan de secrets, scan de CVEs, teste de migrations em banco limpo). Unico momento em que suite full e permitida (P8).",
+      "properties": {
+        "full_test_suite": {
+          "type": "object",
+          "properties": {
+            "ran": {"type": "boolean"},
+            "exit_code": {"type": "integer"},
+            "tests_total": {"type": "integer", "minimum": 0},
+            "tests_passed": {"type": "integer", "minimum": 0},
+            "tests_failed": {"type": "integer", "minimum": 0},
+            "duration_seconds": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": true
+        },
+        "vulnerability_scan": {
+          "type": "object",
+          "properties": {
+            "ran": {"type": "boolean"},
+            "cves_critical": {"type": "integer", "minimum": 0},
+            "cves_high": {"type": "integer", "minimum": 0},
+            "cves_total": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": true
+        },
+        "secrets_scan": {
+          "type": "object",
+          "properties": {
+            "ran": {"type": "boolean"},
+            "secrets_found": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": true
+        },
+        "migrations_clean_db": {
+          "type": "object",
+          "properties": {
+            "ran": {"type": "boolean"},
+            "success": {"type": "boolean"},
+            "migrations_total": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "summary": {
+      "type": "string",
+      "description": "Resumo textual do veredicto em linguagem de produto (R12). Usado para apresentacao direta ao PM, sem traducao adicional. Maximo 3 paragrafos."
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Proxima acao unica e clara para o PM (R12). Ex: 'Aprovar deploy em producao', 'Rodar /security-review 015'."
+    }
+  },
+  "allOf": [
+    {
+      "description": "verdict ready exige findings_count == 0 e todos os 6 pilares com status ok.",
+      "if": {
+        "properties": {"verdict": {"const": "ready"}}
+      },
+      "then": {
+        "properties": {
+          "findings_count": {"const": 0},
+          "pillars": {
+            "properties": {
+              "produto": {"properties": {"status": {"const": "ok"}}},
+              "qualidade": {"properties": {"status": {"const": "ok"}}},
+              "testes": {"properties": {"status": {"const": "ok"}}},
+              "seguranca": {"properties": {"status": {"const": "ok"}}},
+              "documentacao": {"properties": {"status": {"const": "ok"}}},
+              "operacao": {"properties": {"status": {"const": "ok"}}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "verdict not_ready exige findings_count >= 1 OU algum pilar com status != ok.",
+      "if": {
+        "properties": {"verdict": {"const": "not_ready"}}
+      },
+      "then": {
+        "anyOf": [
+          {"properties": {"findings_count": {"minimum": 1}}},
+          {
+            "properties": {
+              "pillars": {
+                "anyOf": [
+                  {"properties": {"produto": {"properties": {"status": {"enum": ["pending", "blocked"]}}}}},
+                  {"properties": {"qualidade": {"properties": {"status": {"enum": ["pending", "blocked"]}}}}},
+                  {"properties": {"testes": {"properties": {"status": {"enum": ["pending", "blocked"]}}}}},
+                  {"properties": {"seguranca": {"properties": {"status": {"enum": ["pending", "blocked"]}}}}},
+                  {"properties": {"documentacao": {"properties": {"status": {"enum": ["pending", "blocked"]}}}}},
+                  {"properties": {"operacao": {"properties": {"status": {"enum": ["pending", "blocked"]}}}}}
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
