@@ -163,23 +163,41 @@
     "approved_at": "2026-04-16T01:30:00Z"
   },
   "technical_debt": [
-    "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
-    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md - RESOLVED (repo public)",
-    "secret CI_DB_PASSWORD - RESOLVED (cadastrada 2026-04-16)",
     "GAP-S05-001: automacao trial->expired (job/scheduler ausente) - epics/E02/stories/E02-S05.md",
     "GAP-S06-001: pro-rata upgrade/downgrade nao implementado - epics/E02/stories/E02-S06.md",
-    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md - RESOLVED",
     "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd",
     "AMPLIATION-002: sequencing-check.sh (R13/R14) precisa ajustar ordem E03->E15->E16->E04+ e incluir E21-E25",
-    "AMPLIATION-003: Frontend antigo Livewire/Blade de E01/E02/E03 sera descartado; auditoria de aproveitamento pendente em spike INF-007",
     "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico",
     "AMPLIATION-V3-002: ADR-0016 (multi-tenant isolation) criada mas ainda nao implementada - deve entrar no escopo de E15 antes do schema ser definido",
-    "AMPLIATION-V3-003: E25 tem prazo fixo antes de 2026-01-01 (RTC) - monitorar publicacao de NT da CGNFS-e",
     "HARNESS-MIGRATION-001: scripts/hooks/verifier-sandbox.sh (selado) ainda usa allowlist AGENT_ROLE v1; exige relock externo do PM para upgrade de agent names v3. Plano em docs/incidents/harness-sandbox-role-drift-2026-04-17.md (pendente criar).",
     "HARNESS-MIGRATION-002: AC-ID format canonico AC-NNN-XXX (protocolo §10.1) conflita com validador scripts/draft-spec.sh; candidato a harness-learner (R16).",
     "HARNESS-MIGRATION-003: docs/schemas/{plan-review,review,verification,security-review,test-audit,functional-review,guide-audit}.schema.json marcados deprecated 2026-04-17. Remover apos 30 dias sem referencia."
   ],
-  "technical_debt_count": 15,
+  "technical_debt_count": 9,
+  "technical_debt_cleanup_2026_04_17": {
+    "policy": "feedback_zero_technical_debt — PM exige lista em zero permanente",
+    "removed_count": 6,
+    "removed_items": [
+      {"item": "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md", "reason": "registro histórico de decisão de produto, não é débito"},
+      {"item": "ci-blocked-by-actions-quota", "reason": "RESOLVED (repo tornou-se público em 2026-04-15)"},
+      {"item": "CI_DB_PASSWORD secret", "reason": "RESOLVED (cadastrada em 2026-04-16)"},
+      {"item": "gitguardian-app-key-leak", "reason": "RESOLVED (APP_KEY rotacionada em 2026-04-16)"},
+      {"item": "AMPLIATION-003", "reason": "auditoria de aproveitamento do frontend Livewire/Blade ja coberta pelo spike INF-007 (E15-S01 merged via PR #36 em 2026-04-17)"},
+      {"item": "AMPLIATION-V3-003", "reason": "prazo RTC 2026-01-01 e vigilancia continua, nao debito — monitoramento movido para ROADMAP.md (E25)"}
+    ],
+    "remaining_count": 9,
+    "remaining_plan": {
+      "GAP-S05-001": "criar story retrofit em E02 (job trial->expired)",
+      "GAP-S06-001": "criar story retrofit em E02 (pro-rata upgrade/downgrade)",
+      "AMPLIATION-001": "incorporar PRDs v1+v2+v3 inline em PRD.md via /freeze-prd (sessao dedicada)",
+      "AMPLIATION-002": "ajustar scripts/sequencing-check.sh para ordem E03->E15->E16->E04+ e incluir E21-E25",
+      "AMPLIATION-V3-001": "decompor E16-E25 em diretorios epics/ENN/ via /decompose-stories (10 epicos - trabalho grande)",
+      "AMPLIATION-V3-002": "documentar ADR-0016 entra como AC em E15-S03+ (slice de schema); converter em story E15-SXX",
+      "HARNESS-MIGRATION-001": "criar .bat externo + documento incident para PM rodar relock da allowlist v3",
+      "HARNESS-MIGRATION-002": "ajustar scripts/draft-spec.sh para aceitar AC-NNN-XXX (protocolo §10.1)",
+      "HARNESS-MIGRATION-003": "agendar remocao em 2026-05-17 (>30 dias sem referencia) - mover para CRON do harness"
+    }
+  },
   "harness_migration_2026_04_17": {
     "status": "completed",
     "scope": "Alinhar scripts auxiliares e schemas ao protocolo v1.2.2 + gate-output-v1 (v1.2.4)",
