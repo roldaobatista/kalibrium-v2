@@ -47,7 +47,7 @@ protocol_version: "1.2.2"
    **Regras de simetria** (para garantir independência genuína):
    - Prompts idênticos em estrutura e conteúdo
    - Nenhuma trilha lê o output da outra
-   - Cada trilha emite JSON validado contra `docs/schemas/master-audit-trail.schema.json`
+   - Cada trilha emite JSON validado contra `docs/protocol/schemas/gate-output.schema.json`
 
 3. **Consolidação pelo orquestrador:**
    - Se **ambas as trilhas** retornam `verdict: approved` com `findings: []` → **consenso approved**
