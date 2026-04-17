@@ -122,6 +122,6 @@ A skill não é considerada executada sem o artefato JSON gravado. O orquestrado
 - **Agents invocados:** nenhum (orquestrador executa hook selado).
 - **Gates produzidos:** não é gate de slice; é guardrail de R1.
 - **Output:** `docs/audits/forbidden-files-scan-YYYY-MM-DD.json` (schema `harness-audit-v1`).
-- **Schema formal:** `docs/protocol/schemas/harness-audit-v1.schema.json` (quando formalizado).
+- **Schema formal:** `docs/protocol/schemas/harness-audit-v1.schema.json` (v1.0.0 — formalizado em 2026-04-16; campos obrigatorios: `$schema`, `audit_type`, `timestamp`, `verdict`, `findings_count`, `findings`, `evidence`).
 - **Isolamento R3:** não aplicável (sem sub-agent).
 - **Ordem no pipeline:** complementar a SessionStart hook; invocado ad hoc ou antes de `/guide-check`.
