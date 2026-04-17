@@ -1,6 +1,6 @@
 {
   "$schema": "gate-output-v1",
-  "gate": "security",
+  "gate": "security-gate",
   "slice": "016",
   "lane": "L3",
   "agent": "security-expert",
@@ -11,7 +11,13 @@
   "isolation_context": "slice-016-security-gate-instance-01",
   "blocking_findings_count": 0,
   "non_blocking_findings_count": 0,
-  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 0,
+    "S5": 0
+  },
   "findings": [],
   "next_action": "approve_pr",
   "evidence": {
@@ -102,7 +108,14 @@
     },
     "secrets_file_scan": {
       "status": "clean",
-      "patterns_checked": [".env", "API_KEY", "SECRET", "TOKEN", "PASSWORD", "PRIVATE_KEY"],
+      "patterns_checked": [
+        ".env",
+        "API_KEY",
+        "SECRET",
+        "TOKEN",
+        "PASSWORD",
+        "PRIVATE_KEY"
+      ],
       "occurrences": 0,
       "detail": "Nenhum secret hardcoded nos arquivos do scaffold. Nenhum .env versionado. Usa import.meta.env (Vite) como convencao para stories futuras."
     },
@@ -116,7 +129,14 @@
     },
     "threat_model_alignment": {
       "applicable_threats_for_this_slice": [],
-      "deferred_threats": ["T-001", "T-002", "T-007", "T-008", "T-012", "T-013"],
+      "deferred_threats": [
+        "T-001",
+        "T-002",
+        "T-007",
+        "T-008",
+        "T-012",
+        "T-013"
+      ],
       "note": "Ameacas relevantes (auth, sessao, RLS, logs PII, RBAC) aplicam-se a stories E15-S07+ (auth funcional) e backend APIs. Este scaffold nao as introduz."
     }
   }
