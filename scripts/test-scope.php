@@ -79,8 +79,11 @@ function testScopeSliceCommand(string $slice, array $extraArguments): array
         exit(2);
     }
 
-    if ($slice === '001' && file_exists('tests/slice-001/ac-tests.sh')) {
-        return ['bash', 'tests/slice-001/ac-tests.sh'];
+    // Qualquer slice pode delegar para um ac-tests.sh (usado por slice-001 legado
+    // e por slices frontend-only como slice-016 que rodam Node+Playwright).
+    $acTestsSh = "tests/slice-{$slice}/ac-tests.sh";
+    if (file_exists($acTestsSh)) {
+        return ['bash', $acTestsSh];
     }
 
     $path = "tests/slice-{$slice}";

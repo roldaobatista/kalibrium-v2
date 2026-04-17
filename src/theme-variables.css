@@ -1,0 +1,20 @@
+/* Ionic CSS Variables — Kalibrium theme (scaffold slice-016, default tokens) */
+
+:root {
+    --ion-color-primary: #3880ff;
+    --ion-color-primary-rgb: 56, 128, 255;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #3171e0;
+    --ion-color-primary-tint: #4c8dff;
+}
+
+/* Prevent horizontal overflow at the document root (AC-006). */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}

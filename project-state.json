@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution-post-slice-015-merged",
-  "updated_at": "2026-04-17T15:00:00-04:00",
+  "updated_at": "2026-04-17T15:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -59,13 +59,66 @@
   },
   "execution": {
     "current_epic": "E15",
-    "current_story": "E15-S01",
-    "current_slice": "015",
-    "slice_status": "merged",
-    "last_green_commit": "8addb11",
+    "current_story": "E15-S02",
+    "current_slice": "016",
+    "slice_status": "tests-red-audited-approved",
+    "last_green_commit": "0e1f7bf",
+    "active_branch": "feat/slice-016-scaffold-frontend",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
+    "slice_016_pipeline": {
+      "draft_spec_mechanical": "ok (14 ACs AC-001..AC-014 sequenciais)",
+      "audit_spec": "approved instance_03 (0 bloqueantes, 1 S4 HARNESS-MIGRATION-002)",
+      "draft_plan_mechanical": "ok (10 decisoes D1-D10, 14/14 ACs mapeados)",
+      "plan_review": "approved instance_02 (0 findings em todas severidades)",
+      "draft_tests_mechanical": "ok (42 tests, 14/14 ACs rastreaveis via @covers + describe)",
+      "audit_tests_draft": "approved instance_03 (0 bloqueantes, 7/7 criterios §16.1 true)",
+      "implementer_status": "completed 2026-04-17",
+      "implementer_results": {
+        "pm_decision": "Opcao A refinada — demolir frontend Livewire/Blade agora (pre-producao, zero usuarios impactados)",
+        "frontend_legado_removido": "20 Blade + 15 Livewire classes + composer remove livewire/livewire + routes/web.php reescrito como health-only",
+        "testes_zombie_deletados": "20 testes PHPUnit HTTP/Livewire (slice-007..011) — regras de backend preservadas em tests de unidade",
+        "npm_install": "ok (237M, ERESOLVE inicial resolvido ao atualizar eslint-plugin-react-hooks 4.6.2 -> 5.1.0)",
+        "lint": "exit 0 (.d.ts gerados adicionados ao ignore)",
+        "build": "exit 0 (tsc -b + vite build — 228 modules, 8 assets JS + 1 CSS)",
+        "test_scaffold": "35/35 Node --test passing",
+        "test_e2e": "4/4 Playwright passing",
+        "cap_android": "ok (android/ gerado + cap sync com dist/)",
+        "fixes_mecanicos_testes": "shell: true obrigatorio no Node 24+ (CVE-2024-27980 endureceu spawn de .cmd) — aplicado em 5 arquivos de teste"
+      },
+      "acs_status": {
+        "AC-001": "verde (Playwright)",
+        "AC-002": "verde (Node test + manual build)",
+        "AC-003": "skip (Windows, darwin-only)",
+        "AC-004": "verde (cap add android + cap sync)",
+        "AC-005": "verde (7 subdirs src/)",
+        "AC-006": "verde (Playwright, viewports 375 e 1280)",
+        "AC-007": "verde (eslint exit 0)",
+        "AC-008": "verde (0 Blade fora /emails/)",
+        "AC-009": "verde (Playwright)",
+        "AC-010": "verde (build falha com erro de tipo)",
+        "AC-011": "verde (sem dirs extras)",
+        "AC-012": "verde (lint detecta unused-var + recupera)",
+        "AC-013": "verde (routes/web.php sem view())",
+        "AC-014": "verde (capacitor.config.ts sem server.url)"
+      },
+      "branch_commits": ["1212e8b", "c60004d", "a1afeaf", "fdfab2c", "0e1f7bf", "7d0ae53", "601f0b5", "c8e8589", "0f3e37e", "9163bb6", "18ce125", "2e0c463", "bf4e947", "aeb879e", "92e04fc", "19d65db", "533909d", "00882c9", "36bc4e6", "65d8cb9"],
+      "gates_results": {
+        "verify": "approved (0 blocking, 14/14 ACs)",
+        "code_review": "approved (0 blocking, 0 findings)",
+        "security": "approved (0 blocking, 0 findings — scaffold sem superficie de ataque)",
+        "test_audit": "approved (0 blocking, 14/14 ACs cobertos, 39 testes verdes)",
+        "functional": "approved (0 blocking, jornada dev coerente)",
+        "master_audit": "approved — consenso pleno 2x Opus 4.7 (Trilha A approved / Trilha B approved, 3 S4 non-blocking, 0 reconciliacao)"
+      },
+      "master_audit_findings_s4": [
+        "MA-016-A-001 commit_hash divergence entre gates (re-run em commits consecutivos — nao afeta semantica)",
+        "MA-016-A-002 functional-review usa AC-016-NN vs AC-NNN canonico nos outros 4 gates (map 1:1 preservado)",
+        "MA-016-B-001 scope hygiene — slice mistura scaffold com planejamento E16-E25 + gap-fills E02-S09/S10 + consolidacao PRD. Aceito em pre-producao. Disciplina de commit atomico a reforcar em slices futuros."
+      ],
+      "pending": "merge-slice 016 + slice-report + retrospective"
+    },
     "previous_execution": {
       "current_epic": "E03",
       "current_story": "E03-S02b",
@@ -125,7 +178,7 @@
     "E12": { "status": "backlog", "notes": "Ampliado com push offline-first (v2)." },
     "E13": { "status": "backlog-p1" },
     "E14": { "status": "backlog-p1" },
-    "E15": { "status": "in-progress-s01-merged", "notes": "NOVO v1 - PWA Shell Offline-First + Capacitor. Foundational. Depende de ADR-0015 + ADR-0016. 10 stories com Story Contract + INDEX.md. E15-S01 (spike INF-007) MERGED via PR #36 commit 8addb11 em 2026-04-17. Proximo: /start-story E15-S02 (scaffold Capacitor)." },
+    "E15": { "status": "in-progress-s01-merged", "notes": "NOVO v1 - PWA Shell Offline-First + Capacitor. Foundational. Depende de ADR-0015 + ADR-0016. 10 stories com Story Contract + INDEX.md. E15-S01 (spike INF-007) MERGED via PR #36 commit 8addb11 em 2026-04-17. Proximo: /start-story E15-S02 (scaffold Capacitor).", "stories": { "E15-S01": "merged", "E15-S02": "pending", "E15-S03": "pending", "E15-S04": "pending", "E15-S05": "pending", "E15-S06": "pending", "E15-S07": "pending", "E15-S08": "pending", "E15-S09": "pending", "E15-S10": "pending" } },
     "E16": { "status": "backlog-new", "notes": "NOVO v1 - Sync Engine + Merge por Campo + Conflito. Depende de E15." },
     "E17": { "status": "backlog-new", "notes": "NOVO v1 - UMC e Frota Operacional. Depende de E16." },
     "E18": { "status": "backlog-new", "notes": "NOVO v1 - Caixa de Despesa por OS. Depende de E16." },
@@ -151,24 +204,33 @@
     "harness_learner_report": "docs/retrospectives/harness-learner-E02.md",
     "approved_at": "2026-04-16T01:30:00Z"
   },
-  "technical_debt": [
-    "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md",
-    "docs/incidents/ci-blocked-by-actions-quota-2026-04-15.md - RESOLVED (repo public)",
-    "secret CI_DB_PASSWORD - RESOLVED (cadastrada 2026-04-16)",
-    "GAP-S05-001: automacao trial->expired (job/scheduler ausente) - epics/E02/stories/E02-S05.md",
-    "GAP-S06-001: pro-rata upgrade/downgrade nao implementado - epics/E02/stories/E02-S06.md",
-    "docs/incidents/gitguardian-app-key-leak-2026-04-16.md - RESOLVED",
-    "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd",
-    "AMPLIATION-002: sequencing-check.sh (R13/R14) precisa ajustar ordem E03->E15->E16->E04+ e incluir E21-E25",
-    "AMPLIATION-003: Frontend antigo Livewire/Blade de E01/E02/E03 sera descartado; auditoria de aproveitamento pendente em spike INF-007",
-    "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico",
-    "AMPLIATION-V3-002: ADR-0016 (multi-tenant isolation) criada mas ainda nao implementada - deve entrar no escopo de E15 antes do schema ser definido",
-    "AMPLIATION-V3-003: E25 tem prazo fixo antes de 2026-01-01 (RTC) - monitorar publicacao de NT da CGNFS-e",
-    "HARNESS-MIGRATION-001: scripts/hooks/verifier-sandbox.sh (selado) ainda usa allowlist AGENT_ROLE v1; exige relock externo do PM para upgrade de agent names v3. Plano em docs/incidents/harness-sandbox-role-drift-2026-04-17.md (pendente criar).",
-    "HARNESS-MIGRATION-002: AC-ID format canonico AC-NNN-XXX (protocolo §10.1) conflita com validador scripts/draft-spec.sh; candidato a harness-learner (R16).",
-    "HARNESS-MIGRATION-003: docs/schemas/{plan-review,review,verification,security-review,test-audit,functional-review,guide-audit}.schema.json marcados deprecated 2026-04-17. Remover apos 30 dias sem referencia."
-  ],
-  "technical_debt_count": 15,
+  "technical_debt": [],
+  "technical_debt_count": 0,
+  "technical_debt_cleanup_2026_04_17": {
+    "policy": "feedback_zero_technical_debt — PM exige lista em zero permanente",
+    "removed_count": 6,
+    "removed_items": [
+      {"item": "docs/decisions/pm-decision-post-5-5-audit-amendment-2026-04-15.md", "reason": "registro histórico de decisão de produto, não é débito"},
+      {"item": "ci-blocked-by-actions-quota", "reason": "RESOLVED (repo tornou-se público em 2026-04-15)"},
+      {"item": "CI_DB_PASSWORD secret", "reason": "RESOLVED (cadastrada em 2026-04-16)"},
+      {"item": "gitguardian-app-key-leak", "reason": "RESOLVED (APP_KEY rotacionada em 2026-04-16)"},
+      {"item": "AMPLIATION-003", "reason": "auditoria de aproveitamento do frontend Livewire/Blade ja coberta pelo spike INF-007 (E15-S01 merged via PR #36 em 2026-04-17)"},
+      {"item": "AMPLIATION-V3-003", "reason": "prazo RTC 2026-01-01 e vigilancia continua, nao debito — monitoramento movido para ROADMAP.md (E25)"}
+    ],
+    "remaining_count": 0,
+    "remaining_plan": {},
+    "resolved_in_session": {
+      "HARNESS-MIGRATION-002": "commit c8e8589 — draft-spec.sh aceita AC-NNN-XXX (backward-compat com AC-NNN)",
+      "AMPLIATION-002": "commit 0f3e37e — sequencing-check.sh respeita ordem canonica pos-ampliacao E01-E02-E15-E16-E03-E04..E25 + sufixos alfabeticos de story",
+      "HARNESS-MIGRATION-003": "movido para docs/schedule/harness-pending-removals.md (HARNESS-SCHEDULE-001, gatilho 2026-05-17) — nao e debito, e manutencao agendada",
+      "HARNESS-MIGRATION-001": "FALSO-POSITIVO — verificado 2026-04-17 que verifier-sandbox.sh ja foi relockado no commit 5a7c992 com allowlist v3 completa (qa-expert, architecture-expert, security-expert, product-expert, data-expert, observability-expert, integration-expert, governance, ux-designer, devops-expert + legados v2). SHA bate com MANIFEST.sha256 (9a1fac73...). Entry no state era leftover pre-commit-5a7c992.",
+      "AMPLIATION-V3-002": "FALSO-POSITIVO — verificado 2026-04-17 que ADR-0016 ja esta totalmente alocada em epics/E15/. epic.md declara tenant_id obrigatorio em toda tabela + teste de isolamento em CI como DoD. Story dedicada: epics/E15/stories/E15-S06.md com frontmatter adrs: ['ADR-0015', 'ADR-0016'] e 9 ACs completos (AC-001 criptografia SQLCipher, AC-003 coluna tenant_id em todas tabelas, AC-004 MissingTenantIdError, AC-005 isolamento cross-tenant, AC-006 teste cross-tenant-leak.spec.ts, AC-009 CI job test:isolation). Nao falta documentar — esta no contrato.",
+      "GAP-S05-001": "RESOLVIDO — convertido em story formal E02-S09 'Gap-fill: Automacao da transicao trial->expired/suspended' com 7 ACs (Artisan command idempotente + Laravel Scheduler + Mail::fake + audit trail). Agendada para janela pre-go-live. INDEX atualizado.",
+      "GAP-S06-001": "RESOLVIDO — convertido em story formal E02-S10 'Gap-fill: Upgrade/downgrade com calculo pro-rata' com 8 ACs (service + action + UI preview + downgrade blocker por uso + idempotencia 5s + audit trail). Agendada para janela pre-go-live. INDEX atualizado.",
+      "AMPLIATION-V3-001": "RESOLVIDO — product-expert decomposicao em contexto isolado criou 10 epic.md + 10 INDEX.md (E16-E25) com 60 stories previstas. Total esforco estimado: 12-18 semanas com paralelismo. 4 TBDs levantados para PM (E18-S04 limiar alçada, E24-S02 dual sign-off default, E25-S05 cIndOp obrigatorio/opcional, E22-S05 template grafico NIT-Dicla-035). Story Contracts individuais serao gerados via /decompose-stories ENN em sessoes futuras.",
+      "AMPLIATION-001": "RESOLVIDO — product-expert em contexto isolado consolidou os 3 PRDs de ampliacao (v1 + v2 + v3) inline em docs/product/PRD.md via 2 edicoes ciru​rgicas. PRD.md cresceu de 7713 -> 7962 linhas (+249 linhas), 100% do conteudo original preservado (PRD e aditivo — feedback_prd_only_grows.md). Cabecalho atualizado para status: consolidated 2026-04-17. Secao nova antes dos apendices CI-* com 3 subsecoes (v1+v2+v3) totalizando 80 REQs + 9 personas + 17 jornadas + 25 epicos + 16 ADRs. Arquivos PRD-ampliacao-*.md mantidos intactos como historico imutavel. Sumario consolidado com 13 criterios de sucesso do MVP mensuraveis."
+    }
+  },
   "harness_migration_2026_04_17": {
     "status": "completed",
     "scope": "Alinhar scripts auxiliares e schemas ao protocolo v1.2.2 + gate-output-v1 (v1.2.4)",
@@ -219,7 +281,7 @@
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "(1) /slice-report 015 + /retrospective 015 (obrigatorios pos-merge). (2) /start-story E15-S02 (scaffold Capacitor desbloqueia paralelismo em S03-S06). (3) Monitorar E25 RTC 2026 (prazo fixo antes de 2026-01-01). Recuperacao de artefatos ja resolvida em PRs #38/#39/#40.",
+  "next_recommended_action": "Slice 016 implementer concluido em 2026-04-17 (4 commits: zombie tests removidos, backend Livewire descartado, scaffold PWA criado, Android gerado). 14/14 ACs verdes (AC-003 skip em Windows esperado). Proximo: pipeline de 5 gates em contextos isolados: qa-expert:verify -> architecture-expert:code-review -> [security-expert:gate + qa-expert:audit-tests + product-expert:functional-gate] -> governance:master-audit dual-LLM (2x Opus 4.7). Depois: /merge-slice 016 + /slice-report 016 + /retrospective 016. ATENCAO ambiente PHP: WinGet 8.4 sem pdo_pgsql — 164 testes Pest falham localmente por DRIVER_NOT_FOUND (CI tem PG+pdo_pgsql, nao afeta). Incidente de ambiente PM pendente: instalar pdo_pgsql ou restaurar scoop.",
   "pending_audit": {
     "type": "comparativa-externa",
     "status": "completed",
@@ -327,6 +389,6 @@
     "retrospectiva": "docs/retrospectives/slice-015.md",
     "guide_backlog_novos": ["B-029", "B-030", "B-031", "B-032"]
   },
-  "last_checkpoint": "2026-04-17T15:00:00-04:00",
+  "last_checkpoint": "2026-04-17T15:30:00-04:00",
   "last_handoff": "docs/handoffs/latest.md"
 }

@@ -1,0 +1,103 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "audit-tests-draft",
+  "slice": "016",
+  "lane": "L3",
+  "agent": "qa-expert",
+  "mode": "audit-tests-draft",
+  "verdict": "approved",
+  "timestamp": "2026-04-17T18:00:00Z",
+  "commit_hash": "fdfab2c",
+  "isolation_context": "slice-016-audit-tests-draft-instance-03",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 0,
+    "S5": 0
+  },
+  "findings": [],
+  "evidence": {
+    "checks": {
+      "every_ac_has_test": true,
+      "every_test_references_ac": true,
+      "tests_are_red": true,
+      "assertions_have_semantic_meaning": true,
+      "mocks_respect_ac_integration_level": true,
+      "no_duplicate_tests": true,
+      "edge_cases_from_spec_covered": true
+    },
+    "ac_coverage_map": {
+      "AC-001": {
+        "tests": ["tests/e2e/ac-001-dev-server.spec.ts::AC-001: /login renders an Ionic-rooted page with zero console errors"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-002": {
+        "tests": ["tests/scaffold/ac-002-build-web.test.cjs::AC-002: npm run build exits with code 0"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-003": {
+        "tests": ["tests/scaffold/ac-003-cap-ios.test.cjs::AC-003: Capacitor iOS platform added and syncable (macOS only)"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-004": {
+        "tests": ["tests/scaffold/ac-004-cap-android.test.cjs::AC-004: npx cap add android exits with code 0 (or already exists)"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-005": {
+        "tests": ["tests/scaffold/ac-005-structure.test.cjs::AC-005: src/ exists as a directory"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-006": {
+        "tests": ["tests/e2e/ac-006-layout-adaptive.spec.ts::AC-006: viewport mobile-375x667 — scrollWidth <= clientWidth"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-007": {
+        "tests": ["tests/scaffold/ac-007-lint.test.cjs::AC-007: npm run lint exits 0 with no errors"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-008": {
+        "tests": ["tests/scaffold/ac-008-legacy-removed.test.cjs::AC-008: no *.blade.php under resources/views/ except under /emails/"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-009": {
+        "tests": ["tests/e2e/ac-001-dev-server.spec.ts::AC-009: second npm run dev on occupied port 5173 announces the conflict"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-010": {
+        "tests": ["tests/scaffold/ac-002-build-web.test.cjs::AC-010: npm run build exits with non-zero when src/__type_check__.tsx has a type error"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-011": {
+        "tests": ["tests/scaffold/ac-005-structure.test.cjs::AC-011: src/legacy/ must NOT exist"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-012": {
+        "tests": ["tests/scaffold/ac-007-lint.test.cjs::AC-012: npm run lint exits non-zero while seed file with violation exists"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-013": {
+        "tests": ["tests/scaffold/ac-008-legacy-removed.test.cjs::AC-013: routes/web.php does not contain view( or return view calls"],
+        "trace_method": "docblock_covers_annotation"
+      },
+      "AC-014": {
+        "tests": ["tests/scaffold/ac-014-capacitor-security.test.cjs::AC-014: capacitor.config.ts exists"],
+        "trace_method": "docblock_covers_annotation"
+      }
+    },
+    "test_run_summary": {
+      "total_tests": 35,
+      "red_as_expected": 27,
+      "unexpectedly_passing": 8,
+      "parse_errors": 0,
+      "note_on_passing": "8 testes passam sem scaffold: AC-003 skip documentado (não-darwin, comportamento correto), AC-011 dirs legacy não existem (pré-scaffold = ausência confirmada, semântica correta), package.json lint script declarado, emails/ preservado — todos semanticamente válidos pré-implementação"
+    },
+    "unlinked_tests": [],
+    "trivial_assertions": [],
+    "duplicate_tests": [],
+    "ac012_fix_confirmed": "eslint-disable-next-line removido de tests/scaffold/ac-007-lint.test.cjs (grep retornou vazio — zero ocorrências)",
+    "summary": "14/14 ACs rastreáveis via @covers docblock + describe('AC-NNN:'). 27 falhas semânticas confirmadas (AssertionError com actual/expected concretos). AC-012 fix confirmado: sem eslint-disable no arquivo de teste. Edge cases AC-009..AC-014 todos cobertos. Aprovado para prosseguir para builder:implementer."
+  }
+}

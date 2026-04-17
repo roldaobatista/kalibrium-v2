@@ -1,12 +1,17 @@
 # Kalibrium — Product Requirements Document (PRD)
 
-> 🔄 **STATUS 2026-04-16: EM REVISÃO — AMPLIAÇÃO EM CURSO.** O conteúdo atual está correto mas **incompleto**: operação de campo, UMC (Unidade Móvel de Calibração), veículos operacionais e offline-first sistêmico não foram capturados no intake original. O PRD está sendo **ampliado** (não substituído) — tudo que já está documentado permanece; capítulos novos são adicionados.
+> **STATUS:** `consolidated` — 2026-04-17. PRD unificado: base + ampliação v1 (offline-first, 33 REQs, E15-E20) + ampliação v2 (fiscal/LGPD/push/SPC/drift/revalidação, 8 REQs, E21-E23, Persona 8) + ampliação v3 (ISO 17025 robusto/operação resiliente/RTC 2026, 10 REQs, E24-E25, ADR-0016). Total: **80 REQs, 9 personas, 17 jornadas, 25 épicos, 16 ADRs**. Produção: 2026.
 >
-> **Ampliação documentada em arquivo dedicado:** [`docs/product/PRD-ampliacao-2026-04-16.md`](PRD-ampliacao-2026-04-16.md) — 16 capítulos novos (modos de operação, offline-first, UMC/frota, caixa de despesa por OS, estoque multinível, CRM vendedor, segurança mobile, sync engine, 33 REQs novos, 6 épicos novos no roadmap). Os dois arquivos devem ser lidos juntos até que o PRD seja re-congelado.
+> Princípio inviolável: PRD é aditivo — nada foi removido. Todos os REQs originais e das 3 rodadas de ampliação estão incorporados inline nas seções canônicas deste documento.
 >
-> Ver também: [`docs/incidents/discovery-gap-offline-2026-04-16.md`](../incidents/discovery-gap-offline-2026-04-16.md) (incidente que motivou) e [`docs/adr/0015-stack-offline-first-mobile.md`](../adr/0015-stack-offline-first-mobile.md) (ADR de stack nova).
+> Histórico imutável das ampliações (não alterar):
+> - [`docs/product/PRD-ampliacao-2026-04-16.md`](PRD-ampliacao-2026-04-16.md) — v1: offline-first sistêmico (33 REQs, E15-E20, ADR-0015, 5 personas novas, 6 jornadas novas)
+> - [`docs/product/PRD-ampliacao-2026-04-16-v2.md`](PRD-ampliacao-2026-04-16-v2.md) — v2: fiscal/LGPD/push/SPC/drift/revalidação (8 REQs, E21-E23, Persona 8 Aline, 3 jornadas novas)
+> - [`docs/product/PRD-ampliacao-2026-04-16-v3.md`](PRD-ampliacao-2026-04-16-v3.md) — v3: ISO 17025 robusto, operação resiliente, RTC 2026 (10 REQs, E24-E25, ADR-0016, refinamento Persona 1)
 >
-> Nenhum slice novo deve ser iniciado até a ampliação ser concluída e o PRD re-congelado.
+> Incidente de origem offline: [`docs/incidents/discovery-gap-offline-2026-04-16.md`](../incidents/discovery-gap-offline-2026-04-16.md).
+> Auditoria comparativa externa: [`docs/audits/comparativa-externa-2026-04-16.md`](../audits/comparativa-externa-2026-04-16.md).
+> Re-auditoria independente: [`docs/audits/comparativa-externa-reaudit-2026-04-16.md`](../audits/comparativa-externa-reaudit-2026-04-16.md).
 
 > **Diretrizes editoriais deste PRD:** [`docs/governance/prd-editorial-guide.md`](../governance/prd-editorial-guide.md) — mapa de canonicalidade, regras de resolução de conflitos, matriz de rastreabilidade e consolidações obrigatórias de leitura.
 > **Backup do PRD compactado anterior:** [`docs/product/PRD-compactado-backup-2026-04-11.md`](PRD-compactado-backup-2026-04-11.md).
@@ -5963,6 +5968,250 @@ O **Tipo 5** da tabela acima (empresa que não emite certificado metrológico �
 
 
 
+
+---
+
+## Requisitos das Ampliações Consolidadas (v1 + v2 + v3)
+
+> **Seção canônica de requisitos adicionais** incorporados nas rodadas de ampliação de 2026-04-16. Esta seção é parte integrante do PRD; os arquivos `PRD-ampliacao-*.md` são o histórico imutável de origem. Em caso de conflito entre esta seção e os arquivos de ampliação, prevalece a versão mais recente (v3 > v2 > v1).
+
+---
+
+### Ampliação v1 — Offline-First Sistêmico (2026-04-16)
+
+**Contexto:** 90% do trabalho do laboratório e de campo ocorre com conectividade intermitente ou nula. O intake original não capturou esse perfil. A ampliação v1 corrige esse gap estrutural e adiciona 33 REQs, 6 épicos (E15-E20), ADR-0015 e 5 personas novas.
+
+#### Modos de Operação (3 perfis canônicos)
+
+| Modo | Descrição | Persona primária |
+|---|---|---|
+| Bancada | Técnico opera em laboratório fixo com conectividade plena | Juliana (Persona 2) |
+| Campo-veículo | Técnico desloca-se em veículo próprio/empresa; conectividade 4G intermitente | Carlos (Persona 3) |
+| Campo-UMC | Técnico opera dentro de UMC (laboratório móvel); conectividade via roteador 4G/satélite | Lúcio (Persona 4) + equipe UMC |
+
+**Offline-first sistêmico:** toda funcionalidade crítica (OS, calibração, certificado, despesa, ponto, estoque van, CRM vendedor) deve funcionar sem internet e sincronizar automaticamente quando a conectividade retornar. Fila de sincronização auditável, resolução de conflitos por campo, timestamp local + servidor preservados.
+
+#### Requisitos Adicionados — v1
+
+| REQ-ID | Domínio | Descrição |
+|---|---|---|
+| REQ-UMC-001 | UMC | Cadastro de UMC com ficha técnica, certificado de laboratório, padrões embarcados, equipamentos, responsável técnico e histórico |
+| REQ-UMC-002 | UMC | Agenda e despacho de UMC por OS: alocação, roteirização, agendamento com cliente, confirmação e histórico |
+| REQ-UMC-003 | UMC | Telemetria básica de UMC: posição GPS, status operacional, condições ambientais (T/UR), alerta de desvio |
+| REQ-UMC-004 | UMC | Manutenção preventiva e corretiva de UMC com checklist, histórico, laudo e bloqueio por manutenção pendente |
+| REQ-VHL-001 | Frota | Cadastro de veículo operacional com placa, km, motorista, documentos e histórico de manutenção |
+| REQ-VHL-002 | Frota | Abastecimento, revisão e manutenção de veículos com controle de km, custo e alertas |
+| REQ-VHL-003 | Frota | Check-in/check-out de veículo pelo motorista com checklist fotográfico de estado |
+| REQ-DSP-001 | Despesas | Caixa de despesas por OS: valor, tipo, comprovante fotográfico, vínculo à OS |
+| REQ-DSP-002 | Despesas | Aprovação de despesas em dois níveis com alçada configurável por valor e tipo |
+| REQ-DSP-003 | Despesas | Adiantamento de verba ao técnico com saldo, consumo e prestação de contas |
+| REQ-DSP-004 | Despesas | Reembolso de despesas com próprio cartão: registro, aprovação e pagamento |
+| REQ-DSP-005 | Despesas | Relatório de despesas por OS, técnico, período e centro de custo |
+| REQ-DSP-006 | Despesas | Política de despesas configurável por tenant (tipos permitidos, limites, aprovadores) |
+| REQ-DSP-007 | Despesas | Integração de despesas com custo da OS para cálculo de margem real |
+| REQ-DSP-008 | Despesas | Exportação de despesas para folha de pagamento (reembolso na folha) |
+| REQ-INV-001 | Estoque | Estoque multinível: almoxarifado central, filial, van do técnico, UMC |
+| REQ-INV-002 | Estoque | Transferência entre locais com solicitação, aprovação, expedição e recebimento |
+| REQ-INV-003 | Estoque | Inventário offline: contagem via app sem conectividade, sincronização posterior |
+| REQ-INV-004 | Estoque | Alerta de estoque mínimo por local com geração automática de requisição de compra |
+| REQ-CRM-001 | CRM | CRM offline do vendedor: contatos, oportunidades, tarefas e visitas sem internet |
+| REQ-CRM-002 | CRM | Roteiro de visitas do dia com cliente, endereço, objetivo e histórico recente |
+| REQ-CRM-003 | CRM | Check-in de visita com geolocalização, duração e resultado registrado na saída |
+| REQ-CRM-004 | CRM | Pipeline de oportunidades com estágio, valor, probabilidade e data prevista de fechamento |
+| REQ-CRM-005 | CRM | Proposta rápida offline: seleção de serviços do catálogo, desconto dentro da alçada, envio por link |
+| REQ-CRM-006 | CRM | Cadência de follow-up configurável com tarefas automáticas e alertas por vencimento |
+| REQ-CRM-007 | CRM | Dashboard de vendedor: pipeline, metas, conversão, comissão e próximas ações |
+| REQ-SEC-001 | Segurança Mobile | Criptografia de dados locais no dispositivo (SQLite criptografado, AES-256) |
+| REQ-SEC-002 | Segurança Mobile | Wipe remoto do dispositivo pelo admin do tenant em caso de perda ou roubo |
+| REQ-SEC-003 | Segurança Mobile | Autenticação biométrica local (fingerprint/Face ID) para desbloquear o app offline |
+| REQ-SEC-004 | Segurança Mobile | Política de senha e bloqueio automático por inatividade configurável pelo tenant |
+| REQ-SEC-005 | Segurança Mobile | Log de acesso offline: todas as ações capturadas localmente com timestamp e enviadas no sync |
+| REQ-SYN-001 | Sync Engine | Fila de sincronização auditável: toda ação offline enfileirada com ID único, timestamp local e status |
+| REQ-SYN-002 | Sync Engine | Sincronização automática ao detectar conectividade, com retry exponencial e log de resultado |
+| REQ-SYN-003 | Sync Engine | Resolução de conflito por campo: timestamp local vs servidor; campos críticos exigem revisão humana |
+| REQ-SYN-004 | Sync Engine | Indicador visual de status de sync no app: sincronizado / pendente / erro / conflito |
+| REQ-SYN-005 | Sync Engine | Relatório de sync por dispositivo e técnico: ações pendentes, tempo médio de sync e falhas recorrentes |
+| REQ-SYN-006 | Sync Engine | Modo degradado explícito: quando offline, app sinaliza o que está disponível e o que exige conectividade |
+
+#### Personas Adicionadas — v1
+
+| Persona | Cargo | Dor principal | Frequência de uso |
+|---|---|---|---|
+| Persona 3 — Carlos | Técnico de campo / externo | Opera calibrações em clientes com 4G instável; precisa de evidência digital sem depender de papel | Diário (campo) |
+| Persona 4 — Lúcio | Motorista / operador de UMC | Conduz e opera o laboratório móvel; precisa de controle de rota, checklist de veículo e despacho | Diário (campo) |
+| Persona 5 — Patrícia | Vendedora externa | Visita clientes sem escritório; precisa de CRM, pipeline e proposta rápida offline | Diário (campo) |
+| Persona 6 — Diego | Gestor de campo / coordenador técnico | Despacha OS, monitora técnicos e resolve exceções de campo em tempo real | Diário (backoffice + mobile) |
+| Persona 7 — Cláudia | Administrativa / assistente operacional | Processa despesas, documenta OS, emite NF e controla vencimentos | Diário (backoffice) |
+
+#### Jornadas Adicionadas — v1
+
+- **J6 — Carlos executa calibração offline no cliente:** Técnico sai com OS carregada no app, executa calibração sem internet, registra leituras, fotografa evidências, colhe assinatura digital do responsável. Ao retornar com 4G, o sistema sincroniza OS, gera certificado e atualiza faturamento automaticamente.
+- **J7 — Lúcio conduz a UMC até o cliente:** Despacho da UMC agendado, motorista recebe rota no app, faz check-in no cliente com geolocalização, equipe técnica executa calibrações no laboratório móvel, checklist de condições ambientais registrado, checkout ao final com km rodado.
+- **J8 — Patrícia fecha oportunidade em campo:** Visita registrada com check-in, proposta rápida gerada offline do catálogo, cliente aprova por link, OS criada automaticamente e encaminhada ao coordenador para despacho.
+- **J9 — Diego redistribui OS quando técnico fica indisponível:** Sistema detecta ausência, Diego recebe alerta, redistribui OS para técnico disponível com acesso ao histórico do cliente e ao kit necessário, cliente notificado automaticamente.
+- **J10 — Sync após dia de campo:** Técnico chega à base com app acumulando 8 OS do dia. Ao conectar no Wi-Fi, sync automático processa fila, verifica conflitos (nenhum), confirma que 8 certificados foram gerados e 8 OS estão prontas para faturamento.
+- **J11 — Inventário da van antes da saída:** Técnico faz check-in de veículo com checklist fotográfico, confere estoque da van contra o roteiro do dia, sistema alerta que item X está abaixo do mínimo para a OS 3 do roteiro, técnico solicita transferência do almoxarifado.
+
+#### Épicos Adicionados — v1
+
+| Épico | Título | Dependências |
+|---|---|---|
+| E15 | Offline-First Foundation (Sync Engine + Segurança Mobile) | E01 (Core), ADR-0015 |
+| E16 | Mobile UX — Técnico de Campo e Vendedor | E15 |
+| E17 | UMC — Unidade Móvel de Calibração | E04, E05, E15 |
+| E18 | Frota e Veículos Operacionais | E15 |
+| E19 | Despesas de Campo e Caixa por OS | E15, E16 |
+| E20 | Estoque Multinível (van, UMC, filial, central) | E06, E15 |
+
+**ADR gerado:** ADR-0015 — Stack offline-first mobile: Capacitor + SQLite criptografado (AES-256) + Sync Engine com fila auditável.
+
+---
+
+### Ampliação v2 — Fiscal / LGPD / Push / SPC / Drift / Revalidação (2026-04-16)
+
+**Contexto:** auditoria comparativa externa contra sistemas legados identificou 8 gaps que impedem operação real em produção. PM aprovou todos para o MVP.
+
+#### Requisitos Adicionados — v2
+
+| REQ-ID | Domínio | Descrição |
+|---|---|---|
+| REQ-FIS-007 | Fiscal | Retransmissão de NFS-e rejeitada pela prefeitura: diagnóstico do erro SEFAZ → correção assistida → retransmissão com log |
+| REQ-FIS-008 | Fiscal | Retenção fiscal correta por regime (ISS/IR/INSS) com half-even rounding (ABNT NBR ISO 80000-1) |
+| REQ-FLX-007 | Flexibilidade | Push notification nativo para técnico, vendedor, gestor em campo e motorista UMC (iOS + Android) |
+| REQ-CMP-006 | Compliance | Jornada LGPD do titular completa: solicitação → triagem DPO → atendimento → resposta → log auditável (Art. 18 LGPD) |
+| REQ-CMP-007 | Compliance | Backup por tenant com verificação de integridade: job agendado, checksum, alerta de falha, log de execução |
+| REQ-MET-009 | Metrologia | Gráficos de controle SPC dos padrões de referência com limites UCL/LCL/CL |
+| REQ-MET-010 | Metrologia | Drift automático de padrão: valor afastando do nominal acima do threshold → alerta + bloqueio condicional |
+| REQ-CRM-008 | CRM | Revalidação proativa: 90 dias antes do vencimento → e-mail/WhatsApp ao cliente → oferta de agendamento → conversão em OS |
+
+#### Persona Adicionada — v2
+
+**Persona 8 — Aline, Responsável de Qualidade / ISO 17025 owner (38 anos)**
+
+- Cargo: Responsável de Qualidade, dona formal da acreditação Cgcre
+- Dor principal: Monitora padrões manualmente em planilhas; sem visibilidade de drift em tempo real; prepara evidências para auditoria RBC anual com meses de antecedência
+- Frequência de uso: Semanal (revisão SPC) + gatilhos de alerta (drift, vencimento de padrão, NC)
+- Objetivo: Dashboard de saúde metrológica em tempo real; alertas de drift antes de afetar certificados; pacote de evidências para auditoria com um clique
+
+#### Jornadas Adicionadas — v2
+
+- **J12 — Titular exerce direito LGPD:** Cliente solicita acesso/retificação/exclusão pelo portal. Sistema gera protocolo, encaminha ao DPO. DPO atende dentro do prazo legal (15 dias corridos). Log imutável da ação gerado automaticamente.
+- **J13 — Revalidação proativa de calibração:** Sistema detecta certificado com vencimento em 90 dias. Dispara cadência automática (D-90/D-60/D-30). Vendedor confirma interesse, OS de revalidação aberta automaticamente com agendamento.
+- **J14 — Monitoria de qualidade (Aline):** Aline revisa dashboard SPC toda segunda. Sistema destaca padrão com drift. Aline aciona recalibração, bloqueia padrão condicionalmente, documenta decisão. Para auditoria RBC, gera pacote de evidências completo em um clique.
+
+#### Épicos Adicionados — v2
+
+| Épico | Título | Dependências |
+|---|---|---|
+| E21 | Compliance e Infraestrutura Operacional (NFS-e retransmissão, retenção fiscal, push, LGPD titular, backup) | E07, E08, E15+E16 |
+| E22 | Metrologia Avançada — SPC e Drift de Padrões | E05 |
+| E23 | CRM Revalidação Proativa | E03, E22 |
+
+#### Itens Diferidos para Pós-MVP — v2
+
+| Item | Gatilho de reentrada |
+|---|---|
+| Despacho automático de OS (location + skills + ETA) | Primeiro cliente pagante com 5+ técnicos em campo simultâneos |
+| Escalação automática de SLA completo | Primeiro cliente pagante com SLA formal em contrato |
+| Contratos recorrentes com renovação automática | Primeiro cliente pagante que pede contrato guarda-chuva anual |
+| Portal do cliente self-service ampliado | 3+ clientes pagantes pedirem ampliação do portal |
+| Service tickets + helpdesk interno com SLA | Vem junto com SLA + chamado |
+| Persona "Especialista remoto / backoffice técnico" | Primeiro cliente com 5+ técnicos e 1-2 seniores dedicados |
+| Persona 3 multi-usuário (comprador + financeiro + qualidade do cliente) | Primeiro cliente com indústria grande (>500 funcionários) |
+
+---
+
+### Ampliação v3 — ISO 17025 Robusto / Operação Resiliente / RTC 2026 (2026-04-16)
+
+**Contexto:** re-auditoria comparativa independente (contexto isolado R3/R11) identificou 13 gaps alto impacto. PM aceita 10 para MVP v3. Produção confirmada em 2026 — RTC 2026 entra como MVP.
+
+#### Pacote A — Metrologia e Qualidade ISO 17025 Robusta
+
+| REQ-ID | Descrição | Referência normativa |
+|---|---|---|
+| REQ-MET-011 | **Bloqueio de técnico sem competência vigente:** sistema impede execução de calibração por técnico sem habilitação ativa no domínio metrológico específico. Habilitação tem prazo de validade, renovação e trilha de auditoria | ISO/IEC 17025:2017 §6.2 |
+| REQ-MET-012 | **Dual sign-off no certificado:** certificado não pode ser emitido sem assinatura digital do executor E do verificador técnico (papéis distintos). Workflow de aprovação bloqueante | ISO/IEC 17025:2017 §7.8 |
+| REQ-MET-013 | **Suspensão retroativa de certificados:** quando padrão falha na recalibração externa, sistema identifica todos os certificados emitidos com esse padrão no período de invalidade, suspende automaticamente e notifica clientes afetados | ISO/IEC 17025:2017 §6.4, §7.7 |
+| REQ-MET-014 | **Agendamento automático de recalibração de padrões:** scheduler com antecedência configurável (30/60/90 dias), bloqueia agenda, notifica responsável, impede uso após vencimento | ISO/IEC 17025:2017 §6.4 |
+
+#### Pacote B — Operação e Despacho Resiliente
+
+| REQ-ID | Descrição |
+|---|---|
+| REQ-OPL-005 | **Despacho round-robin (MVP):** distribuição automática entre técnicos disponíveis e elegíveis. Skill-match geográfico fica para pós-MVP |
+| REQ-OPL-006 | **Re-despacho automático por indisponibilidade:** quando técnico alocado fica indisponível (doença, avaria, conflito), sistema detecta, re-despacha para próximo técnico elegível e notifica cliente com nova previsão |
+| REQ-OPL-007 | **OS de garantia com classificação e custo zero:** OS de garantia classificada automaticamente, custo zero para o cliente, margem negativa na OS original, NC de qualidade aberta automaticamente |
+| REQ-UMC-005 | **Agendamento automático de manutenção preventiva de UMC e veículos:** scheduler por KM/tempo, bloqueia agenda para manutenção, notifica motorista e coordenador |
+
+#### Pacote C — Fiscal RTC 2026
+
+| REQ-ID | Descrição | Prazo |
+|---|---|---|
+| REQ-FIS-009 | **Reforma Tributária 2026 — IBS/CBS/cIndOp:** cálculo, transmissão e exibição dos novos tributos conforme cronograma oficial RFB para NFS-e em 2026. Split de pagamento conforme regras do CGIBS | Operacional antes de 2026-01-01 |
+
+#### Pacote D — Arquitetura e Governança
+
+| Artefato | Descrição |
+|---|---|
+| REQ-TEN-007 | **Isolamento multi-tenant explícito e testável:** toda consulta carrega `tenant_id` enforçado em query scope. Teste automatizado obrigatório: leitura cruzada entre tenants deve retornar zero registros ou 403 |
+| ADR-0016 | **ADR-0016 — Isolamento Multi-Tenant:** formaliza row-level + `tenant_id` discriminator enforçado no ORM. Deve existir antes de E15 iniciar |
+
+#### Refinamento da Persona 1 — v3
+
+**Persona 1 — Marcelo, sócio-gerente (dimensão financeira/CFO adicionada)**
+
+Marcelo acumula CEO + CFO na maioria das empresas do ICP. Precisa de DRE por competência, margem por contrato/OS, previsão de caixa, inadimplência por cliente e compliance fiscal. Decisões de pricing, renovação de contratos e investimento em equipamentos são tomadas por ele sem suporte de área financeira dedicada.
+
+#### Jornadas Adicionadas — v3
+
+- **J15 — Suspensão retroativa de certificados:** padrão P-42 falha na recalibração externa. Sistema identifica 47 certificados emitidos com P-42 no período de invalidade, suspende automaticamente, notifica clientes, abre NC P0, gera relatório de impacto. Aline abre CAPA e determina quais certificados precisam re-emissão.
+- **J16 — Re-despacho automático:** técnico Carlos registra baixa médica. Sistema detecta indisponibilidade, re-despacha para Diego (próximo na fila round-robin), notifica cliente com nova previsão. Diego recebe push com OS completa no app.
+- **J17 — OS de garantia com custo zero:** cliente abre reclamação sobre calibração recente fora de tolerância. OS de garantia criada vinculada à OS original, custo zero ao cliente, NC de qualidade aberta. Técnico re-calibra, documenta causa, resultado encaminhado para análise de qualidade.
+
+#### Épicos Adicionados — v3
+
+| Épico | Título | Dependências |
+|---|---|---|
+| E24 | Operação Robusta + Qualidade ISO 17025 Ampliada | E04, E05, E17, E20 |
+| E25 | Reforma Tributária 2026 — IBS/CBS/cIndOp | E07; data-alvo: antes de 2026-01-01 |
+
+#### Itens Diferidos para Pós-MVP — v3
+
+| Item | Razão |
+|---|---|
+| SLA completo com timer + pausa/retoma + escalonamento multi-nível | Complexo; entra junto com service-tickets/helpdesk (backlog v2) |
+| Billing SaaS nativo + self-service onboarding do tenant | MVP opera com cobrança manual; self-service quando escala justificar |
+| Cobrança automática do cliente final por faixa de atraso | MVP opera com cobrança manual |
+
+---
+
+### Sumário Consolidado das Ampliações
+
+| Dimensão | Baseline original | +v1 | +v2 | +v3 | Total consolidado |
+|---|---|---|---|---|---|
+| REQs | 29 | +33 | +8 | +10 | **80** |
+| Personas | 3 | +5 | +1 | refinamento P1 | **9** |
+| Jornadas | 5 | +6 (J6-J11) | +3 (J12-J14) | +3 (J15-J17) | **17** |
+| Épicos | 14 (E01-E14) | +6 (E15-E20) | +3 (E21-E23) | +2 (E24-E25) | **25** |
+| ADRs | 14 | +1 (ADR-0015) | — | +1 (ADR-0016) | **16** |
+
+### Critérios de Sucesso do MVP Consolidado
+
+O MVP está "no ar" quando o laboratório-cliente consegue:
+
+1. Executar OS de calibração em campo sem internet e sincronizar ao retornar (REQ-SYN-*)
+2. Emitir NFS-e, receber rejeição, corrigir e retransmitir sem sair do Kalibrium (REQ-FIS-007)
+3. Receber requisição LGPD de titular e atendê-la dentro do prazo legal (REQ-CMP-006)
+4. Monitorar padrão via SPC e receber alerta de drift antes de afetar certificados (REQ-MET-009/010)
+5. Disparar revalidação proativa em clientes com calibração vencendo (REQ-CRM-008)
+6. Ter backup diário validado para o tenant com verificação de integridade (REQ-CMP-007)
+7. Bloquear execução de calibração por técnico sem habilitação vigente (REQ-MET-011)
+8. Emitir certificado somente com dual sign-off executor + verificador (REQ-MET-012)
+9. Disparar suspensão retroativa quando padrão falha na recalibração (REQ-MET-013)
+10. Agendar recalibração de padrão automaticamente antes do vencimento (REQ-MET-014)
+11. Re-despachar OS automaticamente quando técnico fica indisponível (REQ-OPL-006)
+12. Emitir NFS-e com IBS/CBS/cIndOp corretos a partir de 2026-01-01 (REQ-FIS-009)
+13. Validar isolamento multi-tenant por teste automatizado (REQ-TEN-007 + ADR-0016)
 
 ---
 

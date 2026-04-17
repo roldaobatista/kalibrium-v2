@@ -1,0 +1,636 @@
+▶ AC-002: npm run build produces web artifacts with exit 0
+  ✖ AC-002: npm run build exits with code 0 (4.66ms)
+  ✖ AC-002: dist/index.html exists after build (0.6096ms)
+  ✖ AC-002: dist/assets/ contains at least one .js file (0.3734ms)
+  ✖ AC-002: dist/assets/ contains at least one .css file (0.4136ms)
+✖ AC-002: npm run build produces web artifacts with exit 0 (8.0281ms)
+▶ AC-010: npm run build fails with non-zero exit when there is a type error
+  ✖ AC-010: npm run build exits with non-zero when src/__type_check__.tsx has a type error (1.3956ms)
+✖ AC-010: npm run build fails with non-zero exit when there is a type error (4.7004ms)
+﹣ AC-003: Capacitor iOS platform added and syncable (macOS only) (0.9586ms) # SKIP
+▶ AC-003: iOS test skipped with reason on non-darwin hosts
+  ✔ AC-003: host is not darwin — test pack skipped (documented) (0.8009ms)
+✔ AC-003: iOS test skipped with reason on non-darwin hosts (1.5587ms)
+▶ AC-004: Capacitor Android platform added and syncable
+  ✖ AC-004: npx cap add android exits with code 0 (or already exists) (5.5886ms)
+  ✖ AC-004: npx cap sync android exits with code 0 (3.5198ms)
+  ✖ AC-004: android/build.gradle exists (0.7157ms)
+  ✖ AC-004: android/app/build.gradle exists (0.5993ms)
+  ✖ AC-004: android/settings.gradle exists (required for root Gradle project) (0.4821ms)
+✖ AC-004: Capacitor Android platform added and syncable (13.5667ms)
+▶ AC-005: src/ contains the 7 required directories declared in the spec
+  ✖ AC-005: src/ exists as a directory (2.7266ms)
+  ✖ AC-005: src/pages/ exists (0.7681ms)
+  ✖ AC-005: src/components/ exists (0.4923ms)
+  ✖ AC-005: src/hooks/ exists (0.4183ms)
+  ✖ AC-005: src/db/ exists (0.6083ms)
+  ✖ AC-005: src/auth/ exists (0.4516ms)
+  ✖ AC-005: src/wipe/ exists (0.4691ms)
+  ✖ AC-005: src/observability/ exists (0.3909ms)
+✖ AC-005: src/ contains the 7 required directories declared in the spec (10.1099ms)
+▶ AC-011: src/ does not contain forbidden/legacy directories (edge of AC-005)
+  ✔ AC-011: src/legacy/ must NOT exist (0.7362ms)
+  ✔ AC-011: src/old/ must NOT exist (0.4464ms)
+  ✔ AC-011: src/todo/ must NOT exist (0.2914ms)
+  ✔ AC-011: every directory directly under src/ is in the allowed list (1.8317ms)
+✔ AC-011: src/ does not contain forbidden/legacy directories (edge of AC-005) (3.9375ms)
+▶ AC-007: npm run lint exits 0 with zero errors on clean scaffold
+  ✔ AC-007: package.json declares a lint script (1.7517ms)
+  ✖ AC-007: npm run lint exits 0 with no errors (4.4175ms)
+✖ AC-007: npm run lint exits 0 with zero errors on clean scaffold (7.8094ms)
+▶ AC-012: npm run lint detects violation in src/__lint_check__.tsx and recovers after removal
+  ✖ AC-012: npm run lint exits non-zero while seed file with violation exists (1.7198ms)
+  ✖ AC-012: after removing seed file, npm run lint exits 0 again (1.6172ms)
+✖ AC-012: npm run lint detects violation in src/__lint_check__.tsx and recovers after removal (6.3374ms)
+▶ AC-008: legacy frontend (Livewire/Blade/JS/CSS) removed, except resources/views/emails/
+  ✖ AC-008: no *.blade.php under resources/views/ except under /emails/ (10.4378ms)
+  ✖ AC-008: resources/js/ is empty or does not exist (0.9678ms)
+  ✔ AC-008: if resources/views/emails/ exists, it is preserved (not deleted by mistake) (0.7336ms)
+✖ AC-008: legacy frontend (Livewire/Blade/JS/CSS) removed, except resources/views/emails/ (14.0547ms)
+▶ AC-013: routes/web.php has no view() or `return view` calls (edge of AC-008)
+  ✔ AC-013: routes/web.php exists (0.3298ms)
+  ✖ AC-013: routes/web.php does not contain view( or return view calls (0.7634ms)
+✖ AC-013: routes/web.php has no view() or `return view` calls (edge of AC-008) (1.4011ms)
+▶ AC-014: capacitor.config.ts does not expose a remote dev server URL in production
+  ✖ AC-014: capacitor.config.ts exists (2.3079ms)
+  ✖ AC-014: capacitor.config.ts does not contain an unconditional server.url literal (0.5344ms)
+  ✖ AC-014: capacitor.config.ts has no hardcoded http(s) URL pointing at an external host in server block (0.4459ms)
+✖ AC-014: capacitor.config.ts does not expose a remote dev server URL in production (5.1445ms)
+ℹ tests 35
+ℹ suites 12
+ℹ pass 8
+ℹ fail 27
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174.1568
+
+✖ failing tests:
+
+test at tests\scaffold\ac-002-build-web.test.cjs:44:5
+✖ AC-002: npm run build exits with code 0 (4.66ms)
+  AssertionError [ERR_ASSERTION]: npm run build must exit 0 — got status=null
+  stdout:
+  undefined
+  stderr:
+  undefined
+  
+  null !== 0
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-002-build-web.test.cjs:46:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-002-build-web.test.cjs:53:5
+✖ AC-002: dist/index.html exists after build (0.6096ms)
+  AssertionError [ERR_ASSERTION]: dist/index.html must exist after npm run build (got: C:\PROJETOS\saas\kalibrium-v2\dist)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-002-build-web.test.cjs:54:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-002-build-web.test.cjs:60:5
+✖ AC-002: dist/assets/ contains at least one .js file (0.3734ms)
+  AssertionError [ERR_ASSERTION]: dist/assets/ must exist
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-002-build-web.test.cjs:62:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-002-build-web.test.cjs:71:5
+✖ AC-002: dist/assets/ contains at least one .css file (0.4136ms)
+  AssertionError [ERR_ASSERTION]: dist/assets/ must exist
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-002-build-web.test.cjs:73:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-002-build-web.test.cjs:114:5
+✖ AC-010: npm run build exits with non-zero when src/__type_check__.tsx has a type error (1.3956ms)
+  AssertionError [ERR_ASSERTION]: npm run build stderr/stdout should mention a TypeScript diagnostic.
+  Got:
+  
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-002-build-web.test.cjs:124:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\n',
+    expected: /(TS\d{3,4}|Type\s+.*is not assignable|type error|tsc\s)/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-004-cap-android.test.cjs:20:5
+✖ AC-004: npx cap add android exits with code 0 (or already exists) (5.5886ms)
+  AssertionError [ERR_ASSERTION]: npx cap add android must exit 0 (or already exist). status=null
+  
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-004-cap-android.test.cjs:30:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at node:internal/test_runner/test:1531:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-004-cap-android.test.cjs:36:5
+✖ AC-004: npx cap sync android exits with code 0 (3.5198ms)
+  AssertionError [ERR_ASSERTION]: npx cap sync android must exit 0. status=null
+  stdout:
+  undefined
+  stderr:
+  undefined
+  
+  null !== 0
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-004-cap-android.test.cjs:44:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-004-cap-android.test.cjs:51:5
+✖ AC-004: android/build.gradle exists (0.7157ms)
+  AssertionError [ERR_ASSERTION]: android/build.gradle must exist after cap add+sync: C:\PROJETOS\saas\kalibrium-v2\android\build.gradle
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-004-cap-android.test.cjs:53:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-004-cap-android.test.cjs:56:5
+✖ AC-004: android/app/build.gradle exists (0.5993ms)
+  AssertionError [ERR_ASSERTION]: android/app/build.gradle must exist after cap add+sync: C:\PROJETOS\saas\kalibrium-v2\android\app\build.gradle
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-004-cap-android.test.cjs:58:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-004-cap-android.test.cjs:61:5
+✖ AC-004: android/settings.gradle exists (required for root Gradle project) (0.4821ms)
+  AssertionError [ERR_ASSERTION]: android/settings.gradle must exist after cap add+sync: C:\PROJETOS\saas\kalibrium-v2\android\settings.gradle
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-004-cap-android.test.cjs:63:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:23:5
+✖ AC-005: src/ exists as a directory (2.7266ms)
+  AssertionError [ERR_ASSERTION]: src/ must exist at repo root: C:\PROJETOS\saas\kalibrium-v2\src
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:24:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at node:internal/test_runner/test:1531:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:29:9
+✖ AC-005: src/pages/ exists (0.7681ms)
+  AssertionError [ERR_ASSERTION]: src/pages/ must exist (with .gitkeep when empty)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:31:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:29:9
+✖ AC-005: src/components/ exists (0.4923ms)
+  AssertionError [ERR_ASSERTION]: src/components/ must exist (with .gitkeep when empty)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:31:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:29:9
+✖ AC-005: src/hooks/ exists (0.4183ms)
+  AssertionError [ERR_ASSERTION]: src/hooks/ must exist (with .gitkeep when empty)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:31:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:29:9
+✖ AC-005: src/db/ exists (0.6083ms)
+  AssertionError [ERR_ASSERTION]: src/db/ must exist (with .gitkeep when empty)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:31:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:29:9
+✖ AC-005: src/auth/ exists (0.4516ms)
+  AssertionError [ERR_ASSERTION]: src/auth/ must exist (with .gitkeep when empty)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:31:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:29:9
+✖ AC-005: src/wipe/ exists (0.4691ms)
+  AssertionError [ERR_ASSERTION]: src/wipe/ must exist (with .gitkeep when empty)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:31:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-005-structure.test.cjs:29:9
+✖ AC-005: src/observability/ exists (0.3909ms)
+  AssertionError [ERR_ASSERTION]: src/observability/ must exist (with .gitkeep when empty)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-005-structure.test.cjs:31:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-007-lint.test.cjs:42:5
+✖ AC-007: npm run lint exits 0 with no errors (4.4175ms)
+  AssertionError [ERR_ASSERTION]: npm run lint must exit 0 on clean scaffold. status=null
+  stdout:
+  undefined
+  stderr:
+  undefined
+  
+  null !== 0
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-007-lint.test.cjs:44:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-007-lint.test.cjs:80:5
+✖ AC-012: npm run lint exits non-zero while seed file with violation exists (1.7198ms)
+  AssertionError [ERR_ASSERTION]: ESLint output should mention the unused-vars violation.
+  Got:
+  
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-007-lint.test.cjs:89:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\n',
+    expected: /(no-unused-vars|is defined but never used|is assigned a value but never used|__lint_check__)/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-007-lint.test.cjs:96:5
+✖ AC-012: after removing seed file, npm run lint exits 0 again (1.6172ms)
+  AssertionError [ERR_ASSERTION]: After removing __lint_check__.tsx, npm run lint must exit 0.
+  status=null
+  stdout:
+  undefined
+  stderr:
+  undefined
+  
+  null !== 0
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-007-lint.test.cjs:101:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-008-legacy-removed.test.cjs:38:5
+✖ AC-008: no *.blade.php under resources/views/ except under /emails/ (10.4378ms)
+  AssertionError [ERR_ASSERTION]: resources/views/ must NOT contain any *.blade.php outside /emails/. Found: ["C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\layouts\\app.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\layouts\\guest.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\app\\home-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\accept-invitation-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\forgot-password-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\login-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\partials\\feedback.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\reset-password-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\two-factor-challenge-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\privacy\\revoke-consent-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\plans-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\tenant-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\users-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\ping.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\settings\\consent-subjects-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\settings\\lgpd-categories-page.blade.php","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\welcome.blade.php"]
+  + actual - expected
+  
+  + [
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\layouts\\app.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\layouts\\guest.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\app\\home-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\accept-invitation-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\forgot-password-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\login-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\partials\\feedback.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\reset-password-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\two-factor-challenge-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\privacy\\revoke-consent-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\plans-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\tenant-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\users-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\ping.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\settings\\consent-subjects-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\settings\\lgpd-categories-page.blade.php',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\welcome.blade.php'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-008-legacy-removed.test.cjs:44:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at node:internal/test_runner/test:1531:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\layouts\\app.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\layouts\\guest.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\app\\home-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\accept-invitation-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\forgot-password-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\login-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\partials\\feedback.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\reset-password-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\auth\\two-factor-challenge-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\privacy\\revoke-consent-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\plans-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\tenant-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\pages\\settings\\users-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\ping.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\settings\\consent-subjects-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\livewire\\settings\\lgpd-categories-page.blade.php', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\views\\welcome.blade.php' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-008-legacy-removed.test.cjs:51:5
+✖ AC-008: resources/js/ is empty or does not exist (0.9678ms)
+  AssertionError [ERR_ASSERTION]: resources/js/ must contain zero files (legacy bootstrap removed). Found: ["C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\js\\app.js","C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\js\\bootstrap.js"]
+  + actual - expected
+  
+  + [
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\js\\app.js',
+  +   'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\js\\bootstrap.js'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-008-legacy-removed.test.cjs:57:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\js\\app.js', 'C:\\PROJETOS\\saas\\kalibrium-v2\\resources\\js\\bootstrap.js' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-008-legacy-removed.test.cjs:85:5
+✖ AC-013: routes/web.php does not contain view( or return view calls (0.7634ms)
+  AssertionError [ERR_ASSERTION]: routes/web.php must not contain view( or return view. Found matches: ["return view"]
+  + actual - expected
+  
+  + [
+  +   'return view'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-008-legacy-removed.test.cjs:92:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'return view' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-014-capacitor-security.test.cjs:19:5
+✖ AC-014: capacitor.config.ts exists (2.3079ms)
+  AssertionError [ERR_ASSERTION]: capacitor.config.ts must exist: C:\PROJETOS\saas\kalibrium-v2\capacitor.config.ts
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-014-capacitor-security.test.cjs:20:16)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at node:internal/test_runner/test:1531:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\scaffold\ac-014-capacitor-security.test.cjs:23:5
+✖ AC-014: capacitor.config.ts does not contain an unconditional server.url literal (0.5344ms)
+  Error: ENOENT: no such file or directory, open 'C:\PROJETOS\saas\kalibrium-v2\capacitor.config.ts'
+      at Object.readFileSync (node:fs:440:20)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-014-capacitor-security.test.cjs:24:24)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1533:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\PROJETOS\\saas\\kalibrium-v2\\capacitor.config.ts'
+  }
+
+test at tests\scaffold\ac-014-capacitor-security.test.cjs:65:5
+✖ AC-014: capacitor.config.ts has no hardcoded http(s) URL pointing at an external host in server block (0.4459ms)
+  Error: ENOENT: no such file or directory, open 'C:\PROJETOS\saas\kalibrium-v2\capacitor.config.ts'
+      at Object.readFileSync (node:fs:440:20)
+      at TestContext.<anonymous> (C:\PROJETOS\saas\kalibrium-v2\tests\scaffold\ac-014-capacitor-security.test.cjs:66:24)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    errno: -4058,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: 'C:\\PROJETOS\\saas\\kalibrium-v2\\capacitor.config.ts'
+  }

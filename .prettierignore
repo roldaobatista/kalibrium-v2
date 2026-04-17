@@ -1,0 +1,17 @@
+dist
+build
+android
+ios
+vendor
+node_modules
+public
+storage
+bootstrap/cache
+coverage
+playwright-report
+test-results
+spike-inf007
+*.min.js
+*.min.css
+package-lock.json
+composer.lock

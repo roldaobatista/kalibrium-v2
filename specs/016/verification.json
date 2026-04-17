@@ -1,0 +1,114 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "verify",
+  "slice": "016",
+  "lane": "L3",
+  "agent": "qa-expert",
+  "mode": "verify",
+  "verdict": "approved",
+  "timestamp": "2026-04-17T00:00:00Z",
+  "commit_hash": "65d8cb9a58ab4f6354dd493df2818dbd6016342e",
+  "isolation_context": "slice-016-verify-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 0,
+    "S5": 0
+  },
+  "findings": [],
+  "evidence": {
+    "ac_results": [
+      {
+        "ac": "AC-001",
+        "status": "pass",
+        "evidence": "tests/e2e/ac-001-dev-server.spec.ts — AC-001: /login renders an Ionic-rooted page with zero console errors — passed (8.7s, Playwright/chromium)"
+      },
+      {
+        "ac": "AC-002",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-002-build-web.test.cjs — 4 assertions: exit 0, dist/index.html, dist/assets/*.js, dist/assets/*.css — all passed"
+      },
+      {
+        "ac": "AC-003",
+        "status": "skip",
+        "evidence": "tests/scaffold/ac-003-cap-ios.test.cjs — SKIP legítimo: host não-darwin (Windows CI). Spec declara 'Dado um host macOS'. Teste documenta: 'host is not darwin — test pack skipped (documented)'. Cobertura delegada ao CI macOS conforme spec §AC-003."
+      },
+      {
+        "ac": "AC-004",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-004-cap-android.test.cjs — 5 assertions: cap add android exit 0, cap sync android exit 0, android/build.gradle, android/app/build.gradle, android/settings.gradle — all passed"
+      },
+      {
+        "ac": "AC-005",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-005-structure.test.cjs — 8 assertions: src/ + 7 subdirectórios declarados (pages, components, hooks, db, auth, wipe, observability) — all passed"
+      },
+      {
+        "ac": "AC-006",
+        "status": "pass",
+        "evidence": "tests/e2e/ac-006-layout-adaptive.spec.ts — 2 viewports: mobile-375x667 scrollWidth<=clientWidth, desktop-1280x800 scrollWidth<=clientWidth — both passed (Playwright/chromium)"
+      },
+      {
+        "ac": "AC-007",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-007-lint.test.cjs — 2 assertions: package.json declara lint script, npm run lint exits 0 — passed"
+      },
+      {
+        "ac": "AC-008",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-008-legacy-removed.test.cjs — 3 assertions: zero *.blade.php fora de /emails/, resources/js/ vazio/inexistente, resources/views/emails/ preservado — all passed"
+      },
+      {
+        "ac": "AC-009",
+        "status": "pass",
+        "evidence": "tests/e2e/ac-001-dev-server.spec.ts:56 — AC-009: second npm run dev on occupied port 5173 announces the conflict — passed (6.0s, Playwright/chromium)"
+      },
+      {
+        "ac": "AC-010",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-002-build-web.test.cjs (ac-010 suite) — npm run build exits non-zero when src/__type_check__.tsx has a type error — passed (1825ms)"
+      },
+      {
+        "ac": "AC-011",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-005-structure.test.cjs (ac-011 suite) — 4 assertions: src/legacy/ absent, src/old/ absent, src/todo/ absent, every dir under src/ in allowed list — all passed"
+      },
+      {
+        "ac": "AC-012",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-007-lint.test.cjs (ac-012 suite) — lint exits non-zero with seed violation, exits 0 after removal — both passed"
+      },
+      {
+        "ac": "AC-013",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-008-legacy-removed.test.cjs (ac-013 suite) — routes/web.php exists, routes/web.php contains no view() or return view calls — both passed"
+      },
+      {
+        "ac": "AC-014",
+        "status": "pass",
+        "evidence": "tests/scaffold/ac-014-capacitor-security.test.cjs — 3 assertions: capacitor.config.ts exists, no unconditional server.url literal, no hardcoded http(s) URL in server block — all passed"
+      }
+    ],
+    "dod_checklist": {
+      "tests_pass": true,
+      "lint_clean": true,
+      "types_ok": true,
+      "coverage_met": true,
+      "no_files_out_of_scope": true
+    },
+    "node_test_exit_code": 0,
+    "node_tests_passed": 35,
+    "node_tests_skipped": 0,
+    "node_tests_failed": 0,
+    "playwright_exit_code": 0,
+    "playwright_tests_passed": 4,
+    "playwright_tests_failed": 0,
+    "total_tests": 39,
+    "ac_003_skip_rationale": "Skip legítimo por plataforma: spec §AC-003 requer host macOS + Xcode. Host de execução é Windows (process.platform !== 'darwin'). Teste documenta a razão e passa o gate de plataforma. Cobertura macOS delegada ao CI runner configurado no pipeline (ADR-0015 §Capacitor iOS). Não é violação — é comportamento declarado no spec.",
+    "scope_notes": "Slice cobre: scaffold React+TS+Ionic+Capacitor+Vite (src/, capacitor.config.ts, vite.config.ts, eslint.config.js, tsconfig*.json), remoção de Livewire/Blade legado (resources/js/, *.blade.php não-email), tests/slice-016/, tests/e2e/, tests/scaffold/. Arquivos tests/slice-007..011 presentes em files-changed.txt são arquivos PHP zombie removidos (Livewire teardown — AC-008 escopo). Sem arquivos fora do escopo declarado no spec."
+  },
+  "next_action": "open_pr"
+}

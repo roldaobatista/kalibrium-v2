@@ -75,3 +75,22 @@ Thumbs.db
 # Local scratch (nunca commitado)
 tmp/
 scripts/write_audit_e03.py
+
+# ---------- Slice 016 — Capacitor nativos + Playwright ----------
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+ios/App/App.xcworkspace/xcuserdata/
+android/build/
+android/.gradle/
+android/app/build/
+android/local.properties
+capacitor.config.dev.ts
+playwright-report/
+test-results/
+
+
+# TypeScript build artifacts (gerados pelo tsc -b)
+*.tsbuildinfo
+playwright.config.d.ts
+vite.config.d.ts
