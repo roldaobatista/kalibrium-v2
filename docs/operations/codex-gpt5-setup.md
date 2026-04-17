@@ -1,8 +1,20 @@
 # Guia operacional — Codex CLI + GPT-5 no Kalibrium
 
+> **⚠️ DEPRECATED em 2026-04-17 — ADR-0020**
+>
+> A política dual-LLM foi atualizada: a Trilha B do master-audit agora usa
+> **Claude Opus 4.7 em contexto isolado** (Agent tool com `subagent_type=governance`),
+> não mais GPT-5 via Codex CLI. Motivação e detalhes em `docs/adr/0020-dual-llm-policy-2x-opus.md`.
+>
+> O guia canônico vigente é **[`docs/operations/dual-llm-opus-setup.md`](dual-llm-opus-setup.md)**.
+>
+> Este documento é preservado como **referência histórica** e **fallback documentado**
+> (caso de rate limit prolongado / API Opus down — procedimento excepcional).
+> Remoção prevista: 2026-07-17 (ou quando não houver mais referências).
+
 Versão: 1.1 — 2026-04-16
 Autor: PM + agente
-Contexto: master-audit dual-LLM (ADR-0012) exige a Trilha B (GPT-5 via Codex CLI)
+Contexto: master-audit dual-LLM (ADR-0012, §Trilha B — superseded por ADR-0020)
 
 ## Problema recorrente
 

@@ -1,6 +1,6 @@
 # 03 — Contrato de Artefatos
 
-> Documento normativo. Versao 1.2.2 — 2026-04-16.
+> Documento normativo. versao 1.2.4 — 2026-04-16.
 > Changelog 1.2.2 (PATCH — meta-audit, L4-ready): secao 10.2 (project-state.json) agora inclui campo `phase_timestamps` (discovery/strategy/planning/execution/closing × start/end) que M-V02 em 08 consulta.
 > Changelog 1.2.1 (PATCH — meta-audit): enum `active_exceptions.type` corrigido para `E1-E10` (alinhado com introducao de E10 em 1.2.0).
 > Changelog 1.2.0: plan-review.json owner corrigido para architecture-expert (plan-review) alinhado com mapa canonico; schema JSON base expandido com commit_hash, mode, isolation_context; arquivo formal em docs/protocol/schemas/gate-output.schema.json; imutabilidade pos-gate formalizada (9.2); eventos de telemetria expandidos para suportar metricas do 08 (gate_approved, gate_rerun, finding_emitted, task_completed); contratos de modos pre-implementacao L4 referenciados (4.12).

@@ -1,6 +1,6 @@
 ---
 description: Roda revisao funcional independente (isolado por hook, sem worktree). Avalia se ACs sao atendidos do ponto de vista do produto/usuario. Monta functional-review-input/, spawn product-expert (functional-gate). Uso: /functional-review NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /functional-review
@@ -100,7 +100,7 @@ Atualizar `project-state.json` gates_status.
 - `approved` (todos os gates) → `/merge-slice NNN`
 - `rejected` → `/fix NNN functional-gate` → re-run `/functional-review NNN`
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `product-expert (functional-gate)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `functional-gate`

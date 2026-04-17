@@ -2,10 +2,10 @@
 
 **Este é o arquivo raiz de instruções operacionais deste repositório.** As fontes operacionais permitidas por **R1** são `CLAUDE.md`, `docs/constitution.md`, `.claude/agents/*.md` e `.claude/skills/*.md`. Qualquer outra fonte (`.cursorrules`, `AGENTS.md`, `GEMINI.md`, `copilot-instructions.md`, `.bmad-core/`, `.cursor/`, `.windsurfrules`, `.aider.conf.yml`) é proibida e bloqueada por hook no SessionStart.
 
-Versão: 2.8.0 — 2026-04-16 (harness alinhado com protocolo operacional v1.2.2 — mapa canônico de agentes/gates/modos, schema JSON formal para gates, protocolo de reconciliação dual-LLM E10, cascata S4 diferida, gates L4 com pré-reviews).
-<!-- Contagem: 12 agents em .claude/agents/ (11 sub-agents + 1 orchestrator), 40 skills em .claude/skills/ -->
+Versão: 2.8.1 — 2026-04-17 (harness alinhado com protocolo v1.2.4 — mapa canônico de agentes/gates/modos, schema JSON formal para gates incluindo audit-tests-draft ADR-0017, protocolo de reconciliação dual-LLM E10 executado com 2× Opus 4.7 em contextos isolados, cascata S4 diferida, gates L4 com pré-reviews).
+<!-- Contagem: 12 agents em .claude/agents/ (11 sub-agents + 1 orchestrator), 41 skills em .claude/skills/ -->
 
-**Fonte normativa complementar:** `docs/protocol/` v1.2.2 é a fonte única de verdade para **pipeline, gates, artefatos, RACI, severidade, métricas e políticas de exceção**. Em caso de conflito, o protocolo prevalece nessas questões. Este CLAUDE.md prevalece para **P1-P9, R1-R16, operação de sessão e bootstrap**.
+**Fonte normativa complementar:** `docs/protocol/` v1.2.4 é a fonte única de verdade para **pipeline, gates, artefatos, RACI, severidade, métricas e políticas de exceção**. Em caso de conflito, o protocolo prevalece nessas questões. Este CLAUDE.md prevalece para **P1-P9, R1-R16, operação de sessão e bootstrap**.
 
 **Documentos do protocolo (fonte única de verdade operacional):**
 

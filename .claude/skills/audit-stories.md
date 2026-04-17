@@ -2,7 +2,7 @@
 name: audit-stories
 description: Audita Story Contracts de um epico. Roda qa-expert (audit-story) em contexto limpo. Ciclo automatico — auditoria, correcao, re-auditoria ate aprovado (5 ciclos automáticos; 6ª rejeição escala PM). Uso /audit-stories ENN.
 user_invocable: true
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /audit-stories
@@ -122,7 +122,7 @@ O orquestrador DEVE invocar `/audit-stories ENN` automaticamente apos cada `/dec
 - Rejected e corrigido → re-auditar automaticamente
 - Rejected 6x → escalar humano com `/explain-slice`
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `qa-expert (audit-story)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `audit-story`

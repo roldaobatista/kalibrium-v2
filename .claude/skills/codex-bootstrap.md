@@ -1,6 +1,6 @@
 ---
 description: Inicializa uma sessao Codex CLI neste projeto seguindo o harness. Uso obrigatorio no inicio de toda sessao Codex e antes de qualquer trabalho.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
@@ -110,7 +110,7 @@ git status --short
 - Check falhou → parar, explicar ao PM, investigar antes de editar
 - Sem handoff prévio → `/start` ou `/project-status` para orientar PM
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador Codex carrega fontes R1).
 - **Gates produzidos:** gate de inicialização de sessão Codex; equivalente ao SessionStart do Claude Code.

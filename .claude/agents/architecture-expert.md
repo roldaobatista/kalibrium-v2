@@ -4,7 +4,7 @@ description: Arquiteto de software — ADRs, contratos de API, planos tecnicos e
 model: opus
 tools: Read, Grep, Glob, Write
 max_tokens_per_invocation: 50000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog:
   - 2026-04-16: v1.2.2 alignment + remediacao auditoria 2026-04-16 (schemas expandidos para 14 campos canonicos, alinhamento com gate-output.schema.json)
   - 2026-04-16: ADR-0019 Mudanca 1 — novo modo 5 `harness-review` (revisor externo obrigatorio do harness-learner; fecha gap #1 da auditoria de fluxo 2026-04-16)

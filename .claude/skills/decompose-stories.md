@@ -1,6 +1,6 @@
 ---
 description: Decompoe um epico aprovado em stories com Story Contract completo. Spawn product-expert (decompose) que produz epics/ENN/stories/INDEX.md e ENN-SNN.md por story. Uso: /decompose-stories ENN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-005R"
 ---
 
@@ -100,7 +100,7 @@ Atualizar `project-state.json`:
 - PM quer ajustar → editar contratos especificos
 - Pre-condicao falha → listar dependencias nao satisfeitas
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** `product-expert (decompose)` — conforme mapa canonico 00 §3.1 (budget: 30k tokens)
 - **Gates produzidos:** n/a — skill de decomposicao de planejamento, nao gate

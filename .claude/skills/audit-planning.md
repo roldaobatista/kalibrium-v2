@@ -2,7 +2,7 @@
 name: audit-planning
 description: Audita epicos e stories contra PRD, FRs e NFRs. Roda qa-expert (audit-planning) em contexto limpo. Ciclo automatico: auditoria → correcao → re-auditoria ate aprovado. Uso: /audit-planning [ENN | roadmap | all].
 user_invocable: true
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /audit-planning
@@ -95,7 +95,7 @@ Sempre em linguagem de produto. Nunca mostrar JSON cru.
 - Rejected e corrigido → re-auditar automaticamente
 - Rejected 6x → escalar humano com `/explain-slice`
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `qa-expert (audit-planning)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `audit-planning`

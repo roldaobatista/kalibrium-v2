@@ -1,6 +1,6 @@
 ---
 description: Scaffold de um ADR novo em docs/adr/ a partir do template. Use para decisões arquiteturais relevantes. Uso: /adr NNNN "título da decisão".
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-002"
 ---
 
@@ -104,7 +104,7 @@ decision_log:
 - Alterações de status fora de `proposed → accepted | rejected` ou `accepted → superseded` são inválidas.
 - Em caso de dúvida, o agente pergunta ao PM antes de mover o status.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador invoca script de scaffold).
 - **Gates produzidos:** não é gate; é scaffold de artefato de decisão.

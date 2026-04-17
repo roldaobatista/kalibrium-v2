@@ -1,6 +1,6 @@
 ---
 description: Revisa plan.md com architecture-expert (plan-review) em contexto limpo. Quando approved, libera fluxo automatico para draft-tests sem aguardar PM (CLAUDE.md §6 Fase D step 17). Uso: /review-plan NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /review-plan
@@ -59,7 +59,7 @@ Gate só passa com `provenance` do `architecture-expert` em contexto `isolated`,
 - Não pular para `/draft-tests NNN` sem `plan-review.json` aprovado, com proveniencia do `architecture-expert` (modo: plan-review) em contexto `isolated` e `findings: []`.
 - Até 5 ciclos automáticos de correção; na 6ª falha consecutiva, escalar ao PM em linguagem de produto.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `architecture-expert (plan-review)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `plan-review`

@@ -1,6 +1,6 @@
 ---
 description: Lista MCP servers ativos e valida que apenas os autorizados em .claude/allowed-mcps.txt estão em uso. Previne contaminação de contexto por MCPs desconhecidos. Uso: /mcp-check.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-001"
 ---
 
@@ -106,7 +106,7 @@ A skill não é considerada executada sem o artefato JSON gravado. O orquestrado
 - **Auditoria SOC 2:** compõe o audit trail de guardrail R1 junto com `forbidden-files-scan`.
 - **Nunca deletar:** incidentes antigos são contexto para compliance.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador executa script local).
 - **Gates produzidos:** não é gate de slice; é guardrail de harness.

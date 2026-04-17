@@ -1,6 +1,6 @@
 ---
 description: Audita testes red antes da implementacao (ADR-0017 Mudanca 1). Garante que cada AC tem teste, cada teste referencia AC-ID, e testes estao realmente red. Uso: /audit-tests-draft NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — skill nova criada em ADR-0017 Mudanca 1 (fecha gap #0 da auditoria de fluxo 2026-04-16)"
 ---
 
@@ -147,7 +147,7 @@ Se `verdict == rejected` (qualquer finding de qualquer severidade):
 - `rejected` -> builder (fixer em modo test-writer) -> re-run `/audit-tests-draft NNN`
 - R6 (6a rejeicao) -> `/explain-slice NNN` -> PM decide (novo prompt de test-writer, descartar slice, etc.)
 
-## Conformidade com protocolo v1.2.2 + ADR-0017
+## Conformidade com protocolo v1.2.4 + ADR-0017
 
 - **Agent invocado:** `qa-expert (audit-tests-draft)` — novo modo 5 conforme ADR-0017 Mudanca 1
 - **Gate name (enum):** `audit-tests-draft` (novo gate #16 no protocolo 04)

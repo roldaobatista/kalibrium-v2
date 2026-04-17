@@ -1,6 +1,6 @@
 ---
 description: <1 linha — intenção da skill em português, menciona comando e contexto de uso. Ex.: "Valida <gate> via <agent> em contexto isolado; produz <artefato>. Uso: /<comando> <args>.">
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "YYYY-MM-DD — criação/última alteração"
 ---
 
@@ -163,7 +163,7 @@ A skill não é considerada executada sem o artefato gravado/mensagem emitida. O
 - **Referência em retrospectivas:** <sim/não>
 - **Auditoria SOC 2:** <se compõe audit trail>
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** `<agent (mode)>` conforme mapa canônico §3.1
 - **Gates produzidos:** `<enum canônico>` (ex.: verify, review, security-review, etc.) ou "não é gate"

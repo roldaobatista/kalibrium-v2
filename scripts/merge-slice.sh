@@ -47,7 +47,7 @@ FJSON="$SLICE_DIR/functional-review.json"
 [ ! -f "$TJSON" ] && fail "test-audit.json ausente — rode /test-audit $NNN primeiro"
 [ ! -f "$FJSON" ] && fail "functional-review.json ausente — rode /functional-review $NNN primeiro"
 
-# Valida os gates obrigatorios contra o schema canonico gate-output-v1 (protocolo v1.2.2).
+# Valida os gates obrigatorios contra o schema canonico gate-output-v1 (protocolo v1.2.4).
 # Zero tolerance: verdict deve ser approved e blocking_findings_count deve ser 0 em todos.
 # Findings S4/S5 podem existir em approved (nao bloqueiam).
 # Gates condicionais (data-gate, observability-gate, integration-gate) sao validados se presentes.
@@ -60,7 +60,7 @@ from pathlib import Path
 nnn = os.environ["SLICE_NNN"]
 slice_dir = Path("specs") / nnn
 
-# Gates obrigatorios em todo slice (protocolo v1.2.2 §4)
+# Gates obrigatorios em todo slice (protocolo v1.2.4 §4)
 # (filename, expected_gate_value, label_humano)
 required_gates = [
     ("verification.json",       "verify",         "verify"),

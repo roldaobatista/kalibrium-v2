@@ -225,3 +225,121 @@ sub-agent independente que compara o comportamento do hook antes e depois
 de cada relock e emite relatório em linguagem de produto (R12) para o PM.
 
 ---
+
+## Windows + CRLF quebra `sha256sum -c` em arquivos hash-locked
+
+### Contexto
+
+Observado no slice-015 retomada (2026-04-17): `hooks-lock --check` falhou com
+erros tipo `'session-start.sh'$'\r': No such file or directory` ou
+`pre-commit-gate.sh: FAILED`.
+
+Causa: em Windows com `core.autocrlf=true` (default em Git for Windows), o
+checkout converte `\n` em `\r\n` nos `.sh` e no próprio `MANIFEST.sha256`.
+O `sha256sum -c` interpreta os `\r` como parte do nome do arquivo e/ou
+computa hash do conteúdo CRLF, diferente do LF original usado para gerar
+o manifest.
+
+### Mitigação aplicada (2026-04-17)
+
+`.gitattributes` força `eol=lf` em:
+- `scripts/hooks/**`
+- `*.sha256`
+- `docs/protocol/schemas/*.json`
+- `*.md`, `*.json`, `*.yml`, `*.yaml`, `*.toml`
+
+Devs que clonaram antes desta versão do `.gitattributes` precisam rodar:
+```bash
+git rm --cached -r .
+git reset --hard
+```
+
+Mitigação emergencial (working tree só, não commitar):
+```bash
+sed -i 's/\r$//' scripts/hooks/MANIFEST.sha256 scripts/hooks/*.sh
+```
+
+**Débito:** B-030 em `docs/guide-backlog.md` — **fechado** via `.gitattributes`
+em 2026-04-17 (PR #41).
+
+---
+
+## Telemetria de sub-agents isolados não chega ao `.jsonl` do slice
+
+### Contexto
+
+Observado no slice-015: `docs/retrospectives/slice-015-report.md` mostrou
+`Commits: 0 | Approved: 0 | Rejected: 0 | Tokens totais: 0` apesar de 9
+gates aprovados por sub-agents isolados (incluindo Trilha B do master-audit).
+
+Causa investigada: o `Agent` tool spawna o sub-agente em subprocesso com
+contexto isolado. Esse subprocesso **não herda** o env do projeto pai, então
+quando o sub-agente termina, eventos de telemetria não são escritos no
+`.claude/telemetry/slice-NNN.jsonl` da instância principal.
+
+Só eventos emitidos pelo orquestrador entram no JSONL (merge, rejected,
+checkpoint). Gates de verify/review/security/audit-tests/functional/
+master-audit ficam invisíveis para o `slice-report.sh`.
+
+### Mitigação interina
+
+Aceitar que métricas de telemetria são incompletas em slices que usam
+sub-agents isolados. Complementar via:
+- `git log --oneline` para commits reais.
+- `gh run list` para CI runs.
+- Contagem manual de `specs/NNN/*.json` para gates.
+
+### Mitigações potenciais (não implementadas)
+
+1. Passar `SLICE_NNN` e `TELEMETRY_PATH` no prompt do Agent tool e instruir
+   o sub-agente a invocar `scripts/record-telemetry.sh` explicitamente antes
+   de retornar.
+2. Consolidar a telemetria no final do gate via script que lê os JSONs de
+   gate em `specs/NNN/` e gera eventos sintéticos (scope: `slice-report.sh`).
+
+**Débito:** B-032 em `docs/guide-backlog.md` — **aberto**, prioridade média.
+
+---
+
+## Agent tool com `isolation: worktree` não vê arquivos untracked
+
+### Contexto
+
+Observado no slice-015 (Trilha B master-audit, primeira tentativa):
+sub-agente spawnado com `isolation: "worktree"` não encontrou arquivos do
+slice em `specs/015/*` porque eles ainda não estavam commitados no
+working tree principal.
+
+Causa: worktree é criado a partir de `HEAD` ou ref específica, não do
+working tree ativo. Arquivos untracked/modified no repo principal não
+aparecem no worktree isolado.
+
+### Política
+
+Para sub-agentes que precisam ler arquivos ainda não commitados, **não
+usar** `isolation: "worktree"`. O isolamento de contexto já é garantido
+pelo subprocesso do Agent tool (R3/R11 satisfeito sem worktree).
+
+Worktree é útil apenas quando o sub-agente trabalha contra uma ref
+imutável (ex.: auditoria pós-merge contra `origin/main`).
+
+---
+
+## Auto-merge do GitHub trava em "unstable status"
+
+### Contexto
+
+`gh pr merge --auto` retorna `GraphQL: Pull request is in unstable status
+(enablePullRequestAutoMerge)` quando algum check do CI está `in_progress`
+ou falhou recentemente.
+
+### Mitigação
+
+- Aguardar ~30s para os checks iniciarem e tentar `--auto` de novo.
+- Se CI está cronicamente vermelho (ex.: L-02 antes da mitigação CRLF),
+  usar `--admin` para bypass autorizado do owner (registra no log do
+  GitHub, contável no teto de 5 do admin bypass).
+- Se o CI ficou verde e o auto-merge já tinha sido armado antes, a mescla
+  acontece automaticamente. Re-verificar com `gh pr view NNN --json state`.
+
+---

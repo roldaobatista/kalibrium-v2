@@ -1,6 +1,6 @@
 ---
 description: Inicia implementacao de uma story aprovada. Valida Story Contract, cria slice(s) correspondente(s), atualiza project-state. Ponte entre planejamento e execucao. Uso: /start-story ENN-SNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog:
   - "2026-04-16 — quality audit fix SK-005R"
   - "2026-04-16 — ADR-0017 Mudanca 2: docs-gate-check obrigatorio antes de criar slice (gate documental mecanicamente enforcado — fecha gap #7 da auditoria de fluxo 2026-04-16)"
@@ -119,7 +119,7 @@ Nenhum — executada pelo orquestrador.
 - PM quer ajustar spec → editar `specs/NNN/spec.md` e reapresentar
 - Pre-condicao falha → listar o que falta
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum sub-agent — executada pelo orquestrador (orquestrador valida Story Contract, cria slice, atualiza project-state)
 - **Gates produzidos:** n/a — gate mecanico pre-execucao (R13/R14 sequencing via `scripts/sequencing-check.sh`), nao gate JSON

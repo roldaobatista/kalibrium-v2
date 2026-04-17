@@ -11,8 +11,22 @@
 # regenerar o MANIFEST via relock-harness.sh.
 scripts/*.sh text eol=lf
 
+# Hooks selados: MANIFEST.sha256 guarda hash calculado com LF. Se o clone
+# do desenvolvedor tiver autocrlf=true, o checkout converte para CRLF e
+# `sha256sum -c` falha no hooks-lock. Força LF para todos os .sh e o manifest
+# nessa área selada (ver B-030 em docs/guide-backlog.md).
+scripts/hooks/*.sh text eol=lf
+scripts/hooks/MANIFEST.sha256 text eol=lf
+
+# Arquivos .sha256 em qualquer lugar: sempre LF (hash bate entre Linux e Windows).
+*.sha256 text eol=lf
+
+# Schemas do protocolo: versionados e hash-checked em master-audit/evidence.
+docs/protocol/schemas/*.json text eol=lf
+
 # Arquivos de contexto técnico onde CRLF não deveria aparecer.
 *.json text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 *.toml text eol=lf
+*.md text eol=lf

@@ -1,6 +1,6 @@
 ---
 description: Mostra o estado completo do projeto em linguagem de produto (R12). Le project-state.json e apresenta fase, epico/story/slice ativos, gates, pendencias e proxima acao. Substitui /where-am-i com dados estruturados. Uso: /project-status.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit Cat C polishing"
 ---
 
@@ -120,7 +120,7 @@ Ação recomendada varia por fase:
 | Fonte primária | `project-state.json` | `specs/` + telemetria |
 | Nível | estratégico | operacional |
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum.
 - **Gates produzidos:** não é gate; é relatório agregado de estado.

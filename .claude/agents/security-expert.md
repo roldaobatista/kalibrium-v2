@@ -4,7 +4,7 @@ description: Especialista em seguranca aplicacional — OWASP, LGPD, threat mode
 model: opus
 tools: Read, Grep, Glob, Bash
 max_tokens_per_invocation: 40000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix F-03 (ownership explicita de PII in logs: security-gate blocking / observability-gate informational)"
 ---
 

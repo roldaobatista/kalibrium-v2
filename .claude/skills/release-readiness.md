@@ -1,6 +1,6 @@
 ---
 description: Valida se o projeto esta pronto para release. Checa todos os epicos/stories completos, gates aprovados, documentacao atualizada, testes verdes, seguranca OK. Gera relatorio final para PM. Uso: /release-readiness.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
@@ -192,7 +192,7 @@ Nenhum — executada pelo orquestrador.
 - Tudo verde → PM aprova deploy
 - Itens pendentes → listar acoes e ajudar a resolver
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador executa checklist agregado de todos os gates).
 - **Gates produzidos:** meta-gate de release (NAO-canonico do pipeline por slice; nao pertence ao enum de 15 gates canonicos de `docs/protocol/00-protocolo-operacional.md §3.1`). Agrega outputs ja emitidos por todos os gates de slice (`gate-output.schema.json`) + validacoes automaticas de projeto (suite full, scan de CVEs, scan de secrets, teste de migrations em banco limpo).

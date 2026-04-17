@@ -1,6 +1,6 @@
 ---
 description: Decompoe o PRD em epicos com dependencias e prioridades. Requer PRD frozen e arquitetura frozen. Spawn product-expert (decompose) que produz epics/ROADMAP.md e epics/ENN/epic.md para cada epico. Uso: /decompose-epics.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-003 + SK-005"
 ---
 
@@ -128,7 +128,7 @@ Sua decisão:
 4. Sempre ofertar **próximo passo único** (aceitar / trocar ordem / conversar).
 5. Se PM responder "não entendi": reformular com analogia do cotidiano, não com mais jargão.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** `product-expert (decompose)` — mapa canônico §3.1.
 - **Gates produzidos:** não é gate; é scaffold de planejamento.

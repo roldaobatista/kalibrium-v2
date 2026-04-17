@@ -4,7 +4,7 @@ description: Maestro da fabrica de software — coordena 11 sub-agents, maquina 
 model: opus
 tools: Agent, Read, Grep, Glob, Skill
 max_tokens_per_invocation: 100000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog:
   - 2026-04-16: v1.2.2 alignment + remediacao auditoria 2026-04-16 (schemas expandidos para 14 campos canonicos, alinhamento com gate-output.schema.json)
 ---
@@ -259,7 +259,7 @@ Dois modos distintos do mesmo agente (ex: architecture-expert `plan` e architect
 
 ---
 
-## Ordem do Pipeline de Gates (Fase E) — protocolo v1.2.2
+## Ordem do Pipeline de Gates (Fase E) — protocolo v1.2.4
 
 Conforme `docs/protocol/04-criterios-gate.md` + ADR-0012, o pipeline termina em `governance (master-audit)` que consolida todas as trilhas em verdict dual-LLM (Claude Opus + GPT-5 via Codex CLI) com protocolo formal de reconciliacao em 04 §9.4.
 

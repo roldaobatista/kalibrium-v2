@@ -1,6 +1,6 @@
 ---
 description: Consolidação dual-LLM (Claude Opus 4.7 + gpt-5 via Codex CLI) das 5 trilhas de gate. Ativa governance (master-audit) (ADR-0012 E2). Use como 4º passo da Fase E, após verify/review/security-gate/audit-tests/functional-gate todos approved. Uso: /master-audit NNN.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /master-audit
@@ -150,7 +150,7 @@ O script monta o input package, invoca as duas trilhas em paralelo via tools do 
 - `docs/audits/external/master-audit-smoke-test-2026-04-15.json` (primeiro smoke-test documentado)
 - `docs/protocol/schemas/gate-output.schema.json` (schema canonico unificado de gate)
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `governance (master-audit)` — conforme mapa canonico 00 §3.1 (dual-LLM: Opus + GPT-5)
 - **Gate name (enum):** `master-audit`

@@ -4,7 +4,7 @@ description: Especialista de dados — modelagem, migrations, isolamento de tena
 model: sonnet
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 40000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix F-01 (modo review com contrato formal JSON)"
 ---
 

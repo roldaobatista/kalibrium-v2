@@ -4,7 +4,7 @@ description: Agente de governanca e qualidade — master-audit dual-LLM (com ref
 model: opus
 tools: Read, Grep, Glob, Bash, mcp__codex__codex, mcp__codex__codex-reply
 max_tokens_per_invocation: 60000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix F-05 (criterio objetivo de convergencia para retrospective loop)"
 ---
 

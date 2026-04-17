@@ -2,7 +2,7 @@
 name: audit-spec
 description: Audita specs/NNN/spec.md antes de gerar plan.md. Roda qa-expert (audit-spec) em contexto limpo e usa loop de correcao ate findings vazio. Uso: /audit-spec NNN.
 user_invocable: true
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 ---
 
 # /audit-spec
@@ -90,7 +90,7 @@ loop (5 ciclos automáticos; 6ª rejeição escala PM):
   6. se 6 iteracoes sem aprovar -> escalar PM com resumo R12
 ```
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agent invocado:** `qa-expert (audit-spec)` — conforme mapa canonico 00 §3.1
 - **Gate name (enum):** `audit-spec`

@@ -4,7 +4,7 @@ description: Designer de produto — design system, wireframes, fluxos de intera
 model: sonnet
 tools: Read, Grep, Glob, Write
 max_tokens_per_invocation: 50000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fixes F-04 (design_system_compliance_ratio objetivo) e F-08 (IxD/micro-interactions/motion adicionados)"
 ---
 

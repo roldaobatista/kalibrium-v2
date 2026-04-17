@@ -1,6 +1,6 @@
 ---
 description: Verifica saude do contexto da sessao e sugere checkpoint proativo quando necessario. Monitora sinais de contexto grande (muitas mensagens, compressao, sub-agents pesados). Uso: /context-check.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-004 + Cat C polishing"
 ---
 
@@ -126,7 +126,7 @@ Ação automática: salvei checkpoint agora. Por favor abra nova sessão e use /
 - Contexto degradado → `/checkpoint` e sugerir nova sessao
 - Contexto critico → `/checkpoint` automatico
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador inspeciona contexto + telemetria local).
 - **Gates produzidos:** não é gate; é utilitário de higiene de sessão.

@@ -4,7 +4,7 @@ description: Especialista em DevOps — CI/CD, Docker, deploy zero-downtime, pip
 model: sonnet
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 40000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fixes F-02 (ci-gate expandido de 6 para 12 checks) e F-07 (referencias modernas adicionadas)"
 ---
 

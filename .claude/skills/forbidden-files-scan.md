@@ -1,6 +1,6 @@
 ---
 description: Procura arquivos de instrução proibidos (R1) no repo — .cursorrules, AGENTS.md, GEMINI.md, copilot-instructions.md, .bmad-core/, etc. Use quando suspeitar de contaminação do harness. Uso: /forbidden-files-scan.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-001"
 ---
 
@@ -117,7 +117,7 @@ A skill não é considerada executada sem o artefato JSON gravado. O orquestrado
 - **Auditoria SOC 2:** compõe audit trail de enforcement de R1 (fonte única de instrução).
 - **Nunca deletar:** incidentes antigos são prova de enforcement contínuo.
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** nenhum (orquestrador executa hook selado).
 - **Gates produzidos:** não é gate de slice; é guardrail de R1.

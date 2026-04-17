@@ -4,7 +4,7 @@ description: Especialista em observabilidade — logging estruturado, health che
 model: sonnet
 tools: Read, Grep, Glob, Write, Bash
 max_tokens_per_invocation: 40000
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix F-03 (PII in logs e informational aqui; blocking pertence ao security-gate)"
 ---
 

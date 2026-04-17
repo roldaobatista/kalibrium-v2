@@ -1,6 +1,6 @@
 ---
 description: Gera recomendação completa de stack (ADR-0001) em linguagem de produto para decisão do humano PM. Substitui a sessão técnica de 2h do guia original. R10+R12 enforcement. Uso: /decide-stack.
-protocol_version: "1.2.2"
+protocol_version: "1.2.4"
 changelog: "2026-04-16 — quality audit fix SK-005"
 ---
 
@@ -118,7 +118,7 @@ bash scripts/decide-stack.sh "$@"
 | PM não entende as opções apresentadas | Reformular usando analogias do cotidiano (R12 reforçada). Oferecer "quer conversar mais antes de decidir". |
 | `scripts/decide-stack.sh` falha na execução | Verificar se o script existe e tem permissão de execução. Gerar o ADR manualmente se o script estiver indisponível. |
 
-## Conformidade com protocolo v1.2.2
+## Conformidade com protocolo v1.2.4
 
 - **Agents invocados:** `architecture-expert` (modo: `design`) gera o conteudo tecnico da recomendacao (trade-offs, alternativas, reversibilidade); orquestrador traduz para R12 e monta o ADR. PM decide.
 - **Gates produzidos:** nao e gate de pipeline de slice; e scaffold de ADR-0001 com recomendacao forte. ADR-0001 segue formato ADR padrao (nao segue `gate-output.schema.json`).
