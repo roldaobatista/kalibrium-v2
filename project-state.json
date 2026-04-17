@@ -166,14 +166,11 @@
     "GAP-S05-001: automacao trial->expired (job/scheduler ausente) - epics/E02/stories/E02-S05.md",
     "GAP-S06-001: pro-rata upgrade/downgrade nao implementado - epics/E02/stories/E02-S06.md",
     "AMPLIATION-001: PRD.md precisa incorporar inline o conteudo de PRD-ampliacao-2026-04-16[-v2/-v3].md em proxima passagem por /freeze-prd",
-    "AMPLIATION-002: sequencing-check.sh (R13/R14) precisa ajustar ordem E03->E15->E16->E04+ e incluir E21-E25",
     "AMPLIATION-V3-001: epicos E15-E25 existem no ROADMAP mas sem diretorio epics/ENN - apontado pelo auditor independente; decompor antes de iniciar trabalho tecnico",
     "AMPLIATION-V3-002: ADR-0016 (multi-tenant isolation) criada mas ainda nao implementada - deve entrar no escopo de E15 antes do schema ser definido",
-    "HARNESS-MIGRATION-001: scripts/hooks/verifier-sandbox.sh (selado) ainda usa allowlist AGENT_ROLE v1; exige relock externo do PM para upgrade de agent names v3. Plano em docs/incidents/harness-sandbox-role-drift-2026-04-17.md (pendente criar).",
-    "HARNESS-MIGRATION-002: AC-ID format canonico AC-NNN-XXX (protocolo §10.1) conflita com validador scripts/draft-spec.sh; candidato a harness-learner (R16).",
-    "HARNESS-MIGRATION-003: docs/schemas/{plan-review,review,verification,security-review,test-audit,functional-review,guide-audit}.schema.json marcados deprecated 2026-04-17. Remover apos 30 dias sem referencia."
+    "HARNESS-MIGRATION-001: scripts/hooks/verifier-sandbox.sh (selado) ainda usa allowlist AGENT_ROLE v1; exige relock externo do PM para upgrade de agent names v3. Plano em docs/incidents/harness-sandbox-role-drift-2026-04-17.md (pendente criar)."
   ],
-  "technical_debt_count": 9,
+  "technical_debt_count": 6,
   "technical_debt_cleanup_2026_04_17": {
     "policy": "feedback_zero_technical_debt — PM exige lista em zero permanente",
     "removed_count": 6,
@@ -185,17 +182,19 @@
       {"item": "AMPLIATION-003", "reason": "auditoria de aproveitamento do frontend Livewire/Blade ja coberta pelo spike INF-007 (E15-S01 merged via PR #36 em 2026-04-17)"},
       {"item": "AMPLIATION-V3-003", "reason": "prazo RTC 2026-01-01 e vigilancia continua, nao debito — monitoramento movido para ROADMAP.md (E25)"}
     ],
-    "remaining_count": 9,
+    "remaining_count": 6,
     "remaining_plan": {
       "GAP-S05-001": "criar story retrofit em E02 (job trial->expired)",
       "GAP-S06-001": "criar story retrofit em E02 (pro-rata upgrade/downgrade)",
       "AMPLIATION-001": "incorporar PRDs v1+v2+v3 inline em PRD.md via /freeze-prd (sessao dedicada)",
-      "AMPLIATION-002": "ajustar scripts/sequencing-check.sh para ordem E03->E15->E16->E04+ e incluir E21-E25",
       "AMPLIATION-V3-001": "decompor E16-E25 em diretorios epics/ENN/ via /decompose-stories (10 epicos - trabalho grande)",
       "AMPLIATION-V3-002": "documentar ADR-0016 entra como AC em E15-S03+ (slice de schema); converter em story E15-SXX",
-      "HARNESS-MIGRATION-001": "criar .bat externo + documento incident para PM rodar relock da allowlist v3",
-      "HARNESS-MIGRATION-002": "ajustar scripts/draft-spec.sh para aceitar AC-NNN-XXX (protocolo §10.1)",
-      "HARNESS-MIGRATION-003": "agendar remocao em 2026-05-17 (>30 dias sem referencia) - mover para CRON do harness"
+      "HARNESS-MIGRATION-001": "criar .bat externo + documento incident para PM rodar relock da allowlist v3"
+    },
+    "resolved_in_session": {
+      "HARNESS-MIGRATION-002": "commit c8e8589 — draft-spec.sh aceita AC-NNN-XXX (backward-compat com AC-NNN)",
+      "AMPLIATION-002": "commit 0f3e37e — sequencing-check.sh respeita ordem canonica pos-ampliacao E01-E02-E15-E16-E03-E04..E25 + sufixos alfabeticos de story",
+      "HARNESS-MIGRATION-003": "movido para docs/schedule/harness-pending-removals.md (HARNESS-SCHEDULE-001, gatilho 2026-05-17) — nao e debito, e manutencao agendada"
     }
   },
   "harness_migration_2026_04_17": {
