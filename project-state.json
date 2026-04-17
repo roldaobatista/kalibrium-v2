@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "kalibrium-v2",
   "phase": "execution-post-slice-015-merged",
-  "updated_at": "2026-04-17T15:00:00-04:00",
+  "updated_at": "2026-04-17T15:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -61,11 +61,22 @@
     "current_epic": "E15",
     "current_story": "E15-S02",
     "current_slice": "016",
-    "slice_status": "spec-draft",
-    "last_green_commit": "1d0f6f8",
+    "slice_status": "tests-red-audited-approved",
+    "last_green_commit": "0e1f7bf",
+    "active_branch": "feat/slice-016-scaffold-frontend",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
+    "slice_016_pipeline": {
+      "draft_spec_mechanical": "ok (14 ACs AC-001..AC-014 sequenciais)",
+      "audit_spec": "approved instance_03 (0 bloqueantes, 1 S4 HARNESS-MIGRATION-002)",
+      "draft_plan_mechanical": "ok (10 decisoes D1-D10, 14/14 ACs mapeados)",
+      "plan_review": "approved instance_02 (0 findings em todas severidades)",
+      "draft_tests_mechanical": "ok (42 tests, 14/14 ACs rastreaveis via @covers + describe)",
+      "audit_tests_draft": "approved instance_03 (0 bloqueantes, 7/7 criterios §16.1 true)",
+      "pending": "builder:implementer — scaffold real, npm install, builds, 14 ACs verdes",
+      "branch_commits": ["1212e8b", "c60004d", "a1afeaf", "fdfab2c", "0e1f7bf"]
+    },
     "previous_execution": {
       "current_epic": "E03",
       "current_story": "E03-S02b",
@@ -219,7 +230,7 @@
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "(1) /slice-report 015 + /retrospective 015 (obrigatorios pos-merge). (2) /start-story E15-S02 (scaffold Capacitor desbloqueia paralelismo em S03-S06). (3) Monitorar E25 RTC 2026 (prazo fixo antes de 2026-01-01). Recuperacao de artefatos ja resolvida em PRs #38/#39/#40.",
+  "next_recommended_action": "Retomar branch feat/slice-016-scaffold-frontend e invocar builder:implementer para fazer os 14 ACs do slice 016 virarem verdes. Operacao longa: npm install (~500MB), criar scaffold React+TS+Ionic+Capacitor+Vite, npx cap add android (AC-004), AC-003 skip em Windows (!darwin), deletar resources/views (exceto /emails/), npm run build+lint+test. Depois: 5 gates principais + master-audit dual-LLM + merge-slice.",
   "pending_audit": {
     "type": "comparativa-externa",
     "status": "completed",
@@ -327,6 +338,6 @@
     "retrospectiva": "docs/retrospectives/slice-015.md",
     "guide_backlog_novos": ["B-029", "B-030", "B-031", "B-032"]
   },
-  "last_checkpoint": "2026-04-17T15:00:00-04:00",
+  "last_checkpoint": "2026-04-17T15:30:00-04:00",
   "last_handoff": "docs/handoffs/latest.md"
 }
