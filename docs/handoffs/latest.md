@@ -1,85 +1,34 @@
-# Handoff — 2026-04-16 21:00
+# Handoff — 2026-04-17 — Slice 015 merged em main (PR #36)
 
-## Estado consolidado da sessão
+## Resumo curto
 
-Sessão de hoje fechou **protocolo operacional v1.2.2** e elevou o **harness a qualidade classe-mundial** (agents 4.98/5, skills ~4.9/5). 74 arquivos modificados/criados.
+Slice 015 (Spike INF-007 / E15-S01) merged em main via PR #36 commit `8addb11`.
 
-## Entregas
+Pipeline completo:
+- 5/5 gates principais + 3/3 gates de planejamento approved
+- Master-audit dual-LLM 2× Opus (policy change 2026-04-17: GPT-5/Codex descontinuado)
+- Trilha A Opus: approved, 0 blocking, 9 S4, 1 S5
+- Trilha B Opus (sub-agent isolado): approved, 0 blocking, 2 S4, 1 S5
+- Consenso pleno, zero divergência
 
-### Camada 1 — Protocolo operacional
+**Detalhes completos em:** [`handoff-2026-04-17-slice-015-merged.md`](handoff-2026-04-17-slice-015-merged.md)
 
-- `docs/protocol/00-08` atualizados para v1.2.2
-- `docs/protocol/schemas/gate-output.schema.json` criado (schema formal JSON Schema draft-07, enum de 17 gate names)
-- 2 meta-audits fechados em `docs/audits/`:
-  - `protocol-meta-audit-2026-04-16.md`
-  - `harness-meta-audit-2026-04-16.md`
+## Débito crítico — recuperação de artefatos
 
-### Camada 2 — Harness v3 alinhado
+Os PRDs de ampliação v1+v2+v3, ADR-0016, incidents e audits externos **não entraram em main**. Ficaram só nas branches deletadas `work/offline-discovery-2026-04-16` (tip `2bbce17`) e `feat/slice-015-spike-inf007` (tip `7abe9c8`). Commits ainda referenciados no reflog e recuperáveis via cherry-pick.
 
-- `CLAUDE.md` v2.7 → v2.8.0
-- 12 agents em `.claude/agents/` com `protocol_version: "1.2.2"` + fonte normativa + exemplos JSON conformes
-- 40 skills em `.claude/skills/` com bloco "Conformidade com protocolo v1.2.2" (41/41 incluindo `_TEMPLATE.md` canônico criado)
-- Hook `scripts/hooks/verifier-sandbox.sh` relocked para aceitar agents v3 (PM executou via `RELOCK-HARNESS-V1.2.2.bat`)
-- `docs/operations/harness-relock-2026-04-16.md` documenta o procedimento
+Ver seção "O que NÃO entrou em main" no handoff detalhado.
 
-### Camada 3 — Quality audits (3 ciclos)
+## Próxima ação
 
-- `docs/audits/quality-audit-agents-2026-04-16.md` (v1: 4.3/5)
-- `docs/audits/quality-audit-agents-2026-04-16-v2.md` (v2: 4.92/5)
-- `docs/audits/quality-audit-skills-2026-04-16.md` (v1: 4.1/5)
-- `docs/audits/quality-audit-skills-2026-04-16-v2.md` (v2: 4.7/5)
+PM decide entre:
+1. **Recuperar artefatos** via cherry-pick dos commits `2bbce17`/`7abe9c8` antes de continuar.
+2. **Seguir direto para E15-S02** (scaffold Capacitor) e recriar os PRDs em sessão futura.
 
-23 correções aplicadas em 3 batches via builder isolado. Projeção pós-fixes: agents ~4.98/5, skills ~4.9/5.
+## Estado
 
-## Próxima ação — RE-AUDIT COMPLETO EM NOVA SESSÃO
-
-**Pedido explícito do PM:** rodar re-auditoria completa de todos os agents e skills em **sessão nova**, contexto limpo, sem vício da sessão atual.
-
-### Prompt neutro para a nova sessão (copiar/colar após /resume)
-
-```
-Rode uma auditoria independente de qualidade profissional dos agents e skills do
-harness em dois contextos isolados R3 em paralelo (governance Opus 4.7).
-
-Auditor 1 — agents em .claude/agents/ (12 arquivos).
-Auditor 2 — skills em .claude/skills/ (40 arquivos + _TEMPLATE.md).
-
-Cada auditor deve:
-- Definir sua própria rubrica de avaliação profissional (dimensões que julgar relevantes).
-- Avaliar cada arquivo no mérito, sem referência a auditorias anteriores.
-- Atribuir a nota que cada arquivo merece, sem meta pré-estabelecida.
-- Apontar gaps reais (ou ausência deles) com evidência literal.
-- Emitir verdict próprio: aprovar, aprovar com ressalvas, ou rejeitar.
-
-Restrições:
-- Não ler docs/audits/ antes de formar opinião própria. Pode consultar DEPOIS, como
-  checagem, mas a nota inicial deve vir de leitura direta dos agents/skills.
-- Não aplicar fixes. Só avaliar.
-- Relatório final em docs/audits/quality-audit-<agents|skills>-2026-04-16-v3.md.
-
-Reporte ao PM em linguagem de produto (R12) o verdict e 3 pontos principais de cada
-auditoria. O PM decide o próximo passo.
-```
-
-## Pendências
-
-1. **Commit do lote (74 arquivos)** — estruturar em 3 commits atômicos (protocol / harness / audits).
-2. **Re-audit final** (instrução acima).
-3. **Limpar temporários:** `scripts/staging/` e `scripts/hooks/verifier-sandbox.sh.bak-*` (untracked).
-
-## Contexto técnico
-
-- Branch: `chore/checkpoint-2026-04-16`
-- Projeto ainda em `CONDITIONAL_RESUME` até re-audit final validar 5/5.
-- Hook selado foi relocked (MANIFEST.sha256 + settings.json.sha256 regenerados).
-- Próxima story pendente (após re-audit + despause): E03 CRUD cliente+contato (3/14 stories já merged).
-
-## Arquivos-chave para leitura na nova sessão
-
-1. Este handoff (`latest.md`)
-2. `docs/handoffs/handoff-2026-04-16-2100.md` (cópia imutável deste handoff)
-3. `docs/audits/quality-audit-agents-2026-04-16-v2.md`
-4. `docs/audits/quality-audit-skills-2026-04-16-v2.md`
-5. `docs/audits/harness-meta-audit-2026-04-16.md`
-6. `project-state.json`
-7. `CLAUDE.md` (regras de sessão — nova sessão precisa bootstrap completo)
+- Branch: `main` (8addb11)
+- PR #36: merged
+- PR #35: closed (abandonado)
+- Guide-backlog: 4 novos itens (B-029 a B-032)
+- Retrospectiva: `docs/retrospectives/slice-015.md`
