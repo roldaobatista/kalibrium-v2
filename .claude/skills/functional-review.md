@@ -42,7 +42,7 @@ Agent(subagent_type="product-expert")
 **Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
 ### 3. Validar output
-Validar `functional-review.json` contra `docs/schemas/functional-review.schema.json`.
+Validar `functional-review.json` contra `docs/protocol/schemas/gate-output.schema.json`.
 
 ### 4. Apresentar ao PM
 
