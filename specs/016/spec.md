@@ -53,8 +53,8 @@ Um desenvolvedor clona o repositório, executa `npm install && npm run dev` e v�
 - **AC-007 — ESLint e Prettier passam sem erros**
   Dado o scaffold criado, quando se executa `npm run lint`, então o comando termina com exit 0 e zero erros reportados (warnings permitidos).
 
-- **AC-008 — Frontend legado removido**
-  Dado o scaffold criado, quando se executa `find resources/views -name "*.blade.php"` e `find resources/js -type f`, então o resultado combinado é zero arquivos (ou os diretórios não existem); `routes/web.php` não referencia nenhuma view Blade (apenas health-check ou redirect para API).
+- **AC-008 — Frontend legado removido (exceto templates de e-mail transacional)**
+  Dado o scaffold criado, quando se executa `find resources/views -name "*.blade.php" -not -path "*/emails/*"` e `find resources/js -type f`, então o resultado combinado é zero arquivos (ou os diretórios não existem); o diretório `resources/views/emails/` é preservado por conter templates de notificação server-side do Laravel (Mail facade), que não fazem parte do frontend SPA e continuam sob responsabilidade do backend; `routes/web.php` não referencia nenhuma view Blade que não seja de e-mail (apenas health-check ou redirect para API).
 
 ### Edge cases e erros (obrigatórios)
 
@@ -71,7 +71,7 @@ Um desenvolvedor clona o repositório, executa `npm install && npm run dev` e v�
   Dado um arquivo `src/__lint_check__.tsx` com violação proposital (ex.: variável não usada com regra `no-unused-vars` ativa), quando se executa `npm run lint`, então o comando sai com exit não-zero e reporta a violação; após remover o arquivo, `npm run lint` sai com exit 0.
 
 - **AC-013 — `routes/web.php` limpo pós-descarte (edge de AC-008)**
-  Dado o scaffold aplicado, quando se executa `grep -E "view\\(|return view" routes/web.php`, então o resultado é zero ocorrências (comando sai com exit 1 por não encontrar nada, o que prova que não há chamada Blade).
+  Dado o scaffold aplicado, quando se executa `grep -E "view\\(|return view" routes/web.php`, então o resultado é zero ocorrências de chamadas a views (comando sai com exit 1 por não encontrar nada); templates em `resources/views/emails/` são acessados via `Mail::send(...)` e não via `view()` em rotas web — essa exceção é consistente com AC-008.
 
 ### Segurança
 
@@ -84,6 +84,7 @@ Este slice usa o formato **AC-NNN** (AC-001..AC-014) por compatibilidade com o v
 
 ## Fora de escopo
 
+- Migração/remoção de templates de e-mail transacional (`resources/views/emails/*.blade.php`) — **preservados** neste slice; são notificações server-side do Laravel (Mail facade), não frontend SPA. Auditoria de refactor/migração desses templates, se necessária, fica para backlog pós-MVP.
 - Service Worker e `manifest.webmanifest` (E15-S03)
 - Build de distribuição (IPA/AAB) no CI (E15-S04 e E15-S05)
 - Banco local SQLite via `@capacitor-community/sqlite` (E15-S06)

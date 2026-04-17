@@ -6,9 +6,9 @@
   "agent": "qa-expert",
   "mode": "audit-spec",
   "verdict": "approved",
-  "timestamp": "2026-04-17T17:38:30Z",
-  "commit_hash": "1212e8b",
-  "isolation_context": "slice-016-audit-spec-instance-02",
+  "timestamp": "2026-04-17T17:56:27Z",
+  "commit_hash": "c60004d",
+  "isolation_context": "slice-016-audit-spec-instance-03",
   "blocking_findings_count": 0,
   "non_blocking_findings_count": 1,
   "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 1, "S5": 0},
@@ -18,13 +18,13 @@
       "severity": "S4",
       "severity_label": "minor",
       "gate_blocking": false,
-      "description": "Formato AC-ID usa AC-NNN (ex: AC-001) em vez do formato canônico AC-NNN-XXX exigido por §10.1. A spec justifica a escolha com base no conflito técnico confirmado: scripts/draft-spec.sh linha 96 usa regex AC-[0-9]+ que capturaria AC-016 como identificador, quebrando a checagem de sequencialidade. O conflito está formalmente registrado em project-state.json → technical_debt → HARNESS-MIGRATION-002 como candidato a harness-learner (R16). O próprio protocolo é internamente inconsistente: §10.1 exige AC-NNN-XXX, mas §16.1 (audit-tests-draft), §4 (audit-tests) e §8 (métricas) usam AC-NNN nos exemplos normativos. A rastreabilidade AC→teste é garantida pelo gate audit-tests-draft (ADR-0017 Mudança 1) via name_contains_ac_id ou @covers AC-NNN.",
+      "description": "Formato AC-ID usa AC-NNN em vez do canônico AC-NNN-XXX definido em protocolo §10.1. Débito técnico registrado em project-state.json → technical_debt → HARNESS-MIGRATION-002. Rastreabilidade AC→teste preservada via audit-tests-draft (ADR-0017 Mudança 1) através de name_contains_ac_id ou @covers AC-NNN.",
       "file": "specs/016/spec.md",
       "line": 81,
-      "evidence": "project-state.json linha 168: 'HARNESS-MIGRATION-002: AC-ID format canonico AC-NNN-XXX (protocolo §10.1) conflita com validador scripts/draft-spec.sh; candidato a harness-learner (R16).' Seção 'Convenção de AC-ID' presente na spec documenta explicitamente o conflito e a justificativa técnica.",
-      "recommendation": "Resolver via R16 harness-learner: atualizar scripts/draft-spec.sh para aceitar ambos os formatos (AC-NNN e AC-NNN-XXX) ou adotar AC-NNN como canônico em todo o protocolo. Não reabrir como bloqueante — conflito de harness, não defeito de spec.",
+      "evidence": "Seção 'Convenção de AC-ID' declara explicitamente a incompatibilidade com regex AC-[0-9]+ do validador scripts/draft-spec.sh linha 96. Conflito registrado e rastreabilidade alternativa declarada.",
+      "recommendation": "Manter S4 até resolução de HARNESS-MIGRATION-002 (migração do validador para suportar AC-NNN-XXX). Nenhuma ação necessária neste slice.",
       "reclassification_requested": false,
-      "exception_granted": false
+      "exception_granted": true
     }
   ],
   "evidence": {
@@ -34,44 +34,53 @@
       "acs_unambiguous": true,
       "out_of_scope_explicit": true,
       "dependencies_declared": true,
-      "journey_covered": true
+      "journey_covered": true,
+      "happy_and_edge_cases_covered": true,
+      "security_contemplated": true,
+      "consistent_with_story_contract": true,
+      "versions_adrs_coherent": true
     },
     "acs_count": 14,
     "ambiguous_acs": [],
     "frontmatter_valid": true,
     "glossary_terms_unmapped": [],
-    "adr_consistency": true,
-    "story_contract_consistency": {
-      "story_acs_present_in_spec": ["AC-001","AC-002","AC-003","AC-004","AC-005","AC-006","AC-007","AC-008"],
-      "spec_adds_edge_cases": ["AC-009","AC-010","AC-011","AC-012","AC-013","AC-014"],
-      "story_acs_removed_from_spec": [],
-      "verdict": "superconjunto_valido"
+    "ac008_amendment_analysis": {
+      "mensurable": true,
+      "testable": true,
+      "unambiguous": true,
+      "command": "find resources/views -name '*.blade.php' -not -path '*/emails/*' && find resources/js -type f",
+      "expected_result": "zero files (or directories absent)",
+      "exception_rationale": "resources/views/emails/ preservado — templates server-side Mail facade, não frontend SPA. Alinhado com decisão D8 do plan-review instance_01 (finding F-001 S3 resolvido pela emenda).",
+      "consistent_with_ac013": true
     },
-    "version_pinning": {
-      "spec_mentions_stack": "React 18 + TypeScript 5 + Ionic 8 + Capacitor 6 + Vite 5",
-      "consistent_with_adr_0015": true,
-      "consistent_with_stack_versions_md": true
+    "ac013_analysis": {
+      "testable": true,
+      "command": "grep -E \"view\(|return view\" routes/web.php",
+      "expected_result": "exit 1 (zero matches — negativo confirma limpeza)",
+      "mail_facade_exception": "Mail::send(...) não invoca view() em rotas web — exceção tecnicamente correta e não-contraditória com AC-008",
+      "consistent_with_ac008": true
+    },
+    "out_of_scope_consistency": {
+      "emails_templates_declared_preserved": true,
+      "no_contradiction_with_acs": true,
+      "note": "Bullet 'Fora de escopo' declara preservação de resources/views/emails/*.blade.php. AC-008 implementa a exceção com filtro -not -path '*/emails/*'. AC-013 complementa declarando que Mail::send() — não view() — acessa esses templates. Cadeia coerente."
+    },
+    "story_contract_consistency": {
+      "story_id": "E15-S02",
+      "ac008_delta": "Story Contract declara remoção total de resources/views/ sem exceção explícita. Spec emendada adiciona granularidade (preserva emails/). Emenda é defensiva e não contradiz a intenção do contract — remoção do frontend legado SPA ocorre integralmente; apenas templates server-side são retidos por razão técnica legítima.",
+      "verdict": "consistent — spec refina sem violar o contract"
+    },
+    "adrs_checked": ["ADR-0015", "ADR-0016"],
+    "versions_declared": {
+      "react": "18",
+      "typescript": "5",
+      "ionic": "8",
+      "capacitor": "6",
+      "vite": "5",
+      "source": "docs/frontend/stack-versions.md (via E15-S01)"
     },
     "security_coverage": {
-      "ac_014_present": true,
-      "capacitor_config_hardcoded_url_checked": true
-    },
-    "ac_002_fix_verified": "dist/assets/ agora exige ao menos 1 .js e 1 .css — gap de build incompleto silencioso fechado",
-    "happy_path_edge_case_mapping": {
-      "AC-001": ["AC-009"],
-      "AC-002": ["AC-010"],
-      "AC-005": ["AC-011"],
-      "AC-007": ["AC-012"],
-      "AC-008": ["AC-013"],
-      "AC-003": [],
-      "AC-004": [],
-      "AC-006": []
-    },
-    "frontmatter_fields_present": ["title", "lane", "story", "epic"],
-    "out_of_scope_items": 8,
-    "risks_documented": 5,
-    "platform_conditional_acs": {
-      "AC-003": "skip em Windows/Linux; obrigatório em CI macOS — documentado na spec e no Story Contract"
+      "ac014": "capacitor.config.ts sem server.url hardcoded em produção — verificável via parse do arquivo"
     }
   }
 }
