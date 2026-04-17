@@ -23,10 +23,18 @@ copilot-instructions.md
 .cursor/
 .continue/
 
-# ---------- Worktrees temporárias (verifier/reviewer) ----------
+# ---------- Worktrees temporárias (verifier/reviewer/gates) ----------
 verification-input/
 review-input/
+security-review-input/
+test-audit-input/
+functional-review-input/
+master-audit-input/
 .verify-*.tmp/
+
+# ---------- Backups residuais de hooks (relock-harness.sh gera docs/incidents/) ----------
+scripts/hooks/*.bak-*
+scripts/*.bak-*
 
 # ---------- Telemetria efêmera ----------
 .claude/telemetry/*.jsonl
@@ -93,4 +101,5 @@ test-results/
 # TypeScript build artifacts (gerados pelo tsc -b)
 *.tsbuildinfo
 playwright.config.d.ts
+playwright.config.js
 vite.config.d.ts

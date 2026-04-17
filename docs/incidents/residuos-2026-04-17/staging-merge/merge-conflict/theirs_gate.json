@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kalibrium.local/protocol/schemas/gate-output.schema.json",
+  "title": "Kalibrium Gate Output",
+  "description": "Schema normativo para toda saida JSON de gate. Referenciado em docs/protocol/03-contrato-artefatos.md secao 8. Versao 1.2.4 — enum expandido com audit-tests-draft (ADR-0017 Mudanca 1, gate pre-implementacao que audita testes red antes da Fase D).",
+  "type": "object",
+  "required": [
+    "$schema",
+    "gate",
+    "slice",
+    "lane",
+    "agent",
+    "mode",
+    "verdict",
+    "timestamp",
+    "commit_hash",
+    "isolation_context",
+    "blocking_findings_count",
+    "non_blocking_findings_count",
+    "findings_by_severity",
+    "findings"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "gate-output-v1"
+    },
+    "gate": {
+      "type": "string",
+      "enum": [
+        "verify",
+        "review",
+        "security-gate",
+        "audit-tests-draft",
+        "audit-tests",
+        "functional-gate",
+        "data-gate",
+        "observability-gate",
+        "integration-gate",
+        "master-audit",
+        "audit-spec",
+        "audit-story",
+        "audit-planning",
+        "plan-review",
+        "spec-security",
+        "guide-audit",
+        "ux-gate",
+        "ci-gate"
+      ]
+    },
+    "slice": {
+      "type": "string",
+      "pattern": "^[0-9]{3}$"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["L1", "L2", "L3", "L4"]
+    },
+    "agent": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["approved", "rejected"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 com timezone UTC"
+    },
+    "commit_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "isolation_context": {
+      "type": "string",
+      "description": "Identificador da instancia isolada R3 que produziu este gate"
+    },
+    "blocking_findings_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "non_blocking_findings_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "findings_by_severity": {
+      "type": "object",
+      "required": ["S1", "S2", "S3", "S4", "S5"],
+      "properties": {
+        "S1": {"type": "integer", "minimum": 0},
+        "S2": {"type": "integer", "minimum": 0},
+        "S3": {"type": "integer", "minimum": 0},
+        "S4": {"type": "integer", "minimum": 0},
+        "S5": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "severity",
+          "severity_label",
+          "gate_blocking",
+          "description",
+          "evidence"
+        ],
+        "properties": {
+          "id": {"type": "string", "pattern": "^F-[0-9]+$"},
+          "severity": {"type": "string", "enum": ["S1", "S2", "S3", "S4", "S5"]},
+          "severity_label": {"type": "string", "enum": ["blocker", "critical", "major", "minor", "advisory"]},
+          "gate_blocking": {"type": "boolean"},
+          "description": {"type": "string"},
+          "file": {"type": ["string", "null"]},
+          "line": {"type": ["integer", "null"]},
+          "evidence": {"type": "string"},
+          "recommendation": {"type": "string"},
+          "reclassification_requested": {"type": "boolean"},
+          "exception_granted": {"type": "boolean"}
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Bloco livre com campos especificos do gate (ex: owasp_categories_checked, ac_coverage_map, rollback_strategy_defined). Ver 04-criterios-gate.md para campos por gate.",
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "description": "Verdict approved exige zero findings S1-S3 (zero tolerance).",
+      "if": {
+        "properties": {"verdict": {"const": "approved"}}
+      },
+      "then": {
+        "properties": {
+          "blocking_findings_count": {"const": 0}
+        }
+      }
+    }
+  ]
+}

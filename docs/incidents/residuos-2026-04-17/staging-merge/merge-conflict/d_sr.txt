@@ -1,0 +1,34 @@
+--- ours_sr.md	2026-04-17 11:09:10.036132800 -0400
++++ theirs_sr.md	2026-04-17 11:09:10.078884600 -0400
+@@ -11,11 +11,11 @@
+ 
+ ### Família A — Schemas de gate (canônicos em `docs/protocol/schemas/`)
+ 
+-Aplicam-se aos artefatos emitidos pelos **gates do pipeline** (15 gates do protocolo v1.2.2) e pelas skills de governança que seguem contrato mecânico. Todo gate que o protocolo enumera como `approved` | `rejected` | `needs_changes` valida sua saída JSON contra um destes arquivos.
++Aplicam-se aos artefatos emitidos pelos **gates do pipeline** (16 gates do protocolo v1.2.2) e pelas skills de governança que seguem contrato mecânico. Todo gate que o protocolo enumera como `approved` | `rejected` | `needs_changes` valida sua saída JSON contra um destes arquivos.
+ 
+ | Arquivo | Escopo de aplicação | Consumidores |
+ |---|---|---|
+-| `gate-output.schema.json` | Todos os **15 gates** do pipeline v1.2.2: verify, code-review, security-review, audit-tests, functional-review, data-review, observability-review, integration-review, ux-review, master-audit, audit-spec, audit-story, audit-planning, plan-review, ci-gate | `verify-slice`, `review-pr`, `security-review`, `test-audit`, `functional-review`, `data-review`, `observability-review`, `integration-review`, `ux-review`, `master-audit`, `audit-spec`, `audit-story`, `audit-planning`, `review-plan`, `ci-gate` |
++| `gate-output.schema.json` | Todos os **16 gates** do pipeline v1.2.2+ADR-0017: verify, code-review, security-review, audit-tests-draft (pre-implementacao — ADR-0017 Mudanca 1), audit-tests (pos-implementacao), functional-review, data-review, observability-review, integration-review, ux-review, master-audit, audit-spec, audit-story, audit-planning, plan-review, spec-security (L4), guide-audit, ci-gate | `verify-slice`, `review-pr`, `security-review`, `audit-tests-draft`, `test-audit`, `functional-review`, `data-review`, `observability-review`, `integration-review`, `ux-review`, `master-audit`, `audit-spec`, `audit-story`, `audit-planning`, `review-plan`, `ci-gate` |
+ | `harness-audit-v1.schema.json` | Skills de **governança do harness** (varredura, integridade, auditoria de fábrica) que não são gates do pipeline de slice mas precisam do mesmo rigor de contrato | `forbidden-files-scan`, `mcp-check`, `guide-audit`, `harness-learner` |
+ 
+ Regras invioláveis da Família A:
+@@ -57,7 +57,7 @@
+ ├── protocol/
+ │   └── schemas/                                # Família A — schemas de gate
+ │       ├── README.md                           # este documento
+-│       ├── gate-output.schema.json             # 15 gates do pipeline v1.2.2
++│       ├── gate-output.schema.json             # 16 gates do pipeline v1.2.2
+ │       └── harness-audit-v1.schema.json        # skills de governança do harness
+ └── schemas/                                    # Família B — schemas não-de-gate
+     └── project-state.schema.json               # estado persistente do projeto
+@@ -71,7 +71,7 @@
+ 
+ - `docs/protocol/00-protocolo-operacional.md` §3.1 — mapa canônico de agentes e gates
+ - `docs/protocol/03-contrato-artefatos.md` — contrato por modo/artefato (aplica Família A)
+-- `docs/protocol/04-criterios-gate.md` — critérios objetivos dos 15 gates
++- `docs/protocol/04-criterios-gate.md` — critérios objetivos dos 16 gates (§§1-16) + regras transversais (§17)
+ - `.claude/skills/checkpoint.md` — consumidor legítimo da Família B
+ - `.claude/skills/resume.md` — consumidor legítimo da Família B
+ - `CLAUDE.md §9` — procedimento de alteração de arquivos selados (aplica-se a Família A via relock-harness.sh)

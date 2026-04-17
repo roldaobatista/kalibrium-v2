@@ -1,6 +1,6 @@
 {
   "$schema": "gate-output-v1",
-  "gate": "review",
+  "gate": "code-review",
   "slice": "016",
   "lane": "L3",
   "agent": "architecture-expert",
@@ -12,7 +12,13 @@
   "isolation_context": "slice-016-code-review-instance-01",
   "blocking_findings_count": 0,
   "non_blocking_findings_count": 0,
-  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 0,
+    "S5": 0
+  },
   "findings": [],
   "evidence": {
     "review_dimensions": {
@@ -34,7 +40,10 @@
     "business_logic_in_controllers": [],
     "routes_without_middleware": [],
     "unused_imports": [],
-    "adr_adherence_checked": ["ADR-0015", "ADR-0016"],
+    "adr_adherence_checked": [
+      "ADR-0015",
+      "ADR-0016"
+    ],
     "structural_checks": {
       "stack_matches_adr_0015": true,
       "versions_pinned_exact": true,

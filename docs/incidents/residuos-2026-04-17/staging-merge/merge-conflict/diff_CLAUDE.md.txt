@@ -1,0 +1,23 @@
+--- ours_CLAUDE.md	2026-04-17 11:08:38.838383000 -0400
++++ theirs_CLAUDE.md	2026-04-17 11:08:38.882749500 -0400
+@@ -199,9 +199,10 @@
+ 15. `/draft-plan NNN` → `architecture-expert` (modo: plan) gera plan.md.
+ 16. `/review-plan NNN` → `architecture-expert` (modo: plan-review, contexto isolado) valida plan.md; se houver findings, corrige plan e re-audita até zero findings.
+ 17. **Auto-approval do plano:** quando `qa-expert` (audit-spec) E `architecture-expert` (plan-review) ambos retornam `verdict: approved` com `findings: []`, o orquestrador prossegue automaticamente para a próxima etapa (draft-tests) **sem pausar para o PM**. O PM só é envolvido em: (a) escalação R6 (6º rejected consecutivo), (b) decisão de produto explícita que apareça mid-flow, (c) PM solicita pausa via `/checkpoint` ou conversa direta. Esta política reduz fricção do PM mantendo R11 (dual-verifier) preservado.
+-18. `/draft-tests NNN` → `builder` (modo: test-writer) gera testes red.
++18. `/draft-tests NNN` → `builder` (modo: test-writer) gera testes red **com AC-ID rastreavel obrigatorio** (nome do teste contem AC-NNN, ou docblock `@covers AC-NNN`, ou `describe('AC-NNN: ...')`) — ADR-0017 Mudança 1.
+ 19. Commit: `test(slice-NNN): AC tests red`.
+-20. `builder` (modo: implementer) faz testes virarem verdes, task por task.
++19.1. `/audit-tests-draft NNN` → `qa-expert` (modo: audit-tests-draft, instância isolada) audita testes red **antes** da implementação. Valida: cada AC tem teste rastreável; cada teste referencia AC-ID; testes realmente red; assertions com semântica; mocks respeitam nível de integração do AC; sem testes duplicados; edge cases da spec cobertos. Zero findings para prosseguir. Loop fixer→re-audit padrão (R6 na 6ª) — ADR-0017 Mudança 1.
++20. `builder` (modo: implementer) faz testes virarem verdes, task por task. **Pré-condição:** `specs/NNN/tests-draft-audit.json` com `verdict: approved` e `findings: []`. Implementer **recusa mecanicamente** arquivo de teste sem AC-ID ou sem tag `@helper`/`@setup`.
+ 
+ ### Fase E — Pipeline de Gates (por slice)
+ 
+@@ -258,6 +259,7 @@
+ | Gerar plan técnico | `/draft-plan NNN` |
+ | Auditar plan antes do PM/testes | `/review-plan NNN` |
+ | Gerar testes red | `/draft-tests NNN` |
++| Auditar testes red antes da implementação (ADR-0017) | `/audit-tests-draft NNN` |
+ 
+ ### Pipeline de Gates
+ | Intenção | Comando |
