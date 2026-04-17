@@ -41,7 +41,7 @@ Agent(subagent_type="qa-expert")
 **Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
 ### 3. Validar output
-Validar `test-audit.json` contra `docs/schemas/test-audit.schema.json`.
+Validar `test-audit.json` contra `docs/protocol/schemas/gate-output.schema.json`.
 
 ### 4. Apresentar ao PM
 

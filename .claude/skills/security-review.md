@@ -46,7 +46,7 @@ Agent(subagent_type="security-expert")
 **Nota:** NAO usar `isolation: "worktree"`. O input package e untracked e nao existiria na worktree. O isolamento e garantido pelo hook `verifier-sandbox.sh` que restringe reads ao diretorio de input.
 
 ### 3. Validar output
-Validar `security-review.json` contra `docs/schemas/security-review.schema.json`.
+Validar `security-review.json` contra `docs/protocol/schemas/gate-output.schema.json`.
 Rejeitar outputs invalidos.
 
 ### 4. Apresentar ao PM

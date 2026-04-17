@@ -35,7 +35,7 @@ Após o `qa-expert` (modo: verify) ter emitido `verification.json` com `verdict:
 
 3. **Aguarda** `review-input/review.json` ser escrito pelo `architecture-expert` (modo: code-review)
 
-4. **Valida JSON** contra `docs/schemas/review.schema.json` via `scripts/validate-review.sh`
+4. **Valida JSON** contra `docs/protocol/schemas/gate-output.schema.json` via `scripts/validate-review.sh`
 
 5. **Atualiza telemetria**:
    ```json
