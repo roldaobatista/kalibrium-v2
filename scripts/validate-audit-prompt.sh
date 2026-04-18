@@ -94,8 +94,9 @@ if [ "$MODE" = "re-audit" ]; then
     case "$token" in
       \#*) continue ;;
     esac
-    # grep -iFn: case-insensitive fixed-string com line number prefix.
-    matches="$(grep -iFn -- "$token" "$FILE" || true)"
+    # case-insensitive line matching via awk (evita bug do grep -iF com tokens
+    # contendo espaco no Git Bash Windows). Trata token como substring literal.
+    matches="$(awk -v tok="$token" 'BEGIN{IGNORECASE=1} index(tolower($0), tolower(tok)){print NR":"$0}' "$FILE" || true)"
     if [ -n "$matches" ]; then
       echo "[validate-audit-prompt] REJECTED re-audit: token proibido \"$token\"" >&2
       while IFS= read -r hit; do

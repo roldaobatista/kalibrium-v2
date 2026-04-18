@@ -4,7 +4,7 @@ slice_id: 019
 mode: verify
 ---
 
-# Prompt de re-auditoria (fixture limpa)
+# Prompt de auditoria (fixture limpa — sem tokens proibidos)
 
 ## perimeter_files
 - specs/019/spec.md
