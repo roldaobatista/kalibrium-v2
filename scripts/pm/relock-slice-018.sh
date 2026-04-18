@@ -21,7 +21,37 @@ echo "=========================================="
 echo "  [1/5] Atualizando main local..."
 echo "=========================================="
 git checkout main
-git pull origin main
+git fetch origin main
+
+# Detecta divergencia e oferece reset --hard (seguro: main do PM nao deveria ter
+# commits proprios nao-pushed). Se tiver, aborta.
+LOCAL_HEAD="$(git rev-parse HEAD)"
+REMOTE_HEAD="$(git rev-parse origin/main)"
+
+if [ "$LOCAL_HEAD" != "$REMOTE_HEAD" ]; then
+  AHEAD="$(git rev-list --count origin/main..HEAD)"
+  BEHIND="$(git rev-list --count HEAD..origin/main)"
+
+  if [ "$AHEAD" -gt 0 ]; then
+    echo ""
+    echo "AVISO: main local tem $AHEAD commit(s) que NAO estao em origin/main."
+    echo "Isso geralmente e leftover de sessoes anteriores."
+    echo ""
+    echo "Vou descartar esses commits e alinhar main local com origin/main."
+    echo "Se voce fez algum commit manual em main que quer preservar, cancele AGORA."
+    echo ""
+    read -r -p "Digite 'RESET' para continuar ou qualquer outra coisa para abortar: " confirm
+    if [ "$confirm" != "RESET" ]; then
+      echo "Abortando."
+      exit 1
+    fi
+  fi
+
+  git reset --hard origin/main
+  echo "[OK] main local alinhado com origin/main ($(git rev-parse --short HEAD))"
+else
+  echo "[OK] main local ja alinhado com origin/main"
+fi
 
 TARGET="scripts/merge-slice.sh"
 if [ ! -f "$TARGET" ]; then
