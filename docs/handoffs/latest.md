@@ -1,96 +1,58 @@
-# Handoff — 2026-04-18 01:00 — Slice 017 MERGED + Slice 018 spec draft round 2
+# Handoff — 2026-04-18 02:00 — Slice 018 spec + plan approved, draft-tests pendente
 
 ## Resumo curto
 
-Sessão nesta madrugada fez 3 marcos:
+Continuação da sessão. Marco duplo:
 
-1. **Slice 017 (E15-S03 PWA Shell) MERGED em main** via PR #49 (`f472326`), com 5/5 gates individuais + master-audit dual-LLM (2× Opus 4.7 isolado, consenso pleno, 0 reconciliação) todos approved.
-2. **Retrospectiva slice-017 escrita** (`docs/retrospectives/slice-017.md`) + 4 B-items novos no `docs/guide-backlog.md` (B-038 schema uniformity, B-039 telemetria, B-040 limite S4, B-041 paths contract).
-3. **Slice-018 iniciado** (`feat/slice-018-harness-regression-bias-schema`): esqueleto criado + spec com 14 ACs cobrindo B-036 + B-037 + B-038 + B-041. 2 rodadas de audit-spec executadas, ambas rejected com findings cirúrgicos — todos corrigidos no working tree. Round 3 do audit-spec precisa rodar em contexto limpo.
+1. **Slice 017 MERGED** (PR #49, `f472326`) — E15-S03 PWA Shell com dual-LLM consenso pleno.
+2. **Retrospectiva slice-017** + 4 B-items no backlog (B-038, B-039, B-040, B-041).
+3. **Slice 018 spec approved** após 8 rodadas de audit-spec (findings cirúrgicos legítimos, todos corrigidos) — 14 ACs cobrindo B-036 + B-037 + B-038 + B-041.
+4. **Slice 018 plan approved** — 11 decisões, 16 tasks, 14/14 ACs mapeados.
+5. **Slice 018 plan-review approved** — 0 findings em TODAS severidades (S1-S5).
 
 ## Estado atual
 
-- **Main HEAD:** `f472326` (slice 017 merged + handoff checkpoint via PR #50)
-- **Branch ativa:** `feat/slice-018-harness-regression-bias-schema` (commits `778d9ff`, `3b5538c`, `e00bd1a`)
-- **Slice 018 spec HEAD:** `e00bd1a`
+- **Main HEAD:** `f472326`
+- **Branch ativa:** `feat/slice-018-harness-regression-bias-schema` (local, não pushed)
+- **HEAD da branch:** `7809694`
 - **Débito técnico:** 0 itens
-- **E15 stories merged:** 3/10 (S01, S02, S03)
+- **E15:** 3/10 stories merged (S01, S02, S03)
 
-## Slice 018 — estado do pipeline
+## Slice 018 — pipeline
 
 | Etapa | Status | Commit |
 |---|---|---|
-| Esqueleto (spec.md draft) | ✅ | `778d9ff` |
-| Spec round 1 (draft inicial 14 ACs) | auditado → rejected | `778d9ff` |
-| Fix round 1 (AC-006-A + AC-003-A tokens list + lane L3) | ✅ | `3b5538c` |
-| Spec round 2 audit (rejected: 1 S3 + 1 S2 + 1 S4) | ✅ | — |
-| Fix round 2 (AC-003 template, AC-005-A seção obrigatória, AC-007-A 1ª falha) | ✅ | `e00bd1a` |
-| **Spec audit round 3** | ⏭ **PENDING (nova sessão)** | — |
-| draft-plan | pending | — |
-| review-plan | pending | — |
-| draft-tests | pending | — |
+| spec.md draft inicial | ✅ | `778d9ff` |
+| 8 rodadas audit-spec (zero → approved) | ✅ | `14bc83a` |
+| plan.md (11D + 16T + 14/14 ACs) | ✅ | `51534cf` |
+| plan-review (0 findings S1-S5) | ✅ | `7809694` |
+| **draft-tests** | ⏭ **PENDING (nova sessão)** | — |
 | audit-tests-draft | pending | — |
-| implementer | pending | — |
+| implementer (T01..T16) | pending | — |
 | 5 gates finais + master-audit | pending | — |
-
-## O que os 14 ACs cobrem
-
-### B-036 — CI regression (AC-001, AC-001-A, AC-002, AC-002-A)
-- Workflow `.github/workflows/test-regression.yml` bloqueante em PR
-- Smoke suite `@smoke` no pre-push com lista de arquivos compartilhados detectáveis
-
-### B-037 — Bias-free audit (AC-003, AC-003-A, AC-004)
-- Template obrigatório `docs/protocol/audit-prompt-template.md` com 6 campos enumerados
-- Validator `scripts/validate-audit-prompt.sh --mode=(1st-pass|re-audit)`
-- Lista fechada de tokens proibidos em `docs/protocol/blocked-tokens-re-audit.txt`
-- AC-004-A: set-difference por assinatura semântica (resolved, unresolved, new)
-- Agent files recusam prompts contaminados mecanicamente
-
-### B-038 — Schema uniforme (AC-005, AC-005-A, AC-006, AC-006-A)
-- `scripts/validate-gate-output.sh` exigindo 3 literais (`$schema`, `slice`, `gate`)
-- Seção `## Saída obrigatória` em 5 agent files (qa-expert, architecture-expert, security-expert, product-expert, governance)
-- 3 fixtures de JSON inválido para teste do validator
-
-### B-041 — Paths contract (AC-007, AC-007-A)
-- Seção "Paths do repositório" em todos os agent files
-- `docs/protocol/forbidden-paths.txt` (frontend/, backend/, mobile/, apps/)
-- Recusa na 1ª falha (sem retry)
-
-## Fora de escopo explícito
-
-- B-039 (telemetria automática)
-- B-040 (limite S4 cluster)
-- Hook `auditor-input-lint.sh` mecânico (opção 4 de B-037) — ficou como S5 advisory
-- Refatoração do protocolo v1.2.4
-- Criar novos sub-agents
-- Rodar novos gates retroativamente contra slice 017
+| merge-slice | pending | — |
 
 ## Próxima ação (nova sessão)
 
-1. `/resume` (SessionStart hook reconstrói contexto)
-2. **`/audit-spec 018`** (rodada 3 em contexto limpo) — qa-expert em modo audit-spec, perímetro livre.
-3. Se approved: seguir para `/draft-plan 018` → `/review-plan 018` → `/draft-tests 018` → `/audit-tests-draft 018` → implementer → 5 gates finais + master-audit → `/merge-slice 018`.
-4. Se rejected: builder:fixer corrige, commit, re-roda `/audit-spec 018`. Máx 5 rodadas antes de escalar PM (R6).
+1. `/resume`
+2. **`/draft-tests 018`** — builder modo test-writer gera 14+ arquivos RED com AC-ID rastreável (ADR-0017)
+3. `/audit-tests-draft 018` — qa-expert isolado (ADR-0017)
+4. implementer T01..T16
+5. 5 gates finais + master-audit dual-LLM
+6. `/merge-slice 018`
+7. **PM manual:** `relock-harness.sh` em terminal externo para alinhar `scripts/merge-slice.sh` com aliases legacy (T14)
 
-## Observações operacionais
+## Comentário detalhado
 
-- **Contexto pesado começou a fazer sub-agents truncarem** — confirmado 3× nesta sessão. Gatilho é sessão longa com múltiplas invocações + pipeline completo. Mitigação imediata: quebrar em sessões curtas com checkpoint.
-- **Estou aplicando B-037 manualmente** — cada re-audit disparado sem vazar findings anteriores. Próxima sessão pode começar a formalizar isso (escrita do template e do validator).
-- **Push do slice-018 para remote ainda não feito** — branch só existe local. Primeiro push acontece automaticamente no `/merge-slice 018`.
-
-## Commits da sessão
-
-Main (via PRs):
-- `f472326` — PR #49 — Slice 017 E15-S03 PWA Shell
-- `03dd40c` (squashed para `f472326`?) — PR #50 — Handoff pós-merge slice 017
-
-Branch slice-018 (local, não pushed):
-- `778d9ff` — chore(slice-018): inicia
-- `3b5538c` — fix(slice-018): audit-spec S3 round 1
-- `e00bd1a` — fix(slice-018): audit-spec round 2
+Ver `handoff-2026-04-18-0200-slice-018-plan-approved.md` nesta mesma pasta para:
+- Cobertura ADR por B-item (B-036/B-037/B-038/B-041)
+- Lista completa de 13 artefatos novos + 15 atualizados
+- Riscos R1-R5 com mitigações
+- Observações operacionais (sub-agent truncation, merge-slice.sh selado)
+- Commits da sessão (13 na branch + 2 PRs em main)
 
 ---
 
-## Handoffs anteriores
+## Handoff anterior
 
-Ver `docs/handoffs/handoff-2026-04-18-0030-slice-017-merged.md` (pré-checkpoint desta sessão).
+`handoff-2026-04-18-0100-slice-018-spec-round-2.md` (checkpoint intermediário).
