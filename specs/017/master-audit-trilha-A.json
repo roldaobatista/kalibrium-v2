@@ -1,0 +1,84 @@
+{
+  "schema_version": "gate-output-v1",
+  "$schema": "gate-output-v1",
+  "slice_id": "017",
+  "slice": "017",
+  "gate": "master-audit",
+  "agent": "governance",
+  "mode": "master-audit",
+  "lane": "L3",
+  "track": "A",
+  "model": "opus-4.7",
+  "isolation_context": "slice-017-master-audit-trilha-A-instance-01",
+  "verdict": "approved",
+  "timestamp": "2026-04-18T00:15:00Z",
+  "commit_hash": "ea8e056",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 4,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 3, "S5": 1},
+  "findings": [
+    {
+      "id": "MA-A-017-001",
+      "severity": "S4",
+      "title": "Concentracao de S4 ambientais em 3 ACs distintos (AC-001, AC-001 matchMedia, AC-002-A) com mesma raiz — risco de virar vala comum",
+      "evidence": "verification.json V-017-001..003 + test-audit.json F-002 + functional-review.json F-001,F-002 + impl-notes.md secao 3 falhas. Tres gates independentes convergiram para a mesma justificativa ambiental (Chromium headless beforeinstallprompt + contexto efemero precache).",
+      "recommendation": "Abrir B-038 no guide-backlog (ja recomendado em test-audit F-002) para migracao headed+xvfb OU CDP mock OU storageState persistente. Bloquear aceitacao repetida desta justificativa em slices futuros apos 2 ocorrencias."
+    },
+    {
+      "id": "MA-A-017-002",
+      "severity": "S4",
+      "title": "Divergencia plan D4 vs implementacao (pwa-asset-generator declarado, generate-icons.mjs proprio entregue) — devDep orfa persistente",
+      "evidence": "review.json F-001: plan.md D4 especifica pwa-asset-generator mas o slice entrega helper proprio com pngjs. pwa-asset-generator fica em devDependencies sem uso. Test-audit e functional-review nao capturaram esta divergencia plan-vs-impl (esperado — fora do escopo deles), apenas code-review.",
+      "recommendation": "Follow-up obrigatorio em slice-report 017: (a) remover pwa-asset-generator de devDependencies OU (b) emenda ao plan.md D4. Registrar FE-PWA-DEPS-01."
+    },
+    {
+      "id": "MA-A-017-003",
+      "severity": "S4",
+      "title": "Arquivos de teste do slice-016 em tests/e2e/ criam ambiguidade de rastreabilidade cross-slice",
+      "evidence": "test-audit.json F-001: ac-001-dev-server.spec.ts e ac-006-layout-adaptive.spec.ts do slice-016 residem em tests/e2e/ anotados @covers AC-001/AC-006 — colidem semanticamente com AC-001/AC-006 PWA do slice-017. Nenhum outro gate capturou este risco transversal de governanca de testes.",
+      "recommendation": "Mover para tests/slice-016/ ou adicionar cabecalho de slice em cada arquivo antes do proximo slice que toque em AC-001 ou AC-006."
+    },
+    {
+      "id": "MA-A-017-004",
+      "severity": "S5",
+      "title": "sw-registration.ts skip em dev (import.meta.env.PROD guard) nao documentado em plan D1 — divergencia silenciosa de escopo de teste",
+      "evidence": "review.json F-002: sw-registration.ts:25-27 e VitePWA devOptions.enabled=false em vite.config.ts:129-131. AC-005 so e exercitavel em preview, nunca em dev server. Impl-notes nao menciona, functional-review nao capturou (AC-005 passou em preview).",
+      "recommendation": "Adicionar nota em plan.md D1 na retrospectiva E15 OU emenda ao proximo plan que tocar SW."
+    }
+  ],
+  "gates_consistency": {
+    "verify": "consistent",
+    "code-review": "consistent",
+    "security": "consistent",
+    "test-audit": "consistent",
+    "functional": "consistent"
+  },
+  "cross_cutting_risks_assessed": {
+    "ac_delivery_cross_gate": "14/14 ACs mapeados; 11 plenos + 3 parciais ambientais (AC-001, AC-001-matchMedia, AC-002-A). Functional, verify, test-audit e impl-notes convergem na mesma classificacao. Sem divergencia spec-vs-plan-vs-impl em nenhum AC.",
+    "multi_tenant_isolation_AC_007": "verificado em 3 gates (security 3 camadas + code-review String.fromCharCode + test-audit dupla cobertura grep+runtime + functional inspecao direta dist/sw.js). Defesa em profundidade executada acima do exigido.",
+    "cache_upgrade_safety_AC_008": "verificado em security (skipWaiting+clientsClaim+cleanupOutdatedCaches+cacheId versionado) + code-review (vite.config.ts:118,127) + test-audit (3 asserts) + functional (setCacheNameDetails prefix kalibrium-v0.1.0).",
+    "s4_justification_audit": "3 S4 ambientais legitimamente justificados (bug Chromium #1068156 + Playwright #24519 + contexto efemero) mas exige bloqueio em reincidencia — ver MA-A-017-001.",
+    "spec_plan_impl_alignment": "spec 14 ACs -> plan 10 decisoes D1-D10 mapeadas -> impl 11 verdes + 3 S4 ambientais. Desvio unico: D4 (MA-A-017-002). Threshold Lighthouse 0.85 CI consistente spec/plan/impl."
+  },
+  "technical_debt_accepted": {
+    "items": [
+      "pwa-asset-generator devDep orfa (FE-PWA-DEPS-01)",
+      "Lighthouse webServer rebuilda a cada run (F-003 code-review, S5)",
+      "main.tsx import React redundante (F-004 code-review, S5)",
+      "serve-http/serve-https helpers duplicados ~25 linhas (code-review evidence)",
+      "AC-001+AC-002-A test coverage parcial ate resolver infra headed/CDP (B-038)",
+      ".kalibrium/ ausente de .gitignore (SEC-017-S4-01)"
+    ],
+    "assessment": "aceitavel — todos registrados com follow-up, nenhum aumenta risco de seguranca/correcao, todos sao polish ou limitacao documentada de infra de teste."
+  },
+  "referenced_artifacts": [
+    "specs/017/spec.md",
+    "specs/017/plan.md",
+    "specs/017/verification.json",
+    "specs/017/review.json",
+    "specs/017/security-review.json",
+    "specs/017/test-audit.json",
+    "specs/017/functional-review.json",
+    "specs/017/impl-notes.md"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": "gate-output-v1",
+  "slice_id": "017",
+  "gate": "master-audit",
+  "agent": "governance",
+  "mode": "master-audit",
+  "track": "B",
+  "model": "opus-4.7",
+  "isolation_context": "slice-017-master-audit-trilha-B-instance-01",
+  "verdict": "approved",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 3,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 3, "S5": 0},
+  "findings": [
+    {
+      "id": "MA-B-017-001",
+      "severity": "S4",
+      "title": "devDep pwa-asset-generator orfa (plano D4 nao cumprido literalmente)",
+      "evidence": "code-review F-001: scripts/pwa/generate-icons.mjs usa pngjs proprio; package.json:53 mantem pwa-asset-generator sem uso; plan.md D4 especifica ferramenta nao usada.",
+      "recommendation": "Em retrospectiva E15 ou slice-018: remover devDep orfa OU emendar plan D4 para refletir helper proprio como decisao CI-friendly. Nao bloqueia merge."
+    },
+    {
+      "id": "MA-B-017-002",
+      "severity": "S4",
+      "title": "Cobertura AC-001/AC-001-happy e AC-002-A depende de ambiente real (headless gap)",
+      "evidence": "verify V-017-001/002/003 + test-audit F-002 + functional F-001/F-002 + impl-notes.md. 3 testes falham por Chromium #1068156, Playwright #24519 e contexto efemero. Artefatos de producao (manifest.webmanifest, sw.js, icones) inspecionados diretamente pelo functional-gate confirmam que os pre-requisitos estao implementados corretamente.",
+      "recommendation": "Abrir B-038 (ja sugerido em test-audit) investigando headed+xvfb CI ou CDP mock + storageState persistente. Validacao manual em browser real recomendada antes de release de E15."
+    },
+    {
+      "id": "MA-B-017-003",
+      "severity": "S4",
+      "title": "Dois testes slice-016 convivendo em tests/e2e/ com anotacoes AC-001/AC-006 ambiguas",
+      "evidence": "test-audit F-001: tests/e2e/ac-001-dev-server.spec.ts e ac-006-layout-adaptive.spec.ts carregam @covers AC-001/AC-006 com semantica de slice-016 (scaffold) misturada na pasta compartilhada com slice-017 (PWA).",
+      "recommendation": "Mover para tests/slice-016/ ou prefixar com cabecalho identificando o slice. Follow-up de organizacao, nao bloqueia."
+    }
+  ],
+  "gates_consistency": {
+    "verify": "consistent",
+    "code-review": "consistent",
+    "security": "consistent",
+    "test-audit": "consistent",
+    "functional": "consistent"
+  },
+  "cross_cutting_assessment": {
+    "multi_tenant_isolation_ADR_0016": "reforcado em 3 camadas (denylist regex + String.fromCharCode runtime guard + grep estatico dist/sw.js) — execucao acima do exigido pelo plano",
+    "sealed_files_touched": false,
+    "stack_integrity_ADR_0015": "preservada — apenas ferramentas de build/test adicionadas como devDeps",
+    "s4_triangulation": "3 gates independentes (verify, test-audit, functional) convergem na mesma classificacao ambiental S4 para as 3 falhas de teste — reduz risco de viés de um único auditor",
+    "delivered_acs_full": 11,
+    "delivered_acs_partial": 3,
+    "delivered_acs_total_tracked": 14,
+    "acs_delivered_ratio_full": "11/14 (79%) plenos + 3/14 (21%) com produto implementado mas cobertura ambiental limitada"
+  },
+  "debt_assessment": {
+    "total_non_blocking_findings_across_gates": 9,
+    "blocking_findings_S1_S3": 0,
+    "all_debt_has_concrete_recommendation": true,
+    "any_functional_impact": false,
+    "any_security_impact": false,
+    "verdict_rationale": "Divida operacional aceitavel e rastreavel. Nenhum finding oculta gap de produto ou risco de seguranca. O delta spec->plan->impl mais significativo (F-001 code-review, D4 pwa-asset-generator) esta justificado inline no script gerado e nao compromete AC-004/AC-004-A."
+  },
+  "referenced_artifacts": [
+    "specs/017/spec.md",
+    "specs/017/plan.md",
+    "specs/017/verification.json",
+    "specs/017/review.json",
+    "specs/017/security-review.json",
+    "specs/017/test-audit.json",
+    "specs/017/functional-review.json",
+    "specs/017/impl-notes.md"
+  ],
+  "commit_hash": "ea8e056",
+  "timestamp": "2026-04-18T04:30:00Z"
+}

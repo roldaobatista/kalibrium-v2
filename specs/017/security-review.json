@@ -1,0 +1,102 @@
+{
+  "$schema": "gate-output-v1",
+  "schema_version": "gate-output-v1",
+  "slice_id": "017",
+  "slice": "017",
+  "gate": "security-gate",
+  "agent": "security-expert",
+  "mode": "security-gate",
+  "lane": "L3",
+  "verdict": "approved",
+  "timestamp": "2026-04-17T23:58:00Z",
+  "commit_hash": "d2403f8",
+  "isolation_context": "slice-017-security-gate-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 1,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 1, "S5": 0},
+  "findings": [
+    {
+      "id": "SEC-017-S4-01",
+      "severity": "S4",
+      "title": "Diretorio de cert HTTPS local (.kalibrium/https-dev-cert/) deve estar explicitamente em .gitignore",
+      "evidence": "scripts/pwa/serve-https.mjs:73 persiste cert/key em .kalibrium/https-dev-cert/; plan.md se65:294 cita adicao de certs/ ao .gitignore mas o caminho real e .kalibrium/. Risco: cert self-signed e key RSA2048 dev-only poderiam ser acidentalmente commitados.",
+      "recommendation": "Adicionar linha '.kalibrium/' ao .gitignore (follow-up, nao bloqueia merge pois cert e dev-only e nao cobre dominio real). Verificar em proxima sessao."
+    }
+  ],
+  "evidence": {
+    "owasp_checks": {
+      "A01_broken_access_control": "pass",
+      "A02_cryptographic_failures": "pass",
+      "A03_injection": "pass",
+      "A04_insecure_design": "pass",
+      "A05_security_misconfiguration": "pass",
+      "A06_vulnerable_components": "pass",
+      "A07_auth_failures": "n/a",
+      "A08_software_integrity": "pass",
+      "A09_logging_failures": "n/a",
+      "A10_ssrf": "n/a"
+    },
+    "owasp_categories_checked": 10,
+    "lgpd_checks": {
+      "personal_data_identified": false,
+      "personal_data_cached_by_sw": false,
+      "legal_basis_documented": "n/a (no PII in this slice)",
+      "retention_policy_defined": "n/a (shell cache only, static assets)",
+      "audit_trail_present": "n/a (no data mutation in this slice)",
+      "api_routes_excluded_from_cache": true
+    },
+    "sw_security": {
+      "scope": "/",
+      "scope_explicit_in_registration": true,
+      "https_only_enforced": "via import.meta.env.PROD gate + browser spec (SW only activates on HTTPS/localhost)",
+      "api_denylist_present": true,
+      "api_denylist_pattern": "/^\\/api\\//",
+      "api_literal_string_in_sw_js": 0,
+      "api_pathname_startswith_guard": true,
+      "cache_versioning": "kalibrium-v0.1.0 via cacheId from package.json.version",
+      "cleanup_outdated_caches": true,
+      "skipWaiting_clientsClaim": true,
+      "navigation_route_denylist": ["/^\\/api\\//"],
+      "runtime_cache_strategies": ["NetworkFirst(html,3s timeout)", "CacheFirst(script/style/font/image)"],
+      "runtime_cache_excludes_api": true
+    },
+    "manifest_security": {
+      "sensitive_data_in_manifest": false,
+      "external_urls_in_manifest": false,
+      "scope": "/",
+      "start_url": "/",
+      "display": "standalone",
+      "icons_count": 3,
+      "valid_json": true
+    },
+    "dependencies_added": {
+      "vite-plugin-pwa": "0.20.5",
+      "workbox-window": "7.3.0",
+      "lighthouse": "12.2.0",
+      "all_devDependencies": true,
+      "runtime_deps_added": 0,
+      "known_critical_cves": 0,
+      "known_high_cves": 0
+    },
+    "sql_injection_vectors": [],
+    "xss_vectors": [],
+    "mass_assignment_unprotected": [],
+    "hardcoded_secrets": [],
+    "csrf_unprotected_routes": [],
+    "unauthorized_controller_methods": [],
+    "unscoped_queries": [],
+    "pii_logged_unmasked": [],
+    "composer_audit_high_critical": 0,
+    "rate_limiting_missing": [],
+    "secrets_scan": "clean",
+    "tenant_isolation": "verified (SW denies all /api/* caching at 3 layers: navigateFallbackDenylist + pathname.startsWith guard in both NavigationRoute and asset route + static grep of dist/sw.js returns zero literal /api)",
+    "https_dev_helper": "scripts/pwa/serve-https.mjs is dev/test-only; generates self-signed cert under .kalibrium/https-dev-cert; never runs in production build; fallback to OpenSSL when env cert not provided",
+    "threat_model_coverage": {
+      "cache_poisoning": "mitigated via CacheFirst only on hashed Vite assets + cleanupOutdatedCaches on upgrade",
+      "cross_tenant_leak_via_sw": "mitigated via 3-layer /api/* denylist",
+      "stale_credential_reuse": "n/a (no auth data cached by this slice; AC-007 guarantees /api/* never cached)",
+      "sw_upgrade_safety": "skipWaiting + clientsClaim + cleanupOutdatedCaches + version-scoped cacheId",
+      "manifest_spoofing": "manifest served same-origin, no external icon URLs"
+    }
+  }
+}

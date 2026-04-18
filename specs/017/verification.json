@@ -1,8 +1,9 @@
 {
-  "$schema": "https://kalibrium.local/schemas/gate-output-v1.json",
+  "$schema": "gate-output-v1",
   "gate": "verify",
   "mode": "verify",
   "lane": "execution",
+  "slice": "017",
   "slice_id": "017",
   "isolation_context": "slice-017-verify-instance-01",
   "agent": "qa-expert",

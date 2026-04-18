@@ -1,0 +1,131 @@
+{
+  "$schema": "gate-output-v1",
+  "schema_version": "gate-output-v1",
+  "gate": "code-review",
+  "slice": "017",
+  "slice_id": "017",
+  "lane": "L3",
+  "agent": "architecture-expert",
+  "mode": "code-review",
+  "verdict": "approved",
+  "timestamp": "2026-04-17T23:59:00Z",
+  "commit_hash": "ea8e056",
+  "isolation_context": "slice-017-code-review-instance-02",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 4,
+  "findings_by_severity": { "S1": 0, "S2": 0, "S3": 0, "S4": 2, "S5": 2 },
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "Divergencia vs plan D4: geracao de icones usa helper proprio (scripts/pwa/generate-icons.mjs via pngjs) em vez de pwa-asset-generator listado no plano. O pwa-asset-generator continua em devDependencies (package.json:53) mas nao e usado por nenhum script. Justificativa esta no cabecalho do generate-icons.mjs (CI friendly, sem Chromium headless) e o resultado atende AC-004/AC-004-A, mas a divergencia nao esta refletida em plan.md nem em ADR. Risco: devDep orfa que ofusca a decisao real. Nao bloqueia (justificativa tecnica valida).",
+      "file": "scripts/pwa/generate-icons.mjs",
+      "line": 1,
+      "evidence": "generate-icons.mjs:5-9 documenta a substituicao; plan.md secao 2 D4 especifica pwa-asset-generator; package.json:53 mantem a dep sem uso.",
+      "recommendation": "Em slice-018 ou retrospectiva E15: (a) remover pwa-asset-generator de devDependencies OU (b) emendar plan.md D4 para refletir o helper proprio e justificar a devDep como fallback documentado."
+    },
+    {
+      "id": "F-002",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "Desvio arquitetural vs plan D1: sw-registration.ts:25-27 insere short-circuit 'if (!import.meta.env.PROD) return' para pular registro em dev. Tecnicamente correto (Vite dev nao emite /sw.js com generateSW), mas nao esta explicitado em plan.md D1 nem em decisao subsequente. Como efeito colateral, AC-005 so e exercitavel no build (preview), nunca no dev server — o que esta alinhado com playwright.config.ts mas merece nota explicita no plano.",
+      "file": "src/sw-registration.ts",
+      "line": 25,
+      "evidence": "sw-registration.ts:20-27 documenta a decisao; plan.md secao 2 D1 nao menciona skip dev; VitePWA devOptions.enabled=false em vite.config.ts:129-131 reforca.",
+      "recommendation": "Adicionar nota em plan.md secao 2 D1 ou em follow-up na retrospectiva (FE-PWA-DEV-SKIP): registrar que registro SW e pulado em dev por design e que E2E AC-005 roda so sobre preview-chromium. Nao bloqueia merge."
+    },
+    {
+      "id": "F-003",
+      "severity": "S5",
+      "severity_label": "advisory",
+      "gate_blocking": false,
+      "description": "Eficiencia CI: playwright.config.ts:84 dispara 'npm run build && npm run serve:https' no webServer toda vez que test:e2e roda, mesmo quando dist/ ja esta atualizado. Em CI com cache de workspace isso e uma build redundante de ~10-20s. Nao afeta correcao, apenas latencia.",
+      "file": "playwright.config.ts",
+      "line": 84,
+      "evidence": "playwright.config.ts:82-91 (webServer HTTPS) roda 'npm run build && npm run serve:https' sem checagem de freshness.",
+      "recommendation": "Backlog: extrair build para step dedicado em CI e deixar webServer apenas servindo dist/ pre-construido. Follow-up CI-LIGHTHOUSE-01 ja existe em plan.md secao 12 — agregar este item."
+    },
+    {
+      "id": "F-004",
+      "severity": "S5",
+      "severity_label": "advisory",
+      "gate_blocking": false,
+      "description": "Convencao inconsistente: src/main.tsx:1 importa 'React' mas tsconfig.json:13 usa 'jsx': 'react-jsx' (novo transform, nao exige import). O import esta sendo usado apenas por React.StrictMode em main.tsx:12, entao nao e orfa, mas para consistencia com o resto do codigo (App.tsx nao importa React) vale padronizar para 'import { StrictMode } from react'.",
+      "file": "src/main.tsx",
+      "line": 1,
+      "evidence": "main.tsx:1 import React; main.tsx:12 <React.StrictMode>; App.tsx nao importa React; tsconfig.json:13 jsx=react-jsx.",
+      "recommendation": "Backlog de polish: trocar por 'import { StrictMode } from react' e usar <StrictMode>. Trivial, nao bloqueia."
+    }
+  ],
+  "evidence": {
+    "review_dimensions": {
+      "architecture_follows_plan": true,
+      "responsibilities_clear": true,
+      "no_code_smells": true,
+      "patterns_correct": true,
+      "tenant_isolation": true,
+      "error_handling": true,
+      "adr_adherence": true
+    },
+    "max_cyclomatic_complexity": 5,
+    "max_class_length": 236,
+    "max_method_length": 85,
+    "duplications_found": 1,
+    "god_classes": [],
+    "fat_controllers": [],
+    "raw_sql_without_binding": [],
+    "business_logic_in_controllers": [],
+    "routes_without_middleware": [],
+    "unused_imports": [],
+    "adr_adherence_checked": ["ADR-0015", "ADR-0016"],
+    "plan_decisions_verified": {
+      "D1_generateSW_injectRegister_null": "vite.config.ts:21-24",
+      "D2_networkFirst_html_cacheFirst_assets": "vite.config.ts:86,108",
+      "D3_globPatterns_precache_3MB": "vite.config.ts:64-65",
+      "D4_icons_helper_pngjs_divergence": "scripts/pwa/generate-icons.mjs:1-16 (divergencia justificada — F-001)",
+      "D5_manifest_complete": "vite.config.ts:31-61",
+      "D6_lighthouse_threshold_docs": "plan secao 2 D6 — verificado em docs/operations (fora deste gate)",
+      "D7_api_no_cache_3_layers": "vite.config.ts:69 (denylist) + 82,98 (String.fromCharCode evita literal /api/ no bundle) + navigateFallbackDenylist",
+      "D8_cacheId_version_cleanup": "vite.config.ts:118,127",
+      "D9_serve_https_local_cert": "scripts/pwa/serve-https.mjs (openssl fallback + KALIB_HTTPS_CERT/KEY)",
+      "D10_test_pyramid_playwright_node": "playwright.config.ts + tests/scaffold (fora deste gate)"
+    },
+    "duplications_detail": [
+      {
+        "file_a": "scripts/pwa/serve-https.mjs",
+        "lines_a": "116-145",
+        "file_b": "scripts/pwa/serve-http.mjs",
+        "lines_b": "36-61",
+        "severity_note": "Helpers contentType/safeResolve duplicados entre serve-http e serve-https. ~25 linhas identicas. Nao bloqueia porque sao scripts separados usados em contextos distintos (AC-001 vs AC-001-A) e extrair para modulo comum seria over-engineering para dois scripts de teste. S5 — registrar em backlog se slice-018 adicionar terceiro servidor."
+      }
+    ],
+    "sealed_files_touched": false,
+    "multi_tenant_isolation_risk": "none — AC-007 implementado com 3 camadas (denylist + ausencia runtimeCaching /api/* + String.fromCharCode para negar literal no bundle minificado)",
+    "tenant_leak_vector_checked": true,
+    "service_worker_scope": "/ (root) — coerente com shell PWA, nao vaza para APIs",
+    "files_reviewed": [
+      "vite.config.ts",
+      "src/main.tsx",
+      "src/sw-registration.ts",
+      "src/App.tsx",
+      "src/pages/LoginPage.tsx",
+      "src/vite-env.d.ts",
+      "index.html",
+      "scripts/pwa/serve-https.mjs",
+      "scripts/pwa/serve-http.mjs",
+      "scripts/pwa/generate-icons.mjs",
+      "package.json",
+      "playwright.config.ts",
+      "eslint.config.js",
+      "tsconfig.json",
+      "public/icons/icon-192.png",
+      "public/icons/icon-512.png",
+      "public/icons/icon-512-maskable.png",
+      "public/icons/source/kalibrium-logo.svg"
+    ],
+    "summary": "Code review structural approved. Aderencia ao plano alta: D1-D3, D5, D7, D8, D9 totalmente verificados; D4 com divergencia justificada inline (F-001); D10 fora deste gate (test-audit). Separacao de responsabilidades clara (registration isolado em sw-registration.ts, servers em scripts/pwa/, config declarativa em vite.config.ts). Defesa em profundidade para AC-007 (multi-tenant isolation — ADR-0016) implementada em 3 camadas com tecnica String.fromCharCode para garantir que literal /api/ nao apareca no bundle minificado — execucao acima do exigido pelo plan. Sem god classes, sem business logic em componentes UI, sem SQL, sem rotas Laravel tocadas. Codigo TypeScript strict-compliant. Zero findings S1-S3. 4 findings S4/S5 sao follow-ups de polish (devDep orfa, nota de skip dev, build duplicada em CI, convencao React import) sem impacto funcional ou de seguranca."
+  }
+}

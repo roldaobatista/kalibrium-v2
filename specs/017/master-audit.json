@@ -1,0 +1,51 @@
+{
+  "schema_version": "gate-output-v1",
+  "slice_id": "017",
+  "gate": "master-audit",
+  "agent": "governance",
+  "mode": "master-audit",
+  "dual_llm_mode": "2x-opus-4.7-isolated",
+  "dual_llm_policy_ref": "project-state.json#dual_llm_policy (2026-04-17)",
+  "verdict": "approved",
+  "blocking_findings_count": 0,
+  "consensus": "full",
+  "reconciliation_rounds": 0,
+  "tracks": {
+    "A": {
+      "model": "opus-4.7",
+      "verdict": "approved",
+      "blocking_findings_count": 0,
+      "non_blocking_findings": {"S4": 3, "S5": 1},
+      "artifact": "specs/017/master-audit-trilha-A.json"
+    },
+    "B": {
+      "model": "opus-4.7",
+      "verdict": "approved",
+      "blocking_findings_count": 0,
+      "non_blocking_findings": {"S4": 3, "S5": 0},
+      "artifact": "specs/017/master-audit-trilha-B.json"
+    }
+  },
+  "gates_consolidated": {
+    "verify": "approved",
+    "code-review": "approved",
+    "security": "approved",
+    "test-audit": "approved",
+    "functional": "approved"
+  },
+  "referenced_artifacts": [
+    "specs/017/spec.md",
+    "specs/017/plan.md",
+    "specs/017/impl-notes.md",
+    "specs/017/verification.json",
+    "specs/017/review.json",
+    "specs/017/security-review.json",
+    "specs/017/test-audit.json",
+    "specs/017/functional-review.json",
+    "specs/017/master-audit-trilha-A.json",
+    "specs/017/master-audit-trilha-B.json"
+  ],
+  "commit_hash": "ea8e056",
+  "timestamp": "2026-04-18T00:00:00-04:00",
+  "notes": "Consenso pleno dual-LLM (2x Opus 4.7 em instancias isoladas R11). Zero divergencia entre trilhas. Zero reconciliacao (E10 nao aplicavel). 14/14 ACs entregues (11 plenos + 3 parciais S4 ambientais Chromium headless documentadas). Slice 017 pronto para merge."
+}
