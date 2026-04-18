@@ -405,11 +405,14 @@ jobs:
           retention-days: 30
 
   # =========================================================================
-  # Job 7 — Tenant isolation (AC-005, AC-014, slice-011)
+  # Job 7 — Tenant isolation (AC-005, AC-014, slice-011, slice-019)
   #
   # Roda apenas quando código sensível de isolamento é alterado.
-  # paths filter: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**,
-  #               tests/slice-011/**.
+  # paths filter (atualizado no slice-019 via ADR-0015+ADR-0016):
+  #   app/Models/**, app/Http/**, app/Services/**, app/Domain/**,
+  #   app/Jobs/**, database/migrations/**, tests/slice-011/**,
+  #   tests/tenant-isolation/**.
+  # Removido: app/Livewire/** (frontend Livewire demolido no slice-016, ADR-0015).
   # Falha bloqueia merge (AC-005).
   # =========================================================================
   tenant-isolation:
@@ -418,7 +421,7 @@ jobs:
     timeout-minutes: 15
     needs: harness
     # paths filter via dorny/paths-filter (step check abaixo)
-    # paths: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**, tests/slice-011/**
+    # Camadas sensíveis conforme ADR-0016; ampliado no slice-019.
     # run: php artisan test --testsuite=tenant-isolation
     services:
       postgres:
@@ -455,9 +458,12 @@ jobs:
               paths:
                 - 'app/Models/**'
                 - 'app/Http/**'
-                - 'app/Livewire/**'
+                - 'app/Services/**'
+                - 'app/Domain/**'
                 - 'app/Jobs/**'
+                - 'database/migrations/**'
                 - 'tests/slice-011/**'
+                - 'tests/tenant-isolation/**'
 
       - name: PHP
         if: steps.check.outputs.run == 'true'
@@ -500,4 +506,5 @@ jobs:
           REDIS_PORT: 6379
 
       # paths filter aplicado via step condicional acima — job pulado em PRs
-      # que não tocam: app/Models/**, app/Http/**, app/Livewire/**, app/Jobs/**
+      # que não tocam camadas sensíveis (Models, Http, Services, Domain, Jobs,
+      # database/migrations, tests/slice-011, tests/tenant-isolation).

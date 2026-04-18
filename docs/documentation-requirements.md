@@ -496,3 +496,41 @@ Fase Planning (por epico, na ordem do roadmap):
 ---
 
 > **Regra final:** este documento e vivo. Novos documentos podem ser adicionados conforme necessidade, mas NUNCA removidos sem ADR justificando. A remocao de um documento do gate e uma decisao arquitetural.
+
+---
+
+## Camadas sensíveis a tenant isolation
+
+**Adicionado no slice-019 (AC-007). Referência: ADR-0016 (isolamento multi-tenant).**
+
+### Regra
+
+Toda nova camada de código de produção (subpasta de `app/` ou `database/migrations/`) que lide com dados com `tenant_id` **deve** ser adicionada aos paths do job `tenant-isolation` em `.github/workflows/ci.yml`, no bloco `filters.run.paths`. Sem isso, a camada nova escapa silenciosamente do gate de isolamento multi-tenant e regressões não são detectadas no CI.
+
+### Camadas sensíveis hoje (pós slice-019)
+
+- `app/Models/**`
+- `app/Http/**`
+- `app/Services/**`
+- `app/Domain/**`
+- `app/Jobs/**`
+- `database/migrations/**`
+- `tests/slice-011/**` (testsuite histórica)
+- `tests/tenant-isolation/**` (catch-all futuro)
+
+### Ferramenta de verificação
+
+O script `scripts/check-tenant-filter-coverage.sh` compara subdiretórios de `app/` com o paths filter atual do job `tenant-isolation` em `.github/workflows/ci.yml` e emite:
+
+- `uncovered: app/<dir>/` — subdiretório de `app/` não coberto pelo filter.
+- `[SUSPECT] uncovered: app/<dir>/` — mesmo caso, com evidência extra de que arquivos `.php` do subdir contêm a string `tenant` (case-insensitive). Alta probabilidade de ser camada nova que precisa entrar no filter.
+
+Nesta primeira versão (slice-019) o script é **warning-only** (exit code sempre 0). Promoção futura a gate duro em CI dependerá de slice específico com ADR próprio.
+
+### Referências cruzadas
+
+- **ADR-0016** — Isolamento multi-tenant (define o conjunto de camadas sensíveis).
+- **ADR-0015** — Demolição do frontend Livewire (justifica remoção de `app/Livewire/**` do filter no slice-019).
+- **specs/019/spec.md** — AC-005, AC-006, AC-007.
+- **.github/workflows/ci.yml** — job `tenant-isolation`, step `Check changed paths`.
+- **scripts/check-tenant-filter-coverage.sh** — ferramenta de verificação.

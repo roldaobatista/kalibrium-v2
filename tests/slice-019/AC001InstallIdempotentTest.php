@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @covers AC-001
  *
  * Valida:
- *   (a) .git/hooks/pre-push é criado, executável, referencia scripts/hooks/pre-push-native.sh
+ *   (a) .git/hooks/pre-push é criado, executável, referencia scripts/pre-push-native.sh
  *   (b) Execução dupla produz mesmo SHA-256 (idempotência)
  *   (c) 1ª execução imprime "installed:", 2ª imprime "already-current:"
  *
@@ -64,7 +64,7 @@ describe('AC-001: install-git-hooks.sh idempotente', function () {
 
         expect($hookContent)
             ->toContain('pre-push-native.sh',
-                'AC-001.a: .git/hooks/pre-push não invoca scripts/hooks/pre-push-native.sh.');
+                'AC-001.a: .git/hooks/pre-push não invoca scripts/pre-push-native.sh.');
 
         // Executabilidade: perms 0755 ou pelo menos owner-exec
         $perms = fileperms($this->hookPath) & 0o777;

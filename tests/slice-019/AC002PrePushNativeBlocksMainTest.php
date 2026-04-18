@@ -3,26 +3,26 @@
 declare(strict_types=1);
 
 /**
- * Slice 019 — AC-002: scripts/hooks/pre-push-native.sh bloqueia push em main/master
+ * Slice 019 — AC-002: scripts/pre-push-native.sh bloqueia push em main/master
  * e --force em main/master, equivalência funcional com pre-push-gate.sh (PreToolUse).
  *
  * @covers AC-002
  *
- * RED enquanto scripts/hooks/pre-push-native.sh não existir.
+ * RED enquanto scripts/pre-push-native.sh não existir.
  */
 
 describe('AC-002: pre-push-native.sh bloqueia cenários críticos', function () {
 
     beforeEach(function () {
         $this->repoRoot = realpath(__DIR__ . '/../..');
-        $this->nativeHook = $this->repoRoot . '/scripts/hooks/pre-push-native.sh';
+        $this->nativeHook = $this->repoRoot . '/scripts/pre-push-native.sh';
     });
 
-    test('AC-002: scripts/hooks/pre-push-native.sh existe e é executável', function () {
+    test('AC-002: scripts/pre-push-native.sh existe e é executável', function () {
         /** @covers AC-002 */
         expect(file_exists($this->nativeHook))
             ->toBeTrue(
-                "AC-002: scripts/hooks/pre-push-native.sh não existe em {$this->nativeHook}. " .
+                "AC-002: scripts/pre-push-native.sh não existe em {$this->nativeHook}. " .
                 'Implementer deve criar o wrapper nativo.'
             );
 

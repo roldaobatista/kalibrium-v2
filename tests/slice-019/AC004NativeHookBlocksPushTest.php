@@ -18,7 +18,7 @@ describe('AC-004: push nativo em main é bloqueado fora do Claude Code', functio
     beforeEach(function () {
         $this->repoRoot = realpath(__DIR__ . '/../..');
         $this->installer = $this->repoRoot . '/scripts/install-git-hooks.sh';
-        $this->nativeHook = $this->repoRoot . '/scripts/hooks/pre-push-native.sh';
+        $this->nativeHook = $this->repoRoot . '/scripts/pre-push-native.sh';
     });
 
     test('AC-004: dependências existem (install-git-hooks.sh + pre-push-native.sh)', function () {
@@ -26,7 +26,7 @@ describe('AC-004: push nativo em main é bloqueado fora do Claude Code', functio
         expect(file_exists($this->installer))
             ->toBeTrue('AC-004: scripts/install-git-hooks.sh não existe.');
         expect(file_exists($this->nativeHook))
-            ->toBeTrue('AC-004: scripts/hooks/pre-push-native.sh não existe.');
+            ->toBeTrue('AC-004: scripts/pre-push-native.sh não existe.');
     });
 
     test('AC-004: push em main via git push direto é bloqueado pelo hook nativo', function () {
