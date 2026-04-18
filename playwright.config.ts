@@ -3,17 +3,18 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright config for slice-016 + slice-017 E2E tests.
  *
- * Slice-017 (PWA) exige contexto seguro (HTTPS) para Service Worker. Portanto
- * o webServer executa `npm run build && npm run serve:https` (porta 4173, HTTPS
- * com cert auto-assinado). Testes PWA apontam para https://localhost:4173 e
- * Playwright aceita cert self-signed via `ignoreHTTPSErrors: true`.
+ * Slice-017 (PWA) exige contexto seguro (HTTPS) para Service Worker, entao
+ * roda sobre build estatico em https://localhost:4173 (projeto preview-chromium).
  *
- * Override para slice-016 puro (dev server): definir KALIB_E2E_MODE=dev para
- * voltar ao Vite dev HTTP:5173 — mantido para compatibilidade.
+ * Slice-016 (scaffold dev) depende do Vite dev server em http://localhost:5173
+ * e nao pode rodar sobre build (AC-001/AC-009 exercitam o dev server). Portanto
+ * ac-001-dev-server.spec.ts so e executado quando `KALIB_E2E_MODE=dev` e habilita
+ * o projeto `dev-chromium`.
+ *
+ * Execucao padrao (npm run test:e2e) executa apenas preview-chromium (slice 017).
+ * Execucao dev (KALIB_E2E_MODE=dev npm run test:e2e) executa apenas dev-chromium.
  */
 const isDevMode = process.env.KALIB_E2E_MODE === 'dev';
-
-const baseURL = isDevMode ? 'http://localhost:5173' : 'https://localhost:4173';
 
 export default defineConfig({
     testDir: './tests/e2e',
@@ -23,17 +24,48 @@ export default defineConfig({
     workers: 1,
     reporter: [['list']],
     use: {
-        baseURL,
         trace: 'on-first-retry',
         headless: true,
         ignoreHTTPSErrors: true,
     },
-    projects: [
-        {
-            name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
-        },
-    ],
+    projects: isDevMode
+        ? [
+              {
+                  name: 'dev-chromium',
+                  testMatch: /ac-001-dev-server\.spec\.ts|ac-006-layout-adaptive\.spec\.ts/,
+                  use: {
+                      ...devices['Desktop Chrome'],
+                      baseURL: 'http://localhost:5173',
+                  },
+              },
+          ]
+        : [
+              {
+                  name: 'preview-chromium',
+                  testIgnore: /ac-001-dev-server\.spec\.ts|_diagnose-sw\.spec\.ts/,
+                  use: {
+                      ...devices['Desktop Chrome'],
+                      baseURL: 'https://localhost:4173',
+                      // Chromium recusa registrar Service Worker sobre cert self-signed
+                      // mesmo com ignoreHTTPSErrors (requisito estrito de seguranca do
+                      // SW). As flags abaixo permitem o registro apontando o localhost:4173
+                      // como origem segura aceita, para rodar os testes PWA com nosso
+                      // cert auto-assinado local. Em producao isso nao se aplica (cert real).
+                      launchOptions: {
+                          args: [
+                              '--ignore-certificate-errors',
+                              '--unsafely-treat-insecure-origin-as-secure=https://localhost:4173',
+                              '--allow-insecure-localhost',
+                              // beforeinstallprompt nao dispara em Chromium headless
+                              // por padrao. Estas flags habilitam a heuristica de
+                              // engagement zerada (AppBannerManager) para testes.
+                              '--enable-features=WebAppManifestProcessedContent,WebAppEnableUniversalInstall',
+                              '--bypass-app-banner-engagement-checks',
+                          ],
+                      },
+                  },
+              },
+          ],
     webServer: isDevMode
         ? {
               command: 'npm run dev',
