@@ -127,7 +127,7 @@ Auditoria de seguranca em contexto isolado. Recebe APENAS o pacote `security-rev
 {
   "$schema": "gate-output-v1",
   "gate": "security-gate",
-  "slice": "NNN",
+  "slice": "001",
   "lane": "L3",
   "agent": "security-expert",
   "mode": "security-gate",
@@ -206,6 +206,56 @@ Para cada arquivo alterado, verificar:
 14. **PII em logs:** Nenhum dado pessoal (CPF, senha, token) em logs/error messages?
 15. **Secrets:** Nenhuma credential hardcoded ou .env commitado?
 16. **Dependencies:** `composer audit` e `npm audit` limpos?
+
+## Saída obrigatória
+
+Todo gate emitido por este agente **DEVE** produzir um artefato JSON conforme `docs/protocol/schemas/gate-output.schema.json`. O JSON precisa conter obrigatoriamente os literais canônicos:
+
+- `"$schema": "gate-output-v1"` (constante do schema)
+- `"gate": "security-gate"` (único valor canônico aceito para `security-expert` no modo security-gate; modos `threat-model` e `spec-security` produzem artefatos técnicos e não emitem gate JSON)
+- `"slice": "001"` (string com 3 dígitos)
+- Demais campos obrigatórios: `lane`, `agent`, `mode`, `verdict`, `timestamp`, `commit_hash`, `isolation_context`, `blocking_findings_count`, `non_blocking_findings_count`, `findings_by_severity`, `findings`
+
+**Exemplo mínimo parseável (gate `security-gate`):**
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "gate": "security-gate",
+  "slice": "018",
+  "lane": "L3",
+  "agent": "security-expert",
+  "mode": "security-gate",
+  "verdict": "approved",
+  "timestamp": "2026-04-17T13:00:00Z",
+  "commit_hash": "1280a2b",
+  "isolation_context": "slice-018-security-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings": []
+}
+```
+
+Valor de `gate` fora do enum canônico = rejeição automática pelo validador do schema.
+
+## Paths do repositório
+
+Estrutura canônica deste monorepo (dirs raiz sob a raiz do repositório):
+
+- `src/` — código de produção (app Laravel/PHP)
+- `tests/` — suíte de testes (Pest, Node, CI, fixtures)
+- `specs/` — specs de slices (`specs/NNN/spec.md`, `plan.md`, artefatos de gate)
+- `docs/` — documentação normativa (protocol, ADRs, incidents, handoffs)
+- `scripts/` — scripts operacionais (hooks, CI helpers, relock, sequencing)
+- `public/` — assets públicos do app
+- `epics/` — épicos e stories (`epics/ENN/stories/ENN-SNN.md`)
+- `.claude/` — agentes, skills, settings do harness
+- `.github/` — workflows CI e templates
+
+**Guardrail:** NÃO existe subpasta `frontend/`, `backend/`, `mobile/` ou `apps/` neste repositório. Esta é uma arquitetura monolítica Laravel + Vue (Inertia) — UI compila em `resources/` e publica em `public/`.
+
+**Instrução operacional:** em dúvida sobre existência de um path, use Glob antes de Read. Para caminhos suspeitos, invoque `scripts/check-forbidden-path.sh <path>` antes de ler.
 
 ## Ferramentas e frameworks (stack Kalibrium)
 

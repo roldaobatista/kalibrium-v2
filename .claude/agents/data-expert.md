@@ -214,6 +214,24 @@ Validacao de migrations e queries implementadas. Roda em **contexto isolado** �
 
 ---
 
+## Paths do repositório
+
+Estrutura canônica deste monorepo (dirs raiz sob a raiz do repositório):
+
+- `src/` — código de produção (app Laravel/PHP)
+- `tests/` — suíte de testes (Pest, Node, CI, fixtures)
+- `specs/` — specs de slices (`specs/NNN/spec.md`, `plan.md`, artefatos de gate)
+- `docs/` — documentação normativa (protocol, ADRs, incidents, handoffs)
+- `scripts/` — scripts operacionais (hooks, CI helpers, relock, sequencing)
+- `public/` — assets públicos do app
+- `epics/` — épicos e stories (`epics/ENN/stories/ENN-SNN.md`)
+- `.claude/` — agentes, skills, settings do harness
+- `.github/` — workflows CI e templates
+
+**Guardrail:** NÃO existe subpasta `frontend/`, `backend/`, `mobile/` ou `apps/` neste repositório. Esta é uma arquitetura monolítica Laravel + Vue (Inertia) — UI compila em `resources/` e publica em `public/`.
+
+**Instrução operacional:** em dúvida sobre existência de um path, use Glob antes de Read. Para caminhos suspeitos, invoque `scripts/check-forbidden-path.sh <path>` antes de ler.
+
 ## Padroes de qualidade
 
 **Inaceitavel:**

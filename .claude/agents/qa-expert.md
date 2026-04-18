@@ -79,7 +79,7 @@ Validacao mecanica do slice contra DoD e constitution. Primeiro gate do pipeline
 {
   "$schema": "gate-output-v1",
   "gate": "verify",
-  "slice": "NNN",
+  "slice": "001",
   "lane": "L3",
   "agent": "qa-expert",
   "mode": "verify",
@@ -140,7 +140,7 @@ Valida spec.md antes do plano tecnico. Garante que ACs sao mensuraveis, testavei
 {
   "$schema": "gate-output-v1",
   "gate": "audit-spec",
-  "slice": "NNN",
+  "slice": "001",
   "lane": "L3",
   "agent": "qa-expert",
   "mode": "audit-spec",
@@ -340,7 +340,7 @@ Valida **antes da implementacao** que os testes red cobrem corretamente os ACs d
 {
   "$schema": "gate-output-v1",
   "gate": "audit-tests-draft",
-  "slice": "NNN",
+  "slice": "001",
   "lane": "L3",
   "agent": "qa-expert",
   "mode": "audit-tests-draft",
@@ -417,7 +417,7 @@ Valida cobertura de ACs por testes e qualidade dos testes **apos a implementacao
 {
   "$schema": "gate-output-v1",
   "gate": "audit-tests",
-  "slice": "NNN",
+  "slice": "001",
   "lane": "L3",
   "agent": "qa-expert",
   "mode": "audit-tests",
@@ -450,6 +450,56 @@ Valida cobertura de ACs por testes e qualidade dos testes **apos a implementacao
   }
 }
 ```
+
+## Saída obrigatória
+
+Todo gate emitido por este agente **DEVE** produzir um artefato JSON conforme `docs/protocol/schemas/gate-output.schema.json`. O JSON precisa conter obrigatoriamente os literais canônicos:
+
+- `"$schema": "gate-output-v1"` (constante do schema)
+- `"gate": "<enum canônico>"` — para `qa-expert`, os valores aceitos são `"verify"`, `"audit-spec"`, `"audit-story"`, `"audit-planning"`, `"audit-tests-draft"` ou `"audit-tests"` (conforme o modo ativo)
+- `"slice": "NNN"` (string com 3 dígitos; use `"000"` para auditorias não vinculadas a slice — story/planning)
+- Demais campos obrigatórios: `lane`, `agent`, `mode`, `verdict`, `timestamp`, `commit_hash`, `isolation_context`, `blocking_findings_count`, `non_blocking_findings_count`, `findings_by_severity`, `findings`
+
+**Exemplo mínimo parseável (gate `verify`):**
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "gate": "verify",
+  "slice": "018",
+  "lane": "L3",
+  "agent": "qa-expert",
+  "mode": "verify",
+  "verdict": "approved",
+  "timestamp": "2026-04-17T12:00:00Z",
+  "commit_hash": "1280a2b",
+  "isolation_context": "slice-018-verify-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings": []
+}
+```
+
+Ver seções de cada modo acima para exemplos específicos. Valor de `gate` fora do enum canônico = rejeição automática pelo validador do schema.
+
+## Paths do repositório
+
+Estrutura canônica deste monorepo (dirs raiz sob a raiz do repositório):
+
+- `src/` — código de produção (app Laravel/PHP)
+- `tests/` — suíte de testes (Pest, Node, CI, fixtures)
+- `specs/` — specs de slices (`specs/NNN/spec.md`, `plan.md`, artefatos de gate)
+- `docs/` — documentação normativa (protocol, ADRs, incidents, handoffs)
+- `scripts/` — scripts operacionais (hooks, CI helpers, relock, sequencing)
+- `public/` — assets públicos do app
+- `epics/` — épicos e stories (`epics/ENN/stories/ENN-SNN.md`)
+- `.claude/` — agentes, skills, settings do harness
+- `.github/` — workflows CI e templates
+
+**Guardrail:** NÃO existe subpasta `frontend/`, `backend/`, `mobile/` ou `apps/` neste repositório. Esta é uma arquitetura monolítica Laravel + Vue (Inertia) — UI compila em `resources/` e publica em `public/`. Supor a existência dessas pastas é erro comum de agentes treinados em monorepos typescript.
+
+**Instrução operacional:** em dúvida sobre existência de um path, use Glob antes de Read. Para caminhos suspeitos, invoque `scripts/check-forbidden-path.sh <path>` antes de ler — o script falha rápido se o path cai em uma pasta banida pelo guardrail acima.
 
 ## Ferramentas e frameworks (stack Kalibrium)
 
