@@ -4,6 +4,7 @@
 **Data de criação:** 2026-04-18
 **Autor:** orchestrator (após retrospectiva slice-017)
 **Depende de:** slice-017 merged (referência de evidência); B-036 + B-037 + B-038 + B-041 em `docs/guide-backlog.md`
+**Lane:** L3 (harness — altera hooks, workflows e agent files; impacto cross-cutting)
 
 ---
 
@@ -38,15 +39,25 @@ Ao fim do slice-018, o orchestrator pode rodar um novo slice funcional sabendo q
 ### B-037 — Auditoria sem bias (re-audit cego)
 
 - **AC-003:** Dado que o orchestrator vai invocar um auditor/gate pela 1ª vez no slice, quando o prompt é gerado, então o conteúdo contém o perímetro funcional (story + slice + paths do repo) mas NÃO contém veredito/findings de rodadas anteriores, hashes de fix commits, nem lista de arquivos tocados pelo fixer.
-- **AC-003-A:** Dado que o orchestrator vai invocar RE-auditoria (rodada ≥ 2 do mesmo gate), quando o prompt é gerado, então o prompt é idêntico ao da 1ª rodada MENOS qualquer menção a "finding anterior", "corrigido", "re-check", IDs de findings prévios, commit hashes de fix, diff do fix, nome de arquivos tocados pelo fixer. Auditor não deve nem saber que é re-auditoria.
-- **AC-004:** Dado que um auditor/gate sub-agent recebe um prompt contaminado (contém palavras-chave proibidas: "finding anterior", "previously found", "foi corrigido", "verifique se X", "o fixer tocou"), quando ele processa o prompt, então recusa mecanicamente retornando `verdict: contaminated_prompt` com evidência da palavra-chave violadora.
+- **AC-003-A:** Dado que o orchestrator vai invocar RE-auditoria (rodada ≥ 2 do mesmo gate), quando o prompt é gerado, então:
+  - (a) o prompt passa pelo validator mecânico `scripts/validate-audit-prompt.sh --mode=re-audit <prompt-file>`;
+  - (b) o validator rejeita se encontrar qualquer token da **lista fechada de tokens proibidos** (registrada em `docs/protocol/blocked-tokens-re-audit.txt` versionada):
+    - `finding anterior`, `findings anteriores`, `previously found`, `previous finding`
+    - `foi corrigido`, `já corrigido`, `fix applied`, `fixer tocou`, `fixer corrigiu`
+    - `verifique se X foi`, `confirme que X foi`, `re-check`, `re-audit`, `rodada anterior`, `rodada 1`, `rodada 2` (qualquer `rodada [0-9]+`)
+    - IDs de findings prévios no formato `[A-Z]{1,4}-[0-9]{3}-[0-9]{3}` que referenciem o mesmo slice (regex configurável);
+    - hash de commit de fix (qualquer `[a-f0-9]{7,40}` referenciado adjacente a palavras `fix`, `correção`, `corrigir`);
+    - caminhos de arquivo listados como "tocados pelo fixer" (linha com prefixo `tocado:`, `changed:`, `fixer modificou:`);
+  - (c) exit code 0 = prompt limpo, exit code 1 = contaminação detectada com linha+token reportados.
+- **AC-004:** Dado que um auditor/gate sub-agent recebe um prompt que passa por `validate-audit-prompt.sh` mas que um humano/LLM ainda consegue perceber como contaminado, quando ele processa o prompt, então o agent file de cada modo de auditoria instrui recusa: retorna `verdict: contaminated_prompt` + `contamination_evidence: "<token ou passagem>"` antes de investigar os artefatos.
 - **AC-004-A:** Dado que o orchestrator comparou findings de 2 rodadas, quando aplica set-difference, então produz 3 listas nomeadas (`resolved = prévios \ atuais`, `unresolved = prévios ∩ atuais`, `new = atuais \ prévios`) por assinatura semântica (`categoria + descrição_normalizada + path_sem_linha`), resiliente a movimentação de código.
 
 ### B-038 — Schema uniforme de gate output
 
 - **AC-005:** Dado que um gate sub-agent emite seu JSON final, quando `scripts/validate-gate-output.sh specs/NNN/<arquivo>.json` é executado, então exige literal `"$schema": "gate-output-v1"`, `"slice": "NNN"`, `"gate": "<nome canônico>"` (`verify` | `code-review` | `security-gate` | `audit-tests` | `functional-gate` | `master-audit`). JSON fora desse contrato é rejeitado com mensagem clara.
 - **AC-005-A:** Dado que um agent file (`.claude/agents/<nome>.md`) descreve um modo de gate, quando leio a seção "Saída obrigatória", então ela cita os valores literais do schema (não apenas "conforme gate-output-v1") para que o agente emita corretamente na primeira tentativa.
-- **AC-006:** Dado que `scripts/merge-slice.sh` é invocado no slice 018 ou posterior, quando os 5 gates obrigatórios foram emitidos pelos sub-agents atualizados, então o script aceita todos sem necessidade de normalização manual (zero edits entre emissão e merge).
+- **AC-006:** Dado que `scripts/merge-slice.sh` é invocado no slice 018 ou posterior, quando os 5 gates obrigatórios foram emitidos pelos sub-agents atualizados, então o script aceita todos sem necessidade de normalização manual (zero edits entre emissão e merge), e `git status` entre emissão dos JSONs e execução do merge-slice mostra apenas os arquivos emitidos (não há Edit posterior ao conteúdo dos JSONs).
+- **AC-006-A:** Dado que um sub-agent emite um JSON não-conforme (ex.: `$schema` como URL ao invés do literal `"gate-output-v1"`, ou `gate` com valor fora da lista canônica, ou `slice` ausente), quando `scripts/validate-gate-output.sh <arquivo>.json` é executado, então exit code = 1 com mensagem apontando linha+campo violador (ex.: `"specs/018/security-review.json:5 — gate='security' esperado 'security-gate'"`). Este comportamento é testado por teste automatizado com 3 JSONs fixture propositalmente inválidos (1 por tipo de violação: `$schema` errado, `gate` errado, `slice` ausente).
 
 ### B-041 — Contrato de paths do repositório
 
