@@ -56,11 +56,14 @@ export default defineConfig({
                               '--ignore-certificate-errors',
                               '--unsafely-treat-insecure-origin-as-secure=https://localhost:4173',
                               '--allow-insecure-localhost',
-                              // beforeinstallprompt nao dispara em Chromium headless
-                              // por padrao. Estas flags habilitam a heuristica de
-                              // engagement zerada (AppBannerManager) para testes.
-                              '--enable-features=WebAppManifestProcessedContent,WebAppEnableUniversalInstall',
+                              // beforeinstallprompt em Chromium headless requer
+                              // (a) engagement bypass + (b) feature flags PWA habilitadas
+                              // + (c) rodar sob --headless=new (nova arquitetura headless)
+                              // que replica comportamento do headful.
+                              '--enable-features=WebAppManifestProcessedContent,WebAppEnableUniversalInstall,AppBannerManager',
                               '--bypass-app-banner-engagement-checks',
+                              '--disable-features=AutomationControlled',
+                              '--disable-blink-features=AutomationControlled',
                           ],
                       },
                   },
@@ -75,13 +78,26 @@ export default defineConfig({
               stdout: 'pipe',
               stderr: 'pipe',
           }
-        : {
-              command: 'npm run build && npm run serve:https',
-              url: 'https://localhost:4173',
-              reuseExistingServer: !process.env.CI,
-              timeout: 240_000,
-              ignoreHTTPSErrors: true,
-              stdout: 'pipe',
-              stderr: 'pipe',
-          },
+        : [
+              {
+                  // HTTPS: servidor principal para AC-001 happy path + AC-002/AC-007.
+                  command: 'npm run build && npm run serve:https',
+                  url: 'https://localhost:4173',
+                  reuseExistingServer: !process.env.CI,
+                  timeout: 240_000,
+                  ignoreHTTPSErrors: true,
+                  stdout: 'pipe',
+                  stderr: 'pipe',
+              },
+              {
+                  // HTTP puro: necessario para AC-001-A (app NAO-instalavel sem TLS).
+                  // Reusa o build ja gerado pelo serve:https (mesma pasta dist).
+                  command: 'npm run serve:http',
+                  url: 'http://localhost:5173',
+                  reuseExistingServer: !process.env.CI,
+                  timeout: 60_000,
+                  stdout: 'pipe',
+                  stderr: 'pipe',
+              },
+          ],
 });

@@ -116,6 +116,12 @@ export default defineConfig({
                     },
                 ],
                 cleanupOutdatedCaches: true,
+                // skipWaiting + clientsClaim: SW assume controle na 1a visita (ADR-0016).
+                // Necessario para AC-002-A (cold cache offline <5s em reload imediato sem
+                // 2o load). Sem isso, SW fica em "waiting" e so controla na proxima
+                // navegacao, o que faz reload offline imediato retornar net::ERR_INTERNET_DISCONNECTED.
+                skipWaiting: true,
+                clientsClaim: true,
                 // cacheId carrega a versao do app — ao bump package.json.version,
                 // caches antigos sao limpos no activate (AC-008).
                 cacheId: `kalibrium-v${APP_VERSION}`,

@@ -15,6 +15,7 @@
         "test": "npm run test:scaffold && npm run test:e2e",
         "generate:icons": "node scripts/pwa/generate-icons.mjs",
         "serve:https": "node scripts/pwa/serve-https.mjs --port 4173 --dir dist",
+        "serve:http": "node scripts/pwa/serve-http.mjs --port 5173 --dir dist",
         "test:lighthouse": "node --test tests/scaffold/pwa-lighthouse.test.cjs"
     },
     "dependencies": {
