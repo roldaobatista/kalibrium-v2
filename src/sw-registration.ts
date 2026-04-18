@@ -17,13 +17,24 @@
 import { Workbox } from 'workbox-window';
 
 export function registerServiceWorker(): void {
-    // AC-005-A: feature detection — navegadores legados sem SW devem carregar normal.
-    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    // AC-005-A: feature detection robusta — navegadores legados sem SW devem
+    // carregar normal. Verificamos tanto a presenca da propriedade quanto o
+    // valor (um polyfill/teste pode definir navigator.serviceWorker = undefined
+    // mantendo a propriedade no prototipo — `in` retorna true mas o valor e
+    // falsy; qualquer .addEventListener nesse estado lanca Uncaught TypeError).
+    if (
+        typeof navigator === 'undefined' ||
+        !('serviceWorker' in navigator) ||
+        !navigator.serviceWorker
+    ) {
         return;
     }
 
-    // Aguarda o load da window para nao competir com render critico.
-    window.addEventListener('load', () => {
+    // Registro no load. Se o script e carregado como <script type="module">,
+    // ele executa apos HTMLParse mas o evento 'load' pode ja ter disparado
+    // antes deste listener ser anexado (race). Portanto, se a janela ja esta
+    // em readyState 'complete', registramos imediatamente.
+    const run = (): void => {
         const wb = new Workbox('/sw.js', { scope: '/' });
 
         wb.addEventListener('installed', (event) => {
@@ -56,5 +67,12 @@ export function registerServiceWorker(): void {
         wb.register().catch((err: unknown) => {
             console.warn('[sw] registro falhou — app continua funcionando', err);
         });
-    });
+    };
+
+    if (document.readyState === 'complete') {
+        // 'load' ja disparou antes deste modulo executar — registra agora.
+        run();
+    } else {
+        window.addEventListener('load', run, { once: true });
+    }
 }
