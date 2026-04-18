@@ -1,0 +1,52 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "audit-spec",
+  "slice": "018",
+  "lane": "L3",
+  "agent": "qa-expert",
+  "mode": "audit-spec",
+  "verdict": "rejected",
+  "timestamp": "2026-04-18T04:40:46Z",
+  "commit_hash": "3b5538c",
+  "isolation_context": "slice-018-audit-spec-instance-01",
+  "blocking_findings_count": 1,
+  "non_blocking_findings_count": 2,
+  "findings_by_severity": {"S1": 0, "S2": 1, "S3": 1, "S4": 1, "S5": 0},
+  "findings": [
+    {
+      "id": "AS-018-001",
+      "severity": "S3",
+      "title": "AC-003: 'perímetro funcional' não definido — implementador não sabe o que incluir/excluir",
+      "evidence": "specs/018/spec.md:41 — 'o prompt contém o perímetro funcional (story + slice + paths do repo)' sem definir formato, template, lista de campos obrigatórios, nem referência a documento que os especifique. Implementador fica sem base objetiva para construir ou testar o prompt gerado.",
+      "recommendation": "Adicionar ao AC-003 um dos seguintes: (a) referência a template de prompt em arquivo versionado (ex.: docs/protocol/audit-prompt-template.md); (b) lista enumerada dos campos obrigatórios (ex.: story_id, slice_id, repo_root_dirs, ac_list — e nada mais); ou (c) exemplo concreto de prompt conforme inline no AC. Sem isso, dois implementadores produzirão prompts diferentes e o AC-003-A não tem baseline para validar."
+    },
+    {
+      "id": "AS-018-002",
+      "severity": "S2",
+      "title": "AC-005-A pressupõe seção 'Saída obrigatória' nos agent files, que não existe em nenhum deles",
+      "evidence": "specs/018/spec.md:58 — 'quando leio a seção Saída obrigatória do agent file'. Grep em .claude/agents/*.md confirma que nenhum dos 12 agent files possui essa seção. O AC é não-testável no estado atual: o teste falharia por ausência da seção, não por comportamento incorreto do agente.",
+      "recommendation": "Adicionar AC explícito (ou sub-item de AC-005-A) que obrigue a criação da seção 'Saída obrigatória' em cada agent file de gate (qa-expert, architecture-expert, security-expert, product-expert, governance) como pré-condição para o AC-005-A ser testável. Alternativamente, reformular AC-005-A para: 'quando o agent file é atualizado neste slice, então a seção Saída obrigatória é adicionada contendo os literais do schema'."
+    },
+    {
+      "id": "AS-018-003",
+      "severity": "S4",
+      "title": "AC-007-A não especifica critério mensurável para '3+ tentativas'",
+      "evidence": "specs/018/spec.md:68 — 'NÃO entra em loop de retry por 3+ tentativas — reporta erro de contrato de path na 1ª falha'. A diretiva 'na 1ª falha' contradiz implicitamente '3+ tentativas': o guardrail é na 1ª ou após 3? Teste automatizado não consegue validar um limite indefinido.",
+      "recommendation": "Escolher formulação única e consistente: 'na 1ª falha de Read/Glob em path inexistente, o sub-agent para e reporta ContractViolation sem retry'. Remover a referência a '3+' ou torná-la o limite explícito com comportamento após o limite descrito."
+    }
+  ],
+  "evidence": {
+    "checks": {
+      "acs_measurable": true,
+      "acs_testable": false,
+      "acs_unambiguous": false,
+      "out_of_scope_explicit": true,
+      "dependencies_declared": true,
+      "journey_covered": true
+    },
+    "acs_count": 12,
+    "ambiguous_acs": ["AC-003", "AC-005-A", "AC-007-A"],
+    "frontmatter_valid": true,
+    "glossary_terms_unmapped": []
+  }
+}

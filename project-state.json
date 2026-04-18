@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution-post-slice-017-merged",
-  "updated_at": "2026-04-18T00:30:00-04:00",
+  "phase": "execution-slice-018-spec-draft-round-2",
+  "updated_at": "2026-04-18T01:00:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -61,11 +61,11 @@
   },
   "execution": {
     "current_epic": "E15",
-    "current_story": "E15-S04",
+    "current_story": "harness-fix (pre-E15-S04)",
     "current_slice": "018",
-    "slice_status": "pending",
+    "slice_status": "spec-draft-round-2-pending-audit",
     "last_green_commit": "f472326",
-    "active_branch": "main",
+    "active_branch": "feat/slice-018-harness-regression-bias-schema",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
@@ -486,11 +486,20 @@
     "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
   },
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos; B-029..B-032 novos apos slice 015)",
-  "state": "slice-017-merged-pending-slice-018-harness",
+  "state": "slice-018-spec-draft-round-2-pending-audit",
+  "slice_018_pipeline": {
+    "scope": "B-036 + B-037 + B-038 + B-041 (harness — CI regression + bias-free audit + schema uniformity + paths contract)",
+    "spec_drafts": ["commit 778d9ff (draft inicial)", "commit 3b5538c (round 1 fix: AC-006-A + AC-003-A tokens list + lane L3)", "commit e00bd1a (round 2 fix: AC-003 template + AC-005-A seção obrigatória + AC-007-A 1ª falha)"],
+    "spec_audit_round_1": "rejected (2 S3: AC-006 sem edge, AC-003-A ambíguo; 1 S4 lane missing)",
+    "spec_audit_round_2": "rejected (1 S3: AC-003 perímetro funcional não definido; 1 S2: AC-005-A pressupõe seção inexistente; 1 S4: AC-007-A contradição)",
+    "spec_audit_round_3": "pending (nova sessão — contexto limpo)",
+    "acs_count": 14,
+    "fora_de_escopo_explicito": ["B-039 telemetria", "B-040 limite S4", "refactor protocolo v1.2.4", "criar novos sub-agents", "hook auditor-input-lint.sh mecânico"]
+  },
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "Slice 017 (E15-S03 PWA Shell) MERGED em main via PR #49 (f472326) com dual-LLM approved. Proxima acao: iniciar slice-018 dedicado a B-036 (CI regression full em PR + smoke pre-push + politica de arquivos compartilhados) + B-037 (auditoria/re-auditoria sem bias — perimetro livre 1a vez, zero historico 2a, set-difference no orchestrator). PM decidiu fazer ANTES de E15-S04 ou qualquer slice funcional. Opcional antes: /slice-report 017 + /retrospective 017.",
+  "next_recommended_action": "Nova sessao: rodar /audit-spec 018 rodada 3 em contexto limpo (commit e00bd1a). Spec atual cobre B-036/B-037/B-038/B-041 com 14 ACs. Rodadas 1 e 2 ja corrigiram: AC-003 (template obrigatorio + 6 campos), AC-003-A (lista fechada de tokens proibidos), AC-005-A (secao obrigatoria em agent files), AC-006-A (validator + 3 fixtures), AC-007-A (1a falha, sem retry). Fora de escopo: B-039/B-040 + hook auditor-input-lint mecânico. Apos audit-spec approved: draft-plan.",
   "pending_harness_fixes": {
     "B-036": "docs/guide-backlog.md — regressao automatica de testes (CI full em PR + smoke pre-push + politica arquivos compartilhados). Evidencia: slice 017 quebrou slice 016 silenciosamente (ac-001-dev-server) ate PM pedir validacao manual.",
     "B-037": "docs/guide-backlog.md — auditoria/re-auditoria sem bias (perimetro livre na 1a vez; zero historico na 2a; set-difference no orchestrator). Evidencia: orchestrator desta sessao vazou bias no retry de truncagem (mandou JSON pronto do verify ao inves de deixar auditor investigar)."

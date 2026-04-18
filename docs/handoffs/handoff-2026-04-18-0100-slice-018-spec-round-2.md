@@ -88,9 +88,3 @@ Branch slice-018 (local, não pushed):
 - `778d9ff` — chore(slice-018): inicia
 - `3b5538c` — fix(slice-018): audit-spec S3 round 1
 - `e00bd1a` — fix(slice-018): audit-spec round 2
-
----
-
-## Handoffs anteriores
-
-Ver `docs/handoffs/handoff-2026-04-18-0030-slice-017-merged.md` (pré-checkpoint desta sessão).
