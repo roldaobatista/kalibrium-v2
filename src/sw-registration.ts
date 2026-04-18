@@ -17,6 +17,15 @@
 import { Workbox } from 'workbox-window';
 
 export function registerServiceWorker(): void {
+    // Slice 017 fix — pular registro em dev mode. Vite dev nao emite /sw.js
+    // (VitePWA generateSW roda so em build). Requisicoes a /sw.js retornam
+    // index.html (text/html), causando "unsupported MIME type" e quebrando
+    // a SPA em testes E2E dev (ac-001-dev-server). Em producao (preview/build)
+    // import.meta.env.PROD === true e o registro prossegue normalmente.
+    if (!import.meta.env.PROD) {
+        return;
+    }
+
     // AC-005-A: feature detection robusta — navegadores legados sem SW devem
     // carregar normal. Verificamos tanto a presenca da propriedade quanto o
     // valor (um polyfill/teste pode definir navigator.serviceWorker = undefined
