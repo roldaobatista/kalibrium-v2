@@ -1,0 +1,10 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "verify",
+  "slice": "019",
+  "verdict": "rejected",
+  "findings": [
+    {"id": "VER-019-010", "category": "assertion_missing", "description": "AC-001 sem assertion concreta", "file": "tests/Feature/Foo.php", "line": 55, "severity": "S2"},
+    {"id": "VER-019-011", "category": "mock_misuse", "description": "Mock do SUT em AC-004", "file": "tests/Feature/Qux.php", "line": 22, "severity": "S2"}
+  ]
+}

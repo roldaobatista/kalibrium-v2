@@ -1,0 +1,2 @@
+src/pages/Foo.tsx
+src/components/Bar.tsx

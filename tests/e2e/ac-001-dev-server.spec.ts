@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('AC-001: dev server renders /login with Ionic component and clean console', () => {
-    test('AC-001: /login renders an Ionic-rooted page with zero console errors', async ({ page, baseURL }) => {
+    test('AC-001: /login renders an Ionic-rooted page with zero console errors @smoke', async ({ page, baseURL }) => {
         const consoleErrors: string[] = [];
 
         page.on('console', (msg) => {

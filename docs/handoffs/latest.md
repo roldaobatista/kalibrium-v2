@@ -1,63 +1,106 @@
-# Handoff — 2026-04-18 00:30 — Slice 017 MERGED + abrir slice-018 (harness B-036 + B-037)
+# Handoff — 2026-04-18 03:30 — Slice 018 IMPLEMENTADO (16/16 tasks, 137/137 tests green), gates finais pendentes
 
 ## Resumo curto
 
-Continuação da sessão 2026-04-17. Executado via `/resume` do ponto em que ficou: **4 gates finais + master-audit dual-LLM + merge**. Resultado: **slice 017 (E15-S03 PWA Shell) mergido em main** via PR #49 (commit `f472326`). Zero débito técnico novo.
+Sessão encerrada com slice 018 totalmente implementado. Falta apenas o gate pipeline final (5 gates + master-audit + merge).
 
-## O que foi feito nesta sessão
+### Marcos da sessão (ordem cronológica)
 
-| Etapa | Resultado | Commit/PR |
-|---|---|---|
-| 4 gates finais em paralelo (code-review, security, test-audit, functional) | 1 rejected + 3 approved na 1ª rodada | — |
-| Code-review: 2 S3 bloqueantes (F-001 theme-color + F-002 dead code) | REJECTED → fixer → APPROVED | `ea8e056` |
-| Security-gate | approved (0 S1-S3, 1 S4) | `specs/017/security-review.json` |
-| Test-audit (retry após falha de path) | approved (0 S1-S3, 2 S4, 14/14 ACs rastreáveis) | `specs/017/test-audit.json` |
-| Functional-gate | approved (0 S1-S3, 2 S4) | `specs/017/functional-review.json` |
-| Master-audit dual-LLM 2× Opus 4.7 isolado | consenso pleno (0 reconciliação) | `specs/017/master-audit*.json` |
-| Normalização schema `gate-output-v1` (slice, $schema, gate names) | merge-slice script aceitou | `0b95c7b` |
-| merge-slice 017 | PR #49 merged em main | `f472326` |
+1. **Slice 017 MERGED** — PR #49 (`f472326`) com dual-LLM consenso pleno
+2. **Retrospectiva 017** + 4 B-items novos (B-038, B-039, B-040, B-041)
+3. **Slice 018 spec approved** — 8 rodadas audit-spec, 0 S1-S3 final
+4. **Plan + plan-review approved** — 11 decisões, 16 tasks, 0 findings em todas severidades
+5. **Draft-tests** — 137 testes RED em 11 arquivos, 14/14 ACs rastreáveis (ADR-0017)
+6. **Audit-tests-draft approved** — 0 findings, 7/7 §16.1
+7. **Implementer 16/16 tasks completas** — 13 artefatos novos + 15 atualizados
+8. **Todos 137 testes GREEN**
 
 ## Estado atual
 
-- **Main HEAD:** `f472326` (slice 017 merged via PR #49)
-- **Branch feat/slice-017-pwa-shell:** pode ser deletada
+- **Main HEAD:** `f472326`
+- **Branch ativa:** `feat/slice-018-harness-regression-bias-schema` (local, não pushed)
+- **HEAD da branch:** `bba79e8`
+- **Commits na branch:** 21 (ver `git log main..HEAD`)
 - **Débito técnico:** 0 itens
-- **Gates do slice 017:** 5/5 gates individuais + master-audit dual-LLM todos approved
-- **E15-S03:** merged. E15 agora 3/10 stories (S01 + S02 + S03).
+- **E15:** 3/10 stories merged
 
-## Findings S4 aceitos (3 ambientais + 6 de escopo)
+## O que faz o slice 018 (entregue)
 
-- V-017-001/002/003: Chromium headless não dispara `beforeinstallprompt`, `matchMedia standalone`, cold-cache Playwright efêmero. Limitações estruturais documentadas em `specs/017/impl-notes.md`.
-- F-003/F-004/F-005/F-006 (code-review): `String.fromCharCode(47)` para evitar literal `/api/`; divergência D4 pwa-asset-generator → helper próprio; acoplamento `sw-registration` ↔ `import.meta.env.PROD`; falta `<link rel=manifest>` explícito (manifest é gerado pelo VitePWA).
-- MA-A-017-001/002/003/004: concentração de S4 com mesma justificativa; divergência plan D4 sem registro no plan; testes slice 016 em pasta compartilhada; skip dev do SW não documentado no plan D1.
+### B-036 — CI regression automática
+- `.github/workflows/test-regression.yml` — bloqueante em PR
+- `scripts/detect-shared-file-change.sh` — stdout flag `shared_changed=true|false`
+- `scripts/smoke-tests.sh` — dispara tag `@smoke` no pre-push
+- 4 testes e2e PWA tageados `@smoke`
 
-## Próxima ação (decisão PM já registrada)
+### B-037 — Bias-free audit (re-audit cego)
+- `docs/protocol/audit-prompt-template.md` — 6 campos obrigatórios
+- `docs/protocol/blocked-tokens-re-audit.txt` — lista fechada
+- `scripts/validate-audit-prompt.sh` — modos `1st-pass` e `re-audit` com awk IGNORECASE
+- `scripts/audit-set-difference.sh` — 3 listas (resolved/unresolved/new)
+- Recusa mecânica em 5 agent files de gate (verdict: rejected + rejection_reason: contaminated_prompt)
+- Seção "Auditoria sem bias" em `docs/protocol/06-estrategia-evidencias.md`
 
-**Slice-018 dedicado a B-036 + B-037 — harness fixes PRIORIDADE ALTA** antes de avançar qualquer slice funcional (inclusive E15-S04).
+### B-038 — Schema uniforme
+- `scripts/validate-gate-output.sh` — lê enum direto do schema canônico
+- Seção `## Saída obrigatória` em 5 agent files (qa/arch/sec/product/governance) com exemplo JSON parseable
+- 3 fixtures JSON inválidos + 1 válido em `tests/fixtures/gate-output/`
+- Manifesto em `specs/018/merge-slice-update-manifest.md` + `docs/incidents/harness-relock-pending-slice-018.md` instruindo PM a atualizar merge-slice.sh selado via relock
 
-- **B-036:** regressão automática de testes — CI full em PR + smoke pre-push + política de arquivos compartilhados. Evidência: slice 017 quebrou slice 016 silenciosamente (`ac-001-dev-server`) até PM pedir validação manual. Fix em `0aed77f`.
-- **B-037:** auditoria/re-auditoria sem bias — perímetro livre 1ª vez, zero histórico na 2ª, set-difference no orchestrator. Evidência: orchestrator desta sessão vazou bias no retry de truncagem.
+### B-041 — Contrato de paths
+- `docs/protocol/forbidden-paths.txt` — lista fechada
+- `scripts/check-forbidden-path.sh` — exit 1 + mensagem canônica
+- Seção `## Paths do repositório` em 12 agent files (todos em `.claude/agents/`)
 
-## Opcional antes do slice-018
+## Próxima ação (nova sessão)
 
-- `/slice-report 017` — relatório quantitativo.
-- `/retrospective 017` — retrospectiva qualitativa.
+1. `/resume`
+2. **Disparar 5 gates finais em paralelo:**
+   - `/verify-slice 018`
+   - `/review-pr 018` (architecture-expert: code-review)
+   - `/security-review 018`
+   - `/test-audit 018`
+   - `/functional-review 018`
+3. **Master-audit dual-LLM** (2× Opus 4.7 isolado)
+4. **`/merge-slice 018`** — ATENÇÃO CRÍTICA ABAIXO
 
-Ambos não são bloqueantes — podem ser executados depois.
+## ⚠️ Atenção crítica pré-merge
 
-## Ambiente e contexto
+`scripts/merge-slice.sh` está **selado** com `required_gates` hardcoded em valores legacy (`code-review`, `security`, `functional`). O slice 018 introduz e adota o enum canônico do schema (`review`, `security-gate`, `functional-gate`).
 
-- Sub-agents apresentaram 2 falhas isoladas nesta sessão (qa-expert não achou `frontend/` porque não existe; 1 API error). Ambas contornadas com retry explícito. Confirma B-036/B-037 como prioridade.
-- Schemas dos gates exigiram normalização pontual (`$schema: "gate-output-v1"` literal + `slice` + gate names corretos). `merge-slice.sh` valida isso — pode virar task do slice-018 padronizar writers dos agentes.
+**Implicação:** se os sub-agents do slice 018 emitirem JSONs com os valores canônicos novos (`gate: "review"` em vez de `gate: "code-review"`), o `merge-slice.sh` atual vai **rejeitar** e bloquear o merge.
 
-## Próxima sessão
+**3 opções para o merge do slice 018 (escolher em sessão):**
 
-1. Abrir → `/resume` (SessionStart).
-2. (opcional) `/slice-report 017` + `/retrospective 017`.
-3. `/start-story E15-S04` bloqueado por R13 até B-036/B-037 — usar `/new-slice 018 "Harness — CI regression + bias-free audit protocol"` ou similar.
+| Opção | Descrição | Trade-off |
+|---|---|---|
+| A | Sub-agents do slice 018 emitem valores LEGACY (`code-review`, etc.) | Preserva pureza do enum futuro; cria 1 exceção cosmética no próprio slice |
+| B | Admin bypass do owner (PM) no merge do PR | Registra bypass no log GitHub; precedente em `docs/incidents/pr-1-admin-merge.md` |
+| C | PM edita merge-slice.sh com os aliases ANTES do merge e roda relock | Mais limpo, mas exige intervenção manual prévia |
 
----
+**Recomendação:** opção A é mais simples e evita intervenção manual. Sub-agents do slice 018 podem emitir os valores legacy UMA ÚLTIMA VEZ; a partir do slice 019 todos usam canônico (o merge-slice.sh já terá aceitado aliases após o relock do PM pós-merge).
 
-## Handoff anterior — 2026-04-17 encerramento — Slice 017 pós-impl
+## Pós-merge — ação manual do PM
 
-Ver `handoff-2026-04-17-encerramento-slice-017-pos-impl.md` (ou o handoff imediatamente anterior em `docs/handoffs/`).
+Ver `specs/018/merge-slice-update-manifest.md` (ou `docs/incidents/harness-relock-pending-slice-018.md`):
+
+```bash
+cd /c/PROJETOS/saas/kalibrium-v2
+git checkout main && git pull origin main
+# Editar scripts/merge-slice.sh aplicando diff de aliases
+KALIB_RELOCK_AUTHORIZED=1 bash scripts/relock-harness.sh
+git add scripts/merge-slice.sh scripts/hooks/MANIFEST.sha256 .claude/settings.json.sha256 docs/incidents/harness-relock-*.md
+git commit -m "chore(harness): merge-slice aceita aliases legacy + relock pos-slice-018"
+git push origin main
+```
+
+## Observações operacionais
+
+- Sub-agents truncaram 6× nesta sessão — confirmação definitiva de B-036/B-037 como valor entregue (este próprio slice).
+- Uma vez mergeado + relockado, todos os slices 019+ operam com as novas redes de segurança.
+- `docs/guide-backlog.md` ainda tem B-039 (telemetria automática), B-040 (limite S4 cluster) em aberto.
+
+## Commits-chave desta sessão
+
+- **Main (via PRs):** `f472326` (PR #49, slice 017), `03dd40c` (PR #50, handoff 017)
+- **Branch slice-018 (local, não pushed):** 21 commits de `778d9ff` a `bba79e8`
+- Destaques: `51534cf` (plan), `7809694` (plan-review approved), `25b8cbb` (tests red), `71e6eab` (audit-tests-draft approved), `157aa8d` (T07+T08 agent files), `69deeda` (recusa mecânica), `e1b740a` (fixes finais tests green), `bba79e8` (impl-notes)

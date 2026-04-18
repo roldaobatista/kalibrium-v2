@@ -1,0 +1,72 @@
+name: test-regression
+
+# Slice 018 — AC-001, AC-001-A (B-036)
+#
+# Workflow dedicado de regressao cross-slice. Dispara em PR e push para detectar
+# quando um slice novo quebra teste de slice anterior (ex.: slice 017 quebrou
+# AC-001 do slice 016 sem gate acusar).
+#
+# Decisao D1 (plan.md): workflow dedicado para separacao de responsabilidades
+# e facilidade de desativacao cirurgica.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scaffold-tests:
+    name: Scaffold tests (node --test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Run scaffold suite
+        run: npm run test:scaffold
+
+  playwright-dev-chromium:
+    name: Playwright (dev-chromium project)
+    runs-on: ubuntu-latest
+    needs: scaffold-tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run Playwright (dev-chromium)
+        run: npx playwright test --project=dev-chromium --reporter=list
+
+  playwright-chromium-preview:
+    name: Playwright (chromium preview project)
+    runs-on: ubuntu-latest
+    needs: scaffold-tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Build app for preview
+        run: npm run build
+      - name: Run Playwright (chromium preview)
+        # Reporter list expoe nome do AC violado (AC-001-A: explicit AC breakage)
+        run: npx playwright test --project="chromium preview" --reporter=list

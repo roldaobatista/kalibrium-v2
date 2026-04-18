@@ -1,0 +1,88 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "security-gate",
+  "slice": "018",
+  "lane": "L3",
+  "agent": "security-expert",
+  "mode": "security-gate",
+  "verdict": "approved",
+  "timestamp": "2026-04-18T10:00:00Z",
+  "commit_hash": "4cdfdee",
+  "isolation_context": "slice-018-security-gate-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 2,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 2, "S5": 0},
+  "findings": [
+    {
+      "id": "SEC-018-001",
+      "severity": "S4",
+      "category": "supply-chain",
+      "file": ".github/workflows/test-regression.yml",
+      "description": "actions/checkout@v4 e actions/setup-node@v4 pinned por major tag, nao por SHA imutavel. Tier 2 (majority industry norm) mas tier 1 hardening recomendaria pin por commit SHA para prevenir tag-retargeting supply chain attack. Mitigacao atual: permissions minimas (contents:read, pull-requests:read) ja limitam blast radius.",
+      "recommendation": "Opcional: migrar para SHA pinning em refactor futuro (ex.: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11). Nao bloqueia.",
+      "blocking": false
+    },
+    {
+      "id": "SEC-018-002",
+      "severity": "S4",
+      "category": "defense-in-depth",
+      "file": "scripts/check-forbidden-path.sh:37",
+      "description": "case statement 'case \"$PATH_ARG\" in \"$prefix\"*)' interpreta glob metachars (*, ?, [) no prefix. Se forbidden-paths.txt for adulterado com linha contendo metachar (ex: '*'), match ficaria amplo. Lista atual eh limpa (frontend/, backend/, mobile/, apps/). Arquivo eh versionado, entao tampering exige commit malicioso (modelo de ameaca baixo).",
+      "recommendation": "Opcional: sanitizar prefix com escape (ex: quote e comparacao por literal via [[ \"$PATH_ARG\" == \"$prefix\"* ]] nao resolve; usar [ \"${PATH_ARG:0:${#prefix}}\" = \"$prefix\" ]). Nao bloqueia dado modelo de ameaca.",
+      "blocking": false
+    }
+  ],
+  "evidence": {
+    "owasp_checks": {
+      "A01_broken_access_control": "pass",
+      "A02_cryptographic_failures": "pass",
+      "A03_injection": "pass",
+      "A07_auth_failures": "pass"
+    },
+    "owasp_categories_checked": 10,
+    "lgpd_checks": {
+      "personal_data_identified": false,
+      "legal_basis_documented": true,
+      "retention_policy_defined": true,
+      "audit_trail_present": true
+    },
+    "sql_injection_vectors": [],
+    "xss_vectors": [],
+    "mass_assignment_unprotected": [],
+    "hardcoded_secrets": [],
+    "csrf_unprotected_routes": [],
+    "unauthorized_controller_methods": [],
+    "unscoped_queries": [],
+    "pii_logged_unmasked": [],
+    "composer_audit_high_critical": 0,
+    "rate_limiting_missing": [],
+    "secrets_scan": "clean",
+    "tenant_isolation": "not-applicable-harness-layer",
+    "shell_injection_review": {
+      "audit-set-difference.sh": "safe (jq --argjson; sem shell expansion)",
+      "check-forbidden-path.sh": "safe-with-caveat (case glob depende de lista confiavel — SEC-018-002 S4)",
+      "detect-shared-file-change.sh": "safe (stdin line-read com IFS=; case statement)",
+      "pre-push": "safe (git refs validados por git; printf pipe seguro)",
+      "smoke-tests.sh": "safe (sem input de usuario)",
+      "validate-audit-prompt.sh": "safe (awk -v tok; grep -E patterns hardcoded)",
+      "validate-gate-output.sh": "safe (jq --arg/--argjson)"
+    },
+    "ci_workflow_review": {
+      "permissions": "least-privilege (contents:read, pull-requests:read)",
+      "trigger": "pull_request + push main (nao usa pull_request_target perigoso)",
+      "secrets_exposed": "none",
+      "third_party_actions": "apenas actions/checkout@v4 e actions/setup-node@v4 (oficiais GitHub)",
+      "sha_pinning": "major-tag (SEC-018-001 S4 advisory)"
+    },
+    "prompt_validator_bypass_analysis": {
+      "case_insensitive_ascii": "coberto via awk IGNORECASE + tolower",
+      "unicode_homoglyphs": "nao coberto — risco S5 informativo; modelo de ameaca nao-adversarial (agente gera prompts)",
+      "commit_hash_regex": "[a-f0-9]{7,40} com contexto fix|correcao|corrigir — adequado",
+      "finding_id_regex": "[A-Z]{1,4}-[0-9]{3}-[0-9]{3} — adequado"
+    },
+    "pre_push_bypass": "git push --no-verify bypassa client-side hook — mitigado por CI workflow server-side (ruleset bloqueia merge com failures). Defesa em profundidade OK.",
+    "new_dependencies": "none (bash, jq, awk, grep, git, npx ja presentes)",
+    "hardcoded_secrets_scan": "clean — nenhum token/credencial/URL em todos os 7 scripts + workflow",
+    "lgpd_applicability": "not-applicable — scripts operam sobre metadados de repo/diff/JSON; zero dados pessoais"
+  }
+}

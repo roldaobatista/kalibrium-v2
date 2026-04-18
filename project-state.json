@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution-post-slice-017-merged",
-  "updated_at": "2026-04-18T00:30:00-04:00",
+  "phase": "execution-slice-018-impl-complete",
+  "updated_at": "2026-04-18T03:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -61,11 +61,11 @@
   },
   "execution": {
     "current_epic": "E15",
-    "current_story": "E15-S04",
+    "current_story": "harness-fix (pre-E15-S04)",
     "current_slice": "018",
-    "slice_status": "pending",
+    "slice_status": "impl-complete-pending-5-gates-finais",
     "last_green_commit": "f472326",
-    "active_branch": "main",
+    "active_branch": "feat/slice-018-harness-regression-bias-schema",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
@@ -486,11 +486,29 @@
     "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
   },
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos; B-029..B-032 novos apos slice 015)",
-  "state": "slice-017-merged-pending-slice-018-harness",
+  "state": "slice-018-impl-complete-pending-gates-finais",
+  "slice_018_pipeline": {
+    "scope": "B-036 + B-037 + B-038 + B-041 (harness — CI regression + bias-free audit + schema uniformity + paths contract)",
+    "spec_status": "approved-round-8 (tecnicamente approved; 8 rodadas de audit resultaram em 0 S1-S3, ultimo S4 jq corrigido)",
+    "spec_commits": "778d9ff -> 3b5538c -> e00bd1a -> 353e73e -> 54e8445 -> 1415216 -> 181db41 -> 7f9180d -> 5bcb0f1 -> 14bc83a",
+    "plan_status": "approved (commit 51534cf — 11 decisoes, 16 tasks, 14/14 ACs mapeados)",
+    "plan_review_status": "approved (commit 7809694 — 0 findings em TODAS severidades S1-S5)",
+    "acs_count": 14,
+    "decisions_count": 11,
+    "tasks_count": 16,
+    "artefatos_novos_a_criar": 13,
+    "artefatos_atualizados": 15,
+    "pending_phases": ["draft-tests", "audit-tests-draft", "implementer", "5 gates finais", "master-audit", "merge-slice"],
+    "fora_de_escopo_explicito": ["B-039 telemetria", "B-040 limite S4", "refactor protocolo v1.2.4", "criar novos sub-agents", "hook auditor-input-lint.sh mecanico"],
+    "riscos_principais": {
+      "R1": "smoke suite performance — cap 15 testes, <30s",
+      "R3": "merge-slice.sh selado — plan propoe manifesto T14 para relock manual pelo PM pos-merge"
+    }
+  },
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "Slice 017 (E15-S03 PWA Shell) MERGED em main via PR #49 (f472326) com dual-LLM approved. Proxima acao: iniciar slice-018 dedicado a B-036 (CI regression full em PR + smoke pre-push + politica de arquivos compartilhados) + B-037 (auditoria/re-auditoria sem bias — perimetro livre 1a vez, zero historico 2a, set-difference no orchestrator). PM decidiu fazer ANTES de E15-S04 ou qualquer slice funcional. Opcional antes: /slice-report 017 + /retrospective 017.",
+  "next_recommended_action": "Slice 018 TOTALMENTE IMPLEMENTADO — 16/16 tasks, 137/137 tests green (HEAD bba79e8). Nova sessao: disparar 5 gates finais em paralelo (verify, code-review, security-gate, audit-tests, functional-gate). Depois master-audit dual-LLM 2x Opus 4.7 isolado. Depois /merge-slice 018 — CUIDADO: merge-slice.sh hardcoded espera 'code-review' no required_gates, mas slice 018 emite 'review' (enum canonico). Opcoes: (a) slice 018 emite valores legacy durante seu proprio merge, (b) admin-bypass do owner, (c) editar manifesto temporariamente. PM precisa executar relock-harness.sh manual pos-merge para que slices 019+ usem canonico.",
   "pending_harness_fixes": {
     "B-036": "docs/guide-backlog.md — regressao automatica de testes (CI full em PR + smoke pre-push + politica arquivos compartilhados). Evidencia: slice 017 quebrou slice 016 silenciosamente (ac-001-dev-server) ate PM pedir validacao manual.",
     "B-037": "docs/guide-backlog.md — auditoria/re-auditoria sem bias (perimetro livre na 1a vez; zero historico na 2a; set-difference no orchestrator). Evidencia: orchestrator desta sessao vazou bias no retry de truncagem (mandou JSON pronto do verify ao inves de deixar auditor investigar)."

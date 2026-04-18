@@ -1,0 +1,9 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "verify",
+  "slice": "019",
+  "verdict": "rejected",
+  "rejection_reason": "contaminated_prompt",
+  "contamination_evidence": "Token proibido 'foi corrigido' detectado no prompt",
+  "findings": []
+}

@@ -12,7 +12,7 @@ import { test, expect } from '@playwright/test';
 const BASE = process.env.KALIB_PWA_HTTPS_URL ?? 'https://localhost:4173';
 
 test.describe('AC-005: Service Worker registrado e ativo em HTTPS', () => {
-    test('AC-005: navigator.serviceWorker.controller !== null apos primeiro load', async ({ page }) => {
+    test('AC-005: navigator.serviceWorker.controller !== null apos primeiro load @smoke', async ({ page }) => {
         await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
 
         // Aguarda ate 10s para o SW ativar (primeira visita: registra + ativa).
