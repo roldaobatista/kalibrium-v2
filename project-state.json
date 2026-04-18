@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution-slice-018-plan-approved",
-  "updated_at": "2026-04-18T02:00:00-04:00",
+  "phase": "execution-slice-018-impl-complete",
+  "updated_at": "2026-04-18T03:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -63,7 +63,7 @@
     "current_epic": "E15",
     "current_story": "harness-fix (pre-E15-S04)",
     "current_slice": "018",
-    "slice_status": "plan-approved-pending-draft-tests",
+    "slice_status": "impl-complete-pending-5-gates-finais",
     "last_green_commit": "f472326",
     "active_branch": "feat/slice-018-harness-regression-bias-schema",
     "consecutive_rejections": 0,
@@ -486,7 +486,7 @@
     "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
   },
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos; B-029..B-032 novos apos slice 015)",
-  "state": "slice-018-plan-approved-pending-draft-tests",
+  "state": "slice-018-impl-complete-pending-gates-finais",
   "slice_018_pipeline": {
     "scope": "B-036 + B-037 + B-038 + B-041 (harness — CI regression + bias-free audit + schema uniformity + paths contract)",
     "spec_status": "approved-round-8 (tecnicamente approved; 8 rodadas de audit resultaram em 0 S1-S3, ultimo S4 jq corrigido)",
@@ -508,7 +508,7 @@
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "Slice 018 com spec + plan + plan-review approved. Nova sessao: rodar /draft-tests 018 em contexto limpo (commit 7809694). Builder modo test-writer gera 14+ arquivos de teste RED com AC-ID rastreavel (ADR-0017). Depois /audit-tests-draft 018 (qa-expert, contexto isolado). Depois implementer T01-T16 (16 tasks) para virar tests green. Apos impl: 5 gates finais + master-audit dual-LLM + merge-slice. Escopo: B-036 (CI regression), B-037 (bias-free audit), B-038 (schema uniformity), B-041 (paths contract). 13 artefatos novos + 15 atualizados. Risco principal: merge-slice.sh selado — PM precisa rodar relock-harness.sh manual pos-merge (T14 no plan).",
+  "next_recommended_action": "Slice 018 TOTALMENTE IMPLEMENTADO — 16/16 tasks, 137/137 tests green (HEAD bba79e8). Nova sessao: disparar 5 gates finais em paralelo (verify, code-review, security-gate, audit-tests, functional-gate). Depois master-audit dual-LLM 2x Opus 4.7 isolado. Depois /merge-slice 018 — CUIDADO: merge-slice.sh hardcoded espera 'code-review' no required_gates, mas slice 018 emite 'review' (enum canonico). Opcoes: (a) slice 018 emite valores legacy durante seu proprio merge, (b) admin-bypass do owner, (c) editar manifesto temporariamente. PM precisa executar relock-harness.sh manual pos-merge para que slices 019+ usem canonico.",
   "pending_harness_fixes": {
     "B-036": "docs/guide-backlog.md — regressao automatica de testes (CI full em PR + smoke pre-push + politica arquivos compartilhados). Evidencia: slice 017 quebrou slice 016 silenciosamente (ac-001-dev-server) ate PM pedir validacao manual.",
     "B-037": "docs/guide-backlog.md — auditoria/re-auditoria sem bias (perimetro livre na 1a vez; zero historico na 2a; set-difference no orchestrator). Evidencia: orchestrator desta sessao vazou bias no retry de truncagem (mandou JSON pronto do verify ao inves de deixar auditor investigar)."
