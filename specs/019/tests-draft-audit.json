@@ -1,0 +1,140 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "audit-tests-draft",
+  "slice": "019",
+  "lane": "L2",
+  "agent": "qa-expert",
+  "mode": "audit-tests-draft",
+  "verdict": "approved",
+  "timestamp": "2026-04-18T00:00:00Z",
+  "commit_hash": "1b8fcb6",
+  "isolation_context": "slice-019-audit-tests-draft-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings": [],
+  "criteria_results": {
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": true,
+    "5": true,
+    "6": true,
+    "7": true
+  },
+  "evidence": {
+    "checks": {
+      "every_ac_has_test": true,
+      "every_test_references_ac": true,
+      "tests_are_red": true,
+      "assertions_have_semantic_meaning": true,
+      "mocks_respect_ac_integration_level": true,
+      "no_duplicate_tests": true,
+      "edge_cases_from_spec_covered": true
+    },
+    "ac_coverage_map": {
+      "AC-001": {
+        "tests": [
+          "tests/slice-019/AC001InstallIdempotentTest.php::AC-001 install-git-hooks.sh existe",
+          "tests/slice-019/AC001InstallIdempotentTest.php::AC-001.a cria .git/hooks/pre-push referenciando pre-push-native.sh",
+          "tests/slice-019/AC001InstallIdempotentTest.php::AC-001.b SHA-256 identico entre execucoes",
+          "tests/slice-019/AC001InstallIdempotentTest.php::AC-001.c 1a impressao installed: 2a already-current:"
+        ],
+        "trace_method": "docblock_covers_annotation + describe_name + filename_ACNNN"
+      },
+      "AC-002": {
+        "tests": [
+          "tests/slice-019/AC002PrePushNativeBlocksMainTest.php::AC-002 pre-push-native.sh existe",
+          "tests/slice-019/AC002PrePushNativeBlocksMainTest.php::AC-002 bloqueia refs/heads/main exit!=0",
+          "tests/slice-019/AC002PrePushNativeBlocksMainTest.php::AC-002 bloqueia refs/heads/master exit!=0",
+          "tests/slice-019/AC002PrePushNativeBlocksMainTest.php::AC-002 permite push em branch feature exit 0"
+        ],
+        "trace_method": "docblock_covers_annotation + describe_name + filename_ACNNN"
+      },
+      "AC-003": {
+        "tests": [
+          "tests/slice-019/AC003SessionStartReinstallTest.php::AC-003 session-start.sh existe",
+          "tests/slice-019/AC003SessionStartReinstallTest.php::AC-003 contem bloco install-git-hooks.sh --silent",
+          "tests/slice-019/AC003SessionStartReinstallTest.php::AC-003 referencia pre-push-native.sh na checagem",
+          "tests/slice-019/AC003SessionStartReinstallTest.php::AC-003 emite [session-start] reinstalled git hook",
+          "tests/slice-019/AC003SessionStartReinstallTest.php::AC-003 sandbox logica reinstalacao em repo temp"
+        ],
+        "trace_method": "docblock_covers_annotation + describe_name + filename_ACNNN"
+      },
+      "AC-004": {
+        "tests": [
+          "tests/slice-019/AC004NativeHookBlocksPushTest.php::AC-004 dependencias existem",
+          "tests/slice-019/AC004NativeHookBlocksPushTest.php::AC-004 push em main via git push direto bloqueado"
+        ],
+        "trace_method": "docblock_covers_annotation + describe_name + filename_ACNNN"
+      },
+      "AC-005": {
+        "tests": [
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 ci.yml existe",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 job tenant-isolation presente",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem app/Models/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem app/Http/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem app/Services/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem app/Domain/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem app/Jobs/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem database/migrations/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem tests/slice-011/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter contem tests/tenant-isolation/**",
+          "tests/slice-019/AC005CiPathsFilterTest.php::AC-005 paths filter NAO contem app/Livewire/**"
+        ],
+        "trace_method": "docblock_covers_annotation + describe_name + filename_ACNNN"
+      },
+      "AC-006": {
+        "tests": [
+          "tests/slice-019/AC006CheckerOutputTest.php::AC-006 check-tenant-filter-coverage.sh existe e executavel",
+          "tests/slice-019/AC006CheckerOutputTest.php::AC-006.d exit code SEMPRE 0",
+          "tests/slice-019/AC006CheckerOutputTest.php::AC-006.c output usa prefixo uncovered:",
+          "tests/slice-019/AC006CheckerOutputTest.php::AC-006.a+b parseia paths ci.yml e compara com ls app/",
+          "tests/slice-019/AC006CheckerOutputTest.php::AC-006.e subdir com tenant marca [SUSPECT]"
+        ],
+        "trace_method": "docblock_covers_annotation + describe_name + filename_ACNNN"
+      },
+      "AC-007": {
+        "tests": [
+          "tests/slice-019/AC007DocsRequirementsSectionTest.php::AC-007 documentation-requirements.md existe",
+          "tests/slice-019/AC007DocsRequirementsSectionTest.php::AC-007 secao Camadas sensiveis a tenant isolation presente",
+          "tests/slice-019/AC007DocsRequirementsSectionTest.php::AC-007.a secao declara camada deve ir ao paths filter",
+          "tests/slice-019/AC007DocsRequirementsSectionTest.php::AC-007.b secao aponta para check-tenant-filter-coverage.sh",
+          "tests/slice-019/AC007DocsRequirementsSectionTest.php::AC-007.c secao referencia ADR-0016"
+        ],
+        "trace_method": "docblock_covers_annotation + describe_name + filename_ACNNN"
+      }
+    },
+    "test_run_summary": {
+      "total_tests": 7,
+      "red_as_expected": 7,
+      "unexpectedly_passing": 0,
+      "parse_errors": 0,
+      "red_reason_per_ac": {
+        "AC-001": "scripts/install-git-hooks.sh nao existe (No such file or directory confirmado)",
+        "AC-002": "scripts/hooks/pre-push-native.sh nao existe (No such file or directory confirmado)",
+        "AC-003": "session-start.sh nao contem install-git-hooks.sh (grep retornou 0)",
+        "AC-004": "install-git-hooks.sh + pre-push-native.sh inexistentes",
+        "AC-005": "ci.yml contem app/Livewire/** (4 ocorrencias) e nao contem app/Services/** (0 ocorrencias)",
+        "AC-006": "scripts/check-tenant-filter-coverage.sh nao existe (No such file or directory confirmado)",
+        "AC-007": "secao Camadas sensiveis a tenant isolation ausente em documentation-requirements.md"
+      }
+    },
+    "unlinked_tests": [],
+    "trivial_assertions": [],
+    "duplicate_tests": [],
+    "notes": [
+      "AC-003 usa estrategia grep+sandbox para arquivo selado (session-start.sh/MANIFEST.sha256). Limitacao documentada no manifesto como T-14 relock pelo PM. Dentro do escopo.",
+      "AC-004 usa bare repo temp como remote simulado. Spec declara equivalencia via bash -c git push origin main. Nao toca repo real.",
+      "AC-006.e cria e limpa diretorio efemero app/TestSuspectSliceOneNine_tmp/ no finally. Isolamento correto.",
+      "AC-002 inclui cenario negativo (feature branch permitido) alem dos cenarios de bloqueio. Edge case da spec coberto.",
+      "4 mecanismos de rastreabilidade por arquivo: docblock de topo, docblock por test(), describe() name, filename ACNNN."
+    ]
+  },
+  "metadata": {
+    "audit_timestamp": "2026-04-18T00:00:00Z",
+    "agent": "qa-expert",
+    "mode": "audit-tests-draft",
+    "model": "claude-sonnet-4-6"
+  }
+}
