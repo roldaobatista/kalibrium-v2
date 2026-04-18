@@ -8,6 +8,16 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-036] Regressão gate automática — CI full em PR + smoke suite no pre-push
+
+- **Origem:** sessão slice-017 (2026-04-17). PM identificou lacuna sistêmica: harness atual só roda testes do slice ativo (`mechanical-gates.sh` chama `ac-tests.sh slice-NNN`), o que permite que slices novos quebrem silenciosamente slices anteriores.
+- **Evidência concreta:** slice 017 modificou `src/main.tsx` + `src/sw-registration.ts` adicionando registro de Service Worker. O teste `tests/e2e/ac-001-dev-server.spec.ts` (slice 016) passou a falhar com `The script has an unsupported MIME type ('text/html')` porque o SW tentava registrar em Vite dev mode (onde `/sw.js` não existe). Regressão **não foi detectada** por nenhum gate existente — só apareceu quando o PM pediu validação manual com `KALIB_E2E_MODE=dev npx playwright test`. Corrigido em commit `0aed77f` (guard `import.meta.env.PROD`).
+- **Ação (proposta D — 2 camadas):**
+  1. **CI em PR (bloqueante):** `.github/workflows/test-regression.yml` roda `npm run test:scaffold` + `npx playwright test` (ambos projects dev/preview) em todo push para branch de PR. Ruleset de `main` já bloqueia merge se o workflow falhar. Repo já público desde 2026-04-15 (sem constrangimento de Actions quota).
+  2. **Smoke suite no pre-push:** tag `@smoke` em testes críticos (aprox. 10-15 cobrindo jornadas: login, CRUD cliente, scaffold render, PWA offline, auth). `scripts/smoke-tests.sh` lista arquivos tagueados e roda no pre-push hook. Rápido (<30s). Adicional: `slice-report.sh` passa a mostrar seção "regressão checada: X/Y testes de slices anteriores passaram".
+  3. **Política:** todo slice que tocar arquivo compartilhado (`src/main.tsx`, `vite.config.ts`, `package.json`, `capacitor.config.ts`, qualquer `src/auth/*`, qualquer `app/Http/Controllers/*`) obriga rodar smoke suite local antes do commit. Implementer valida em pré-commit-gate.sh via detecção de paths tocados.
+- **Status:** aberto. Prioridade **alta**. Bloqueia próximo slice (E15-S04 ou onde for) até que pelo menos a camada 1 (CI em PR) esteja ativa.
+
 ### [B-034] `audit-spec` deve alertar para ACs que exigem destruição de feature sem substituto agendado
 
 - **Origem:** retrospectiva do slice-016 (`docs/retrospectives/slice-016.md` §"Gates que deveriam ter disparado e não dispararam").
