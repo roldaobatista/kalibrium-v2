@@ -8,6 +8,54 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-046] Mutation testing (Infection PHP + Stryker JS)
+
+- **Origem:** análise de fragilidade do harness 2026-04-18 (ponto #5). Teste pode existir e ser fraco (passar sem asserção útil). `audit-tests-draft` (ADR-0017) detecta rastreabilidade AC→teste mas não qualidade semântica das asserções.
+- **Risco concreto:** um teste `expect(true).toBe(true)` passa pela rastreabilidade `@covers AC-NNN` mas não protege nada. Mutação do código fonte deveria quebrar o teste; se não quebrar, o teste é decorativo.
+- **Ação:** ADR sobre budget de CI (mutation testing é caro — tipicamente 10-60min). Integrar Infection (PHP) + Stryker (JS/TS). Rodar em PR apenas em arquivos tocados, não baseline completo. Threshold mínimo de mutation score (60-70% como começo) como gate não-bloqueante (S4) escalando para bloqueante (S2) após 3 slices.
+- **Status:** aberto. Prioridade **baixa** (nice-to-have). Alvo: slice-020.
+
+### [B-045] Visual regression testing (Playwright screenshots)
+
+- **Origem:** análise de fragilidade do harness 2026-04-18 (ponto #4). Playwright instalado mas zero uso de `toMatchSnapshot`/`toHaveScreenshot`. Mudança de CSS pode quebrar layout sem teste falhar.
+- **Risco concreto:** qualquer refactor de Ionic/React component pode deslocar layout, mudar tipografia, quebrar responsividade — e todos os testes lógicos continuam verdes.
+- **Ação:** habilitar `toHaveScreenshot` em Playwright. Storage de baselines em `tests/visual/__screenshots__/` com convenção por browser+viewport. ADR sobre: (a) update workflow (`--update-snapshots` bloqueado em main, permitido só em PR dedicado); (b) política de review de diffs visuais (ou auto-approve por similaridade ≥ 99.5%); (c) storage (git LFS ou artefato separado).
+- **Status:** aberto. Prioridade **média** (vai doer quando frontend complexar). Alvo: slice-020.
+
+### [B-044] CI gate "AC sem teste reprova" sobre histórico
+
+- **Origem:** análise de fragilidade do harness 2026-04-18 (ponto #3). `audit-tests-draft` (ADR-0017) valida rastreabilidade AC→teste **antes da implementação**. Não há equivalente que rode no CI sobre o histórico do repo.
+- **Risco concreto:** se alguém (agente ou humano) mergear commit de código de produção sem teste correspondente, nada pega. Rastreabilidade ADR-0017 vira documento de boas intenções, não gate executável.
+- **Ação:** script `scripts/check-ac-coverage.sh` que: (a) lê specs/*/spec.md, extrai todos os `AC-NNN` declarados e mapeia para `story_id`; (b) grep `@covers AC-NNN` em `tests/**`; (c) reprova se qualquer AC declarado em spec mergeada não tem teste encontrado. Integrar em novo job de `test-regression.yml` ou novo workflow. Edge case: ACs abandonados/edge com `@skip` explícito no spec.
+- **Status:** aberto. Prioridade **média**. Alvo: slice-020.
+
+### [B-043] Paths filter do tenant-isolation dinâmico + limpo
+
+- **Origem:** análise de fragilidade do harness 2026-04-18 (ponto #7). `.github/workflows/ci.yml` linhas 456-460 listam paths estáticos do filter do job `tenant-isolation`: `app/Models/**`, `app/Http/**`, `app/Livewire/**`, `app/Jobs/**`, `tests/slice-011/**`.
+- **Duplo problema:**
+  1. **Defasado:** `app/Livewire/**` foi demolido no slice 016 (ADR-0015, frontend Livewire removido). Filter lista área morta.
+  2. **Estático:** se surgir `app/Services/Tenant/`, `app/Domain/Tenant/`, ou qualquer camada nova sensível ao isolamento, ninguém é lembrado de atualizar o filter. Área escapa do gate silenciosamente.
+- **Ação:**
+  - **Fix imediato (slice-019):** remover `app/Livewire/**`; adicionar `app/Services/**`, `app/Domain/**`, `database/migrations/**` (qualquer migration que adiciona coluna sem `tenant_id` é risco).
+  - **Política (slice-019):** adicionar seção em `docs/documentation-requirements.md` ou em `docs/protocol/07-politica-excecoes.md`: toda nova camada de código de produção deve declarar no commit ou ADR se é sensível a tenant isolation e atualizar o filter.
+  - **Enforcement mecânico (slice-019):** script `scripts/check-tenant-filter-coverage.sh` que compara `ls app/` vs. lista do filter e warna (não bloqueia inicialmente) quando há diretório fora do filter que parece sensível (heurística: contém `.php` + referencias a `tenant` ou Model). Pode virar bloqueante em slice futuro.
+- **Status:** aberto. Prioridade **alta**. Alvo: slice-019 (fix barato, risco latente alto).
+
+### [B-042] Hook git nativo pre-push + pre-commit + orquestrador
+
+- **Origem:** análise de fragilidade do harness 2026-04-18 (ponto #6). `scripts/hooks/pre-push-gate.sh` é `PreToolUse Bash(git push*)` hook do Claude Code — só dispara quando o **agente** roda `git push`. Push fora do Claude Code (PM via terminal, workflow dispatch do GitHub, outro agente) escapa toda a rede.
+- **Evidência:** `ls .git/hooks/pre-push` → "No such file or directory". Nenhum hook git nativo instalado.
+- **Risco concreto:** atualmente funciona porque PM não pusha direto. Mas:
+  - Qualquer `.bat` que o PM rode pode chamar `git push` fora do agente.
+  - GitHub Actions workflow_dispatch pode fazer push fora do agente.
+  - Outro Claude session sem esse harness específico escapa.
+- **Ação:**
+  - Script `scripts/install-git-hooks.sh` idempotente que instala `.git/hooks/pre-push` + `.git/hooks/pre-commit` apontando para os scripts de `scripts/hooks/` (PreToolUse + versão native bridge).
+  - Invocação automática em `scripts/hooks/session-start.sh` (se hook não está instalado, instalar silenciosamente — não bloqueia sessão).
+  - AC: deletar manualmente `.git/hooks/pre-push` e abrir nova sessão → hook é reinstalado.
+  - AC: push fora do Claude Code (simulado: `cmd /c git push`) bloqueia se tentar pushar em main sem PR.
+- **Status:** aberto. Prioridade **alta**. Alvo: slice-019 (fix barato, risco latente alto).
+
 ### [B-041] Contrato de paths explícito para sub-agents
 
 - **Origem:** retrospectiva do slice-017 (2026-04-18). qa-expert falhou em 2 tentativas por tentar path `frontend/` que não existe neste repo.
