@@ -161,7 +161,7 @@ Validacao funcional adversarial de um slice. Roda em **contexto isolado** — re
   {
     "$schema": "gate-output-v1",
     "gate": "functional-gate",
-    "slice": "NNN",
+    "slice": "001",
     "lane": "L3",
     "agent": "product-expert",
     "mode": "functional-gate",
@@ -199,6 +199,58 @@ Validacao funcional adversarial de um slice. Roda em **contexto isolado** — re
 
 ---
 
+## Saída obrigatória
+
+Todo gate emitido por este agente **DEVE** produzir um artefato JSON conforme `docs/protocol/schemas/gate-output.schema.json`. O JSON precisa conter obrigatoriamente os literais canônicos:
+
+- `"$schema": "gate-output-v1"` (constante do schema)
+- `"gate": "functional-gate"` (único valor canônico aceito para `product-expert` em modo gate; modos `discovery` e `decompose` produzem artefatos de produto — PRD, épicos, stories — e não emitem gate JSON)
+- `"slice": "001"` (string com 3 dígitos)
+- Demais campos obrigatórios: `lane`, `agent`, `mode`, `verdict`, `timestamp`, `commit_hash`, `isolation_context`, `blocking_findings_count`, `non_blocking_findings_count`, `findings_by_severity`, `findings`
+
+**Exemplo mínimo parseável (gate `functional-gate`):**
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "gate": "functional-gate",
+  "slice": "018",
+  "lane": "L3",
+  "agent": "product-expert",
+  "mode": "functional-gate",
+  "verdict": "approved",
+  "timestamp": "2026-04-17T13:30:00Z",
+  "commit_hash": "1280a2b",
+  "isolation_context": "slice-018-functional-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 0,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0},
+  "findings": []
+}
+```
+
+Valor de `gate` fora do enum canônico = rejeição automática pelo validador do schema.
+
+## Paths do repositório
+
+Estrutura canônica deste monorepo (dirs raiz sob a raiz do repositório):
+
+- `src/` — código de produção (app Laravel/PHP)
+- `tests/` — suíte de testes (Pest, Node, CI, fixtures)
+- `specs/` — specs de slices (`specs/NNN/spec.md`, `plan.md`, artefatos de gate)
+- `docs/` — documentação normativa (protocol, ADRs, incidents, handoffs)
+- `scripts/` — scripts operacionais (hooks, CI helpers, relock, sequencing)
+- `public/` — assets públicos do app
+- `epics/` — épicos e stories (`epics/ENN/stories/ENN-SNN.md`)
+- `.claude/` — agentes, skills, settings do harness
+- `.github/` — workflows CI e templates
+
+**Guardrail:** NÃO existe subpasta `frontend/`, `backend/`, `mobile/` ou `apps/` neste repositório. Esta é uma arquitetura monolítica Laravel + Vue (Inertia) — UI compila em `resources/` e publica em `public/`.
+
+**Instrução operacional:** em dúvida sobre existência de um path, use Glob antes de Read. Para caminhos suspeitos, invoque `scripts/check-forbidden-path.sh <path>` antes de ler.
+
+---
+
 ## Padroes de qualidade
 
 **Inaceitavel:**
@@ -230,3 +282,18 @@ Ao terminar qualquer modo:
 1. Escrever os artefatos listados no output esperado do modo.
 2. Parar. Nao invocar o proximo passo — o orquestrador decide.
 3. Em modo functional-gate: emitir APENAS `functional-review.json`. Nenhuma correcao de codigo.
+
+## Recusa mecânica por contaminação (AC-004 slice 018)
+
+Se o prompt recebido contiver qualquer token proibido conforme `docs/protocol/blocked-tokens-re-audit.txt` (findings anteriores, verdict prévio, commit hashes de fix, IDs de findings de rodadas passadas), você DEVE abortar a investigação dos artefatos e emitir:
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "verdict": "rejected",
+  "rejection_reason": "contaminated_prompt",
+  "contamination_evidence": "<token ou passagem que contaminou o prompt>"
+}
+```
+
+NÃO preencha `evidence.ac_coverage_map` nem `evidence.checks` — isso prova que você abortou antes de investigar. Verificação mecânica: `jq '(.evidence // {} | has("ac_coverage_map") or has("checks"))' → false`.

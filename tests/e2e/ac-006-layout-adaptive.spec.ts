@@ -16,7 +16,7 @@ const VIEWPORTS = [
 
 test.describe('AC-006: /home has no horizontal overflow on mobile and desktop viewports', () => {
     for (const vp of VIEWPORTS) {
-        test(`AC-006: viewport ${vp.label} — scrollWidth <= clientWidth`, async ({ page, baseURL }) => {
+        test(`AC-006: viewport ${vp.label} — scrollWidth <= clientWidth @smoke`, async ({ page, baseURL }) => {
             await page.setViewportSize({ width: vp.width, height: vp.height });
 
             const response = await page.goto(`${baseURL}/home`, { waitUntil: 'networkidle' });

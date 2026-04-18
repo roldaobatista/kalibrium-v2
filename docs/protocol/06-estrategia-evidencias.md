@@ -275,3 +275,48 @@ Telemetria operacional (tempos, contagens, metricas de processo) deve ser regist
 | D→E (code ready) | Testes verdes + codigo commitado | builder |
 | E→merge | TODOS gates approved (zero S1-S3) + master-audit approved | governance |
 | F (retrospective) | `docs/retrospectives/epic-ENN.md` + `docs/governance/harness-learner-ENN.md` | governance |
+
+---
+
+## 6. Auditoria sem bias (re-audit cego) — ADR slice 018
+
+Auditoria inaugural e re-auditoria de um mesmo gate dentro de um slice seguem regras distintas para preservar R3/R11 (contextos isolados, decisão independente).
+
+### 6.1 Princípio
+
+- **1ª auditoria (inaugural):** auditor recebe o perímetro funcional completo (story + slice + paths-raiz autorizados) e decide onde investigar. Perímetro livre.
+- **Re-auditoria (rodadas ≥ 2 do mesmo gate):** auditor recebe **o mesmo prompt inaugural, menos qualquer menção a rodadas anteriores**. Não deve saber que é re-auditoria.
+
+### 6.2 Artefatos versionados
+
+- `docs/protocol/audit-prompt-template.md` — template obrigatório com 6 campos: `story_id`, `slice_id`, `mode`, `perimeter_files`, `criteria_checklist`, `output_contract`.
+- `docs/protocol/blocked-tokens-re-audit.txt` — lista fechada de tokens proibidos em re-auditoria (findings anteriores, verdicts prévios, commit hashes de fix, IDs de findings, `rodada N`).
+- `scripts/validate-audit-prompt.sh --mode=(1st-pass|re-audit) <prompt-file>` — validator mecânico (exit 0 = limpo, exit 1 = contaminação com linha+token reportados).
+
+### 6.3 Set-difference entre rodadas (orchestrator, não auditor)
+
+Após cada rodada de re-auditoria, o orchestrator compara findings antigos e atuais por **assinatura semântica** (`categoria + descrição_normalizada + path_sem_linha`) via `scripts/audit-set-difference.sh --previous <a.json> --current <b.json>`:
+
+- `resolved = prévios \ atuais` — findings fechados pelo fixer
+- `unresolved = prévios ∩ atuais` — findings que persistem (fixer precisa trabalhar de novo)
+- `new = atuais \ prévios` — findings novos (regressão ou gap do auditor anterior)
+
+### 6.4 Recusa mecânica pelo sub-agent
+
+Se um auditor detectar um token proibido no prompt apesar do validator (ex.: paráfrase criativa), o agent file instrui recusa antes de investigar artefatos:
+
+```json
+{
+  "verdict": "rejected",
+  "rejection_reason": "contaminated_prompt",
+  "contamination_evidence": "<token ou passagem>"
+}
+```
+
+O JSON passa pelo `validate-gate-output.sh` (schema-valid) e NÃO contém campos `evidence.ac_coverage_map` nem `evidence.checks` — provando abort antes de investigar (verificável via `jq '(.evidence // {} | has("ac_coverage_map") or has("checks"))' → false`).
+
+### 6.5 Trade-offs
+
+- **Custo:** auditoria inaugural ampla = mais tokens. Aceitável — viés custa mais caro (findings perdidos ou carimbados).
+- **Set-difference semântico** é frágil quando fix move código entre arquivos. Normalização padrão (lowercase + trim + remove linenum) + tolerância de 5% de falso positivo aceita como dívida conhecida.
+- **Retry por truncagem** respeita princípio: nova instância recebe o mesmo prompt original (mais imperativo), nunca a resposta pronta. R6 aplica (5 truncagens → escalar PM com prompt em texto puro).

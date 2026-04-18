@@ -1,0 +1,157 @@
+{
+  "$schema": "gate-output-v1",
+  "slice": "018",
+  "gate": "master-audit",
+  "lane": "L3",
+  "agent": "governance",
+  "mode": "master-audit",
+  "track": "B",
+  "model": "opus-4.7",
+  "verdict": "approved",
+  "timestamp": "2026-04-18T11:15:00Z",
+  "commit_hash": "4cdfdee",
+  "isolation_context": "slice-018-master-audit-trilha-B-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 2,
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 1,
+    "S5": 1
+  },
+  "findings": [
+    {
+      "id": "MA-B-018-001",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "category": "cross-gate-consistency",
+      "description": "Slice carrega cumulativamente 4 S4 + 1 S5 vindos dos 5 gates (code-review 3, security 0 tecnicos + 2 S4 hardening, functional 1 S4 + 1 S5). Nenhum converte em S3. F-003 do code-review (jq gsub usa \\d que jq nao suporta — correto seria [0-9]) e o mais concreto: bug real em audit-set-difference.sh:57 mas nao-bloqueante porque (a) a normalizacao ainda reduz parte do ruido, (b) R2 do spec aceitou 5% falso match como divida, (c) os 7/7 testes em audit-set-difference.test.cjs passam porque nenhuma fixture carrega sufixo :linha real — gap de cobertura que mascarou o bug cross-gate.",
+      "file": "scripts/audit-set-difference.sh:57",
+      "evidence": "review.json F-003 aponta bug real em jq gsub; test-audit.json aprova 7/7 sem fixture com sufixo :linha — gap emerge so consolidando code-review + test-audit.",
+      "recommendation": "Registrar F-003 como debito explicito em project-state.json; adicionar fixture com finding.file='src/x.ts:42' em slice de manutencao futura; fix e one-liner. Nao bloqueia merge do slice 018."
+    },
+    {
+      "id": "MA-B-018-002",
+      "severity": "S5",
+      "severity_label": "advisory",
+      "gate_blocking": false,
+      "category": "operational-handoff",
+      "description": "AC-006 'partial' no functional-gate — validate-gate-output.sh valida upstream, mas scripts/merge-slice.sh selado ainda tem required_gates legacy. PM precisa executar relock-harness.sh pos-merge conforme specs/018/merge-slice-update-manifest.md. Risco cross-cutting invisivel em gates isolados: cada um assumiu seu perimetro (verify testa script, code-review respeita selo, functional aceita como divida, security fora do assunto, audit-tests aprova mapping). So a consolidacao torna visivel o risco de PM esquecer o relock e travar slice-019.",
+      "file": "specs/018/merge-slice-update-manifest.md",
+      "evidence": "functional-review F-002 S5 + impl-notes linhas 73-74 + plan D8. Gap de captura cruzada — nenhum gate isolado reportou handoff.",
+      "recommendation": "Orchestrator deve: (a) bloquear slice-019 ate PM confirmar execucao do manifesto via checklist em docs/handoffs/latest.md; (b) sequencing-check.sh passar a ler required_gates atual do merge-slice.sh e falhar se valores legacy ainda presentes na abertura do slice-019."
+    }
+  ],
+  "gates_consistency": {
+    "all_gates_approved": true,
+    "commit_hash_match": "4cdfdee em todos os 5 gates",
+    "isolation_contexts_unique": true,
+    "ac_coverage_agreement": {
+      "verify": "14/14 pass",
+      "audit_tests": "14/14 mapped",
+      "functional_gate": "13 delivered + 1 partial (AC-006)",
+      "note": "Divergencia AC-006 partial vs delivered e granularidade de perimetro legitima, nao inconsistencia."
+    },
+    "severity_totals_cross_gate": {
+      "S1_S2_S3": 0,
+      "S4_union": 4,
+      "S5_union": 4,
+      "blocking_count": 0
+    },
+    "spec_plan_impl_alignment": {
+      "spec_acs": 14,
+      "plan_tasks": 16,
+      "plan_decisions": 11,
+      "impl_tasks_completed": 16,
+      "implementation_divergences": [
+        "T14 manifesto duplicado em docs/incidents/ e specs/018/ (documentado em impl-notes)",
+        "validate-audit-prompt.sh trocou grep -iF por awk IGNORECASE (fix Git Bash Windows, documentado)",
+        "Fixtures re-audit expandidas alem do plano (beneficio adicional)"
+      ],
+      "divergences_are_documented": true,
+      "divergences_are_justifiable": true
+    },
+    "debts_inventoried": {
+      "S4_documented": [
+        "review F-001 detect-shared refactor clareza",
+        "review F-002 regex commit-hash heuristico (alinhado com R2 spec)",
+        "review F-003 jq \\d->[0-9] bug real (MA-B-018-001)",
+        "functional F-001 CI ambiental (mesmo padrao slice-017)"
+      ],
+      "S5_documented": [
+        "functional F-002 relock pendente",
+        "security SEC-018-001 supply-chain pin major-tag",
+        "security SEC-018-002 case glob forbidden-paths",
+        "MA-B-018-002 handoff relock consolidado"
+      ],
+      "all_debts_have_owner_and_trigger": true
+    },
+    "cross_cutting_risks_captured": {
+      "supply_chain_ci": "security SEC-018-001",
+      "shell_injection_scripts": "security audit completa em 7 scripts",
+      "selo_preservation": "code-review confirma merge-slice.sh nao editado",
+      "handoff_relock_merge_slice": "MA-B-018-002 (gap so visivel consolidando cross-gate)"
+    }
+  },
+  "evidence": {
+    "dual_llm": {
+      "track": "B",
+      "model": "opus-4.7",
+      "verdict": "approved",
+      "summary": "Trilha B aprova com 2 findings nao-bloqueantes (1 S4 + 1 S5). Zero S1-S3 cross-gate. Slice entrega B-036/B-037/B-038/B-041 integralmente; AC-006 parcial por selo justificado (fail-closed). F-003 (jq gsub \\d) e bug real mas aceita como divida por R2 do spec (5% falso match tolerado). Risco de handoff do relock consolidado como MA-B-018-002 — cada gate isolado viu seu perimetro, so cross-gate torna visivel."
+    },
+    "consolidated_summary": "Slice 018 aprovado Trilha B. 14 ACs (13 plenos + 1 parcial fail-closed), 137/137 testes GREEN, 5 gates individuais approved, zero S1-S3 cross-gate. Merge recomendado com pre-requisito: orchestrator bloqueia slice-019 ate PM confirmar relock do merge-slice.sh.",
+    "referenced_artifacts": [
+      {
+        "gate": "verify",
+        "path": "specs/018/verification.json",
+        "sha256": "bac91d74d9be320b24d635f7876a507f4f477bc16e64c8db30e72f29fb45fb48",
+        "read_at": "2026-04-18T11:10:00Z"
+      },
+      {
+        "gate": "code-review",
+        "path": "specs/018/review.json",
+        "sha256": "30594ab663e4aa2dc0cdb97dd0069ad7e116e06350d30f0984e7769c4eb5ec3e",
+        "read_at": "2026-04-18T11:10:05Z"
+      },
+      {
+        "gate": "security-gate",
+        "path": "specs/018/security-review.json",
+        "sha256": "034ecad50804d18dcb5a98af78c12c081fe2a48b7e2a4b65c5da9ed97abdea44",
+        "read_at": "2026-04-18T11:10:10Z"
+      },
+      {
+        "gate": "audit-tests",
+        "path": "specs/018/test-audit.json",
+        "sha256": "15b249284532dc931b7ab36d30a69ab31c519599d5318d901c22658af2baca69",
+        "read_at": "2026-04-18T11:10:15Z"
+      },
+      {
+        "gate": "functional-gate",
+        "path": "specs/018/functional-review.json",
+        "sha256": "abb06f8128fe14c380fdb062b30305dba58b47903b5513b9e90c615df68db63f",
+        "read_at": "2026-04-18T11:10:20Z"
+      },
+      {
+        "gate": "spec",
+        "path": "specs/018/spec.md",
+        "sha256": "a15c8604df1d7595bab90b3c8004835849cca2bb82025e22a790f330556b06e2",
+        "read_at": "2026-04-18T11:10:25Z"
+      },
+      {
+        "gate": "plan",
+        "path": "specs/018/plan.md",
+        "sha256": "79e7211bf97365308b0d05fa1d84e8e7e45ca12a98df0ad10f920c90b4571ba2",
+        "read_at": "2026-04-18T11:10:30Z"
+      },
+      {
+        "gate": "impl-notes",
+        "path": "specs/018/impl-notes.md",
+        "sha256": "dec49a11dad4c005ed1c902629a5db1d60c26f26755ed3b2c2109f25b7e2c3bd",
+        "read_at": "2026-04-18T11:10:35Z"
+      }
+    ]
+  }
+}

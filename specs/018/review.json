@@ -1,0 +1,91 @@
+{
+  "$schema": "gate-output-v1",
+  "slice": "018",
+  "gate": "code-review",
+  "agent": "architecture-expert",
+  "mode": "code-review",
+  "lane": "L3",
+  "verdict": "approved",
+  "timestamp": "2026-04-18T00:30:00Z",
+  "commit_hash": "4cdfdee",
+  "isolation_context": "slice-018-code-review-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 3,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 3, "S5": 0},
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "detect-shared-file-change.sh: quando ocorre match na lista SHARED_FILES, o loop interno usa break que sai apenas do for interno; o segundo `[ \"$shared_changed\" = \"true\" ] && break` garante saida do while, mas o fluxo depende desse guard duplicado. Funcional, porem fragil a manutencao: extrair helper ou usar return ao encontrar primeiro match melhoraria leitura.",
+      "file": "scripts/detect-shared-file-change.sh",
+      "line": 49,
+      "evidence": "linhas 43-60: 2 loops com break interno + guards duplicados para sair do while externo.",
+      "recommendation": "Refatorar para funcao `is_shared(line)` retornando 0/1; while loop sai no primeiro true sem flag compartilhada."
+    },
+    {
+      "id": "F-002",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "validate-audit-prompt.sh re-audit: regex de commit-hash adjacente a 'fix|correcao|corrigir' e heuristica; a classe `[^\\n]*` nao garante adjacencia real (pode casar hash no fim de arquivo apos dezenas de chars de outra linha devido ao grep -E tratar linha a linha, o que mitiga, mas a mensagem de erro agrega todos os hits como 'commit hash de fix' podendo gerar falso positivo para textos tecnicos.",
+      "file": "scripts/validate-audit-prompt.sh",
+      "line": 120,
+      "evidence": "grep -inE com alternancia de duas direcoes usando [^\\n]* — tolerante mas ruidoso.",
+      "recommendation": "Adicionar teste fixture com texto falso positivo (ex.: SHA de biblioteca) e documentar tolerancia aceita (similar a R2 do spec)."
+    },
+    {
+      "id": "F-003",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "audit-set-difference.sh: NORMALIZE_FILTER usa regex `:\\d+$` em jq — jq nao suporta \\d (requer [0-9]). Pode silenciosamente nao remover sufixo :linha e inflar diferenca.",
+      "file": "scripts/audit-set-difference.sh",
+      "line": 57,
+      "evidence": "linha 57: `gsub(\":\\\\d+$\"; \"\")` — em jq a sintaxe correta e `gsub(\":[0-9]+$\"; \"\")`.",
+      "recommendation": "Trocar `\\d` por `[0-9]` no regex jq e adicionar fixture com finding.file='src/x.ts:42' confirmando que sufixo e removido."
+    }
+  ],
+  "evidence": {
+    "review_dimensions": {
+      "architecture_follows_plan": true,
+      "responsibilities_clear": true,
+      "no_code_smells": true,
+      "patterns_correct": true,
+      "tenant_isolation": true,
+      "error_handling": true,
+      "adr_adherence": true
+    },
+    "max_cyclomatic_complexity": 6,
+    "max_class_length": 140,
+    "max_method_length": 60,
+    "duplications_found": 0,
+    "god_classes": [],
+    "fat_controllers": [],
+    "raw_sql_without_binding": [],
+    "business_logic_in_controllers": [],
+    "routes_without_middleware": [],
+    "unused_imports": [],
+    "adr_adherence_checked": ["CLAUDE.md §9 (sealed files)", "R3/R11 (isolation)", "R16 (harness-learner limits)"],
+    "scripts_set_euo_pipefail": 7,
+    "scripts_audited": [
+      "detect-shared-file-change.sh",
+      "smoke-tests.sh",
+      "check-forbidden-path.sh",
+      "validate-audit-prompt.sh",
+      "validate-gate-output.sh",
+      "audit-set-difference.sh",
+      "pre-push"
+    ],
+    "decisions_verified": ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11"],
+    "agent_files_with_saida_obrigatoria": 5,
+    "agent_files_with_paths_repositorio": 12,
+    "merge_slice_not_edited_directly": true,
+    "sealed_files_respected": true,
+    "protocol_docs_created": ["audit-prompt-template.md", "blocked-tokens-re-audit.txt", "forbidden-paths.txt"],
+    "ci_workflow_permissions_least_privilege": true,
+    "pre_push_fallback_first_push": true,
+    "summary": "Slice 018 implementa fielmente os 11 decisoes (D1-D11) do plan. Scripts seguem set -euo pipefail, convencoes Unix bem documentadas, mensagens de erro canonicas, exit codes coerentes (0 sucesso / 1 violacao / 2 erro de uso). Arquitetura respeita selo de merge-slice.sh via manifesto (D8). Enum de gates lido em runtime do schema canonico (D7 — single source of truth). Workflow CI com permissoes minimas (contents: read + pull-requests: read). Pre-push tem fallback gracioso para primeira push (sem upstream). 3 findings S4 nao-bloqueantes: (F-001) refator de clareza em detect-shared, (F-002) heuristica de regex de commit-hash com ruido aceito, (F-003) bug minor em regex jq \\d->[0-9] no set-difference. Zero findings S1-S3."
+  }
+}
