@@ -25,6 +25,30 @@ Jornada do orchestrator (agente, não usuário final): quando um slice novo é i
 
 Ao fim do slice-018, o orchestrator pode rodar um novo slice funcional sabendo que: (a) regressão cross-slice bloqueia merge, (b) re-auditoria é cega, (c) gates emitem schema pronto, (d) sub-agents vão direto aos paths certos.
 
+## Artefatos a criar neste slice
+
+Os ACs abaixo referenciam os seguintes artefatos novos — **todos são outputs deste slice** (não existem antes do merge):
+
+- `.github/workflows/test-regression.yml` — workflow de CI
+- `scripts/smoke-tests.sh` — runner de smoke suite local
+- `scripts/detect-shared-file-change.sh` — detector de toque em arquivos compartilhados
+- `scripts/check-forbidden-path.sh` — enforcer mecânico do contrato de paths
+- `scripts/validate-audit-prompt.sh` — validator de prompt (1st-pass e re-audit)
+- `scripts/validate-gate-output.sh` — validator de JSON de gate output
+- `scripts/audit-set-difference.sh` — comparador semântico entre rodadas
+- `docs/protocol/audit-prompt-template.md` — template obrigatório de prompt de auditoria
+- `docs/protocol/blocked-tokens-re-audit.txt` — lista fechada de tokens proibidos em re-auditoria
+- `docs/protocol/forbidden-paths.txt` — lista fechada de paths proibidos
+- Seção `## Saída obrigatória` adicionada em 5 agent files (`qa-expert.md`, `architecture-expert.md`, `security-expert.md`, `product-expert.md`, `governance.md`)
+- Seção `## Paths do repositório` adicionada em 12 agent files (todos em `.claude/agents/`)
+- Fixtures de teste: 3 JSON inválidos (1 por tipo de violação de schema) + prompts de auditoria contaminados (para teste do validator)
+
+Arquivos atualizados (não criados):
+
+- `scripts/pre-push` hook — passa a invocar `detect-shared-file-change.sh` + `smoke-tests.sh`
+- `scripts/merge-slice.sh` — passa a invocar `validate-gate-output.sh` como pré-check
+- `docs/protocol/06-estrategia-evidencias.md` — adiciona seção "Auditoria sem bias"
+
 ## Acceptance Criteria
 
 **Regra:** cada AC vira **pelo menos um** teste automatizado (P2).
@@ -33,8 +57,8 @@ Ao fim do slice-018, o orchestrator pode rodar um novo slice funcional sabendo q
 
 - **AC-001:** Dado um PR aberto com mudança em `src/` ou `tests/`, quando o push dispara CI, então o workflow `.github/workflows/test-regression.yml` executa `npm run test:scaffold` + `npx playwright test` (todos os projects: dev-chromium + chromium preview) e o status do PR vira `failure` se qualquer teste quebrar, bloqueando merge via ruleset.
 - **AC-001-A:** Dado um PR que quebra um teste de slice anterior (ex.: slice 016 após mudança de slice 017), quando CI roda, então o job falha explicitando o AC quebrado (`ac-001-dev-server`) e o log de CI aponta o arquivo violado.
-- **AC-002:** Dado que um commit toca um arquivo compartilhado (lista: `src/main.tsx`, `vite.config.ts`, `package.json`, `capacitor.config.ts`, `playwright.config.ts`, qualquer `.claude/settings*.json`), quando `pre-push` hook roda, então `scripts/smoke-tests.sh` executa a tag `@smoke` (10-15 testes críticos cobrindo: auth, scaffold render, PWA offline) e bloqueia push se falhar.
-- **AC-002-A:** Dado um commit que NÃO toca arquivo compartilhado, quando `pre-push` roda, então o smoke não é executado (performance — não bloqueia pushes frequentes de documentação).
+- **AC-002:** Dado que um commit toca um arquivo compartilhado (lista fechada em `scripts/detect-shared-file-change.sh`: `src/main.tsx`, `vite.config.ts`, `package.json`, `capacitor.config.ts`, `playwright.config.ts`, `.claude/settings*.json`), quando `pre-push` hook roda, então executa `scripts/detect-shared-file-change.sh` (compara `git diff --name-only @{push}..HEAD` contra a lista fixa; exit 0 = tocou, exit 1 = não tocou) e, se exit 0, dispara `scripts/smoke-tests.sh` que executa a tag `@smoke` (10-15 testes críticos cobrindo: auth, scaffold render, PWA offline) e bloqueia push se qualquer teste falhar.
+- **AC-002-A:** Dado um commit que NÃO toca arquivo compartilhado (`detect-shared-file-change.sh` retorna exit 1), quando `pre-push` roda, então o smoke não é executado — push prossegue direto. Teste: commit de 1 arquivo de `docs/` verifica que push passa sem disparar smoke.
 
 ### B-037 — Auditoria sem bias (re-audit cego)
 
@@ -72,7 +96,7 @@ Ao fim do slice-018, o orchestrator pode rodar um novo slice funcional sabendo q
   - lista exata de dirs raiz (`src/`, `tests/`, `specs/`, `docs/`, `scripts/`, `public/`, `epics/`, `.claude/`, `.github/`);
   - guardrail explícito "NÃO existe subpasta `frontend/` neste repo";
   - instrução "se em dúvida sobre path, usar Glob antes de Read".
-- **AC-007-A:** Dado que um sub-agent tenta ler um path notório-inexistente (lista versionada em `docs/protocol/forbidden-paths.txt`, incluindo `frontend/`, `backend/`, `mobile/`, `apps/`), quando Read ou Glob falha na 1ª tentativa, então o sub-agent para imediatamente (sem retry) e reporta `ContractViolation: path "<x>" não existe neste repo — ver contrato em agent file` no output. Teste verifica: (a) stub de sub-agent tentando ler `frontend/foo.ts`, (b) exit na 1ª falha, (c) mensagem canônica emitida.
+- **AC-007-A:** Dado um path qualquer passado como argumento, quando `scripts/check-forbidden-path.sh <path>` é invocado, então (a) retorna exit 1 com mensagem canônica `ContractViolation: path "<x>" proibido — ver docs/protocol/forbidden-paths.txt` se o path começa com qualquer prefixo da lista fechada (`frontend/`, `backend/`, `mobile/`, `apps/`); (b) retorna exit 0 se o path não casa com nenhum prefixo proibido. Teste mecânico: casos fixos (`frontend/foo.ts` → exit 1; `src/main.tsx` → exit 0; `backend/` → exit 1). Agent files instruem que o sub-agent invoque este script antes de Read em paths suspeitos e pare na 1ª violação sem retry.
 
 ## Fora de escopo
 
