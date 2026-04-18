@@ -11,10 +11,9 @@
  * Estrategia de certificado (tres camadas de fallback):
  *   1. Variaveis de ambiente KALIB_HTTPS_CERT / KALIB_HTTPS_KEY
  *      -> quando o PM quer usar mkcert previamente gerado.
- *   2. Certificado auto-assinado RSA 2048 gerado em memoria via modulo
- *      crypto nativo do Node (sem depender de mkcert nem openssl instalado).
- *      Persistido em .kalibrium/https-dev-cert/ para reuso entre execucoes.
- *   3. Se a geracao falhar, aborta com mensagem clara.
+ *   2. Cache local em .kalibrium/https-dev-cert/ (reuso entre execucoes).
+ *   3. Geracao via OpenSSL no PATH (spawn). Se nao disponivel, aborta
+ *      com mensagem clara orientando instalacao ou uso de mkcert.
  *
  * Uso:
  *   node scripts/pwa/serve-https.mjs --port 4173 --dir dist
@@ -32,7 +31,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import https from 'node:https';
-import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -74,57 +72,19 @@ function loadOrGenerateCert() {
         };
     }
 
-    // Gera par RSA + certificado X.509 auto-assinado usando crypto nativo.
-    // Node 19+ tem crypto.X509Certificate mas gerar um SELF-signed requer
-    // subtle passos — usamos node:crypto.generateKeyPairSync + assinatura manual.
-    // Alternativa simples e cross-platform: delegar para OpenSSL se disponivel,
-    // e senao abortar com mensagem clara.
-
-    const openssl = tryOpenSSL(persistDir, certPath, keyPath);
-    if (openssl.ok) {
-        return {
-            cert: fs.readFileSync(certPath),
-            key: fs.readFileSync(keyPath),
-            source: 'openssl',
-        };
-    }
-
-    // Fallback puro-Node: gera par RSA e monta DER manualmente.
-    // E suficiente para testes locais — NAO usar em producao.
-    const pair = crypto.generateKeyPairSync('rsa', {
-        modulusLength: 2048,
-        publicKeyEncoding: { type: 'spki', format: 'pem' },
-        privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
-    });
-    // Gera um cert X.509 v1 simples via spawn de processo Node filho que usa
-    // tls.createSelfSignedCertificate — disponivel a partir do Node 20.10.
-    // Se nao existir, avisa e aborta.
-    if (typeof crypto.createCertificate === 'function') {
-        // stub pra linters — crypto.createCertificate nao existe de fato;
-        // mantido pra clareza de intent. Pulamos pra erro.
-    }
+    // Se chegou aqui sem env vars e sem cache, main() ja tentou gerar via
+    // openSSLCertAsync antes de nos chamar. Se ainda assim nao existe cert,
+    // e porque OpenSSL falhou e KALIB_HTTPS_CERT/KEY nao foram setados.
     throw new Error(
-        'Nao foi possivel gerar certificado HTTPS automaticamente.\n' +
+        'Nao foi possivel carregar certificado HTTPS.\n' +
             'Opcoes:\n' +
             '  1. Instale OpenSSL no PATH (https://slproweb.com/products/Win32OpenSSL.html).\n' +
             '  2. Gere certs manualmente com mkcert e exporte KALIB_HTTPS_CERT/KEY.\n' +
             '  3. Rode: openssl req -x509 -newkey rsa:2048 -nodes -days 365 \\\n' +
             `       -keyout ${keyPath} -out ${certPath} \\\n` +
             '       -subj "/CN=localhost" \\\n' +
-            '       -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"\n' +
-            // silenced usage
-            `(pair public length: ${pair.publicKey.length})`,
+            '       -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"',
     );
-}
-
-function tryOpenSSL(persistDir, certPath, keyPath) {
-    try {
-        const { spawnSync } = require('node:child_process'); // eslint-disable-line
-        // eslint-disable-next-line global-require
-    } catch {
-        // CommonJS require nao disponivel em ESM — usamos import dinamico.
-    }
-    return { ok: false }; // fallback sincrono — ver fluxo abaixo
 }
 
 // ESM-friendly openssl attempt
