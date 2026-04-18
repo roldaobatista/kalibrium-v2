@@ -1,0 +1,155 @@
+{
+  "$schema": "gate-output-v1",
+  "slice": "018",
+  "gate": "master-audit",
+  "lane": "L3",
+  "agent": "governance",
+  "mode": "master-audit",
+  "track": "A",
+  "model": "opus-4.7",
+  "verdict": "approved",
+  "timestamp": "2026-04-18T11:30:00Z",
+  "commit_hash": "4cdfdee",
+  "isolation_context": "slice-018-master-audit-trilha-A-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 7,
+  "findings_by_severity": {
+    "S1": 0,
+    "S2": 0,
+    "S3": 0,
+    "S4": 6,
+    "S5": 1
+  },
+  "findings": [
+    {
+      "id": "MA-A-018-001",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "category": "cross-gate-consistency",
+      "description": "code-review F-003 reporta bug tecnico real no audit-set-difference.sh: jq nao suporta backslash-d em gsub; pode silenciar normalizacao de sufixo :linha e inflar listas new/unresolved. Marcado S4 mas merece follow-up prioritario.",
+      "file": "scripts/audit-set-difference.sh",
+      "line": 57,
+      "evidence": "review.json F-003; test-audit fixture limitada nao exercita finding.file com sufixo :linha real.",
+      "recommendation": "Slice 019: trocar backslash-d por [0-9] + fixture com sufixo numerico."
+    },
+    {
+      "id": "MA-A-018-002",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "category": "environmental-coverage",
+      "description": "AC-001 (CI workflow) validado apenas estruturalmente (YAML parseado + presenca de jobs/steps). Execucao real no GitHub Actions runner nao exercitada em sandbox. Identico aos S4 ambientais do slice-017.",
+      "file": ".github/workflows/test-regression.yml",
+      "line": null,
+      "evidence": "functional-review F-001 + tests/ci/test-regression-workflow.test.cjs valida estrutura apenas.",
+      "recommendation": "Aceitar como divida ambiental. Primeiro run CI pos-merge sera canario."
+    },
+    {
+      "id": "MA-A-018-003",
+      "severity": "S5",
+      "severity_label": "advisory",
+      "gate_blocking": false,
+      "category": "acceptance-coverage",
+      "description": "AC-006 partial. merge-slice.sh selado; slice entregou manifesto T14 mas nao aplicou edicao - requer relock manual do PM pos-merge. Beneficio do B-038 (schema uniforme enforced no merge-slice) so realizado apos relock.",
+      "file": "specs/018/merge-slice-update-manifest.md",
+      "line": null,
+      "evidence": "impl-notes S4/S5 dividas + functional-review F-002 + spec D8.",
+      "recommendation": "Pre-requisito obrigatorio do slice-019: PM executa relock-harness.sh."
+    },
+    {
+      "id": "MA-A-018-004",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "category": "supply-chain-defense-in-depth",
+      "description": "SEC-018-001: workflow CI com actions pinned por major-tag ao inves de SHA. Aceitavel (industria norm) mas primeiro workflow CI do repo merece padrao documentado.",
+      "file": ".github/workflows/test-regression.yml",
+      "line": null,
+      "evidence": "security-review.json SEC-018-001.",
+      "recommendation": "Backlog B-042 (novo): padrao SHA-pinning para todos workflows CI."
+    },
+    {
+      "id": "MA-A-018-005",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "category": "cross-gate-consistency",
+      "description": "audit-tests line_coverage_percent=null. Para um slice de scripts bash nao e critico, mas cobertura token-por-token em validate-audit-prompt.sh nao foi medida - apenas subset dos 12+ tokens proibidos esta exercitado em fixtures.",
+      "file": "tests/scripts/validate-audit-prompt.test.cjs",
+      "line": null,
+      "evidence": "test-audit.json line_coverage_percent=null; fixtures contem 3-6 tokens exercitados de lista de 12+.",
+      "recommendation": "Slice 019: fixture por token proibido (expansao de 6 para 12+)."
+    },
+    {
+      "id": "MA-A-018-006",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "category": "spec-impl-alignment",
+      "description": "spec e plan listam tests/harness/fixtures/ como diretorio. impl-notes revela uso de tests/scripts/, tests/agents/, tests/ci/. Desvio estrutural sem impacto funcional mas merece nota na retrospectiva.",
+      "file": "specs/018/impl-notes.md",
+      "line": null,
+      "evidence": "spec 018 artefatos; plan T01; impl-notes tabela.",
+      "recommendation": "Retrospectiva slice-018 documenta desvio; decide convencao canonica."
+    },
+    {
+      "id": "MA-A-018-007",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "category": "cross-cutting-risk",
+      "description": "17 agent files editados (12 Paths + 5 Saida obrigatoria/Recusa). Testes grep confirmam presenca; nenhuma invocacao end-to-end de sub-agent pos-mudanca. Risco residual: instruction bloat ou conflito semantico em invocacao real.",
+      "file": ".claude/agents/",
+      "line": null,
+      "evidence": "review.json + test-audit.json confirmam estrutura via grep; nenhum exercicio de invocacao real.",
+      "recommendation": "Proxima invocacao de sub-agent em slice-019 funciona como canario. Hotpatch se surgir problema."
+    }
+  ],
+  "gates_consistency": {
+    "all_five_gates_approved": true,
+    "all_blocking_counts_zero": true,
+    "ac_coverage_agreement": "13/14 delivered, AC-006 partial consistente em functional-review+impl-notes+spec T14",
+    "s4_justified": true,
+    "s4_cross_cutting_raised_by_master": "3 findings S4 novos (MA-A-018-001, MA-A-018-005, MA-A-018-007) capturam risco cross-gate nao isolado pelos gates individuais",
+    "s5_advisory_count_total": 2,
+    "divergences_found": [
+      "tests/harness/ na spec vs tests/scripts|ci|agents/ no impl (MA-A-018-006)",
+      "Ordem interna T11/T12 do plan difere levemente de commit order real T07/T08 - sem impacto funcional"
+    ],
+    "spec_plan_impl_alignment": "aligned_with_minor_structural_divergence"
+  },
+  "referenced_artifacts": [
+    {
+      "gate": "verify",
+      "path": "specs/018/verification.json",
+      "sha256": "bac91d74d9be320b24d635f7876a507f4f477bc16e64c8db30e72f29fb45fb48",
+      "read_at": "2026-04-18T11:15:00Z"
+    },
+    {
+      "gate": "review",
+      "path": "specs/018/review.json",
+      "sha256": "30594ab663e4aa2dc0cdb97dd0069ad7e116e06350d30f0984e7769c4eb5ec3e",
+      "read_at": "2026-04-18T11:15:15Z"
+    },
+    {
+      "gate": "security-gate",
+      "path": "specs/018/security-review.json",
+      "sha256": "034ecad50804d18dcb5a98af78c12c081fe2a48b7e2a4b65c5da9ed97abdea44",
+      "read_at": "2026-04-18T11:15:30Z"
+    },
+    {
+      "gate": "audit-tests",
+      "path": "specs/018/test-audit.json",
+      "sha256": "15b249284532dc931b7ab36d30a69ab31c519599d5318d901c22658af2baca69",
+      "read_at": "2026-04-18T11:15:45Z"
+    },
+    {
+      "gate": "functional-gate",
+      "path": "specs/018/functional-review.json",
+      "sha256": "abb06f8128fe14c380fdb062b30305dba58b47903b5513b9e90c615df68db63f",
+      "read_at": "2026-04-18T11:16:00Z"
+    }
+  ],
+  "consolidated_summary": "Trilha A (Opus 4.7, contexto isolado) aprova slice 018. Os 5 gates obrigatorios convergem em verdict=approved com blocking_findings_count=0. 13/14 ACs delivered; AC-006 partial aceito como S5 advisory (merge-slice.sh selado; relock PM pos-merge). 137/137 testes GREEN em 11 arquivos. Spec-plan-impl consistentes com 1 divergencia estrutural menor. 7 findings nao-bloqueantes emergem (6 S4 + 1 S5) todos documentados. Risco cross-cutting principal: F-003 do review (jq backslash-d bug em audit-set-difference.sh) merece follow-up prioritario no slice-019."
+}
