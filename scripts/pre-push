@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Slice 018 — AC-002, AC-002-A (B-036)
+#
+# Hook pre-push user-facing. Diferente de scripts/hooks/pre-push-gate.sh
+# (que eh o hook do Claude Code / harness), este script eh invocado como
+# `.git/hooks/pre-push` quando o PM roda `git push` em terminal externo.
+#
+# Instalacao:
+#   ln -s ../../scripts/pre-push .git/hooks/pre-push
+# (ou em Windows: copiar arquivo para .git/hooks/pre-push)
+#
+# Protocolo de pre-push push:
+#   1. Lista arquivos tocados entre @{push}..HEAD (commit remoto -> HEAD local)
+#   2. Invoca scripts/detect-shared-file-change.sh (convencao Unix stdin)
+#   3. Se stdout contem "shared_changed=true" -> roda smoke-tests.sh
+#   4. Se smoke-tests.sh retorna !=0 -> bloqueia push (exit 1)
+#   5. Se shared_changed=false -> push prossegue direto
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
+say() { echo "[pre-push] $*" >&2; }
+die() { echo "[pre-push BLOCK] $*" >&2; exit 1; }
+
+# -------- 1. Determinar diff --------
+# Tenta @{push}; fallback para origin/<branch> (primeira push pode nao ter upstream)
+BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')"
+if git rev-parse --verify '@{push}' >/dev/null 2>&1; then
+  DIFF_BASE='@{push}'
+elif git rev-parse --verify "origin/${BRANCH}" >/dev/null 2>&1; then
+  DIFF_BASE="origin/${BRANCH}"
+else
+  # Primeira push da branch: sem base remota. Pula smoke (nao tem o que regredir).
+  say "branch '$BRANCH' sem upstream remoto — primeira push; smoke skipped"
+  exit 0
+fi
+
+DIFF="$(git diff --name-only "${DIFF_BASE}..HEAD")"
+
+if [ -z "$DIFF" ]; then
+  say "nenhum arquivo alterado entre ${DIFF_BASE}..HEAD — push prossegue"
+  exit 0
+fi
+
+# -------- 2. Detect shared files --------
+DETECT_OUT="$(printf '%s\n' "$DIFF" | bash "$REPO_ROOT/scripts/detect-shared-file-change.sh")"
+
+say "detect-shared-file-change: $DETECT_OUT"
+
+# -------- 3. Condicional: se shared_changed=true, roda smoke --------
+if echo "$DETECT_OUT" | grep -q "shared_changed=true"; then
+  say "arquivo compartilhado alterado — disparando smoke suite..."
+  if bash "$REPO_ROOT/scripts/smoke-tests.sh"; then
+    say "smoke suite OK — push prossegue"
+    exit 0
+  else
+    die "smoke suite FALHOU — push bloqueado. Corrija testes @smoke antes de push."
+  fi
+else
+  say "nenhum arquivo compartilhado alterado — smoke skipped; push prossegue"
+  exit 0
+fi

@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 const BASE = process.env.KALIB_PWA_HTTPS_URL ?? 'https://localhost:4173';
 
 test.describe('AC-002: /login carrega offline apos primeira visita', () => {
-    test('AC-002: apos primeira visita online, setOffline(true) + reload serve /login em <2s sem erro de rede', async ({
+    test('AC-002: apos primeira visita online, setOffline(true) + reload serve /login em <2s sem erro de rede @smoke', async ({
         page,
         context,
     }) => {

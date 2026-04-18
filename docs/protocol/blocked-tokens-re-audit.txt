@@ -1,0 +1,38 @@
+# Tokens proibidos em prompts de re-auditoria (slice 018 — AC-003-A)
+# Formato: 1 token por linha. Linhas iniciando com '#' sao comentarios.
+# Matching: case-insensitive, substring (nao word-boundary estrito).
+# Consumido por: scripts/validate-audit-prompt.sh --mode=re-audit
+
+# --- Referencias explicitas a rodada anterior ---
+finding anterior
+findings anteriores
+previously found
+previous finding
+rodada anterior
+rodada 1
+rodada 2
+rodada 3
+re-audit
+re audit
+recheck
+re-check
+
+# --- Referencias a correcoes aplicadas ---
+foi corrigido
+ja corrigido
+já corrigido
+fix applied
+fixer tocou
+fixer corrigiu
+fixer modificou
+
+# --- Direcionamento enviesado (induz auditor ao resultado) ---
+verifique se X foi
+confirme que X foi
+verifique se foi
+confirme que foi
+
+# --- Marcadores de arquivos tocados ---
+tocado:
+changed:
+fixer modificou:
