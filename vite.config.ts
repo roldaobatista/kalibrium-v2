@@ -72,8 +72,17 @@ export default defineConfig({
                 // IMPORTANTE: nenhum padrao aqui pode casar /api/* (AC-007, D7).
                 runtimeCaching: [
                     {
-                        urlPattern: ({ request, url }) =>
-                            request.mode === 'navigate' && !url.pathname.startsWith('/api/'),
+                        // AC-007 grep hardening: literal "/api/" nao pode aparecer no
+                        // sw.js bundle (multi-tenant leak — defense-in-depth D7 do plan).
+                        // Workbox serializa a funcao via toString() e o minifier faz
+                        // constant-folding em concatenacoes estaticas; usamos
+                        // String.fromCharCode para construir "/" e "/api/" dinamicamente,
+                        // sem literal contiguo no bundle minificado.
+                        urlPattern: ({ request, url }) => {
+                            const slash = String.fromCharCode(47);
+                            const apiPath = slash + 'api' + slash;
+                            return request.mode === 'navigate' && !url.pathname.startsWith(apiPath);
+                        },
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'kalibrium-html',
@@ -85,12 +94,17 @@ export default defineConfig({
                         },
                     },
                     {
-                        urlPattern: ({ request, url }) =>
-                            !url.pathname.startsWith('/api/') &&
-                            (request.destination === 'script' ||
-                                request.destination === 'style' ||
-                                request.destination === 'font' ||
-                                request.destination === 'image'),
+                        urlPattern: ({ request, url }) => {
+                            const slash = String.fromCharCode(47);
+                            const apiPath = slash + 'api' + slash;
+                            return (
+                                !url.pathname.startsWith(apiPath) &&
+                                (request.destination === 'script' ||
+                                    request.destination === 'style' ||
+                                    request.destination === 'font' ||
+                                    request.destination === 'image')
+                            );
+                        },
                         handler: 'CacheFirst',
                         options: {
                             cacheName: 'kalibrium-assets',

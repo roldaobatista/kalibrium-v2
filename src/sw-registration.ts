@@ -29,7 +29,6 @@ export function registerServiceWorker(): void {
         wb.addEventListener('installed', (event) => {
             if (!event.isUpdate) {
                 // Primeiro install — SW cacheou o shell pela primeira vez.
-                // eslint-disable-next-line no-console
                 console.info('[sw] primeiro install concluido — shell offline disponivel');
             }
         });
@@ -37,20 +36,17 @@ export function registerServiceWorker(): void {
         wb.addEventListener('waiting', () => {
             // Ha um SW novo em waiting. VitePWA com registerType=autoUpdate
             // dispara skipWaiting automaticamente; apenas logamos.
-            // eslint-disable-next-line no-console
             console.info('[sw] nova versao em waiting — autoUpdate assumira');
         });
 
         wb.addEventListener('controlling', () => {
             // Novo SW tomou controle. Nao forcamos reload (pode interromper fluxo);
             // a proxima navegacao ja usa o novo shell.
-            // eslint-disable-next-line no-console
             console.info('[sw] controlling — nova versao ativa no proximo carregamento');
         });
 
         wb.addEventListener('activated', (event) => {
             if (!event.isUpdate) {
-                // eslint-disable-next-line no-console
                 console.info('[sw] activated — primeiro ciclo');
             }
         });
@@ -58,7 +54,6 @@ export function registerServiceWorker(): void {
         // register() retorna Promise<ServiceWorkerRegistration | undefined>.
         // Erros sao silenciados para nao travar UI (AC-005-A).
         wb.register().catch((err: unknown) => {
-            // eslint-disable-next-line no-console
             console.warn('[sw] registro falhou — app continua funcionando', err);
         });
     });
