@@ -1,0 +1,94 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "plan-review",
+  "slice": "019",
+  "lane": "L2",
+  "agent": "architecture-expert",
+  "mode": "plan-review",
+  "verdict": "approved",
+  "timestamp": "2026-04-18T00:00:00Z",
+  "commit_hash": "1b8fcb6",
+  "isolation_context": "slice-019-plan-review-instance-01",
+  "blocking_findings_count": 0,
+  "non_blocking_findings_count": 3,
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 3, "S5": 0},
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "D-02 afirma detectar --force via 'merge-base --is-ancestor' (heuristica), mas o contrato git nativo para pre-push nao entrega flag --force diretamente — a convencao e checar se remote_sha != zero E local_sha nao descende de remote_sha. O plan descreve isso mas ainda menciona 'FORCE=1 no env quando disponivel' (D-01) que nao e variavel padrao do git; podera confundir implementer.",
+      "file": "specs/019/plan.md",
+      "line": 55,
+      "evidence": "D-01 Alt-C: 'bloqueio --force (detectado via FORCE=1 no env quando disponivel ou via presenca de + no update)'. Git nao exporta FORCE=1 nativamente.",
+      "recommendation": "No T-07, simplificar D-01 para citar apenas heuristica merge-base (ja descrita em D-02). Remover referencia a FORCE=1 que nao e contrato git."
+    },
+    {
+      "id": "F-002",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "T-11 declara 'nao commitar ainda — arquivo selado' e R-04 resolve movendo patch para specs/019/session-start-patch.diff + relock procedimental pos-merge (T-14). Porem AC-003 do spec exige que a reinstalacao funcione em SessionStart real. Teste em sandbox (copia temp) prova logica mas nao prova integracao com hooks-lock/MANIFEST. Gap residual: o teste AC-003 nao cobre o caminho real selado.",
+      "file": "specs/019/plan.md",
+      "line": 278,
+      "evidence": "'AC-003 fica gated em verificavel apos relock: o teste bats roda em sandbox (copia temp de session-start.sh) para provar que a logica funciona; verificacao real pos-relock e manual pelo PM'.",
+      "recommendation": "Aceitavel como S4. Registrar em docs/incidents/ que T-14 inclui validacao obrigatoria pos-relock (nova sessao Claude mostra banner [session-start] reinstalled) antes de fechar slice. Ja mencionado em §6.3 checklist — manter explicito."
+    },
+    {
+      "id": "F-003",
+      "severity": "S4",
+      "severity_label": "minor",
+      "gate_blocking": false,
+      "description": "D-03/T-01 declaram 'bats-core' como framework preferencial para testes shell com plano B Pest+shell_exec. Nao ha ADR previo autorizando bats-core como dependencia. R10 exige que stack seja decidida via ADR. Pelo R10 estrito, introduzir bats-core novo exige ADR ou uso exclusivo de stack ja autorizada (Pest+shell_exec).",
+      "file": "specs/019/plan.md",
+      "line": 212,
+      "evidence": "'Testes de shell (AC-001..004, AC-006) usam bats-core (batteries-included Bash Automated Testing System)'.",
+      "recommendation": "Em T-01, se bats-core nao existir no repo, usar plano B (Pest+shell_exec) como default e nao introduzir bats — alinha com R10. Atualizar plan para tornar Pest+shell_exec o caminho primario; bats e apenas upgrade futuro via ADR."
+    }
+  ],
+  "evidence": {
+    "checks": {
+      "ac_to_module_mapping_complete": true,
+      "alternatives_documented": true,
+      "reversibility_declared": true,
+      "adr_backed_where_needed": true,
+      "adr_0001_consistency": true,
+      "no_invented_requirements": true,
+      "eager_loading_strategy_declared": true,
+      "middleware_pipeline_explicit": true,
+      "risks_with_mitigations": true,
+      "cross_slice_dependencies_explicit": true,
+      "migrations_safe_patterns": true,
+      "controllers_are_routers": true
+    },
+    "acs_mapped_count": 7,
+    "decisions_without_alternatives": [],
+    "decisions_without_reversibility": [],
+    "eloquent_relations_without_eager_loading": [],
+    "routes_without_middleware": [],
+    "factual_cross_checks": {
+      "ci_yml_tenant_isolation_job_lines_confirmed": true,
+      "ci_yml_livewire_path_confirmed_present": true,
+      "pre_push_gate_sh_blocks_no_verify_main_force_confirmed": true,
+      "session_start_sh_block_4_5_drift_checks_confirmed": true,
+      "session_start_sh_no_install_hook_call_confirmed": true,
+      "git_hooks_pre_push_absent_confirmed_via_spec_audit": true,
+      "claude_md_sec9_relock_procedure_confirmed": true,
+      "adr_0015_0016_0017_referenced_accurately": true
+    },
+    "idempotency_treated": true,
+    "non_regression_pre_push_gate_covered": true,
+    "hook_recursion_risk_mitigated": true,
+    "sealed_file_interaction_declared": true,
+    "r9_bypass_prevented": true,
+    "p2_test_first_ordering_respected": true,
+    "summary": "Plan 019 aprovado. 7 ACs mapeados 1:1 a arquivos+testes, 6 decisoes D-01..D-06 com alternativas+tradeoffs+reversibilidade, 6 riscos R-01..R-06 com mitigacoes concretas. Afirmacoes factuais sobre ci.yml, pre-push-gate.sh, session-start.sh verificadas. Interacao com arquivo selado (session-start.sh) declarada explicitamente com fluxo de relock procedimental (R-04/T-14). 3 findings S4 nao-bloqueantes sobre refinamento de D-01 (FORCE=1 nao padrao), gap residual do teste AC-003 (sandbox vs selado), e escolha de bats-core sem ADR. Todos abaixo de S3 — nao bloqueiam merge."
+  },
+  "metadata": {
+    "audit_timestamp": "2026-04-18T00:00:00Z",
+    "agent": "architecture-expert",
+    "mode": "plan-review",
+    "model": "claude-opus-4-7"
+  }
+}
