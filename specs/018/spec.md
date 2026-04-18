@@ -38,7 +38,14 @@ Ao fim do slice-018, o orchestrator pode rodar um novo slice funcional sabendo q
 
 ### B-037 — Auditoria sem bias (re-audit cego)
 
-- **AC-003:** Dado que o orchestrator vai invocar um auditor/gate pela 1ª vez no slice, quando o prompt é gerado, então o conteúdo contém o perímetro funcional (story + slice + paths do repo) mas NÃO contém veredito/findings de rodadas anteriores, hashes de fix commits, nem lista de arquivos tocados pelo fixer.
+- **AC-003:** Dado que o orchestrator vai invocar um auditor/gate pela 1ª vez no slice, quando o prompt é gerado, então o conteúdo é construído a partir do **template obrigatório `docs/protocol/audit-prompt-template.md`** (criado neste slice) contendo exclusivamente os seguintes campos obrigatórios e nada além:
+  - `story_id` (formato `E??-S??`)
+  - `slice_id` (formato `NNN`)
+  - `mode` (modo canônico do gate: `audit-spec` | `verify` | `code-review` | `security-gate` | `audit-tests` | `functional-gate` | `master-audit`)
+  - `perimeter_files` (lista de paths-raiz autorizados para leitura; ex.: `["specs/018/spec.md", "docs/constitution.md"]`)
+  - `criteria_checklist` (lista numerada dos critérios do gate, copiada literal do agent file do modo)
+  - `output_contract` (bloco JSON schema literal esperado de volta)
+  - NÃO inclui: veredito/findings de rodadas anteriores, hashes de fix commits, lista de arquivos tocados pelo fixer, IDs de findings prévios, commit hash de fix. O template é validado por `scripts/validate-audit-prompt.sh --mode=1st-pass <prompt-file>` que verifica presença dos 6 campos + ausência de seções proibidas.
 - **AC-003-A:** Dado que o orchestrator vai invocar RE-auditoria (rodada ≥ 2 do mesmo gate), quando o prompt é gerado, então:
   - (a) o prompt passa pelo validator mecânico `scripts/validate-audit-prompt.sh --mode=re-audit <prompt-file>`;
   - (b) o validator rejeita se encontrar qualquer token da **lista fechada de tokens proibidos** (registrada em `docs/protocol/blocked-tokens-re-audit.txt` versionada):
@@ -55,7 +62,7 @@ Ao fim do slice-018, o orchestrator pode rodar um novo slice funcional sabendo q
 ### B-038 — Schema uniforme de gate output
 
 - **AC-005:** Dado que um gate sub-agent emite seu JSON final, quando `scripts/validate-gate-output.sh specs/NNN/<arquivo>.json` é executado, então exige literal `"$schema": "gate-output-v1"`, `"slice": "NNN"`, `"gate": "<nome canônico>"` (`verify` | `code-review` | `security-gate` | `audit-tests` | `functional-gate` | `master-audit`). JSON fora desse contrato é rejeitado com mensagem clara.
-- **AC-005-A:** Dado que um agent file (`.claude/agents/<nome>.md`) descreve um modo de gate, quando leio a seção "Saída obrigatória", então ela cita os valores literais do schema (não apenas "conforme gate-output-v1") para que o agente emita corretamente na primeira tentativa.
+- **AC-005-A:** Dado que este slice adiciona/atualiza agent files dos 5 modos de gate (`qa-expert.md`, `architecture-expert.md`, `security-expert.md`, `product-expert.md`, `governance.md`), quando o slice é mergeado, então cada um possui seção obrigatória `## Saída obrigatória` contendo os valores literais do schema (`$schema: "gate-output-v1"`, `gate: <nome canônico>`, `slice: "<NNN>"`) e um exemplo JSON inline válido. Teste verifica: (a) presença da seção em cada agent file, (b) presença dos 3 literais, (c) exemplo JSON parseable e conforme `docs/protocol/schemas/gate-output.schema.json`.
 - **AC-006:** Dado que `scripts/merge-slice.sh` é invocado no slice 018 ou posterior, quando os 5 gates obrigatórios foram emitidos pelos sub-agents atualizados, então o script aceita todos sem necessidade de normalização manual (zero edits entre emissão e merge), e `git status` entre emissão dos JSONs e execução do merge-slice mostra apenas os arquivos emitidos (não há Edit posterior ao conteúdo dos JSONs).
 - **AC-006-A:** Dado que um sub-agent emite um JSON não-conforme (ex.: `$schema` como URL ao invés do literal `"gate-output-v1"`, ou `gate` com valor fora da lista canônica, ou `slice` ausente), quando `scripts/validate-gate-output.sh <arquivo>.json` é executado, então exit code = 1 com mensagem apontando linha+campo violador (ex.: `"specs/018/security-review.json:5 — gate='security' esperado 'security-gate'"`). Este comportamento é testado por teste automatizado com 3 JSONs fixture propositalmente inválidos (1 por tipo de violação: `$schema` errado, `gate` errado, `slice` ausente).
 
@@ -65,7 +72,7 @@ Ao fim do slice-018, o orchestrator pode rodar um novo slice funcional sabendo q
   - lista exata de dirs raiz (`src/`, `tests/`, `specs/`, `docs/`, `scripts/`, `public/`, `epics/`, `.claude/`, `.github/`);
   - guardrail explícito "NÃO existe subpasta `frontend/` neste repo";
   - instrução "se em dúvida sobre path, usar Glob antes de Read".
-- **AC-007-A:** Dado que um sub-agent tenta ler `frontend/**/*` ou outro path notório-inexistente, quando falha, então NÃO entra em loop de retry por 3+ tentativas — reporta erro de contrato de path na 1ª falha.
+- **AC-007-A:** Dado que um sub-agent tenta ler um path notório-inexistente (lista versionada em `docs/protocol/forbidden-paths.txt`, incluindo `frontend/`, `backend/`, `mobile/`, `apps/`), quando Read ou Glob falha na 1ª tentativa, então o sub-agent para imediatamente (sem retry) e reporta `ContractViolation: path "<x>" não existe neste repo — ver contrato em agent file` no output. Teste verifica: (a) stub de sub-agent tentando ler `frontend/foo.ts`, (b) exit na 1ª falha, (c) mensagem canônica emitida.
 
 ## Fora de escopo
 
