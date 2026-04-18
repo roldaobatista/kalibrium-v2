@@ -85,7 +85,7 @@ Arquivos atualizados (não criados):
   - (c) referência cruzada a ADR-0016 (isolamento multi-tenant).
   Teste: grep de string literal valida presença de cada um dos 3 elementos.
 
-## Fora de escopo (explícito)
+## Fora de escopo
 
 - **Não implementar** hook `.git/hooks/pre-commit` nativo neste slice. Pre-push é suficiente para fechar o gap mais crítico (bloqueio de main); pre-commit envolve latência local mais sensível e pode entrar em slice futuro se tracking mostrar necessidade.
 - **Não promover** `check-tenant-filter-coverage.sh` para exit ≠ 0 / bloqueante em CI. Primeira versão é warning-only para capturar dados empíricos antes de virar gate duro. Promoção futura exige retrospectiva.
