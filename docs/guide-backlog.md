@@ -8,6 +8,30 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-041] Contrato de paths explícito para sub-agents
+
+- **Origem:** retrospectiva do slice-017 (2026-04-18). qa-expert falhou em 2 tentativas por tentar path `frontend/` que não existe neste repo.
+- **Ação:** todos os agent files (`.claude/agents/*.md`) devem incluir seção "Paths do repositório" com guardrail explícito: "raiz do repo contém `src/`, `tests/`, `specs/`, etc. NÃO existe subpasta `frontend/`." Também adicionar Glob de descoberta obrigatório antes de Read quando em dúvida.
+- **Status:** aberto. Prioridade **baixa-média**. Pode ir no slice-018 junto de B-036/B-037.
+
+### [B-040] Limite estrutural para S4 ambientais com mesma justificativa
+
+- **Origem:** retrospectiva do slice-017 + master-audit Trilha A (MA-A-017-001). 3 S4 ambientais com mesma raiz (Chromium headless) registrados no mesmo slice.
+- **Ação:** política no harness-learner: "no máximo 2 findings S4 por slice com mesma categoria `environmental` e mesma justificativa-raiz". Ao atingir 3, forçar spike/ADR para endereçar a limitação estrutural em vez de aceitar como dívida recorrente.
+- **Status:** aberto. Prioridade **média**. Pode ser slice-019 ou depois.
+
+### [B-039] Telemetria de slice gravada automaticamente por hook
+
+- **Origem:** retrospectiva do slice-017. `.claude/telemetry/slice-017.jsonl` ficou vazio — `/slice-report 017` gerou relatório sem dados.
+- **Ação:** hook `scripts/hooks/slice-telemetry.sh` dispara em pre-commit quando commit message matcha `(slice-NNN|E??-S??)` e grava tokens + agentes + duração em jsonl append-only. Usar evento de `Agent` tool result como fonte.
+- **Status:** aberto. Prioridade **média**.
+
+### [B-038] Writers uniformes de gate output (schema gate-output-v1)
+
+- **Origem:** retrospectiva do slice-017. Durante merge-slice.sh, 3 JSONs foram rejeitados por divergências: `$schema` como URL ao invés de literal "gate-output-v1", `slice` ausente, `gate` com valor errado (`security` vs `security-gate`, `functional` vs `functional-gate`).
+- **Ação:** atualizar prompts padrão de cada modo de gate nos agent files (`qa-expert.md`, `architecture-expert.md`, `security-expert.md`, `product-expert.md`) para explicitar os valores LITERAIS exigidos por `docs/protocol/schemas/gate-output.schema.json` + `scripts/merge-slice.sh` linhas 65-78. Adicional: criar `scripts/validate-gate-output.sh` que cada agente pode rodar antes de reportar concluído.
+- **Status:** aberto. Prioridade **média**. Bem fácil, pode entrar no slice-018.
+
 ### [B-037] Auditoria e re-auditoria sem bias — perímetro livre na 1ª vez, zero histórico na 2ª
 
 - **Origem:** sessão slice-017 (2026-04-17). PM identificou que o princípio de auditoria isolada (R3/R11) está previsto no harness mas é **violado na prática** por prompts que induzem o auditor com contexto que ele não deveria ter.
