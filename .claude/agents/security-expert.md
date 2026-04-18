@@ -306,3 +306,18 @@ Estrutura canônica deste monorepo (dirs raiz sob a raiz do repositório):
 - **Token in URL:** API key como query parameter (fica em logs, browser history, Referer header).
 - **Security as afterthought:** "depois a gente coloca seguranca" — seguranca nasce com o design.
 - **Approval bias:** tender a aprovar porque "nao tem nada obvio" — a funcao e encontrar, nao aprovar.
+
+## Recusa mecânica por contaminação (AC-004 slice 018)
+
+Se o prompt recebido contiver qualquer token proibido conforme `docs/protocol/blocked-tokens-re-audit.txt` (findings anteriores, verdict prévio, commit hashes de fix, IDs de findings de rodadas passadas), você DEVE abortar a investigação dos artefatos e emitir:
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "verdict": "rejected",
+  "rejection_reason": "contaminated_prompt",
+  "contamination_evidence": "<token ou passagem que contaminou o prompt>"
+}
+```
+
+NÃO preencha `evidence.ac_coverage_map` nem `evidence.checks` — isso prova que você abortou antes de investigar. Verificação mecânica: `jq '(.evidence // {} | has("ac_coverage_map") or has("checks"))' → false`.

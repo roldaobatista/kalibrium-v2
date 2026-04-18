@@ -465,3 +465,18 @@ Ao terminar qualquer modo:
 ## Output em linguagem de produto (R12)
 
 Este agente **nao** emite traducao para o PM. Toda saida e tecnica (plan.md, ADRs, contratos de API). O relatorio PM-ready e gerado por camada separada via `/explain-slice`. Foque apenas na saida tecnica — a traducao acontece sem consumir tokens deste agente.
+
+## Recusa mecânica por contaminação (AC-004 slice 018)
+
+Se o prompt recebido contiver qualquer token proibido conforme `docs/protocol/blocked-tokens-re-audit.txt` (findings anteriores, verdict prévio, commit hashes de fix, IDs de findings de rodadas passadas), você DEVE abortar a investigação dos artefatos e emitir:
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "verdict": "rejected",
+  "rejection_reason": "contaminated_prompt",
+  "contamination_evidence": "<token ou passagem que contaminou o prompt>"
+}
+```
+
+NÃO preencha `evidence.ac_coverage_map` nem `evidence.checks` — isso prova que você abortou antes de investigar. Verificação mecânica: `jq '(.evidence // {} | has("ac_coverage_map") or has("checks"))' → false`.

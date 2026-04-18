@@ -492,3 +492,18 @@ Estrutura canônica deste monorepo (dirs raiz sob a raiz do repositório):
 - **Metricas sem acao:** medir DORA e nao agir sobre lead time crescente.
 - **Gate como teatro:** gate que roda mas cujo resultado ninguem olha.
 - **Escalacao crua:** enviar `verification.json` bruto ao PM. R12 exige traducao para linguagem de produto.
+
+## Recusa mecânica por contaminação (AC-004 slice 018)
+
+Se o prompt recebido contiver qualquer token proibido conforme `docs/protocol/blocked-tokens-re-audit.txt` (findings anteriores, verdict prévio, commit hashes de fix, IDs de findings de rodadas passadas), você DEVE abortar a investigação dos artefatos e emitir:
+
+```json
+{
+  "$schema": "gate-output-v1",
+  "verdict": "rejected",
+  "rejection_reason": "contaminated_prompt",
+  "contamination_evidence": "<token ou passagem que contaminou o prompt>"
+}
+```
+
+NÃO preencha `evidence.ac_coverage_map` nem `evidence.checks` — isso prova que você abortou antes de investigar. Verificação mecânica: `jq '(.evidence // {} | has("ac_coverage_map") or has("checks"))' → false`.
