@@ -103,3 +103,7 @@ test-results/
 playwright.config.d.ts
 playwright.config.js
 vite.config.d.ts
+vite.config.js
+
+# ---------- Lighthouse reports (artefato efêmero do test:lighthouse) ----------
+lighthouse-reports/

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://kalibrium.local/schemas/gate-output-v1.json",
+  "gate": "verify",
+  "mode": "verify",
+  "lane": "execution",
+  "slice_id": "017",
+  "isolation_context": "slice-017-verify-instance-01",
+  "agent": "qa-expert",
+  "model": "claude-sonnet-4-6",
+  "started_at": "2026-04-17T23:00:00Z",
+  "completed_at": "2026-04-17T23:00:30Z",
+  "verdict": "approved",
+  "findings": [
+    {
+      "id": "V-017-001",
+      "severity": "S4",
+      "category": "environmental",
+      "message": "AC-001 beforeinstallprompt nao dispara em Chromium headless (limitacao documentada)",
+      "evidence": "tests/e2e/pwa-install.spec.ts:59 + specs/017/impl-notes.md",
+      "recommendation": "rodar em headed localmente ou mockar via CDP em sessao futura"
+    },
+    {
+      "id": "V-017-002",
+      "severity": "S4",
+      "category": "environmental",
+      "message": "AC-001 matchMedia standalone depende de install real (limitacao headless)",
+      "evidence": "tests/e2e/pwa-install.spec.ts:66 + specs/017/impl-notes.md",
+      "recommendation": "mesma mitigacao do V-017-001"
+    },
+    {
+      "id": "V-017-003",
+      "severity": "S4",
+      "category": "environmental",
+      "message": "AC-002-A reload offline cold cache <5s exige storageState persistente (Playwright efemero)",
+      "evidence": "tests/e2e/pwa-offline.spec.ts:58 + specs/017/impl-notes.md",
+      "recommendation": "storageState persistente ou ajuste de threshold em re-spec futuro"
+    }
+  ],
+  "findings_by_severity": {"S1": 0, "S2": 0, "S3": 0, "S4": 3, "S5": 0},
+  "blocking_findings_count": 0
+}

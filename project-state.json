@@ -61,14 +61,61 @@
   },
   "execution": {
     "current_epic": "E15",
-    "current_story": "E15-S02",
-    "current_slice": null,
-    "slice_status": "completed-and-merged",
-    "last_green_commit": "101d922",
-    "active_branch": "feat/slice-016-scaffold-frontend",
+    "current_story": "E15-S03",
+    "current_slice": "017",
+    "slice_status": "spec-draft",
+    "last_green_commit": "99663f8",
+    "active_branch": "feat/slice-017-pwa-shell",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
+    "slice_017_pipeline": {
+      "story_contract": "epics/E15/stories/E15-S03.md (approved)",
+      "sequencing_check": "OK (R13+R14 — E15-S02 merged libera S03)",
+      "spec_draft": "specs/017/spec.md (14 ACs: AC-001..AC-008 + edges -A)",
+      "spec_audit": "approved (0 S1-S3, 1 S4 lighthouse threshold)",
+      "plan": "approved (10 decisoes, 14/14 ACs mapeados, 9 tasks)",
+      "plan_review": "approved (0 bloqueantes, 1 S5 advisory)",
+      "tests_draft": "ok (8 arquivos, 14/14 ACs rastreaveis ADR-0017)",
+      "tests_draft_audit": "approved (0 findings, 7/7 §16.1)",
+      "implementer": "completed — 88/88 scaffold + 4/4 dev e2e + 13/16 preview e2e verdes",
+      "implementer_results": {
+        "build": "ok (manifest + sw.js + 23 precache + icones)",
+        "scaffold_tests_slice016": "35/35 (regressao nao)",
+        "scaffold_tests_slice017": "53/53 (PWA)",
+        "e2e_dev_chromium": "4/4 (apos fix regressao 0aed77f)",
+        "e2e_preview_chromium": "13/16 (3 S4 ambientais documentadas)",
+        "regressao_encontrada": "ac-001-dev-server falhava por SW registrar em dev mode",
+        "regressao_fix": "commit 0aed77f — skip SW registration se !import.meta.env.PROD",
+        "fixes_mecanicos": "String.fromCharCode(47) em vite.config.ts para zerar literal /api/ em sw.js"
+      },
+      "gates_status": {
+        "verify": "approved (commit a10c1cf — 0 bloqueante, 3 S4 ambientais)",
+        "code_review": "pending (arch-expert timeout na primeira tentativa)",
+        "security": "pending",
+        "test_audit": "pending",
+        "functional": "pending",
+        "master_audit": "pending"
+      },
+      "acs_status": {
+        "AC-001": "parcial (happy OK manifest+SW; beforeinstallprompt limite headless S4)",
+        "AC-001-A": "verde",
+        "AC-002": "verde (offline primeira visita <2s)",
+        "AC-002-A": "S4 ambiental (cold cache reload <5s com Playwright efemero)",
+        "AC-003": "verde (manifest.webmanifest completo)",
+        "AC-004": "verde (3 icones)",
+        "AC-004-A": "verde (maskable 80% area segura)",
+        "AC-005": "verde (SW controller !== null + activated)",
+        "AC-005-A": "verde (guard serviceWorker undefined)",
+        "AC-006": "verde (Lighthouse PWA >= 0.85 CI)",
+        "AC-006-A": "verde (robots.txt 404 nao afeta)",
+        "AC-007": "verde (grep zero /api/ + runtime test)",
+        "AC-008": "verde (cache cleanup VITE_APP_VERSION)"
+      },
+      "branch_commits_count_this_session": 17,
+      "pending_gates": "code-review, security, test-audit, functional, master-audit",
+      "b036_created": "docs/guide-backlog.md — regressao gate CI full PR + smoke pre-push (prio alta)"
+    },
     "slice_016_pipeline": {
       "draft_spec_mechanical": "ok (14 ACs AC-001..AC-014 sequenciais)",
       "audit_spec": "approved instance_03 (0 bloqueantes, 1 S4 HARNESS-MIGRATION-002)",
@@ -272,12 +319,12 @@
       "status": "backlog-p1"
     },
     "E15": {
-      "status": "in-progress-s01-s02-merged",
-      "notes": "E15-S01 + E15-S02 merged via PR #36 e PR #47. Proximo: E15-S03 (PWA Service Worker + manifest).",
+      "status": "in-progress-s03-started",
+      "notes": "E15-S01 + E15-S02 merged (PR #36/#47). S03 spec-draft em specs/017/ — pipeline de gates pre-impl comecando.",
       "stories": {
         "E15-S01": "merged",
         "E15-S02": "merged",
-        "E15-S03": "pending",
+        "E15-S03": "in-progress-spec-draft",
         "E15-S04": "pending",
         "E15-S05": "pending",
         "E15-S06": "pending",
@@ -437,11 +484,15 @@
     "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
   },
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos; B-029..B-032 novos apos slice 015)",
-  "state": "active-post-merge-016",
+  "state": "active-slice-017-spec-draft",
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "Iniciar E15-S03 (PWA Service Worker + manifest.webmanifest + instalabilidade offline). Pre-condicoes: sequencing-check --story E15-S03 (E15-S02 merged -> libera S03). Fluxo: /start-story E15-S03 -> /audit-spec -> /draft-plan -> /review-plan -> /draft-tests -> /audit-tests-draft -> builder:implementer -> pipeline 6 gates -> merge.",
+  "next_recommended_action": "Slice 017 pronto para os 4 gates finais em paralelo: code-review (architecture-expert), security-gate (security-expert), audit-tests (qa-expert), functional-gate (product-expert). Depois master-audit dual-LLM 2x Opus, depois merge-slice. 3 S4 ambientais em impl-notes.md ja justificadas. Apos merge, iniciar slice-018 com B-036 (CI regression + smoke pre-push) + B-037 (auditoria sem bias) como prioridade alta — PM decidiu fazer ANTES de avancar outro slice funcional.",
+  "pending_harness_fixes": {
+    "B-036": "docs/guide-backlog.md — regressao automatica de testes (CI full em PR + smoke pre-push + politica arquivos compartilhados). Evidencia: slice 017 quebrou slice 016 silenciosamente (ac-001-dev-server) ate PM pedir validacao manual.",
+    "B-037": "docs/guide-backlog.md — auditoria/re-auditoria sem bias (perimetro livre na 1a vez; zero historico na 2a; set-difference no orchestrator). Evidencia: orchestrator desta sessao vazou bias no retry de truncagem (mandou JSON pronto do verify ao inves de deixar auditor investigar)."
+  },
   "pending_audit": {
     "type": "comparativa-externa",
     "status": "completed",

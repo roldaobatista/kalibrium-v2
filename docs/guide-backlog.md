@@ -8,6 +8,43 @@ Itens resolvidos movem para o histórico no final.
 
 ## Aberto
 
+### [B-037] Auditoria e re-auditoria sem bias — perímetro livre na 1ª vez, zero histórico na 2ª
+
+- **Origem:** sessão slice-017 (2026-04-17). PM identificou que o princípio de auditoria isolada (R3/R11) está previsto no harness mas é **violado na prática** por prompts que induzem o auditor com contexto que ele não deveria ter.
+- **Evidência concreta (nesta mesma sessão):**
+  - No retry do `verify-slice 017` após sub-agent truncar, o prompt de recuperação incluía literalmente "88/88 scaffold + 4/4 dev e2e + 13/16 preview e2e verdes. As 3 falhas são S4 ambientais". O auditor só carimbou — não auditou.
+  - Em uma tentativa seguinte, mandei o JSON pronto com os 3 findings S4 já descritos. Isso não é auditoria, é ditar o resultado.
+  - Fixers recebiam "a causa é X, corrige via Z" em vez de "investigue a causa". Se o diagnóstico estivesse errado, o fixer não investigaria por conta própria.
+- **Princípio a formalizar:**
+  - **Auditoria 1ª vez:** auditor recebe o perímetro funcional completo (story/slice) sem restringir arquivos específicos. Ele decide onde olhar. Forma opinião livre.
+  - **Re-auditoria:** auditor recebe **só o arquivo(s) do estado atual + checklist + agent file**. Zero menção a findings anteriores, verdict anterior, "verifique se X foi corrigido", IDs de findings prévios, commits de fix, diff do fix, nomes de arquivos tocados. **O auditor não deve nem saber que é re-auditoria** — audita como se fosse a 1ª vez.
+  - **Set-difference fica no coordenador (orchestrator):**
+    - `prévios ∩ atuais` → não resolvidos → fixer de novo
+    - `prévios \ atuais` → resolvidos
+    - `atuais \ prévios` → novos (regressões ou omissões anteriores)
+  - **Retry por truncagem** respeita o princípio: novo sub-agent recebe o **mesmo prompt original** (talvez mais imperativo), nunca com a resposta pronta.
+- **Ação (5 mudanças):**
+  1. **`docs/protocol/06-estrategia-evidencias.md`** — adicionar seção formal "Auditoria e re-auditoria sem bias" com o princípio e as proibições.
+  2. **Agent files** (`.claude/agents/qa-expert.md`, `architecture-expert.md`, `security-expert.md`, `product-expert.md`, `governance.md`) — adicionar modo "re-audit" (ou nota em cada modo de auditoria) explicitando: "quando invocado para re-auditoria, o prompt NÃO deve mencionar findings anteriores, veredito anterior, commits de fix, diff ou arquivos tocados. Recusar mecanicamente se detectar esse conteúdo no prompt".
+  3. **Checklist de meta-review do orchestrator** — criar `docs/protocol/09-meta-review-checklist.md` que o orchestrator percorre antes de despachar qualquer prompt de re-auditoria: "meu prompt cita findings anteriores? cita verdict? cita arquivos tocados pelo fixer? se sim, reescreva".
+  4. **Hook de enforcement mecânico** (opcional, prioridade média) — `scripts/hooks/auditor-input-lint.sh` que inspeciona prompts emitidos via Agent tool e bloqueia palavras-chave como "finding anterior", "previously found", "foi corrigido", "verifique se X", "o fixer tocou". Mais restritivo, mas mais seguro.
+  5. **Política de auditoria 1ª vez ampla** — atualizar prompts padrão de gates inaugurais para passar "perímetro: slice-NNN inteiro com acesso ao repo, justifique onde procurou" em vez de "leia apenas arquivos X, Y, Z". Diferenciar clara 1ª vez (amplo) de re-audit (minimalista sem histórico).
+- **Trade-offs:**
+  - **Custo**: auditoria 1ª vez mais ampla = mais tokens. Aceitável — o viés custa mais caro (findings perdidos).
+  - **Set-difference mecânico**: set-difference por `file:line + descrição` é frágil quando fix move código. Mitigação: comparar por **assinatura semântica** (hash categoria + descrição normalizada + path sem linha).
+  - **Retry de truncagem**: pode levar a loop infinito se sub-agent trunca consistentemente. Fallback R6: 5 truncagens → escalar PM com prompt em texto puro.
+- **Status:** aberto. Prioridade **alta**. Complementar a B-036 (ambos tratam qualidade de revisão/regressão, mas por ângulos diferentes: B-036 = testes mecânicos; B-037 = auditoria humana/LLM).
+
+### [B-036] Regressão gate automática — CI full em PR + smoke suite no pre-push
+
+- **Origem:** sessão slice-017 (2026-04-17). PM identificou lacuna sistêmica: harness atual só roda testes do slice ativo (`mechanical-gates.sh` chama `ac-tests.sh slice-NNN`), o que permite que slices novos quebrem silenciosamente slices anteriores.
+- **Evidência concreta:** slice 017 modificou `src/main.tsx` + `src/sw-registration.ts` adicionando registro de Service Worker. O teste `tests/e2e/ac-001-dev-server.spec.ts` (slice 016) passou a falhar com `The script has an unsupported MIME type ('text/html')` porque o SW tentava registrar em Vite dev mode (onde `/sw.js` não existe). Regressão **não foi detectada** por nenhum gate existente — só apareceu quando o PM pediu validação manual com `KALIB_E2E_MODE=dev npx playwright test`. Corrigido em commit `0aed77f` (guard `import.meta.env.PROD`).
+- **Ação (proposta D — 2 camadas):**
+  1. **CI em PR (bloqueante):** `.github/workflows/test-regression.yml` roda `npm run test:scaffold` + `npx playwright test` (ambos projects dev/preview) em todo push para branch de PR. Ruleset de `main` já bloqueia merge se o workflow falhar. Repo já público desde 2026-04-15 (sem constrangimento de Actions quota).
+  2. **Smoke suite no pre-push:** tag `@smoke` em testes críticos (aprox. 10-15 cobrindo jornadas: login, CRUD cliente, scaffold render, PWA offline, auth). `scripts/smoke-tests.sh` lista arquivos tagueados e roda no pre-push hook. Rápido (<30s). Adicional: `slice-report.sh` passa a mostrar seção "regressão checada: X/Y testes de slices anteriores passaram".
+  3. **Política:** todo slice que tocar arquivo compartilhado (`src/main.tsx`, `vite.config.ts`, `package.json`, `capacitor.config.ts`, qualquer `src/auth/*`, qualquer `app/Http/Controllers/*`) obriga rodar smoke suite local antes do commit. Implementer valida em pré-commit-gate.sh via detecção de paths tocados.
+- **Status:** aberto. Prioridade **alta**. Bloqueia próximo slice (E15-S04 ou onde for) até que pelo menos a camada 1 (CI em PR) esteja ativa.
+
 ### [B-034] `audit-spec` deve alertar para ACs que exigem destruição de feature sem substituto agendado
 
 - **Origem:** retrospectiva do slice-016 (`docs/retrospectives/slice-016.md` §"Gates que deveriam ter disparado e não dispararam").

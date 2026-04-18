@@ -12,3 +12,4 @@
 | 010 | E02-S07: Base legal LGPD e consentimentos de contato | draft | 2026-04-15 | — |
 | 011 | E02-S08: Testes estruturais de isolamento entre tenants | draft | 2026-04-15 | — |
 | 016 | E15-S02: Scaffold React + TypeScript + Ionic + Capacitor + Vite | draft | 2026-04-17 | — |
+| 017 | E15-S03: PWA Service Worker + manifest + instalabilidade offline | draft | 2026-04-17 | — |
