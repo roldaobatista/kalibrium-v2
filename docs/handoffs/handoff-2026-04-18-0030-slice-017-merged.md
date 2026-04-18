@@ -55,9 +55,3 @@ Ambos não são bloqueantes — podem ser executados depois.
 1. Abrir → `/resume` (SessionStart).
 2. (opcional) `/slice-report 017` + `/retrospective 017`.
 3. `/start-story E15-S04` bloqueado por R13 até B-036/B-037 — usar `/new-slice 018 "Harness — CI regression + bias-free audit protocol"` ou similar.
-
----
-
-## Handoff anterior — 2026-04-17 encerramento — Slice 017 pós-impl
-
-Ver `handoff-2026-04-17-encerramento-slice-017-pos-impl.md` (ou o handoff imediatamente anterior em `docs/handoffs/`).

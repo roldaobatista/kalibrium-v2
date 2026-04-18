@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution-post-slice-015-merged",
-  "updated_at": "2026-04-17T21:35:00-04:00",
+  "phase": "execution-post-slice-017-merged",
+  "updated_at": "2026-04-18T00:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
@@ -61,11 +61,11 @@
   },
   "execution": {
     "current_epic": "E15",
-    "current_story": "E15-S03",
-    "current_slice": "017",
-    "slice_status": "spec-draft",
-    "last_green_commit": "99663f8",
-    "active_branch": "feat/slice-017-pwa-shell",
+    "current_story": "E15-S04",
+    "current_slice": "018",
+    "slice_status": "pending",
+    "last_green_commit": "f472326",
+    "active_branch": "main",
     "consecutive_rejections": 0,
     "blocked": false,
     "blocked_reason": null,
@@ -91,12 +91,14 @@
       },
       "gates_status": {
         "verify": "approved (commit a10c1cf — 0 bloqueante, 3 S4 ambientais)",
-        "code_review": "pending (arch-expert timeout na primeira tentativa)",
-        "security": "pending",
-        "test_audit": "pending",
-        "functional": "pending",
-        "master_audit": "pending"
+        "code_review": "approved (commit ea8e056 — 0 S1-S3, 2 S4, 2 S5, pos fix F-001+F-002)",
+        "security": "approved (0 S1-S3, 1 S4)",
+        "test_audit": "approved (0 S1-S3, 2 S4, 14/14 ACs rastreaveis)",
+        "functional": "approved (0 S1-S3, 2 S4)",
+        "master_audit": "approved dual-LLM 2x Opus 4.7 (consenso pleno, 0 reconciliacao)"
       },
+      "merge_status": "MERGED em main via PR #49 (commit f472326)",
+      "pr_url": "https://github.com/roldaobatista/kalibrium-v2/pull/49",
       "acs_status": {
         "AC-001": "parcial (happy OK manifest+SW; beforeinstallprompt limite headless S4)",
         "AC-001-A": "verde",
@@ -319,12 +321,12 @@
       "status": "backlog-p1"
     },
     "E15": {
-      "status": "in-progress-s03-started",
-      "notes": "E15-S01 + E15-S02 merged (PR #36/#47). S03 spec-draft em specs/017/ — pipeline de gates pre-impl comecando.",
+      "status": "in-progress-s03-merged",
+      "notes": "E15-S01 + E15-S02 + E15-S03 merged (PR #36/#47/#49). S04 pending — antes disso, slice-018 dedicado a B-036 + B-037 (harness fixes prio alta).",
       "stories": {
         "E15-S01": "merged",
         "E15-S02": "merged",
-        "E15-S03": "in-progress-spec-draft",
+        "E15-S03": "merged",
         "E15-S04": "pending",
         "E15-S05": "pending",
         "E15-S06": "pending",
@@ -484,11 +486,11 @@
     "known_residual": "scripts/hooks/verifier-sandbox.sh selado mantem allowlist v1 (nao bloqueia sessoes atuais)"
   },
   "guide_backlog_ref": "docs/guide-backlog.md (B-025, B-028 abertos; B-023, B-026, B-027 resolvidos; B-029..B-032 novos apos slice 015)",
-  "state": "active-slice-017-spec-draft",
+  "state": "slice-017-merged-pending-slice-018-harness",
   "paused": false,
   "paused_reason": null,
   "active_epic": "E15",
-  "next_recommended_action": "Slice 017 pronto para os 4 gates finais em paralelo: code-review (architecture-expert), security-gate (security-expert), audit-tests (qa-expert), functional-gate (product-expert). Depois master-audit dual-LLM 2x Opus, depois merge-slice. 3 S4 ambientais em impl-notes.md ja justificadas. Apos merge, iniciar slice-018 com B-036 (CI regression + smoke pre-push) + B-037 (auditoria sem bias) como prioridade alta — PM decidiu fazer ANTES de avancar outro slice funcional.",
+  "next_recommended_action": "Slice 017 (E15-S03 PWA Shell) MERGED em main via PR #49 (f472326) com dual-LLM approved. Proxima acao: iniciar slice-018 dedicado a B-036 (CI regression full em PR + smoke pre-push + politica de arquivos compartilhados) + B-037 (auditoria/re-auditoria sem bias — perimetro livre 1a vez, zero historico 2a, set-difference no orchestrator). PM decidiu fazer ANTES de E15-S04 ou qualquer slice funcional. Opcional antes: /slice-report 017 + /retrospective 017.",
   "pending_harness_fixes": {
     "B-036": "docs/guide-backlog.md — regressao automatica de testes (CI full em PR + smoke pre-push + politica arquivos compartilhados). Evidencia: slice 017 quebrou slice 016 silenciosamente (ac-001-dev-server) ate PM pedir validacao manual.",
     "B-037": "docs/guide-backlog.md — auditoria/re-auditoria sem bias (perimetro livre na 1a vez; zero historico na 2a; set-difference no orchestrator). Evidencia: orchestrator desta sessao vazou bias no retry de truncagem (mandou JSON pronto do verify ao inves de deixar auditor investigar)."
