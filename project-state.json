@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "project": "kalibrium-v2",
-  "phase": "execution-post-slice-017-merged",
-  "updated_at": "2026-04-18T00:30:00-04:00",
+  "phase": "execution-slice-018-merged-relock-adiado",
+  "updated_at": "2026-04-18T04:30:00-04:00",
   "discovery": {
     "intake_complete": true,
     "prd_status": "em-ampliacao",
