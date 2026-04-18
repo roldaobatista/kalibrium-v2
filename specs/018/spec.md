@@ -46,7 +46,7 @@ Os ACs abaixo referenciam os seguintes artefatos novos — **todos são outputs 
 Arquivos atualizados (não criados):
 
 - `scripts/pre-push` hook — passa a invocar `detect-shared-file-change.sh` + `smoke-tests.sh`
-- `scripts/merge-slice.sh` — passa a invocar `validate-gate-output.sh` como pré-check
+- `scripts/merge-slice.sh` — passa a (a) invocar `validate-gate-output.sh` como pré-check; (b) alinhar `required_gates` ao enum canônico do schema (linha 65-78 hoje usa `"code-review"`, deve migrar para `"review"` conforme `docs/protocol/schemas/gate-output.schema.json`); (c) manter compat com JSONs históricos de slices 001-017 que usam valores legacy via aliases (mapeamento `{"code-review": "review", "security": "security-gate", "functional": "functional-gate"}`).
 - `docs/protocol/06-estrategia-evidencias.md` — adiciona seção "Auditoria sem bias"
 
 ## Acceptance Criteria
@@ -85,7 +85,7 @@ Arquivos atualizados (não criados):
 
 ### B-038 — Schema uniforme de gate output
 
-- **AC-005:** Dado que um gate sub-agent emite seu JSON final, quando `scripts/validate-gate-output.sh specs/NNN/<arquivo>.json` é executado, então exige literal `"$schema": "gate-output-v1"`, `"slice": "NNN"`, `"gate": "<nome canônico>"` (`verify` | `code-review` | `security-gate` | `audit-tests` | `functional-gate` | `master-audit`). JSON fora desse contrato é rejeitado com mensagem clara.
+- **AC-005:** Dado que um gate sub-agent emite seu JSON final, quando `scripts/validate-gate-output.sh specs/NNN/<arquivo>.json` é executado, então exige literal `"$schema": "gate-output-v1"`, `"slice": "NNN"`, `"gate": "<nome canônico>"` (`verify` | `review` | `security-gate` | `audit-tests` | `functional-gate` | `master-audit` — conforme enum do schema normativo em `docs/protocol/schemas/gate-output.schema.json`). JSON fora desse contrato é rejeitado com mensagem clara.
 - **AC-005-A:** Dado que este slice adiciona/atualiza agent files dos 5 modos de gate (`qa-expert.md`, `architecture-expert.md`, `security-expert.md`, `product-expert.md`, `governance.md`), quando o slice é mergeado, então cada um possui seção obrigatória `## Saída obrigatória` contendo os valores literais do schema (`$schema: "gate-output-v1"`, `gate: <nome canônico>`, `slice: "<NNN>"`) e um exemplo JSON inline válido. Teste verifica: (a) presença da seção em cada agent file, (b) presença dos 3 literais, (c) exemplo JSON parseable e conforme `docs/protocol/schemas/gate-output.schema.json`.
 - **AC-006:** Dado que `scripts/merge-slice.sh` é invocado no slice 018 ou posterior, quando os 5 gates obrigatórios foram emitidos pelos sub-agents atualizados, então o script aceita todos sem necessidade de normalização manual (zero edits entre emissão e merge), e `git status` entre emissão dos JSONs e execução do merge-slice mostra apenas os arquivos emitidos (não há Edit posterior ao conteúdo dos JSONs).
 - **AC-006-A:** Dado que um sub-agent emite um JSON não-conforme (ex.: `$schema` como URL ao invés do literal `"gate-output-v1"`, ou `gate` com valor fora da lista canônica, ou `slice` ausente), quando `scripts/validate-gate-output.sh <arquivo>.json` é executado, então exit code = 1 com mensagem apontando linha+campo violador (ex.: `"specs/018/security-review.json:5 — gate='security' esperado 'security-gate'"`). Este comportamento é testado por teste automatizado com 3 JSONs fixture propositalmente inválidos (1 por tipo de violação: `$schema` errado, `gate` errado, `slice` ausente).
