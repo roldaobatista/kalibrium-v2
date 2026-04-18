@@ -1,0 +1,11 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "verify",
+  "slice": "019",
+  "verdict": "rejected",
+  "findings": [
+    {"id": "VER-019-001", "category": "assertion_missing", "description": "AC-001 sem assertion concreta", "file": "tests/Feature/Foo.php", "line": 42, "severity": "S2"},
+    {"id": "VER-019-002", "category": "test_red_expected", "description": "Teste AC-002 nasce green", "file": "tests/Feature/Bar.php", "line": 10, "severity": "S1"},
+    {"id": "VER-019-003", "category": "coverage_gap", "description": "AC-003 sem teste", "file": "tests/Feature/Baz.php", "line": 5, "severity": "S2"}
+  ]
+}

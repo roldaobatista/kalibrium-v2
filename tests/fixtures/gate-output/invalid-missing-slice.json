@@ -1,0 +1,6 @@
+{
+  "$schema": "gate-output-v1",
+  "gate": "verify",
+  "verdict": "approved",
+  "findings": []
+}
