@@ -1,63 +1,48 @@
-# Handoff — 2026-04-18 04:30 — Sessão longa encerrada: slice 017 + slice 018 MERGED
+# Handoff — 2026-04-18 17:00 — Slice 019 implementer done, gates finais pendentes
 
 ## TL;DR
 
-Sessão executou dois slices completos ponta-a-ponta. Main agora tem harness bem mais robusto.
+Slice 019 aberto para cobrir 2 das 6 fragilidades do harness (B-042 hook git nativo + B-043 paths filter tenant). 5 gates pré-impl approved. Implementação commitada em `773b0ff`. Faltam gates finais (verify, code-review, security, test-audit, functional, master-audit) + merge. Parada segura pedida pelo PM.
 
-- **Slice 017 (E15-S03 PWA Shell)** → MERGED via PR #49 (`f472326`)
-- **Slice 018 (Harness B-036 + B-037 + B-038 + B-041)** → MERGED via PR #51 (`11011b4`)
-
-Main HEAD atual: `1b466bb`.
-
-## Pedido explícito do PM
-
-> "salve tudo que fizemos e vamos criar o .bat em outra secao"
-
-Próxima sessão deve retomar a criação do `.bat` para rodar o relock do `merge-slice.sh`. O relock não é urgente (merge-slice atual funciona com as emissões legacy), mas o PM quer resolver isso antes de seguir com funcionalidades novas.
-
-## Estado atual
-
-- **Main HEAD:** `1b466bb`
-- **Branch ativa:** `main` (limpo, sincronizado com origin)
+- **Branch de trabalho:** `feat/slice-019-harness-fragility-fixes` (no remoto)
+- **Main HEAD:** `da680f8` (PR #57 `.bat` do relock mergeado)
 - **Débito técnico:** 0 itens
-- **E15:** 3/10 stories merged
-- **Relock do merge-slice.sh:** ADIADO (não bloqueia)
+- **Backlog:** B-042..B-046 registrados (6 fragilidades reais)
 
-## Próxima sessão — tentativas novas para o .bat do relock
+## Próxima sessão
 
-Após 3 tentativas fracassadas nesta sessão (PRs #52/#53/#54 todas com problema de TTY/janela), investigar:
+1. `/resume` (este handoff + project-state)
+2. Verificar checkout em `feat/slice-019-harness-fragility-fixes`
+3. `/verify-slice 019` — se PHP local barrar, abrir PR e delegar ao CI
+4. Continuar: code-review → security → test-audit → functional → master-audit → merge
+5. Pós-merge: PM duplo-clique em `scripts/pm/relock-harness.bat` (patch diferido do `session-start.sh`)
+6. `/slice-report 019` + `/retrospective 019`
+7. Abrir slice 020 (B-044 + B-045 + B-046 + 2 ADRs)
 
-1. **`mintty.exe -e`** direto (em vez de `start git-bash.exe`):
-   ```
-   start "" "C:\Program Files\Git\usr\bin\mintty.exe" -e /bin/bash -c "..."
-   ```
-2. **GitHub Actions workflow dispatch** com self-hosted runner.
-3. **`script -q /dev/null -c "..."`** para simular TTY em bash não-interativo.
-4. **`SendKeys`** via PowerShell para digitar "RELOCK"/"RESET" automaticamente.
-5. **Reescrever `relock-harness.sh` com modo `--ci`** (exige ADR — última opção).
+## Commits desta sessão
 
-## Memórias importantes gravadas nesta sessão
+Em `feat/slice-019-harness-fragility-fixes` (6 commits):
 
-- `feedback_pm_no_programming_skill.md` (nova, **CRÍTICA**) — PM NUNCA digita comando, nunca abre terminal. Agente resolve 100% do técnico.
+| Hash | Descrição |
+|---|---|
+| `3fb2d81` | spec + B-042..B-046 no backlog |
+| `8d88264` | audit-spec approved |
+| `58843f0` | plan + plan-review approved |
+| `cc4d137` | 7 testes RED @covers ADR-0017 |
+| `5d343f7` | tests-draft-audit approved |
+| `773b0ff` | implementer — 3 scripts + ci.yml + docs + manifests |
 
-## PRs desta sessão (7 total)
+Detalhes completos em `handoff-2026-04-18-1700-slice-019-implementer-done.md`.
 
-| PR | Tipo | Descrição |
-|---|---|---|
-| #49 | Slice | E15-S03 PWA Shell |
-| #50 | Chore | Handoff pós-merge slice 017 |
-| #51 | Slice | Harness B-036+B-037+B-038+B-041 |
-| #52 | Chore | .bat relock (tentativa 1) |
-| #53 | Fix | .bat — chamada bash direta (tentativa 2) |
-| #54 | Fix | .bat — Git Bash com TTY (tentativa 3) |
-| #55 | Chore | Relock adiado + .bat removido |
+## Problema conhecido
 
-Detalhes completos em `handoff-2026-04-18-0430-sessao-longa-final.md`.
+PHP 8.4 winget com permission denied via Bash tool. Testes PHPUnit do slice 019 **não foram executados** nesta sessão. Estratégia: deixar CI validar ao abrir PR, ou PM rodar via cmd.exe.
 
 ---
 
 ## Handoffs anteriores
 
+- `handoff-2026-04-18-0430-sessao-longa-final.md` (slice 017+018 MERGED, relock adiado)
 - `handoff-2026-04-18-0200-slice-018-plan-approved.md`
 - `handoff-2026-04-18-0100-slice-018-spec-round-2.md`
 - `handoff-2026-04-18-0030-slice-017-merged.md`
