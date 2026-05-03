@@ -1,5 +1,7 @@
 # Aceite: Técnico entra no app do celular
 
+**Atualizado em 03/05/2026** — prints refeitos após aplicação do design system Kalibrium (paleta, tipografia, layout master).
+
 > Como usar este arquivo: leia cada caminho de uso, olhe as imagens e confira se está do jeito que você queria. No final, marque "é isso" ou descreva o que está errado.
 
 > Nota sobre digital/reconhecimento facial: o app pergunta se o técnico quer usar a biometria do celular depois do primeiro login bem-sucedido. Essa funcionalidade depende do hardware do celular real — em ambiente de teste no computador ela não aparece. Nas telas abaixo você verá o fluxo normal de e-mail e senha.
@@ -112,4 +114,4 @@
 ## Sua decisão
 
 -   [ ] Tá do jeito que eu queria — pode seguir
--   [ ] Tá errado: ******************************\_\_\_\_******************************
+-   [ ] Tá errado: **************\*\***************\_\_\_\_**************\*\***************
