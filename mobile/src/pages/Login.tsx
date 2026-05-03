@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import {
+    IonAlert,
     IonButton,
     IonContent,
     IonHeader,
@@ -11,23 +13,83 @@ import {
     IonToast,
     IonToolbar,
 } from '@ionic/react';
+import { login } from '../services/auth';
+import { getDeviceIdentifier, getDeviceLabel } from '../services/device';
 import './Login.css';
 
 const Login: React.FC = () => {
+    const history = useHistory();
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
+    const [loading, setLoading] = useState(false);
+
     const [toastAberto, setToastAberto] = useState(false);
     const [mensagemToast, setMensagemToast] = useState('');
 
-    const handleEntrar = () => {
+    const [alertAberto, setAlertAberto] = useState(false);
+    const [mensagemAlert, setMensagemAlert] = useState('');
+    const [tituloAlert, setTituloAlert] = useState('');
+
+    const mostrarToast = (msg: string) => {
+        setMensagemToast(msg);
+        setToastAberto(true);
+    };
+
+    const mostrarAlert = (titulo: string, msg: string) => {
+        setTituloAlert(titulo);
+        setMensagemAlert(msg);
+        setAlertAberto(true);
+    };
+
+    const handleEntrar = async () => {
         if (!email.trim() || !senha.trim()) {
-            setMensagemToast('Preencha e-mail e senha pra entrar.');
-            setToastAberto(true);
+            mostrarToast('Preencha e-mail e senha pra entrar.');
             return;
         }
 
-        setMensagemToast('Login ainda não conectado ao servidor — próxima rodada.');
-        setToastAberto(true);
+        setLoading(true);
+        try {
+            const resultado = await login(
+                email.trim(),
+                senha,
+                getDeviceIdentifier(),
+                getDeviceLabel(),
+            );
+
+            switch (resultado.kind) {
+                case 'ok':
+                    localStorage.setItem('kalibrium.token', resultado.token);
+                    localStorage.setItem('kalibrium.user', JSON.stringify(resultado.user));
+                    history.replace('/home');
+                    break;
+
+                case 'pending':
+                    mostrarAlert('Aguardando aprovação', resultado.message);
+                    break;
+
+                case 'revoked':
+                    mostrarAlert('Acesso negado', resultado.message);
+                    break;
+
+                case 'unauthorized':
+                    mostrarToast('E-mail ou senha incorretos.');
+                    break;
+
+                case 'validation':
+                    mostrarToast('Não foi possível entrar. Verifique os dados e tente de novo.');
+                    break;
+
+                case 'rate_limit':
+                    mostrarToast(resultado.message);
+                    break;
+
+                case 'network_error':
+                    mostrarToast('Sem conexão com o servidor. Verifique sua internet.');
+                    break;
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -69,8 +131,9 @@ const Login: React.FC = () => {
                         color="primary"
                         className="login-botao"
                         onClick={handleEntrar}
+                        disabled={loading}
                     >
-                        Entrar
+                        {loading ? 'Entrando...' : 'Entrar'}
                     </IonButton>
                 </div>
 
@@ -80,6 +143,14 @@ const Login: React.FC = () => {
                     duration={3000}
                     onDidDismiss={() => setToastAberto(false)}
                     position="bottom"
+                />
+
+                <IonAlert
+                    isOpen={alertAberto}
+                    header={tituloAlert}
+                    message={mensagemAlert}
+                    buttons={['OK']}
+                    onDidDismiss={() => setAlertAberto(false)}
                 />
             </IonContent>
         </IonPage>
