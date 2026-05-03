@@ -3,11 +3,11 @@
 # Pint + PHPStan + Pest no escopo. Não bloqueia (Stop pode bloquear, mas
 # preferimos avisar e deixar a maestra decidir vs travar o usuário).
 
-set -euo pipefail
+set -uo pipefail
 
 # Quantos arquivos PHP tocados desde último commit?
-# (grep -c retorna 1 quando não acha nada, então pegamos o count via wc)
-mudados_php=$(git diff --name-only HEAD 2>/dev/null | grep -E '\.php$' | wc -l | tr -d ' ')
+# grep retorna 1 quando não acha nada — não tratamos como erro
+mudados_php=$(git diff --name-only HEAD 2>/dev/null | grep -E '\.php$' 2>/dev/null | wc -l | tr -d ' ' || echo "0")
 
 if [ -z "$mudados_php" ] || [ "$mudados_php" = "0" ]; then
   exit 0
