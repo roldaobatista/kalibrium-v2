@@ -9,7 +9,9 @@ use App\Models\MobileDevice;
 use App\Models\Tenant;
 use App\Models\TenantAuditLog;
 use App\Models\TenantUser;
+use App\Support\Auth\PostgresAuthContext;
 use App\Support\Tenancy\TenantContext;
+use App\Support\Tenancy\TenantScopeBypass;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -153,6 +155,10 @@ final class IndexPage extends Component
 
     public function render(): View
     {
+        // Garante que o contexto de tenant esteja disponível antes de qualquer query no render,
+        // inclusive em Livewire updates (POST /livewire-*/update) que não passam pelo tenant.context.
+        $this->tenantUser();
+
         return view('livewire.mobile-devices.index-page', [
             'devices' => $this->devices(),
             'statuses' => [
@@ -186,17 +192,46 @@ final class IndexPage extends Component
         }
 
         // Fallback: busca no banco pelo usuário autenticado + tenant do contexto.
-        // Necessário em contextos onde o atributo não está disponível (ex: testes Livewire).
-        $userId = auth()->id();
-        $tenantId = $this->currentTenantId();
-
-        if ($userId === null || $tenantId === null) {
+        // Necessário em contextos onde o atributo não está disponível (ex: Livewire update).
+        $rawUserId = auth()->id();
+        if ($rawUserId === null) {
             return null;
         }
 
-        return TenantUser::where('user_id', $userId)
-            ->where('tenant_id', $tenantId)
-            ->first();
+        $userId = (int) $rawUserId;
+
+        $tenantId = $this->currentTenantId();
+        if ($tenantId !== null) {
+            return TenantUser::where('user_id', $userId)
+                ->where('tenant_id', $tenantId)
+                ->first();
+        }
+
+        // Último fallback: resolve o tenant a partir do único TenantUser ativo do usuário.
+        // Usado no Livewire update (POST /livewire-*/update) que não passa pelo tenant.context middleware.
+        // Precisa setar app.auth_user_id ANTES da query para bypassar a RLS do Postgres,
+        // que permite acesso quando user_id = app.auth_user_id.
+        app(PostgresAuthContext::class)->forUser($userId);
+
+        /** @var TenantUser|null $resolved */
+        $resolved = TenantScopeBypass::run(
+            fn () => TenantUser::withoutGlobalScopes()
+                ->where('user_id', $userId)
+                ->where('status', 'active')
+                ->with('tenant')
+                ->first(),
+        );
+
+        if ($resolved instanceof TenantUser && $resolved->tenant !== null) {
+            // Setar o contexto do Postgres para que as queries subsequentes respeitem o RLS.
+            app(PostgresAuthContext::class)->forTenant((int) $resolved->tenant_id);
+            app(PostgresAuthContext::class)->forUser((int) $userId);
+            // Também setar no request->attributes para outros middlewares/componentes.
+            request()->attributes->set('current_tenant', $resolved->tenant);
+            request()->attributes->set('current_tenant_user', $resolved);
+        }
+
+        return $resolved;
     }
 
     private function currentTenantId(): ?int
