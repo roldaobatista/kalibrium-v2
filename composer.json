@@ -52,17 +52,8 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@test:fast"
+            "@php artisan test"
         ],
-        "test:fast": "@php scripts/test-scope.php fast",
-        "test:integration": "@php scripts/test-scope.php integration",
-        "test:build": "@php scripts/test-scope.php build",
-        "test:tooling": "@php scripts/test-scope.php tooling",
-        "test:mutates-config": "@php scripts/test-scope.php mutates-config",
-        "test:remote": "@php scripts/test-scope.php remote",
-        "test:legacy": "@php scripts/test-scope.php legacy",
-        "test:slice": "@php scripts/test-scope.php slice",
-        "test:all": "@php scripts/test-scope.php all",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
