@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\MobileDeviceStatus;
+use App\Models\Concerns\ScopesToCurrentTenant;
 use Database\Factories\MobileDeviceFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,11 +22,12 @@ use Illuminate\Support\Carbon;
 final class MobileDevice extends Model
 {
     /** @use HasFactory<MobileDeviceFactory> */
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, ScopesToCurrentTenant;
 
     /** @var list<string> */
     protected $fillable = [
         'id',
+        'tenant_id',
         'user_id',
         'device_identifier',
         'device_label',
@@ -45,6 +47,12 @@ final class MobileDevice extends Model
             'revoked_at' => 'datetime',
             'last_seen_at' => 'datetime',
         ];
+    }
+
+    /** @return BelongsTo<Tenant, $this> */
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
     }
 
     /** @return BelongsTo<User, $this> */

@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Enums\MobileDeviceStatus;
 use App\Models\MobileDevice;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,7 +20,10 @@ class MobileDeviceFactory extends Factory
     /** @return array<string, mixed> */
     public function definition(): array
     {
+        $tenant = Tenant::factory()->create();
+
         return [
+            'tenant_id' => $tenant->id,
             'user_id' => User::factory(),
             'device_identifier' => 'device-'.fake()->unique()->lexify('??????????'),
             'device_label' => fake()->optional()->randomElement([

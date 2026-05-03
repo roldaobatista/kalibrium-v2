@@ -18,7 +18,10 @@ final class MobileLoginRateLimit
     public function handle(Request $request, Closure $next): Response
     {
         $ip = $request->ip() ?? 'unknown';
-        $key = 'mobile_login_rate_limit:'.$ip;
+        $email = mb_strtolower((string) $request->input('email', ''));
+
+        // Chave composta ip+email: evita bloquear todo um laboratório com NAT compartilhado.
+        $key = 'mobile_login_rate_limit:'.$ip.':'.$email;
 
         $store = Cache::store((string) config('cache.default', 'redis'));
         $hits = (int) $store->get($key, 0);
