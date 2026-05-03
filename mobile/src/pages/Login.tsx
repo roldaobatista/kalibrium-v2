@@ -6,6 +6,7 @@ import { eyeOutline, eyeOffOutline, fingerPrintOutline } from 'ionicons/icons';
 import { login } from '../services/auth';
 import { getDeviceIdentifier, getDeviceLabel } from '../services/device';
 import * as biometric from '../services/biometric';
+import { secureStorage } from '../services/secureStorage';
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -63,14 +64,14 @@ const Login: React.FC = () => {
         const resultado = await biometric.authenticate();
         if (!resultado) return;
 
-        localStorage.setItem('kalibrium.token', resultado.token);
-        localStorage.setItem('kalibrium.user', JSON.stringify(resultado.user));
+        await secureStorage.set('token', resultado.token);
+        await secureStorage.set('user', JSON.stringify(resultado.user));
         history.replace('/home');
     };
 
-    const navegarParaHome = (token: string, user: object) => {
-        localStorage.setItem('kalibrium.token', token);
-        localStorage.setItem('kalibrium.user', JSON.stringify(user));
+    const navegarParaHome = async (token: string, user: object) => {
+        await secureStorage.set('token', token);
+        await secureStorage.set('user', JSON.stringify(user));
         history.replace('/home');
     };
 
@@ -101,7 +102,7 @@ const Login: React.FC = () => {
                         setPendingUser(resultado.user as object);
                         setAlertBiometricAberto(true);
                     } else {
-                        navegarParaHome(resultado.token, resultado.user as object);
+                        await navegarParaHome(resultado.token, resultado.user as object);
                     }
                     break;
                 }
@@ -142,13 +143,13 @@ const Login: React.FC = () => {
         } catch {
             // Falhou ao salvar — segue sem biometria
         }
-        navegarParaHome(pendingToken, pendingUser);
+        await navegarParaHome(pendingToken, pendingUser);
     };
 
     const handleRecusarBiometria = () => {
         setAlertBiometricAberto(false);
         localStorage.setItem('kalibrium.biometric_optout', '1');
-        navegarParaHome(pendingToken, pendingUser);
+        void navegarParaHome(pendingToken, pendingUser);
     };
 
     return (

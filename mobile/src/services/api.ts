@@ -6,24 +6,23 @@
  * - X-Device-Id: {deviceIdentifier}
  *
  * Reage ao sinal de wipe (401 + body.wipe === true):
- * - Limpa todos os dados locais
+ * - Limpa todos os dados locais (banco criptografado + biometria + preferências)
  * - Redireciona para /blocked
  *
  * Reage a 401 normal:
- * - Limpa token e redireciona para /login
+ * - Remove token e redireciona para /login
  */
 
 import * as biometric from './biometric';
 import { getDeviceIdentifier } from './device';
+import { secureStorage } from './secureStorage';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
 /** Limpa tudo e redireciona para a rota informada. */
 async function clearAndRedirect(path: string): Promise<void> {
     await biometric.clear();
-    localStorage.removeItem('kalibrium.token');
-    localStorage.removeItem('kalibrium.user');
-    localStorage.removeItem('kalibrium.device_id');
+    await secureStorage.clear();
     localStorage.removeItem('kalibrium.biometric_optout');
     window.location.replace(path);
 }
@@ -33,7 +32,7 @@ async function clearAndRedirect(path: string): Promise<void> {
  * Aceita `path` relativo ao API_BASE_URL (ex: '/api/mobile/me').
  */
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
-    const token = localStorage.getItem('kalibrium.token');
+    const token = await secureStorage.get('token');
     const deviceId = getDeviceIdentifier();
 
     const headers = new Headers(init.headers);
@@ -62,7 +61,7 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
         if (body['wipe'] === true) {
             await clearAndRedirect('/blocked');
         } else {
-            localStorage.removeItem('kalibrium.token');
+            await secureStorage.remove('token');
             window.location.replace('/login');
         }
     }

@@ -105,6 +105,14 @@ Decisão técnica minha: **não vou tentar corrigir tudo agora**. Vou priorizar 
 
 ---
 
+## Criptografia local mobile — chave SQLCipher no Preferences
+
+**Data registrada:** 2026-05-03
+
+A chave de 32 bytes que abre o `kalibrium.db` fica em `@capacitor/preferences` (Keychain iOS / Keystore Android). Isolamento confiável o suficiente pro MVP. Para nível alto de segurança no futuro, avaliar usar `@capacitor-community/secure-storage` (Android Keystore com hardware-backed key) ou rotacionar a chave periodicamente.
+
+---
+
 ## Login mobile — User não escopado por tenant
 
 **Data registrada:** 2026-05-03

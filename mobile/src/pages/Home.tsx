@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { apiFetch } from '../services/api';
 import * as biometric from '../services/biometric';
+import { secureStorage } from '../services/secureStorage';
 import './Home.css';
 
 interface UserData {
@@ -16,35 +17,39 @@ const Home: React.FC = () => {
     const [user, setUser] = useState<UserData | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('kalibrium.token');
-        if (!token) {
-            history.replace('/login');
-            return;
-        }
-
-        // Carrega dados do usuário do localStorage enquanto valida sessão com o servidor.
-        const raw = localStorage.getItem('kalibrium.user');
-        if (raw) {
-            try {
-                setUser(JSON.parse(raw) as UserData);
-            } catch {
+        const init = async () => {
+            const token = await secureStorage.get('token');
+            if (!token) {
                 history.replace('/login');
                 return;
             }
-        }
 
-        // Valida sessão com o backend. Se receber wipe, apiFetch cuida do redirect.
-        void apiFetch('/api/mobile/me').then((res) => {
-            if (res.status === 200) {
-                void res.json().then((data: UserData) => setUser(data));
+            // Carrega dados do usuário do armazenamento seguro enquanto valida sessão.
+            const raw = await secureStorage.get('user');
+            if (raw) {
+                try {
+                    setUser(JSON.parse(raw) as UserData);
+                } catch {
+                    history.replace('/login');
+                    return;
+                }
             }
-        });
+
+            // Valida sessão com o backend. Se receber wipe, apiFetch cuida do redirect.
+            void apiFetch('/api/mobile/me').then((res) => {
+                if (res.status === 200) {
+                    void res.json().then((data: UserData) => setUser(data));
+                }
+            });
+        };
+
+        void init();
     }, [history]);
 
     const handleSair = async () => {
         await biometric.clear();
-        localStorage.removeItem('kalibrium.token');
-        localStorage.removeItem('kalibrium.user');
+        await secureStorage.clear();
+        localStorage.removeItem('kalibrium.biometric_optout');
         history.replace('/login');
     };
 
