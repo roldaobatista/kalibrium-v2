@@ -14,6 +14,7 @@ use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
 use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\HealthCheckRateLimit;
+use App\Livewire\MobileDevices\IndexPage as MobileDevicesIndexPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthCheckController::class)
@@ -33,4 +34,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
 
     Route::post('/settings/privacy/lgpd-categories', LgpdCategoryStoreController::class)
         ->name('settings.privacy.lgpd-categories.store');
+
+    Route::get('/mobile-devices', MobileDevicesIndexPage::class)
+        ->name('mobile-devices.index');
 });

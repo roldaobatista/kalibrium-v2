@@ -9,9 +9,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Mobile\LoginRequest;
 use App\Models\MobileDevice;
 use App\Models\Tenant;
+use App\Models\TenantUser;
 use App\Models\User;
+use App\Notifications\MobileDeviceRequested;
+use App\Support\Tenancy\TenantRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 
 final class LoginController extends Controller
 {
@@ -35,13 +39,15 @@ final class LoginController extends Controller
             ->first();
 
         if ($device === null) {
-            MobileDevice::create([
+            $newDevice = MobileDevice::create([
                 'tenant_id' => $tenant->id,
                 'user_id' => $user->id,
                 'device_identifier' => $deviceIdentifier,
                 'device_label' => $deviceLabel,
                 'status' => MobileDeviceStatus::Pending,
             ]);
+
+            $this->notificarGerentes($tenant, $newDevice);
 
             return response()->json([
                 'status' => 'aguardando_aprovacao',
@@ -82,5 +88,18 @@ final class LoginController extends Controller
                 'email' => $user->email,
             ],
         ]);
+    }
+
+    private function notificarGerentes(Tenant $tenant, MobileDevice $device): void
+    {
+        $gerentes = TenantUser::where('tenant_id', $tenant->id)
+            ->where('role', TenantRole::MANAGER)
+            ->where('status', 'active')
+            ->with('user')
+            ->get()
+            ->pluck('user')
+            ->filter();
+
+        Notification::send($gerentes, new MobileDeviceRequested($device));
     }
 }

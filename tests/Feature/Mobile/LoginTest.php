@@ -5,10 +5,14 @@ declare(strict_types=1);
 use App\Enums\MobileDeviceStatus;
 use App\Models\MobileDevice;
 use App\Models\Tenant;
+use App\Models\TenantUser;
 use App\Models\User;
+use App\Notifications\MobileDeviceRequested;
+use App\Support\Tenancy\TenantRole;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\PersonalAccessToken;
 
 uses(DatabaseTransactions::class);
@@ -297,4 +301,49 @@ test('tenant_id inexistente retorna 422 com mensagem generica', function (): voi
     // Middleware ResolveMobileTenant rejeita sem confirmar existência de outros tenants.
     $response->assertStatus(422);
     $response->assertJsonFragment(['erro' => 'Laboratório não encontrado.']);
+});
+
+test('login com device novo dispara notificacao para gerentes do tenant', function (): void {
+    Notification::fake();
+
+    $tenant = mobile_tenant();
+    $user = mobile_user();
+
+    // Cria um gerente ativo no tenant
+    $gerenteUser = User::factory()->create();
+    TenantUser::factory()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $gerenteUser->id,
+        'role' => TenantRole::MANAGER,
+        'status' => 'active',
+    ]);
+
+    $this->postJson(mobile_url(), mobile_payload($user, $tenant));
+
+    Notification::assertSentTo($gerenteUser, MobileDeviceRequested::class);
+});
+
+test('login com device ja pending nao dispara notificacao novamente', function (): void {
+    Notification::fake();
+
+    $tenant = mobile_tenant();
+    $user = mobile_user();
+
+    MobileDevice::factory()->pending()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'device_identifier' => 'test-device-abc123',
+    ]);
+
+    $gerenteUser = User::factory()->create();
+    TenantUser::factory()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $gerenteUser->id,
+        'role' => TenantRole::MANAGER,
+        'status' => 'active',
+    ]);
+
+    $this->postJson(mobile_url(), mobile_payload($user, $tenant));
+
+    Notification::assertNothingSent();
 });

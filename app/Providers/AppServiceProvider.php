@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Policies\ClientePolicy;
 use App\Policies\ContatoPolicy;
+use App\Policies\MobileDevicePolicy;
 use App\Policies\TenantSettingsPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -39,5 +40,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('contatos.create', [ContatoPolicy::class, 'create']);
         Gate::define('contatos.update', [ContatoPolicy::class, 'update']);
         Gate::define('contatos.delete', [ContatoPolicy::class, 'delete']);
+
+        Gate::define('mobile-devices.viewAny', [MobileDevicePolicy::class, 'viewAny']);
+        Gate::define('mobile-devices.manage', [MobileDevicePolicy::class, 'manage']);
     }
 }
