@@ -110,3 +110,11 @@ vite.config.js
 
 # ---------- Lighthouse reports (artefato efêmero do test:lighthouse) ----------
 lighthouse-reports/
+
+# ---------- App do técnico (mobile/) — artefatos nativos e dependências ----------
+mobile/node_modules/
+mobile/dist/
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/.angular/
