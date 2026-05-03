@@ -2,12 +2,17 @@
 
 declare(strict_types=1);
 
-// routes/web.php — slice 016 (ADR-0015): frontend Livewire descartado.
-// Autenticacao e telas de aplicacao sao servidas pelo cliente PWA
-// (React + Ionic + Capacitor) via API em slices E15-S07+.
-// Web layer do backend fica apenas com health-check durante a transicao.
+// routes/web.php — frontend Livewire descartado (ADR-0015). O backend reexpoe
+// os endpoints de dominio para serem consumidos pelo cliente PWA (E15+) e
+// pela suite de testes. Em E15-S07+ esses mesmos controllers serao replicados
+// em routes/api.php sob /api com auth via Sanctum.
 
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\HealthCheckController;
+use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
+use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
+use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\HealthCheckRateLimit;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +20,17 @@ Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);
 
 Route::redirect('/', '/health', 302);
+
+Route::middleware(['auth', 'tenant.context'])->group(function (): void {
+    Route::apiResource('clientes', ClienteController::class);
+    Route::apiResource('clientes.contatos', ContatoController::class);
+
+    Route::put('/settings/tenant', TenantSettingsController::class)
+        ->name('settings.tenant.update');
+
+    Route::post('/consent/subjects', ConsentSubjectStoreController::class)
+        ->name('consent.subjects.store');
+
+    Route::post('/settings/privacy/lgpd-categories', LgpdCategoryStoreController::class)
+        ->name('settings.privacy.lgpd-categories.store');
+});

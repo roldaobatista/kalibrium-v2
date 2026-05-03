@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Database\Seeders\ClienteSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -57,6 +58,10 @@ test('AC-009: seeder cria ao menos um cliente por tenant de exemplo', function (
     $tenantCount = DB::table('tenants')->count();
 
     expect($tenantCount)->toBeGreaterThan(0, 'Nenhum tenant de exemplo encontrado. Seeders anteriores podem ter falhado.');
+
+    // Roda o seeder para garantir que todos os tenants existentes recebam clientes.
+    // O seeder usa updateOrInsert (idempotente), portanto é seguro re-executar.
+    $this->seed(ClienteSeeder::class);
 
     $tenantIds = DB::table('tenants')->pluck('id');
 
