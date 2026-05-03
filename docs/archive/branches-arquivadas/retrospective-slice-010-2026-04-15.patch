@@ -1,0 +1,154 @@
+From 6e1f8fac9f95c4f7a294bc300005ca051d05e3bb Mon Sep 17 00:00:00 2001
+From: roldao-tecnico <roldao.tecnico@gmail.com>
+Date: Wed, 15 Apr 2026 16:19:16 -0400
+Subject: [PATCH] =?UTF-8?q?docs(retrospective):=20slice-010=20(E02-S07=20L?=
+ =?UTF-8?q?GPD)=20=E2=80=94=20retrospectiva=20pos-merge?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- 5 gates approved via F.1 com findings[]
+- Merge durante estado pausado (auto-merge pre-armado) — gap de
+  enforcement ja corrigido pela re-auditoria dual-LLM
+- Telemetria de tokens vazia — instrumentacao incompleta no F.1
+- Mudancas propostas: glossary de dominio no reviewer para slices
+  de compliance; instrumentacao de tokens em todos sub-agents
+
+Ref: docs/retrospectives/slice-010-report.md, PR #15 (81643ed)
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+---
+ docs/retrospectives/slice-010-report.md | 51 ++++++++++++++++++++
+ docs/retrospectives/slice-010.md        | 62 +++++++++++++++++++++++++
+ 2 files changed, 113 insertions(+)
+ create mode 100644 docs/retrospectives/slice-010-report.md
+ create mode 100644 docs/retrospectives/slice-010.md
+
+diff --git a/docs/retrospectives/slice-010-report.md b/docs/retrospectives/slice-010-report.md
+new file mode 100644
+index 0000000..a436ced
+--- /dev/null
++++ b/docs/retrospectives/slice-010-report.md
+@@ -0,0 +1,51 @@
++# slice-010-report
++
++**Gerado em:** 2026-04-15T20:17:39Z
++**Primeiro evento:** 2026-04-15T02:39:12Z
++**Último evento:** 2026-04-15T19:33:49Z
++**Fonte:** `.claude/telemetry/slice-010.jsonl`
++
++## Métricas
++
++| Métrica | Valor |
++|---|---|
++| Commits no slice | 4 |
++| Verificações (approved) | 1 |
++| Verificações (rejected) | 0 |
++
++## Tokens por sub-agent (R8)
++
++| Agent | Tokens gastos | Budget declarado | Status |
++|---|---|---|---|
++| architect | 0 | 30000 | ok |
++| ac-to-test | 0 | 40000 | ok |
++| implementer | 0 | 80000 | ok |
++| verifier | 0 | 25000 | ok |
++| guide-auditor | 0 | 15000 | ok |
++| **TOTAL** | **0** | — | — |
++
++## Commits
++
++- `{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T02:39:12Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"agent","prev_hash":"GENESIS"}` ({"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T02:39:12Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"agent","prev_hash":"GENESIS"}) — {"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T02:39:12Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"agent","prev_hash":"GENESIS"}
++- `{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T04:13:03Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"66c74c9643833efe0f9d519dbf835ced79b6b45d785898814a7083b66c784322"}` ({"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T04:13:03Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"66c74c9643833efe0f9d519dbf835ced79b6b45d785898814a7083b66c784322"}) — {"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T04:13:03Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"66c74c9643833efe0f9d519dbf835ced79b6b45d785898814a7083b66c784322"}
++- `{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T15:25:57Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"f32a54875524fdf1aef3210686354cf14b42dc4ebf14afd271e04b8abf5cdfea"}` ({"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T15:25:57Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"f32a54875524fdf1aef3210686354cf14b42dc4ebf14afd271e04b8abf5cdfea"}) — {"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T15:25:57Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"f32a54875524fdf1aef3210686354cf14b42dc4ebf14afd271e04b8abf5cdfea"}
++- `{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T19:33:49Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"0bcc484a985d2a291b47799d7cdb430be3fb4e853fccfbefc4295ecedd31b790"}` ({"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T19:33:49Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"0bcc484a985d2a291b47799d7cdb430be3fb4e853fccfbefc4295ecedd31b790"}) — {"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T19:33:49Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"0bcc484a985d2a291b47799d7cdb430be3fb4e853fccfbefc4295ecedd31b790"}
++
++## Eventos de verificação
++
++- `2026-04-15T11:24:24Z` verdict=approved next=open_pr reject_count=0
++
++## Raw (JSONL completo)
++
++```jsonl
++{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T02:39:12Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"agent","prev_hash":"GENESIS"}
++{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T04:13:03Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"66c74c9643833efe0f9d519dbf835ced79b6b45d785898814a7083b66c784322"}
++{"schema_version":"1.0.0","event":"verify","timestamp":"2026-04-15T11:24:24Z","slice":"slice-010","verdict":"approved","next_action":"open_pr","reject_count":0,"actor":"agent","prev_hash":"67314c08f1c6572e0b893176f2a1cf9e72411883c3bee1cb99cefb5228ff8dab"}
++{"schema_version":"1.0.0","event":"review","timestamp":"2026-04-15T11:33:42Z","slice":"slice-010","verdict":"rejected","next_action":"return_to_implementer","reject_count":1,"actor":"agent","prev_hash":"b578e9ebc2fc318ce1c218d9f160db2e5f0c7c52ec76e89e811a3d41762f52c6"}
++{"schema_version":"1.0.0","event":"review","timestamp":"2026-04-15T12:55:18Z","slice":"slice-010","verdict":"rejected","next_action":"return_to_implementer","reject_count":2,"actor":"agent","prev_hash":"ae80e67e67864cfd24766061e969aa80ca5618f8be857ba9fb458cbdb191af09"}
++{"schema_version":"1.0.0","event":"review","timestamp":"2026-04-15T12:58:50Z","slice":"slice-010","verdict":"rejected","next_action":"return_to_implementer","reject_count":3,"actor":"agent","prev_hash":"26d7b4f6fe1aa4bdb4d26134a7eaa66b0a818c97295620af457ac911b0ca6cb8"}
++{"schema_version":"1.0.0","event":"review","timestamp":"2026-04-15T13:03:26Z","slice":"slice-010","verdict":"rejected","next_action":"return_to_implementer","reject_count":4,"actor":"agent","prev_hash":"d0f38d6f0bf2aec99a7705b5b7d99a426468abccb1e6affb996976d5b61eb3aa"}
++{"schema_version":"1.0.0","event":"merge","timestamp":"2026-04-15T15:15:51Z","slice":"slice-010","verdict":"approved","next_action":"human_merge","reject_count":0,"actor":"agent","prev_hash":"26226fc7b6ca5c5b106322e9a6d7ba7ef4ca587491c228f6e313e5c43ae2a981"}
++{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T15:25:57Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"f32a54875524fdf1aef3210686354cf14b42dc4ebf14afd271e04b8abf5cdfea"}
++{"schema_version":"1.0.0","event":"commit","timestamp":"2026-04-15T19:33:49Z","slice":"slice-010","verdict":"n/a","next_action":"n/a","reject_count":0,"actor":"commit-hook","prev_hash":"0bcc484a985d2a291b47799d7cdb430be3fb4e853fccfbefc4295ecedd31b790"}
++```
+diff --git a/docs/retrospectives/slice-010.md b/docs/retrospectives/slice-010.md
+new file mode 100644
+index 0000000..293a988
+--- /dev/null
++++ b/docs/retrospectives/slice-010.md
+@@ -0,0 +1,62 @@
++# Retrospectiva slice-010
++
++**Data:** 2026-04-15
++**Slice:** 010 — E02-S07 Base legal LGPD e consentimentos de contato
++**PR:** [#15](https://github.com/roldaobatista/kalibrium-v2/pull/15) mergeado em 2026-04-15T15:24:24Z
++**Commit final:** `81643ed`
++**Resultado:** approved (com observação operacional sobre o momento do merge)
++**Fonte numérica:** [slice-010-report.md](slice-010-report.md)
++
++## Números (resumo)
++
++| Métrica | Valor |
++|---|---|
++| Commits | 4 |
++| Verificações approved | 1 |
++| Verificações rejected | 0 |
++| Tokens totais | 0 (telemetria não registrou — ver §O que não funcionou) |
++
++## O que funcionou
++
++- **5 gates independentes aprovaram:** verifier, reviewer, security-reviewer, test-auditor e functional-reviewer todos com `verdict: approved` e `findings: []` após ciclo F.1 (fluxo especial de correção). Evidência: `specs/010/verification.json`, `review.json`, `security-review.json`, `test-audit.json`, `functional-review.json`.
++- **Conformidade LGPD real entregue:** modelo de consentimento, endpoints de gestão, soft-delete com retenção, trilha de auditoria. Slice E02-S07 cumpre ACs da story contract.
++- **Auto-merge funcionou após billing voltar:** PR #15 estava armado com `gh pr merge --auto` desde a fase de revisão; quando a cota do Actions foi restaurada mid-session, o merge aconteceu sem intervenção.
++
++## O que não funcionou
++
++- **Merge aconteceu durante estado pausado operacionalmente.** O incident `pr-14-bypass-p0-billing-governance-2026-04-15.md §Plano de saída` havia declarado "❌ Não fechar slices em andamento (slice-010 aguarda auditoria)". O auto-merge estava armado antes dessa declaração e disparou quando o CI destravou. Não usou admin bypass — usou fluxo padrão. Mas violou a intenção da pausa. Incident dedicado: `docs/incidents/slice-010-merge-during-paused-state-2026-04-15.md`.
++- **Telemetria vazia (0 tokens registrados).** O script `slice-report.sh` leu `.claude/telemetry/slice-010.jsonl` mas não encontrou eventos de tokens (só 1 approved + 4 commits). Hipóteses: o arquivo foi gerado antes da instrumentação completa estar em vigor, ou o sub-agent `functional-reviewer` (F.1) não registra em jsonl. Perda de observabilidade retrospectiva — não conseguimos dimensionar custo real do slice.
++- **Findings fantasmagóricos do reviewer durante o ciclo F.1.** Arquivo `specs/010/pm-override-findings.md` foi considerado porque o reviewer levantou questões que depois se provaram inválidas ao reler o código. Override foi considerado mas não usado. Expõe risco do reviewer em contexto isolado ser cético demais em slices de domínio jurídico (LGPD) onde vocabulário e padrões não batem com código genérico.
++
++## Gates que dispararam em falso
++
++- **Reviewer (no ciclo F.1) levantou findings fantasmagóricos** sobre tratamento de consentimento que, ao ser revisado pelo PM, resultaram inválidos. Evidência: `docs/incidents/slice-010-pm-override-2026-04-15.md`. **Ação sugerida:** adicionar ao contexto do reviewer uma nota de referência ao glossary de domínio LGPD quando o slice for de compliance. Entra no backlog.
++
++## Gates que deveriam ter disparado e não dispararam
++
++- **Não existia gate mecânico para "projeto pausado"** no momento do merge. Auto-merge pré-armado venceu a pausa declarativa em markdown. Este é o ponto que a re-auditoria dual-LLM pós-5/5 corrigiu criando:
++  - `scripts/check-paused-state.sh` (PR #16)
++  - `.github/workflows/pause-enforcement.yml` (PR #16)
++  - `project-state.json.paused` legível por script (PR #16)
++
++  A partir de agora, um auto-merge armado durante pausa seria sinalizado pelo workflow (status check informativo). Quando a cota do Actions permitir `required_status_checks`, passa a ser bloqueio real.
++
++## Mudanças propostas
++
++- [ ] **Glossary de domínio por épico carregado no contexto de reviewer/security-reviewer** quando o slice for de compliance (LGPD, segurança, auditoria). Evita findings fantasmagóricos vindos de ignorância de vocabulário regulatório. Ticket em `docs/guide-backlog.md`.
++- [ ] **Instrumentação de tokens garantida no `functional-reviewer` e demais gates F.1** — registrar `event: "tokens_used"` em todos os sub-agents, incluindo ciclos especiais. Ticket em `docs/guide-backlog.md`.
++- [x] **Enforcement mecânico da pausa** — já implementado no PR #16 após a re-auditoria. Fecha o gap que este slice expôs.
++- [x] **Categoria "bypass técnico autorizado"** — já formalizada na ADR-0014 após a re-auditoria. Evita reabrir debates ad-hoc.
++
++## Lições para o guia
++
++- **Auto-merge precisa ser desativado quando projeto entra em pausa.** Hoje ainda não há cancelamento automático de auto-merges pendentes ao setar `project-state.json.paused = true`. Nova entrada em `docs/guide-backlog.md`: "quando `/pause` for implementado, cancelar todos os auto-merges armados".
++- **Slices de compliance (LGPD, segurança, auditoria) merecem seus próprios templates de reviewer** com contexto regulatório injetado. Generic reviewer gera ruído.
++- **Telemetria opcional é telemetria perdida.** Instrumentar tokens deve ser obrigatório em todos os sub-agents, não "quando der tempo".
++- **Pausa declarativa é folclore; pausa mecânica é governança.** Esta lição custou um slice fechando durante pausa + 2 bypasses técnicos de preparação de auditoria. Já está corrigida pela ADR-0014 + PR #16.
++
++---
++
++**Lembrete operacional:**
++- Alterações em P1-P9 ou R1-R16 → ADR + aprovação humana + bump de versão em constitution.md (constitution §5).
++- Outras mudanças (hooks, agents, skills) → commit `chore(harness):` + item em `docs/guide-backlog.md`.
+-- 
+2.53.0.windows.2
+

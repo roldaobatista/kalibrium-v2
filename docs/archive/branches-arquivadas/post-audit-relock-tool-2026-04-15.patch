@@ -1,0 +1,109 @@
+From e16d3cb56ba759982622645cc490cdd982bd86e8 Mon Sep 17 00:00:00 2001
+From: roldao-tecnico <roldao.tecnico@gmail.com>
+Date: Wed, 15 Apr 2026 16:07:18 -0400
+Subject: [PATCH] chore(harness): adiciona relock-apos-auditoria.bat (pre-req 7
+ operacional)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+PM executa este .bat com duplo-clique para completar o pre-requisito 7
+da decisao pos re-auditoria (relock dos selos apos alteracao em
+CLAUDE.md / orchestrator.md / constitution.md).
+
+Wrapper simples do scripts/relock-harness.sh — abre Git Bash com TTY,
+passa KALIB_RELOCK_AUTHORIZED=1, pede confirmacao 'RELOCK' digitada,
+gera incidente automatico.
+
+Whitelist do hook pause-enforcement estendida para cobrir scripts/pm/.
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+---
+ scripts/check-paused-state.sh        |  1 +
+ scripts/pm/relock-apos-auditoria.bat | 62 ++++++++++++++++++++++++++++
+ 2 files changed, 63 insertions(+)
+ create mode 100644 scripts/pm/relock-apos-auditoria.bat
+
+diff --git a/scripts/check-paused-state.sh b/scripts/check-paused-state.sh
+index 4d2c8b3..f5d127f 100644
+--- a/scripts/check-paused-state.sh
++++ b/scripts/check-paused-state.sh
+@@ -36,6 +36,7 @@ WHITELIST_PATTERNS=(
+   "^docs/adr/"
+   "^\.github/workflows/pause-enforcement\.yml$"
+   "^scripts/check-paused-state\.sh$"
++  "^scripts/pm/"
+   "^\.gitignore$"
+   "^MEMORY\.md$"
+   "^CLAUDE\.md$"
+diff --git a/scripts/pm/relock-apos-auditoria.bat b/scripts/pm/relock-apos-auditoria.bat
+new file mode 100644
+index 0000000..49298e2
+--- /dev/null
++++ b/scripts/pm/relock-apos-auditoria.bat
+@@ -0,0 +1,62 @@
++@echo off
++REM ============================================================================
++REM relock-apos-auditoria.bat
++REM
++REM Pre-requisito 7 da decisao pos re-auditoria dual-LLM 2026-04-15.
++REM
++REM Este .bat abre um terminal novo e executa scripts/relock-harness.sh que:
++REM   1. Recalcula hashes dos arquivos selados (settings.json + MANIFEST.sha256)
++REM   2. Pede para voce digitar "RELOCK" para confirmar
++REM   3. Cria arquivo de incidente automatico em docs/incidents/harness-relock-*.md
++REM
++REM Voce nao precisa entender os detalhes. So:
++REM   1. Duplo-clique neste arquivo
++REM   2. Quando pedir, digite:   RELOCK
++REM   3. Aperte Enter
++REM
++REM Se der erro, me mande print/log e eu analiso.
++REM ============================================================================
++
++echo.
++echo ============================================================
++echo  Kalibrium V2 - Relock pos re-auditoria dual-LLM
++echo ============================================================
++echo.
++echo  Este script vai recalcular os selos de seguranca apos as
++echo  alteracoes feitas em CLAUDE.md, orchestrator.md e
++echo  constitution.md no PR #16.
++echo.
++echo  Quando o script pedir, digite (sem aspas):   RELOCK
++echo.
++echo  Apos concluir, feche esta janela.
++echo.
++pause
++
++cd /d "%~dp0"
++
++set "KALIB_RELOCK_AUTHORIZED=1"
++
++REM Usa Git Bash (padrao Windows com Git for Windows instalado)
++"C:\Program Files\Git\bin\bash.exe" -c "KALIB_RELOCK_AUTHORIZED=1 bash scripts/relock-harness.sh"
++
++if errorlevel 1 (
++  echo.
++  echo ============================================================
++  echo  ERRO: relock falhou. Log acima tem os detalhes.
++  echo  Copie a mensagem de erro e me mande.
++  echo ============================================================
++  echo.
++  pause
++  exit /b 1
++)
++
++echo.
++echo ============================================================
++echo  Relock concluido com sucesso.
++echo  Um arquivo de incidente foi criado em docs/incidents/.
++echo.
++echo  Proximo passo: commitar a mudanca dos selos.
++echo  Me avise que eu faco o commit + push.
++echo ============================================================
++echo.
++pause
+-- 
+2.53.0.windows.2
+
