@@ -1,123 +1,224 @@
 <div>
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-xl font-semibold text-gray-900">Celulares dos técnicos</h1>
+    {{-- Breadcrumb --}}
+    <nav class="text-sm text-neutral-500 mb-4 font-medium" aria-label="Caminho de navegação">
+        <a href="/" class="hover:text-primary-600 transition-colors">Início</a>
+        <span class="mx-2 text-neutral-300" aria-hidden="true">›</span>
+        <span class="text-neutral-700">Celulares dos técnicos</span>
+    </nav>
+
+    {{-- Cabeçalho da página --}}
+    <div class="flex items-start justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-neutral-900">Celulares dos técnicos</h1>
+            <p class="text-sm text-neutral-500 mt-1">
+                {{ $devicesCount }} {{ $devicesCount === 1 ? 'registro' : 'registros' }}
+            </p>
+        </div>
     </div>
 
-    {{-- Filtros --}}
-    <div class="mb-4 flex flex-col gap-3 sm:flex-row">
-        <input
-            type="text"
-            wire:model.live.debounce.300ms="search"
-            placeholder="Buscar por nome ou e-mail..."
-            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:max-w-xs"
-        />
-
+    {{-- Filtros + busca --}}
+    <div class="flex flex-wrap gap-3 mb-6 items-center">
         <select
             wire:model.live="statusFilter"
-            class="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-md border border-neutral-300 px-3 py-2 text-sm bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-colors"
         >
             @foreach ($statuses as $value => $label)
                 <option value="{{ $value }}">{{ $label }}</option>
             @endforeach
         </select>
+
+        <input
+            type="text"
+            wire:model.live.debounce.300ms="search"
+            placeholder="Buscar por técnico ou e-mail"
+            class="flex-1 min-w-[240px] rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-colors"
+        />
     </div>
 
-    {{-- Tabela --}}
-    @if ($devices->isEmpty())
-        <div class="rounded-lg border border-dashed border-gray-300 px-6 py-12 text-center text-sm text-gray-500">
-            Nenhum técnico pediu acesso pelo celular ainda.
-        </div>
-    @else
-        <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">Técnico</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">Celular</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">Última atividade</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-600">Aprovado por</th>
-                        <th class="px-4 py-3 text-right font-medium text-gray-600">Ações</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
-                    @foreach ($devices as $device)
-                        <tr wire:key="{{ $device->id }}" class="hover:bg-gray-50">
-                            <td class="px-4 py-3">
-                                <div class="font-medium text-gray-900">{{ $device->user?->name ?? '—' }}</div>
-                                <div class="text-xs text-gray-500">{{ $device->user?->email ?? '' }}</div>
-                            </td>
-                            <td class="px-4 py-3 text-gray-700">
-                                {{ $device->device_label ?? '—' }}
-                            </td>
-                            <td class="px-4 py-3">
+    {{-- =========================================================
+         TABELA — desktop / tablet (>= md)
+    ========================================================== --}}
+    <div class="hidden md:block bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-sm">
+        <table class="w-full">
+            <thead class="bg-neutral-50 border-b border-neutral-200">
+                <tr>
+                    <th class="text-left px-3 py-3.5 text-sm font-semibold text-neutral-800">Técnico</th>
+                    <th class="text-left px-3 py-3.5 text-sm font-semibold text-neutral-800">Modelo do celular</th>
+                    <th class="text-left px-3 py-3.5 text-sm font-semibold text-neutral-800">Status</th>
+                    <th class="text-left px-3 py-3.5 text-sm font-semibold text-neutral-800 hidden lg:table-cell">Última atividade</th>
+                    <th class="text-left px-3 py-3.5 text-sm font-semibold text-neutral-800 hidden xl:table-cell">Aprovado por</th>
+                    <th class="text-right px-3 py-3.5 text-sm font-semibold text-neutral-800">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100">
+                @forelse ($devices as $device)
+                    <tr wire:key="{{ $device->id }}" class="hover:bg-neutral-50 transition-colors">
+                        <td class="px-3 py-3 text-sm">
+                            <div class="font-medium text-neutral-900">{{ $device->user?->name ?? '—' }}</div>
+                            <div class="text-neutral-500 text-xs">{{ $device->user?->email ?? '' }}</div>
+                        </td>
+                        <td class="px-3 py-3 text-sm text-neutral-700">
+                            {{ $device->device_label ?? '—' }}
+                        </td>
+                        <td class="px-3 py-3 text-sm">
+                            @if ($device->status->value === 'pending')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-700">
+                                    Aguardando
+                                </span>
+                            @elseif ($device->status->value === 'approved')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-700">
+                                    Aprovado
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-700">
+                                    Bloqueado
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-3 py-3 text-sm text-neutral-600 hidden lg:table-cell">
+                            {{ $device->last_seen_at?->locale('pt_BR')->diffForHumans() ?? '—' }}
+                        </td>
+                        <td class="px-3 py-3 text-sm text-neutral-600 hidden xl:table-cell">
+                            @if ($device->approved_at)
+                                <div>{{ $device->approver?->name ?? '—' }}</div>
+                                <div class="text-xs text-neutral-500">{{ $device->approved_at->format('d/m/Y H:i') }}</div>
+                            @else
+                                —
+                            @endif
+                        </td>
+                        <td class="px-3 py-3 text-right">
+                            <div class="flex items-center justify-end gap-2">
                                 @if ($device->status->value === 'pending')
-                                    <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-                                        Aguardando aprovação
-                                    </span>
+                                    <button
+                                        wire:click="aprovar('{{ $device->id }}')"
+                                        wire:loading.attr="disabled"
+                                        class="bg-success-700 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-success-700 transition-colors disabled:opacity-50"
+                                    >
+                                        Aprovar
+                                    </button>
+                                    <button
+                                        wire:click="recusar('{{ $device->id }}')"
+                                        wire:loading.attr="disabled"
+                                        wire:confirm="Tem certeza que quer recusar o pedido de {{ $device->user?->name ?? 'este técnico' }}? O celular não vai conseguir entrar até ser reativado."
+                                        class="bg-white border border-danger-600 text-danger-700 px-3 py-1.5 rounded-md text-xs font-medium hover:bg-danger-50 transition-colors disabled:opacity-50"
+                                    >
+                                        Recusar
+                                    </button>
                                 @elseif ($device->status->value === 'approved')
-                                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                                        Aprovado
-                                    </span>
+                                    <button
+                                        wire:click="bloquear('{{ $device->id }}')"
+                                        wire:loading.attr="disabled"
+                                        wire:confirm="Tem certeza que quer bloquear o celular de {{ $device->user?->name ?? 'este técnico' }}? Ele não vai conseguir entrar até você reativar."
+                                        class="bg-white border border-danger-600 text-danger-700 px-3 py-1.5 rounded-md text-xs font-medium hover:bg-danger-50 transition-colors disabled:opacity-50"
+                                    >
+                                        Bloquear
+                                    </button>
                                 @else
-                                    <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-                                        Bloqueado
-                                    </span>
+                                    <button
+                                        wire:click="reativar('{{ $device->id }}')"
+                                        wire:loading.attr="disabled"
+                                        class="bg-white border border-neutral-300 text-neutral-700 px-3 py-1.5 rounded-md text-xs font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
+                                    >
+                                        Reativar
+                                    </button>
                                 @endif
-                            </td>
-                            <td class="px-4 py-3 text-gray-500">
-                                {{ $device->last_seen_at?->locale('pt_BR')->diffForHumans() ?? '—' }}
-                            </td>
-                            <td class="px-4 py-3 text-gray-500">
-                                @if ($device->approver)
-                                    <div>{{ $device->approver->name }}</div>
-                                    <div class="text-xs">{{ $device->approved_at?->locale('pt_BR')->diffForHumans() }}</div>
-                                @else
-                                    —
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    @if ($device->status->value === 'pending')
-                                        <button
-                                            wire:click="aprovar('{{ $device->id }}')"
-                                            wire:loading.attr="disabled"
-                                            class="rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
-                                        >
-                                            Aprovar
-                                        </button>
-                                        <button
-                                            wire:click="recusar('{{ $device->id }}')"
-                                            wire:loading.attr="disabled"
-                                            class="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                                        >
-                                            Recusar
-                                        </button>
-                                    @elseif ($device->status->value === 'approved')
-                                        <button
-                                            wire:click="bloquear('{{ $device->id }}')"
-                                            wire:loading.attr="disabled"
-                                            class="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                                        >
-                                            Bloquear
-                                        </button>
-                                    @else
-                                        <button
-                                            wire:click="reativar('{{ $device->id }}')"
-                                            wire:loading.attr="disabled"
-                                            class="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-                                        >
-                                            Reativar
-                                        </button>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-3 py-12 text-center text-neutral-500 text-sm">
+                            Nenhum técnico pediu acesso pelo celular ainda.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
+    {{-- =========================================================
+         CARDS — mobile (< md)
+    ========================================================== --}}
+    <div class="md:hidden space-y-3">
+        @forelse ($devices as $device)
+            <div wire:key="card-{{ $device->id }}" class="bg-white rounded-lg border border-neutral-200 shadow-sm p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="font-medium text-neutral-900 truncate">{{ $device->user?->name ?? '—' }}</p>
+                        <p class="text-xs text-neutral-500 truncate">{{ $device->user?->email ?? '' }}</p>
+                        @if ($device->device_label)
+                            <p class="text-xs text-neutral-600 mt-0.5">{{ $device->device_label }}</p>
+                        @endif
+                    </div>
+                    {{-- Badge de status --}}
+                    @if ($device->status->value === 'pending')
+                        <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-700">
+                            Aguardando
+                        </span>
+                    @elseif ($device->status->value === 'approved')
+                        <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-700">
+                            Aprovado
+                        </span>
+                    @else
+                        <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-700">
+                            Bloqueado
+                        </span>
+                    @endif
+                </div>
+
+                @if ($device->last_seen_at)
+                    <p class="text-xs text-neutral-400 mt-2">
+                        Último acesso: {{ $device->last_seen_at->locale('pt_BR')->diffForHumans() }}
+                    </p>
+                @endif
+
+                {{-- Botões de ação --}}
+                <div class="flex flex-wrap gap-2 mt-3">
+                    @if ($device->status->value === 'pending')
+                        <button
+                            wire:click="aprovar('{{ $device->id }}')"
+                            wire:loading.attr="disabled"
+                            class="flex-1 min-h-[44px] bg-success-700 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-success-700 transition-colors disabled:opacity-50"
+                        >
+                            Aprovar
+                        </button>
+                        <button
+                            wire:click="recusar('{{ $device->id }}')"
+                            wire:loading.attr="disabled"
+                            wire:confirm="Tem certeza que quer recusar o pedido de {{ $device->user?->name ?? 'este técnico' }}? O celular não vai conseguir entrar até ser reativado."
+                            class="flex-1 min-h-[44px] bg-white border border-danger-600 text-danger-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-danger-50 transition-colors disabled:opacity-50"
+                        >
+                            Recusar
+                        </button>
+                    @elseif ($device->status->value === 'approved')
+                        <button
+                            wire:click="bloquear('{{ $device->id }}')"
+                            wire:loading.attr="disabled"
+                            wire:confirm="Tem certeza que quer bloquear o celular de {{ $device->user?->name ?? 'este técnico' }}? Ele não vai conseguir entrar até você reativar."
+                            class="w-full min-h-[44px] bg-white border border-danger-600 text-danger-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-danger-50 transition-colors disabled:opacity-50"
+                        >
+                            Bloquear
+                        </button>
+                    @else
+                        <button
+                            wire:click="reativar('{{ $device->id }}')"
+                            wire:loading.attr="disabled"
+                            class="w-full min-h-[44px] bg-white border border-neutral-300 text-neutral-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
+                        >
+                            Reativar
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <div class="bg-white rounded-lg border border-dashed border-neutral-300 px-6 py-12 text-center text-sm text-neutral-500">
+                Nenhum técnico pediu acesso pelo celular ainda.
+            </div>
+        @endforelse
+    </div>
+
+    {{-- Paginação --}}
+    @if ($devices->hasPages())
         <div class="mt-4">
             {{ $devices->links() }}
         </div>

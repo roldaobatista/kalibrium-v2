@@ -159,8 +159,11 @@ final class IndexPage extends Component
         // inclusive em Livewire updates (POST /livewire-*/update) que não passam pelo tenant.context.
         $this->tenantUser();
 
+        $devices = $this->devices();
+
         return view('livewire.mobile-devices.index-page', [
-            'devices' => $this->devices(),
+            'devices' => $devices,
+            'devicesCount' => $devices->total(),
             'statuses' => [
                 '' => 'Todos',
                 MobileDeviceStatus::Pending->value => 'Aguardando',
