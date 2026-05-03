@@ -4,7 +4,7 @@
 
 ## Em andamento
 
-_(vazio — épico E15 entregue completo. Próximo épico é E16 — sync engine, exige PoC arquitetural. Aguardando luz verde do Roldão pra abrir o épico.)_
+-   **Primeiro sync entre app e servidor** — abre o épico E16. Implementa custom REST sync (decisão registrada em ADR-0017) usando "anotação livre" como entidade-piloto. Destrava todas as próximas histórias de OS/foto/despesa.
 
 ## Próxima da fila
 
