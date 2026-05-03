@@ -13,6 +13,7 @@ use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Notifications\MobileDeviceRequested;
+use App\Support\Auth\PostgresAuthContext;
 use App\Support\Tenancy\TenantRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Notification;
 
 final class LoginController extends Controller
 {
+    public function __construct(private readonly PostgresAuthContext $pgContext) {}
+
     public function __invoke(LoginRequest $request): JsonResponse
     {
         /** @var Tenant $tenant */
@@ -30,6 +33,11 @@ final class LoginController extends Controller
         if (! $user instanceof User || ! Hash::check($request->string('password')->toString(), $user->password)) {
             return response()->json(['erro' => 'Email ou senha incorretos'], 401);
         }
+
+        // Seta contexto Postgres para que a RLS de tenant_users permita a busca
+        // por user_id (policy: user_id = app.auth_user_id). SEC-002.
+        $this->pgContext->forUser($user->id);
+        $this->pgContext->forTenant($tenant->id);
 
         // Verifica se o usuário tem vínculo ativo com este tenant (SEC-002).
         $tenantUser = TenantUser::withoutGlobalScope('current_tenant')
