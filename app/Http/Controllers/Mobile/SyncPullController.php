@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
 use App\Models\SyncChange;
+use App\Models\Tenant;
 use App\Models\User;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,7 +22,15 @@ final class SyncPullController extends Controller
         $cursor = $request->query('cursor', '');
         $limit = min((int) $request->query('limit', '200'), 500);
 
+        // Validar formato ULID (26 chars Crockford Base32)
+        if ($cursor !== '' && ! preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/i', $cursor)) {
+            return response()->json(['message' => 'Cursor inválido.'], 422);
+        }
+
+        $tenantId = $this->resolveTenantId($request);
+
         $query = SyncChange::query()
+            ->where('tenant_id', $tenantId)
             ->where(function ($q) use ($user): void {
                 $q->where('source_user_id', $user->id)
                     ->orWhereJsonContains('payload_after->user_id', $user->id);
@@ -52,5 +62,20 @@ final class SyncPullController extends Controller
             'next_cursor' => $nextCursor,
             'has_more' => $hasMore,
         ]);
+    }
+
+    private function resolveTenantId(Request $request): int
+    {
+        $tenant = $request->attributes->get('current_tenant');
+        if ($tenant instanceof Tenant) {
+            return (int) $tenant->id;
+        }
+
+        $id = TenantContext::getTenantId();
+        if ($id !== null) {
+            return $id;
+        }
+
+        throw new \RuntimeException('SyncPullController: tenant_id não disponível.');
     }
 }

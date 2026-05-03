@@ -126,17 +126,14 @@ final class SyncPushController extends Controller
             ]];
         }
 
-        // update or delete — need existing note
-        $note = Note::find($entityId);
+        // update or delete — triple barrier: tenant + user + id (nunca depender só do global scope)
+        $note = Note::where('id', $entityId)
+            ->where('tenant_id', $this->resolveTenantId())
+            ->where('user_id', $user->id)
+            ->first();
 
         if (! $note instanceof Note) {
             return ['rejected' => ['local_id' => $localId, 'reason' => 'not_found']];
-        }
-
-        // Ensure note belongs to user's tenant (ScopesToCurrentTenant handles this via global scope,
-        // but we also check user ownership for security)
-        if ((int) $note->user_id !== (int) $user->id) {
-            return ['rejected' => ['local_id' => $localId, 'reason' => 'forbidden']];
         }
 
         if ($action === 'update') {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\SyncChange;
+use App\Models\Tenant;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Str;
 
@@ -57,11 +58,11 @@ final class SyncEngine
             return $id;
         }
 
-        // Tenta via request (web/API)
+        // Tenta via request (web/API) — middleware salva objeto Tenant em 'current_tenant'
         if (app()->bound('request')) {
-            $tenantId = request()->attributes->get('tenant_id');
-            if ($tenantId !== null) {
-                return (int) $tenantId;
+            $tenant = request()->attributes->get('current_tenant');
+            if ($tenant instanceof Tenant) {
+                return (int) $tenant->id;
             }
         }
 

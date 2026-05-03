@@ -489,3 +489,107 @@ test('push e pull sem X-Device-Id retornam 400', function (): void {
 
     $pullResp->assertStatus(400);
 });
+
+// ---------------------------------------------------------------------------
+// 12. Hijack via X-Device-Id de outro user no mesmo tenant → push rejeitado
+// ---------------------------------------------------------------------------
+
+test('tecnico B nao consegue atualizar nota do tecnico A usando device-id de A', function (): void {
+    $tenant = sync_tenant();
+    $userA = sync_technician($tenant);
+    $userB = sync_technician($tenant);
+    $tokenB = sync_token($userB, $tenant, 'device-b');
+
+    sync_set_context($tenant);
+
+    // Nota pertence ao técnico A
+    $note = Note::factory()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $userA->id,
+        'version' => 1,
+        'updated_at' => now()->subMinutes(10),
+    ]);
+
+    // Técnico B tenta atualizar a nota de A
+    $change = sync_change_payload([
+        'action' => 'update',
+        'entity_id' => $note->id,
+        'payload' => [
+            'title' => 'Invadido',
+            'body' => 'corpo invadido',
+            'updated_at' => now()->toIso8601String(),
+        ],
+    ]);
+
+    $response = $this->withToken($tokenB)
+        ->withHeader('X-Device-Id', 'device-b')
+        ->postJson(sync_push_url(), [
+            'device_id' => 'device-b',
+            'changes' => [$change],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonCount(0, 'applied');
+    $response->assertJsonCount(1, 'rejected');
+    $response->assertJsonPath('rejected.0.reason', 'not_found');
+
+    $note->refresh();
+    expect($note->title)->not->toBe('Invadido');
+});
+
+// ---------------------------------------------------------------------------
+// 13. Cursor ULID malformado no pull → 422
+// ---------------------------------------------------------------------------
+
+test('pull com cursor malformado retorna 422', function (): void {
+    $tenant = sync_tenant();
+    $user = sync_technician($tenant);
+    $token = sync_token($user, $tenant);
+
+    sync_set_context($tenant);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-sync-test')
+        ->getJson(sync_pull_url().'?cursor=NAO-E-ULID-VALIDO');
+
+    $response->assertStatus(422);
+});
+
+// ---------------------------------------------------------------------------
+// 14. Payload com campos extras → ignora campos desconhecidos, aplica normalmente
+// ---------------------------------------------------------------------------
+
+test('push com campos extras no payload ignora os desconhecidos e aplica a nota', function (): void {
+    $tenant = sync_tenant();
+    $user = sync_technician($tenant);
+    $token = sync_token($user, $tenant);
+
+    sync_set_context($tenant);
+
+    $change = sync_change_payload([
+        'action' => 'create',
+        'payload' => [
+            'title' => 'Nota com extras',
+            'body' => 'Corpo',
+            'updated_at' => now()->toIso8601String(),
+            'campo_desconhecido' => 'valor ignorado',
+            'outro_campo' => 12345,
+        ],
+    ]);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-sync-test')
+        ->postJson(sync_push_url(), [
+            'device_id' => 'device-sync-test',
+            'changes' => [$change],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'applied');
+    $response->assertJsonCount(0, 'rejected');
+
+    $serverId = $response->json('applied.0.server_id');
+    $note = Note::withoutGlobalScope('current_tenant')->find($serverId);
+    expect($note)->not->toBeNull();
+    expect($note->title)->toBe('Nota com extras');
+});
