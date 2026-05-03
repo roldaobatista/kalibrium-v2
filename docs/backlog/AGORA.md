@@ -4,7 +4,7 @@
 
 ## Em andamento
 
--   **Gerente cadastra técnico no laboratório** — tela "Técnicos" na sidebar com lista, busca, filtro de status e formulário de cadastro/edição/desativação. Cobre dependência prática descoberta: hoje técnicos só existem se alguém criar direto no banco.
+_(vazio — épico E15 entregue completo. Próximo épico é E16 — sync engine, exige PoC arquitetural. Aguardando luz verde do Roldão pra abrir o épico.)_
 
 ## Próxima da fila
 
