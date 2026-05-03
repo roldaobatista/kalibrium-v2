@@ -1,0 +1,109 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+    "name": "kalibrium-harness",
+    "version": "1.0.0",
+    "description": "Fábrica de software autônoma do Kalibrium V2 — harness Claude Code desenhado para Roldão (dono/idealizador, não-programador) operar todo o ciclo de produto em pt-BR sem jargão técnico.",
+    "author": {
+        "name": "Roldão",
+        "email": "roldao.tecnico@gmail.com"
+    },
+    "keywords": [
+        "laravel",
+        "multi-tenant",
+        "pt-BR",
+        "fabrica-software",
+        "saas",
+        "kalibrium",
+        "stancl-tenancy",
+        "pest",
+        "livewire"
+    ],
+    "components": {
+        "agents": [
+            {
+                "name": "executor",
+                "path": ".claude/agents/executor.md",
+                "purpose": "Implementa histórias aprovadas (código + testes + Pint)."
+            },
+            {
+                "name": "revisor",
+                "path": ".claude/agents/revisor.md",
+                "purpose": "Audita 4 lentes: multi-tenant, migration, Livewire, testes."
+            },
+            {
+                "name": "e2e-aceite",
+                "path": ".claude/agents/e2e-aceite.md",
+                "purpose": "Roda Playwright MCP, gera roteiro de aceite com prints reais em pt-BR."
+            }
+        ],
+        "skills": [
+            { "name": "em-que-pe", "path": ".claude/skills/em-que-pe/SKILL.md" },
+            { "name": "conferir", "path": ".claude/skills/conferir/SKILL.md" },
+            { "name": "nova-ideia", "path": ".claude/skills/nova-ideia/SKILL.md" },
+            { "name": "refinar", "path": ".claude/skills/refinar/SKILL.md" },
+            { "name": "aprovar-historia", "path": ".claude/skills/aprovar-historia/SKILL.md" },
+            { "name": "aceitar", "path": ".claude/skills/aceitar/SKILL.md" },
+            { "name": "arquivar", "path": ".claude/skills/arquivar/SKILL.md" },
+            { "name": "posso-subir", "path": ".claude/skills/posso-subir/SKILL.md" },
+            { "name": "relatorio-semana", "path": ".claude/skills/relatorio-semana/SKILL.md" }
+        ],
+        "hooks": [
+            {
+                "event": "SessionStart",
+                "path": ".claude/hooks/session-start.sh",
+                "purpose": "Painel de estado + ofertas de trabalho pronto pra maestra puxar."
+            },
+            {
+                "event": "UserPromptSubmit",
+                "path": ".claude/hooks/user-prompt-submit.sh",
+                "purpose": "Duas funções: (1) detecta pedidos sensíveis e força confirmação explícita; (2) detecta quando Roldão está corrigindo a maestra ('não é assim', 'errou', 'já te falei') e força salvar lição em memory/feedback_*.md — fábrica aprende sozinha."
+            },
+            {
+                "event": "PreToolUse:Bash",
+                "path": ".claude/hooks/block-destructive.sh",
+                "purpose": "Bloqueia comandos destrutivos (push --force, reset --hard, rm -rf, drop, migrate destrutivo)."
+            },
+            {
+                "event": "PostToolUse:Edit|Write",
+                "path": ".claude/hooks/format-php.sh",
+                "purpose": "Formata .php com Pint após edição."
+            },
+            {
+                "event": "PostToolUse:Edit|Write",
+                "path": ".claude/hooks/format-frontend.sh",
+                "purpose": "Formata .js/.ts/.css/.md com Prettier após edição."
+            },
+            {
+                "event": "PostToolUse:Bash",
+                "path": ".claude/hooks/captura-problema.sh",
+                "purpose": "Detecta falha em teste/build/deploy e abre ideia automática em docs/backlog/ideias/auto-*.md."
+            },
+            {
+                "event": "Stop",
+                "path": ".claude/hooks/stop-validacao.sh",
+                "purpose": "Lembra de rodar /conferir se PHP foi alterado na sessão."
+            }
+        ],
+        "mcp": [
+            {
+                "name": "playwright",
+                "config": ".mcp.json",
+                "purpose": "Navegador real (Chromium) para o e2e-aceite tirar prints das telas."
+            }
+        ]
+    },
+    "principles": [
+        "Roldão é dono/idealizador, não-programador — toda comunicação em pt-BR sem jargão técnico cru.",
+        "Aceite final é sempre por imagem + texto, nunca por log ou stack trace.",
+        "Maestra orquestra; subagentes executam isolados; revisor + e2e-aceite rodam em paralelo.",
+        "Captura automática local substitui Sentry/Slack/email — fábrica é só Roldão + maestra."
+    ],
+    "stack": {
+        "backend": "Laravel 13, PHP 8.4",
+        "multi_tenancy": "stancl/tenancy v3",
+        "ui": "Livewire + Vite + PWA (Capacitor)",
+        "testes": "Pest 4",
+        "format": "Pint",
+        "static_analysis": "Larastan"
+    }
+}

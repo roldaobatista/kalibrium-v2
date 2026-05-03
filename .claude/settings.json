@@ -1,72 +1,134 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "permissions": {
-    "allow": [
-      "Bash(vendor/bin/pint:*)",
-      "Bash(vendor/bin/phpstan:*)",
-      "Bash(vendor/bin/pest:*)",
-      "Bash(composer pint:*)",
-      "Bash(composer test:*)",
-      "Bash(composer dev:*)",
-      "Bash(composer setup:*)",
-      "Bash(composer install:*)",
-      "Bash(composer update:*)",
-      "Bash(php artisan route:list:*)",
-      "Bash(php artisan route:cache:*)",
-      "Bash(php artisan route:clear:*)",
-      "Bash(php artisan migrate:status:*)",
-      "Bash(php artisan config:show:*)",
-      "Bash(php artisan config:cache:*)",
-      "Bash(php artisan config:clear:*)",
-      "Bash(php artisan view:cache:*)",
-      "Bash(php artisan view:clear:*)",
-      "Bash(php artisan cache:clear:*)",
-      "Bash(php artisan list:*)",
-      "Bash(php artisan about:*)",
-      "Bash(php artisan test:*)",
-      "Bash(npm run lint:*)",
-      "Bash(npm run build:*)",
-      "Bash(npm run test:*)",
-      "Bash(npm run dev:*)",
-      "Bash(npm install:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git show:*)",
-      "Bash(git branch:*)",
-      "Bash(git fetch:*)",
-      "Bash(git stash list:*)",
-      "Bash(git remote:*)",
-      "Bash(bash .claude/hooks/*)",
-      "Bash(bash .claude/scripts/*)"
-    ]
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/block-destructive.sh"
-          }
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "permissions": {
+        "allow": [
+            "Bash(vendor/bin/pint:*)",
+            "Bash(vendor/bin/phpstan:*)",
+            "Bash(vendor/bin/pest:*)",
+            "Bash(composer pint:*)",
+            "Bash(composer test:*)",
+            "Bash(composer dev:*)",
+            "Bash(composer setup:*)",
+            "Bash(composer install:*)",
+            "Bash(composer update:*)",
+            "Bash(php artisan route:list:*)",
+            "Bash(php artisan route:cache:*)",
+            "Bash(php artisan route:clear:*)",
+            "Bash(php artisan migrate:status:*)",
+            "Bash(php artisan config:show:*)",
+            "Bash(php artisan config:cache:*)",
+            "Bash(php artisan config:clear:*)",
+            "Bash(php artisan view:cache:*)",
+            "Bash(php artisan view:clear:*)",
+            "Bash(php artisan cache:clear:*)",
+            "Bash(php artisan list:*)",
+            "Bash(php artisan about:*)",
+            "Bash(php artisan test:*)",
+            "Bash(npm run lint:*)",
+            "Bash(npm run build:*)",
+            "Bash(npm run test:*)",
+            "Bash(npm run dev:*)",
+            "Bash(npm install:*)",
+            "Bash(git status:*)",
+            "Bash(git diff:*)",
+            "Bash(git log:*)",
+            "Bash(git show:*)",
+            "Bash(git branch:*)",
+            "Bash(git fetch:*)",
+            "Bash(git stash list:*)",
+            "Bash(git remote:*)",
+            "Bash(gh issue list:*)",
+            "Bash(gh issue view:*)",
+            "Bash(gh issue create:*)",
+            "Bash(gh issue comment:*)",
+            "Bash(gh issue close:*)",
+            "Bash(gh pr list:*)",
+            "Bash(gh pr view:*)",
+            "Bash(gh pr diff:*)",
+            "Bash(gh pr checks:*)",
+            "Bash(gh pr comment:*)",
+            "Bash(gh repo view:*)",
+            "Bash(gh release list:*)",
+            "Bash(gh release view:*)",
+            "Bash(gh run list:*)",
+            "Bash(gh run view:*)",
+            "Bash(gh api:*)",
+            "Bash(bash .claude/hooks/*)",
+            "Bash(bash .claude/scripts/*)",
+            "Bash(npx -y @playwright/mcp:*)",
+            "Bash(npx playwright:*)",
+            "mcp__playwright"
         ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/format-php.sh"
-          }
+    },
+    "hooks": {
+        "SessionStart": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/session-start.sh"
+                    }
+                ]
+            }
+        ],
+        "UserPromptSubmit": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/user-prompt-submit.sh"
+                    }
+                ]
+            }
+        ],
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/block-destructive.sh"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "Edit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/format-php.sh"
+                    },
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/format-frontend.sh"
+                    }
+                ]
+            },
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/captura-problema.sh"
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/stop-validacao.sh"
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash .claude/scripts/statusline.sh"
-  }
+    },
+    "statusLine": {
+        "type": "command",
+        "command": "bash .claude/scripts/statusline.sh"
+    }
 }
