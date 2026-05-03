@@ -67,6 +67,19 @@ test('gerente ve contadores corretos para cada status', function (): void {
     expect($component->viewData('revokedCount'))->toBe(1);
 });
 
+test('card bloqueados soma revoked e wiped_and_revoked', function (): void {
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = dash_manager_setup();
+
+    MobileDevice::factory()->revoked()->create(['tenant_id' => $tenant->id]);
+    MobileDevice::factory()->wipedAndRevoked()->create(['tenant_id' => $tenant->id]);
+
+    dash_set_tenant_context($tenant, $tu);
+
+    $component = Livewire::actingAs($manager)->test(IndexPage::class);
+
+    expect($component->viewData('revokedCount'))->toBe(2);
+});
+
 // ---------------------------------------------------------------------------
 // 2. Isolamento tenant — contadores não vazam entre tenants
 // ---------------------------------------------------------------------------
@@ -103,6 +116,28 @@ test('saudacao bom dia quando hora e menor que 12', function (): void {
     expect($component->instance()->saudacao())->toBe('Bom dia');
 });
 
+test('saudacao bom dia na hora 11 ultima hora antes do meio-dia', function (): void {
+    Carbon::setTestNow(Carbon::today()->setHour(11));
+
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = dash_manager_setup();
+    dash_set_tenant_context($tenant, $tu);
+
+    $component = Livewire::actingAs($manager)->test(IndexPage::class);
+
+    expect($component->instance()->saudacao())->toBe('Bom dia');
+});
+
+test('saudacao boa tarde na hora 12 primeira hora da tarde', function (): void {
+    Carbon::setTestNow(Carbon::today()->setHour(12));
+
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = dash_manager_setup();
+    dash_set_tenant_context($tenant, $tu);
+
+    $component = Livewire::actingAs($manager)->test(IndexPage::class);
+
+    expect($component->instance()->saudacao())->toBe('Boa tarde');
+});
+
 test('saudacao boa tarde quando hora e entre 12 e 17', function (): void {
     Carbon::setTestNow(Carbon::today()->setHour(15));
 
@@ -112,6 +147,28 @@ test('saudacao boa tarde quando hora e entre 12 e 17', function (): void {
     $component = Livewire::actingAs($manager)->test(IndexPage::class);
 
     expect($component->instance()->saudacao())->toBe('Boa tarde');
+});
+
+test('saudacao boa tarde na hora 17 ultima hora antes da noite', function (): void {
+    Carbon::setTestNow(Carbon::today()->setHour(17));
+
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = dash_manager_setup();
+    dash_set_tenant_context($tenant, $tu);
+
+    $component = Livewire::actingAs($manager)->test(IndexPage::class);
+
+    expect($component->instance()->saudacao())->toBe('Boa tarde');
+});
+
+test('saudacao boa noite na hora 18 primeira hora da noite', function (): void {
+    Carbon::setTestNow(Carbon::today()->setHour(18));
+
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = dash_manager_setup();
+    dash_set_tenant_context($tenant, $tu);
+
+    $component = Livewire::actingAs($manager)->test(IndexPage::class);
+
+    expect($component->instance()->saudacao())->toBe('Boa noite');
 });
 
 test('saudacao boa noite quando hora e 18 ou mais', function (): void {

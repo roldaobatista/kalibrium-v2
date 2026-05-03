@@ -37,6 +37,10 @@ final class IndexPage extends Component
 
     public function render(): View
     {
+        // Garante que o contexto do tenant (PostgresAuthContext / search_path) está
+        // inicializado antes das queries. Quando o usuário chega via SSR ou refresh
+        // direto sem middleware de tenant, essa chamada resolve e registra o tenant
+        // a partir da sessão/request, evitando queries no schema errado.
         $this->tenantUser();
 
         $pendingCount = MobileDevice::query()
