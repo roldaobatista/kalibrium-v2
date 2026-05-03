@@ -4,7 +4,7 @@
 
 ## Em andamento
 
--   **Dados que o técnico salva no celular ficam protegidos** — SQLite local criptografado (SQLCipher) substitui localStorage pra token e dados sensíveis. Cobre REQ-SEC-002. Sem mudança visual pro técnico.
+-   **Técnico recupera senha esquecida** — fluxo "Esqueci minha senha" no app mobile e no painel web do gerente. E-mail com link válido por 1 hora.
 
 ## Próxima da fila
 
