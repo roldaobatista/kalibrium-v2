@@ -105,6 +105,18 @@ Decisão técnica minha: **não vou tentar corrigir tudo agora**. Vou priorizar 
 
 ---
 
+## Login mobile — User não escopado por tenant
+
+**Data registrada:** 2026-05-03
+
+O endpoint `/api/mobile/login` busca o usuário por e-mail globalmente (sem filtro de tenant). O que protege o acesso ao laboratório é o aceite do device pelo gerente — não um vínculo direto `user↔tenant`. Na prática, qualquer usuário cadastrado no sistema pode tentar login em qualquer laboratório; o bloqueio acontece porque o device fica `pending` até aprovação manual.
+
+**Risco:** se o modelo de negócio exigir que cada usuário pertença a um único laboratório, a proteção atual é insuficiente — um usuário de laboratório A poderia solicitar acesso ao laboratório B e aguardar aprovação de um gerente desatento.
+
+**Decisão pendente:** antes de adicionar filtro `user↔tenant` no `LoginController` (e em todos os outros pontos que consultam `User`), registrar um ADR definindo se usuários são globais ou escopados por tenant. Não alterar sem essa decisão.
+
+---
+
 ## Plano de ação proposto
 
 **Antes da história principal:** uma passada curta de limpeza (estimativa 2-3 horas) que cobre as categorias 2, 3, 6 — apaga o que é claramente obsoleto (Livewire, ExampleTest), conserta o que tem solução simples (seeder duplicado, sanitização). Isso baixa de 47 vermelhos pra ~25.

@@ -6,7 +6,6 @@ use App\Enums\MobileDeviceStatus;
 use App\Models\MobileDevice;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Support\Tenancy\TenantContext;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -90,17 +89,13 @@ test('device ja pending retorna 202 e atualiza last_seen_at sem duplicar', funct
         'last_seen_at' => now()->subHour(),
     ]);
 
-    // Ativa contexto de tenant para que ScopesToCurrentTenant retorne a contagem correta.
-    TenantContext::setTenantId($tenant->id);
-    $beforeCount = MobileDevice::where('user_id', $user->id)->count();
-    TenantContext::reset();
-
     $response = $this->postJson(mobile_url(), mobile_payload($user, $tenant));
 
     $response->assertStatus(202);
     $response->assertJsonFragment(['status' => 'aguardando_aprovacao']);
 
-    expect(MobileDevice::where('user_id', $user->id)->count())->toBe($beforeCount);
+    // Vai direto ao banco — ignora global scope ScopesToCurrentTenant.
+    $this->assertDatabaseCount('mobile_devices', 1);
 
     $device->refresh();
     expect($device->last_seen_at)->not->toBeNull();
@@ -285,4 +280,21 @@ test('device aprovado retorna token ancorado ao tenant correto', function (): vo
     $pat = PersonalAccessToken::find($id);
     expect($pat)->not->toBeNull();
     expect($pat->name)->toBe('mobile:tenant:'.$tenant->id);
+});
+
+test('tenant_id inexistente retorna 422 com mensagem generica', function (): void {
+    $user = mobile_user();
+
+    // ID numérico alto o suficiente para não existir no banco de testes.
+    $response = $this->postJson(mobile_url(), [
+        'tenant_id' => 999999999,
+        'email' => $user->email,
+        'password' => 'SenhaSegura123!',
+        'device_identifier' => 'test-device-abc123',
+        'device_label' => 'iPhone 14',
+    ]);
+
+    // Middleware ResolveMobileTenant rejeita sem confirmar existência de outros tenants.
+    $response->assertStatus(422);
+    $response->assertJsonFragment(['erro' => 'Laboratório não encontrado.']);
 });
