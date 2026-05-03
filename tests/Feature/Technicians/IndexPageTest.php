@@ -312,7 +312,93 @@ test('reativar tecnico muda status para active', function (): void {
 });
 
 // ---------------------------------------------------------------------------
-// 11. Técnico não-gerente recebe 403
+// 11. Cross-tenant — desativar técnico de outro tenant retorna 404
+// ---------------------------------------------------------------------------
+
+test('desativar tecnico de outro tenant retorna 404 e nao altera status', function (): void {
+    ['tenant' => $tenantA, 'user' => $managerA, 'tenantUser' => $tuA] = tech_manager_setup();
+    ['tenant' => $tenantB] = tech_manager_setup();
+    ['tenantUser' => $techB] = make_technician($tenantB, 'active');
+
+    tech_set_context($tenantA, $tuA);
+
+    Livewire::actingAs($managerA)
+        ->test(IndexPage::class)
+        ->call('desativar', $techB->id)
+        ->assertNotFound();
+
+    $techB->refresh();
+    expect($techB->status->value)->toBe('active');
+});
+
+// ---------------------------------------------------------------------------
+// 12. Cross-tenant — reativar técnico de outro tenant retorna 404
+// ---------------------------------------------------------------------------
+
+test('reativar tecnico de outro tenant retorna 404 e nao altera status', function (): void {
+    ['tenant' => $tenantA, 'user' => $managerA, 'tenantUser' => $tuA] = tech_manager_setup();
+    ['tenant' => $tenantB] = tech_manager_setup();
+    ['tenantUser' => $techB] = make_technician($tenantB, 'inactive');
+
+    tech_set_context($tenantA, $tuA);
+
+    Livewire::actingAs($managerA)
+        ->test(IndexPage::class)
+        ->call('reativar', $techB->id)
+        ->assertNotFound();
+
+    $techB->refresh();
+    expect($techB->status->value)->toBe('inactive');
+});
+
+// ---------------------------------------------------------------------------
+// 13. Auditoria de reativar
+// ---------------------------------------------------------------------------
+
+test('reativar tecnico registra auditoria com action technician.reactivated', function (): void {
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = tech_manager_setup();
+    ['tenantUser' => $techTU] = make_technician($tenant, 'inactive');
+
+    tech_set_context($tenant, $tu);
+
+    Livewire::actingAs($manager)
+        ->test(IndexPage::class)
+        ->call('reativar', $techTU->id);
+
+    $this->assertDatabaseHas('tenant_audit_logs', [
+        'tenant_id' => $tenant->id,
+        'action' => 'technician.reactivated',
+    ]);
+});
+
+// ---------------------------------------------------------------------------
+// 14. Email de outro tenant é rejeitado na criação
+// ---------------------------------------------------------------------------
+
+test('cadastrar com email que ja e gerente de outro tenant retorna erro de validacao', function (): void {
+    ['tenant' => $tenantA, 'user' => $managerA, 'tenantUser' => $tuA] = tech_manager_setup();
+    ['tenant' => $tenantB, 'user' => $managerB] = tech_manager_setup();
+
+    tech_set_context($tenantA, $tuA);
+
+    Livewire::actingAs($managerA)
+        ->test(IndexPage::class)
+        ->call('openCreateModal')
+        ->set('name', 'Novo Técnico')
+        ->set('email', $managerB->email)
+        ->set('password', 'Senha1234')
+        ->call('criar')
+        ->assertHasErrors(['email']);
+
+    $this->assertDatabaseMissing('tenant_users', [
+        'tenant_id' => $tenantA->id,
+        'user_id' => $managerB->id,
+        'role' => TenantRole::TECHNICIAN,
+    ]);
+});
+
+// ---------------------------------------------------------------------------
+// 15. Técnico não-gerente recebe 403
 // ---------------------------------------------------------------------------
 
 test('tecnico nao gerente recebe 403 ao acessar tela', function (): void {
@@ -327,7 +413,7 @@ test('tecnico nao gerente recebe 403 ao acessar tela', function (): void {
 });
 
 // ---------------------------------------------------------------------------
-// 12. Login mobile de técnico inactive retorna 403
+// 16. Login mobile de técnico inactive retorna 403
 // ---------------------------------------------------------------------------
 
 test('login mobile de tecnico inativo retorna 403 com mensagem em pt-BR', function (): void {
@@ -353,7 +439,7 @@ test('login mobile de tecnico inativo retorna 403 com mensagem em pt-BR', functi
 });
 
 // ---------------------------------------------------------------------------
-// 13. Login web de técnico inactive retorna erro inline
+// 17. Login web de técnico inactive retorna erro inline
 // ---------------------------------------------------------------------------
 
 test('login web de tecnico inativo retorna erro na tela', function (): void {
