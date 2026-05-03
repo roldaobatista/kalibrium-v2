@@ -2,6 +2,7 @@ import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Blocked from './pages/Blocked';
+import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
 import Login from './pages/Login';
 
@@ -43,6 +44,9 @@ const App: React.FC = () => (
             <IonRouterOutlet>
                 <Route exact path="/login">
                     <Login />
+                </Route>
+                <Route exact path="/forgot-password">
+                    <ForgotPassword />
                 </Route>
                 <Route exact path="/home">
                     <Home />

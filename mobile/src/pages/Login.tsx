@@ -269,6 +269,11 @@ const Login: React.FC = () => {
                                     {erroInline}
                                 </div>
                             )}
+
+                            {/* Link recuperação de senha */}
+                            <a className="kb-link" onClick={() => history.push('/forgot-password')}>
+                                Esqueci minha senha
+                            </a>
                         </div>
                     </div>
                 </div>

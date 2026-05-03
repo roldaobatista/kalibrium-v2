@@ -17,11 +17,19 @@ use App\Http\Middleware\HealthCheckRateLimit;
 use App\Livewire\MobileDevices\IndexPage as MobileDevicesIndexPage;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Http\Controllers\NewPasswordController;
 
 Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);
 
 Route::redirect('/', '/health', 302);
+
+// Rota de redefinição de senha (Fortify com ignoreRoutes() — registrada manualmente)
+Route::prefix('auth')->group(function (): void {
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])
+        ->middleware('guest')
+        ->name('password.update');
+});
 
 // Rotas temporárias para aceite visual — REMOVER após os prints serem gerados
 if (app()->environment('local')) {

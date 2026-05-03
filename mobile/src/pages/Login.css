@@ -248,3 +248,16 @@
     flex-shrink: 0;
     margin-top: 1px;
 }
+
+.kb-link {
+    color: var(--kb-primary-600);
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 16px;
+    display: block;
+}
+
+.kb-link:hover {
+    text-decoration: underline;
+}

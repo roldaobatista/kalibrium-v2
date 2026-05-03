@@ -10,7 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 const TENANT_ID = Number(import.meta.env.VITE_TENANT_ID ?? 1);
 
 // ---------------------------------------------------------------------------
-// Tipos de retorno
+// Tipos de retorno — Login
 // ---------------------------------------------------------------------------
 
 export interface LoginOk {
@@ -62,7 +62,29 @@ export type LoginResult =
     | LoginNetworkError;
 
 // ---------------------------------------------------------------------------
-// Função principal
+// Tipos de retorno — Recuperação de senha
+// ---------------------------------------------------------------------------
+
+export interface PasswordResetOk {
+    kind: 'ok';
+}
+
+export interface PasswordResetRateLimit {
+    kind: 'rate_limit';
+    message: string;
+}
+
+export interface PasswordResetNetworkError {
+    kind: 'network_error';
+}
+
+export type PasswordResetResult =
+    | PasswordResetOk
+    | PasswordResetRateLimit
+    | PasswordResetNetworkError;
+
+// ---------------------------------------------------------------------------
+// Função de login
 // ---------------------------------------------------------------------------
 
 export async function login(
@@ -143,4 +165,45 @@ export async function login(
                 message: 'Erro inesperado. Tente de novo.',
             };
     }
+}
+
+// ---------------------------------------------------------------------------
+// Função de recuperação de senha
+// ---------------------------------------------------------------------------
+
+export async function requestPasswordReset(
+    email: string,
+    tenantId: number,
+): Promise<PasswordResetResult> {
+    let response: Response;
+
+    try {
+        response = await fetch(`${API_BASE_URL}/api/mobile/password/forgot`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ email, tenant_id: tenantId }),
+        });
+    } catch {
+        return { kind: 'network_error' };
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let body: any = {};
+    try {
+        body = await response.json();
+    } catch {
+        // corpo vazio — segue com objeto vazio
+    }
+
+    if (response.status === 429) {
+        return {
+            kind: 'rate_limit',
+            message:
+                (body.mensagem as string) ??
+                'Muitas tentativas. Aguarde alguns minutos e tente de novo.',
+        };
+    }
+
+    // 200 e qualquer outro status: resposta genérica (não vaza info)
+    return { kind: 'ok' };
 }

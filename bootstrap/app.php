@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckMobileDeviceStatus;
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
+use App\Http\Middleware\MobileForgotPasswordRateLimit;
 use App\Http\Middleware\MobileLoginRateLimit;
 use App\Http\Middleware\ResolveMobileTenant;
 use App\Http\Middleware\SecurityHeaders;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.2fa.completed' => EnsureTwoFactorChallengeCompleted::class,
             'mobile.device.status' => CheckMobileDeviceStatus::class,
+            'mobile.forgot.throttle' => MobileForgotPasswordRateLimit::class,
             'mobile.login.throttle' => MobileLoginRateLimit::class,
             'mobile.tenant' => ResolveMobileTenant::class,
             'tenant.context' => SetCurrentTenantContext::class,
