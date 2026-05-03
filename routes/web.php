@@ -10,6 +10,7 @@ declare(strict_types=1);
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\HealthCheckController;
+use App\Http\Controllers\Mobile\LoginController as MobileLoginController;
 use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
 use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
 use App\Http\Controllers\TenantSettingsController;
@@ -20,6 +21,10 @@ Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);
 
 Route::redirect('/', '/health', 302);
+
+Route::post('/api/mobile/login', MobileLoginController::class)
+    ->middleware('mobile.login.throttle')
+    ->name('mobile.login');
 
 Route::middleware(['auth', 'tenant.context'])->group(function (): void {
     Route::apiResource('clientes', ClienteController::class);

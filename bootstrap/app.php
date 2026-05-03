@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureReadOnlyTenantMode;
 use App\Http\Middleware\EnsureTwoFactorChallengeCompleted;
+use App\Http\Middleware\MobileLoginRateLimit;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetCurrentTenantContext;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->alias([
             'auth.2fa.completed' => EnsureTwoFactorChallengeCompleted::class,
+            'mobile.login.throttle' => MobileLoginRateLimit::class,
             'tenant.context' => SetCurrentTenantContext::class,
             'tenant.read-only' => EnsureReadOnlyTenantMode::class,
         ]);
