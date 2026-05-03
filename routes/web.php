@@ -19,6 +19,7 @@ use App\Livewire\MobileDevices\IndexPage as MobileDevicesIndexPage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
+use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 
 Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);
@@ -48,6 +49,11 @@ Route::prefix('auth')->group(function (): void {
     Route::get('/forgot-password', function () {
         return view('auth.forgot-password');
     })->middleware('guest')->name('password.request');
+
+    // Recuperação de senha — envio do link
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->middleware(['guest', 'throttle:5,1'])
+        ->name('password.email');
 
     // Redefinição de senha (Fortify com ignoreRoutes() — registrada manualmente)
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
