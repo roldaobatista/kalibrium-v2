@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import {
-    IonAlert,
-    IonButton,
-    IonContent,
-    IonHeader,
-    IonInput,
-    IonItem,
-    IonLabel,
-    IonPage,
-    IonTitle,
-    IonToast,
-    IonToolbar,
-} from '@ionic/react';
+import { IonAlert, IonContent, IonPage } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
+import { eyeOutline, eyeOffOutline, fingerPrintOutline } from 'ionicons/icons';
 import { login } from '../services/auth';
 import { getDeviceIdentifier, getDeviceLabel } from '../services/device';
 import * as biometric from '../services/biometric';
@@ -23,27 +13,28 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [loading, setLoading] = useState(false);
+    const [mostrarSenha, setMostrarSenha] = useState(false);
 
-    const [toastAberto, setToastAberto] = useState(false);
-    const [mensagemToast, setMensagemToast] = useState('');
+    // Erro/aviso inline (substitui IonToast para credenciais)
+    const [erroInline, setErroInline] = useState('');
+    const [tipoErroInline, setTipoErroInline] = useState<'erro' | 'aviso'>('erro');
 
-    // Alert de status (acesso pendente, negado, etc.)
+    // Alert de status (acesso pendente, negado, etc.) — continua IonAlert
     const [alertAberto, setAlertAberto] = useState(false);
     const [mensagemAlert, setMensagemAlert] = useState('');
     const [tituloAlert, setTituloAlert] = useState('');
 
-    // Alert de cadastro biométrico (pergunta após primeiro login bem-sucedido)
+    // Alert de cadastro biométrico
     const [alertBiometricAberto, setAlertBiometricAberto] = useState(false);
-    // Credenciais pendentes de enroll — guardamos enquanto o alert está aberto
     const [pendingToken, setPendingToken] = useState('');
     const [pendingUser, setPendingUser] = useState<object>({});
 
-    // Controla visibilidade do botão "Entrar com digital"
+    // Botão biométrico
     const [mostrarBotaoBiometrico, setMostrarBotaoBiometrico] = useState(false);
 
-    const mostrarToast = (msg: string) => {
-        setMensagemToast(msg);
-        setToastAberto(true);
+    const mostrarErro = (msg: string, tipo: 'erro' | 'aviso' = 'erro') => {
+        setTipoErroInline(tipo);
+        setErroInline(msg);
     };
 
     const mostrarAlert = (titulo: string, msg: string) => {
@@ -52,7 +43,6 @@ const Login: React.FC = () => {
         setAlertAberto(true);
     };
 
-    // Ao montar: verifica se há credenciais biométricas salvas e auto-dispara
     useEffect(() => {
         void verificarBiometriaInicial();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,17 +55,13 @@ const Login: React.FC = () => {
         const temCredenciais = await biometric.hasEnrolled();
         if (!temCredenciais) return;
 
-        // Tem credenciais salvas — mostra botão e auto-dispara
         setMostrarBotaoBiometrico(true);
         await tentarEntrarComBiometria();
     };
 
     const tentarEntrarComBiometria = async () => {
         const resultado = await biometric.authenticate();
-        if (!resultado) {
-            // Usuário cancelou — mostra campos normais
-            return;
-        }
+        if (!resultado) return;
 
         localStorage.setItem('kalibrium.token', resultado.token);
         localStorage.setItem('kalibrium.user', JSON.stringify(resultado.user));
@@ -90,10 +76,11 @@ const Login: React.FC = () => {
 
     const handleEntrar = async () => {
         if (!email.trim() || !senha.trim()) {
-            mostrarToast('Preencha e-mail e senha pra entrar.');
+            mostrarErro('Preencha e-mail e senha pra entrar.');
             return;
         }
 
+        setErroInline('');
         setLoading(true);
         try {
             const resultado = await login(
@@ -110,7 +97,6 @@ const Login: React.FC = () => {
                     const jaEnrolled = await biometric.hasEnrolled();
 
                     if (disponivel && !jaEnrolled && optout !== '1') {
-                        // Pergunta se quer usar biometria — guarda credenciais pendentes
                         setPendingToken(resultado.token);
                         setPendingUser(resultado.user as object);
                         setAlertBiometricAberto(true);
@@ -129,19 +115,19 @@ const Login: React.FC = () => {
                     break;
 
                 case 'unauthorized':
-                    mostrarToast('E-mail ou senha incorretos.');
+                    mostrarErro('E-mail ou senha incorretos.');
                     break;
 
                 case 'validation':
-                    mostrarToast('Não foi possível entrar. Verifique os dados e tente de novo.');
+                    mostrarErro('Não foi possível entrar. Verifique os dados e tente de novo.');
                     break;
 
                 case 'rate_limit':
-                    mostrarToast(resultado.message);
+                    mostrarErro(resultado.message, 'aviso');
                     break;
 
                 case 'network_error':
-                    mostrarToast('Sem conexão com o servidor. Verifique sua internet.');
+                    mostrarErro('Sem conexão com o servidor. Verifique sua internet.', 'aviso');
                     break;
             }
         } finally {
@@ -154,7 +140,7 @@ const Login: React.FC = () => {
         try {
             await biometric.enroll(pendingToken, pendingUser);
         } catch {
-            // Falhou ao salvar — segue sem biometria; próximo login pergunta de novo
+            // Falhou ao salvar — segue sem biometria
         }
         navegarParaHome(pendingToken, pendingUser);
     };
@@ -166,71 +152,127 @@ const Login: React.FC = () => {
     };
 
     return (
-        <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Kalibrium</IonTitle>
-                </IonToolbar>
-            </IonHeader>
+        <IonPage className="kb-login-page">
+            <IonContent scrollY={true}>
+                <div className="kb-login-scroll">
+                    <div className="kb-login-wrapper">
+                        {/* Cabeçalho */}
+                        <h1 className="kb-login-logo">Kalibrium</h1>
+                        <p className="kb-login-subtitulo">Acesso do técnico</p>
 
-            <IonContent className="login-content">
-                <div className="login-container">
-                    <p className="login-subtitulo">Acesso do técnico</p>
+                        {/* Card do formulário */}
+                        <div className="kb-login-card">
+                            {/* Botão biométrico */}
+                            {mostrarBotaoBiometrico && (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="kb-btn-biometrico"
+                                        onClick={() => void tentarEntrarComBiometria()}
+                                        disabled={loading}
+                                        aria-label="Entrar com digital ou reconhecimento facial"
+                                    >
+                                        <IonIcon
+                                            icon={fingerPrintOutline}
+                                            style={{ fontSize: '20px' }}
+                                        />
+                                        Entrar com digital
+                                    </button>
 
-                    {mostrarBotaoBiometrico && (
-                        <IonButton
-                            expand="block"
-                            color="secondary"
-                            className="login-botao"
-                            onClick={() => void tentarEntrarComBiometria()}
-                            disabled={loading}
-                        >
-                            Entrar com digital / reconhecimento facial
-                        </IonButton>
-                    )}
+                                    <div className="kb-separador">
+                                        <span className="kb-separador-linha" />
+                                        <span className="kb-separador-texto">
+                                            ou entre com e-mail
+                                        </span>
+                                        <span className="kb-separador-linha" />
+                                    </div>
+                                </>
+                            )}
 
-                    <IonItem className="login-item">
-                        <IonLabel position="floating">E-mail</IonLabel>
-                        <IonInput
-                            type="email"
-                            placeholder="seu@email.com"
-                            value={email}
-                            onIonInput={(e) => setEmail(e.detail.value ?? '')}
-                            autocomplete="email"
-                        />
-                    </IonItem>
+                            {/* Campo e-mail */}
+                            <div className="kb-campo">
+                                <label htmlFor="kb-email" className="kb-label">
+                                    E-mail
+                                </label>
+                                <div className="kb-input-wrapper">
+                                    <input
+                                        id="kb-email"
+                                        type="email"
+                                        className="kb-input"
+                                        placeholder="seu@email.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        autoComplete="email"
+                                        inputMode="email"
+                                        disabled={loading}
+                                    />
+                                </div>
+                            </div>
 
-                    <IonItem className="login-item">
-                        <IonLabel position="floating">Senha</IonLabel>
-                        <IonInput
-                            type="password"
-                            placeholder="sua senha"
-                            value={senha}
-                            onIonInput={(e) => setSenha(e.detail.value ?? '')}
-                            autocomplete="current-password"
-                        />
-                    </IonItem>
+                            {/* Campo senha */}
+                            <div className="kb-campo">
+                                <label htmlFor="kb-senha" className="kb-label">
+                                    Senha
+                                </label>
+                                <div className="kb-input-wrapper">
+                                    <input
+                                        id="kb-senha"
+                                        type={mostrarSenha ? 'text' : 'password'}
+                                        className="kb-input kb-input--com-toggle"
+                                        placeholder="sua senha"
+                                        value={senha}
+                                        onChange={(e) => setSenha(e.target.value)}
+                                        autoComplete="current-password"
+                                        disabled={loading}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') void handleEntrar();
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="kb-toggle-senha"
+                                        onClick={() => setMostrarSenha((v) => !v)}
+                                        aria-label={
+                                            mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'
+                                        }
+                                        tabIndex={-1}
+                                    >
+                                        <IonIcon
+                                            icon={mostrarSenha ? eyeOffOutline : eyeOutline}
+                                            style={{ fontSize: '20px' }}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
 
-                    <IonButton
-                        expand="block"
-                        color="primary"
-                        className="login-botao"
-                        onClick={() => void handleEntrar()}
-                        disabled={loading}
-                    >
-                        {loading ? 'Entrando...' : 'Entrar'}
-                    </IonButton>
+                            {/* Botão entrar */}
+                            <button
+                                type="button"
+                                className="kb-btn-entrar"
+                                onClick={() => void handleEntrar()}
+                                disabled={loading}
+                            >
+                                {loading && <span className="kb-spinner" aria-hidden="true" />}
+                                {loading ? 'Entrando...' : 'Entrar'}
+                            </button>
+
+                            {/* Erro/aviso inline */}
+                            {erroInline && (
+                                <div
+                                    className={`kb-alert-inline kb-alert-inline--${tipoErroInline}`}
+                                    role="alert"
+                                >
+                                    <span className="kb-alert-inline-icone" aria-hidden="true">
+                                        {tipoErroInline === 'erro' ? '✕' : '⚠'}
+                                    </span>
+                                    {erroInline}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                <IonToast
-                    isOpen={toastAberto}
-                    message={mensagemToast}
-                    duration={3000}
-                    onDidDismiss={() => setToastAberto(false)}
-                    position="bottom"
-                />
-
-                {/* Alert de status (acesso pendente, negado, etc.) */}
+                {/* Alert de status (acesso pendente, negado) */}
                 <IonAlert
                     isOpen={alertAberto}
                     header={tituloAlert}

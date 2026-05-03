@@ -1,0 +1,42 @@
+:root {
+    /* Paleta primária */
+    --kb-primary-50: #eff6ff;
+    --kb-primary-100: #dbeafe;
+    --kb-primary-500: #3b82f6;
+    --kb-primary-600: #2563eb;
+    --kb-primary-700: #1d4ed8;
+    --kb-primary-900: #1e3a8a;
+
+    /* Neutros */
+    --kb-neutral-50: #f9fafb;
+    --kb-neutral-100: #f3f4f6;
+    --kb-neutral-200: #e5e7eb;
+    --kb-neutral-300: #d1d5db;
+    --kb-neutral-500: #6b7280;
+    --kb-neutral-700: #374151;
+    --kb-neutral-900: #111827;
+
+    /* Semânticos */
+    --kb-danger-500: #ef4444;
+    --kb-danger-600: #dc2626;
+    --kb-danger-700: #b91c1c;
+    --kb-success-600: #16a34a;
+    --kb-warning-600: #d97706;
+
+    /* Tipografia */
+    --kb-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+    /* Espaçamentos */
+    --kb-space-1: 4px;
+    --kb-space-2: 8px;
+    --kb-space-3: 12px;
+    --kb-space-4: 16px;
+    --kb-space-6: 24px;
+    --kb-space-8: 32px;
+
+    /* Raios */
+    --kb-radius-sm: 4px;
+    --kb-radius-md: 6px;
+    --kb-radius-lg: 8px;
+    --kb-radius-full: 9999px;
+}

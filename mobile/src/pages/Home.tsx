@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import * as biometric from '../services/biometric';
+import './Home.css';
 
 interface UserData {
     id: number;
@@ -31,36 +32,34 @@ const Home: React.FC = () => {
     }, [history]);
 
     const handleSair = async () => {
-        // Apaga credenciais biométricas antes de limpar o localStorage
-        // para que o próximo login exija senha novamente
         await biometric.clear();
-
         localStorage.removeItem('kalibrium.token');
         localStorage.removeItem('kalibrium.user');
         history.replace('/login');
     };
 
     return (
-        <IonPage>
+        <IonPage className="kb-home-page">
             <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Início</IonTitle>
+                <IonToolbar className="kb-home-toolbar">
+                    <IonTitle className="kb-home-title">Início</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
-            <IonContent className="ion-padding">
-                <p style={{ fontSize: '1.2rem', marginTop: '2rem' }}>
-                    Bem-vindo{user ? `, ${user.name}` : ''}!
-                </p>
+            <IonContent>
+                <div className="kb-home-content">
+                    <p className="kb-home-boas-vindas">Bem-vindo{user ? `, ${user.name}` : ''}!</p>
 
-                <IonButton
-                    expand="block"
-                    color="medium"
-                    style={{ marginTop: '2rem' }}
-                    onClick={() => void handleSair()}
-                >
-                    Sair
-                </IonButton>
+                    <div className="kb-home-rodape">
+                        <button
+                            type="button"
+                            className="kb-btn-sair"
+                            onClick={() => void handleSair()}
+                        >
+                            Sair
+                        </button>
+                    </div>
+                </div>
             </IonContent>
         </IonPage>
     );

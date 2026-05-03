@@ -1,27 +1,250 @@
-.login-content {
-    --background: var(--ion-background-color, #ffffff);
+/* ─── Login page — Kalibrium design system ─── */
+
+.kb-login-page {
+    --background: var(--kb-neutral-50);
+    font-family: var(--kb-font-sans);
 }
 
-.login-container {
+.kb-login-scroll {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: var(--kb-space-6);
+    box-sizing: border-box;
+}
+
+.kb-login-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* ── Cabeçalho ── */
+.kb-login-logo {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--kb-neutral-900);
+    text-align: center;
+    margin: 0 0 var(--kb-space-2) 0;
+    letter-spacing: -0.5px;
+}
+
+.kb-login-subtitulo {
+    font-size: 14px;
+    color: var(--kb-neutral-500);
+    text-align: center;
+    margin: 0 0 var(--kb-space-8) 0;
+}
+
+/* ── Card do formulário ── */
+.kb-login-card {
+    background: #ffffff;
+    border-radius: var(--kb-radius-lg);
+    padding: var(--kb-space-6);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Botão biométrico ── */
+.kb-btn-biometrico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--kb-space-2);
+    width: 100%;
+    min-height: 48px;
+    padding: 12px var(--kb-space-4);
+    background: var(--kb-primary-50);
+    border: 2px solid var(--kb-primary-600);
+    border-radius: var(--kb-radius-md);
+    color: var(--kb-primary-700);
+    font-family: var(--kb-font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.15s;
+}
+
+.kb-btn-biometrico:active {
+    background: var(--kb-primary-100);
+}
+
+.kb-btn-biometrico:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ── Separador "ou" ── */
+.kb-separador {
+    display: flex;
+    align-items: center;
+    gap: var(--kb-space-3);
+    margin: var(--kb-space-4) 0;
+}
+
+.kb-separador-linha {
+    flex: 1;
+    height: 1px;
+    background: var(--kb-neutral-200);
+}
+
+.kb-separador-texto {
+    font-size: 13px;
+    color: var(--kb-neutral-500);
+    white-space: nowrap;
+}
+
+/* ── Campos ── */
+.kb-campo {
     display: flex;
     flex-direction: column;
-    padding: 32px 24px;
-    max-width: 480px;
-    margin: 0 auto;
+    gap: 6px;
+    margin-bottom: var(--kb-space-4);
 }
 
-.login-subtitulo {
-    text-align: center;
-    color: var(--ion-color-medium);
-    font-size: 0.95rem;
-    margin-top: 0;
-    margin-bottom: 32px;
+.kb-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--kb-neutral-700);
 }
 
-.login-item {
-    margin-bottom: 16px;
+.kb-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.login-botao {
-    margin-top: 32px;
+.kb-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-family: var(--kb-font-sans);
+    font-size: 16px;
+    color: var(--kb-neutral-900);
+    background: #ffffff;
+    border: 1px solid var(--kb-neutral-300);
+    border-radius: var(--kb-radius-md);
+    box-sizing: border-box;
+    outline: none;
+    transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+    -webkit-appearance: none;
+}
+
+.kb-input:focus {
+    border-color: var(--kb-primary-500);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.kb-input--erro {
+    border-color: var(--kb-danger-500);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* campo com toggle de senha — padding direito extra */
+.kb-input--com-toggle {
+    padding-right: 44px;
+}
+
+.kb-toggle-senha {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--kb-neutral-500);
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.kb-toggle-senha:focus {
+    outline: none;
+}
+
+/* ── Botão principal ── */
+.kb-btn-entrar {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px var(--kb-space-4);
+    margin-top: var(--kb-space-2);
+    background: var(--kb-primary-600);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--kb-radius-md);
+    font-family: var(--kb-font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--kb-space-2);
+    transition: background 0.15s;
+}
+
+.kb-btn-entrar:hover {
+    background: var(--kb-primary-700);
+}
+
+.kb-btn-entrar:active {
+    background: var(--kb-primary-700);
+}
+
+.kb-btn-entrar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ── Spinner ── */
+.kb-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: kb-spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes kb-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Alert inline de erro/aviso ── */
+.kb-alert-inline {
+    margin-top: var(--kb-space-4);
+    padding: 12px;
+    border-radius: var(--kb-radius-md);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--kb-space-2);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.kb-alert-inline--erro {
+    background: #fee2e2;
+    color: var(--kb-danger-700);
+    border-left: 4px solid var(--kb-danger-600);
+}
+
+.kb-alert-inline--aviso {
+    background: #fef3c7;
+    color: #92400e;
+    border-left: 4px solid var(--kb-warning-600);
+}
+
+.kb-alert-inline-icone {
+    flex-shrink: 0;
+    margin-top: 1px;
 }

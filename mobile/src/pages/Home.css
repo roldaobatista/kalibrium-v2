@@ -1,0 +1,60 @@
+/* ─── Home page — Kalibrium design system ─── */
+
+.kb-home-page {
+    --background: var(--kb-neutral-50);
+    font-family: var(--kb-font-sans);
+}
+
+.kb-home-toolbar {
+    --background: #ffffff;
+    --color: var(--kb-neutral-900);
+    --border-color: var(--kb-neutral-200);
+}
+
+.kb-home-title {
+    font-family: var(--kb-font-sans);
+    font-weight: 600;
+    color: var(--kb-neutral-900);
+}
+
+.kb-home-content {
+    display: flex;
+    flex-direction: column;
+    padding: var(--kb-space-6);
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+.kb-home-boas-vindas {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--kb-neutral-900);
+    margin: var(--kb-space-8) 0 0 0;
+    line-height: 1.25;
+}
+
+.kb-home-rodape {
+    margin-top: auto;
+    padding-top: var(--kb-space-8);
+}
+
+.kb-btn-sair {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px var(--kb-space-4);
+    background: #ffffff;
+    color: var(--kb-neutral-700);
+    border: 1px solid var(--kb-neutral-300);
+    border-radius: var(--kb-radius-md);
+    font-family: var(--kb-font-sans);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.15s;
+}
+
+.kb-btn-sair:hover,
+.kb-btn-sair:active {
+    background: var(--kb-neutral-50);
+}
