@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { apiFetch } from '../services/api';
 import * as biometric from '../services/biometric';
 import './Home.css';
 
@@ -20,15 +21,24 @@ const Home: React.FC = () => {
             history.replace('/login');
             return;
         }
+
+        // Carrega dados do usuário do localStorage enquanto valida sessão com o servidor.
         const raw = localStorage.getItem('kalibrium.user');
         if (raw) {
             try {
                 setUser(JSON.parse(raw) as UserData);
             } catch {
-                // dado corrompido — volta pro login
                 history.replace('/login');
+                return;
             }
         }
+
+        // Valida sessão com o backend. Se receber wipe, apiFetch cuida do redirect.
+        void apiFetch('/api/mobile/me').then((res) => {
+            if (res.status === 200) {
+                void res.json().then((data: UserData) => setUser(data));
+            }
+        });
     }, [history]);
 
     const handleSair = async () => {

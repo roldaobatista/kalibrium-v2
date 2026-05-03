@@ -9,4 +9,5 @@ enum MobileDeviceStatus: string
     case Pending = 'pending';
     case Approved = 'approved';
     case Revoked = 'revoked';
+    case WipedAndRevoked = 'wiped_and_revoked';
 }

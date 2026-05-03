@@ -69,6 +69,10 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-700">
                                     Aprovado
                                 </span>
+                            @elseif ($device->status->value === 'wiped_and_revoked')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-200 text-danger-900">
+                                    Bloqueado e limpo
+                                </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-700">
                                     Bloqueado
@@ -113,13 +117,25 @@
                                     >
                                         Bloquear
                                     </button>
-                                @else
+                                @elseif ($device->status->value === 'revoked')
                                     <button
                                         wire:click="reativar('{{ $device->id }}')"
                                         wire:loading.attr="disabled"
                                         class="bg-white border border-neutral-300 text-neutral-700 px-3 py-1.5 rounded-md text-xs font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
                                     >
                                         Reativar
+                                    </button>
+                                @else
+                                    {{-- wiped_and_revoked: sem reativar, só confirma bloqueio --}}
+                                @endif
+                                @if ($device->status->value !== 'wiped_and_revoked')
+                                    <button
+                                        wire:click="limparEBloquear('{{ $device->id }}')"
+                                        wire:loading.attr="disabled"
+                                        wire:confirm="Tem certeza que quer apagar todos os dados do Kalibrium do {{ $device->device_label ?? 'celular' }} do {{ $device->user?->name ?? 'técnico' }} e bloquear o acesso? Essa ação não pode ser desfeita."
+                                        class="bg-danger-700 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-danger-800 transition-colors disabled:opacity-50"
+                                    >
+                                        Limpar e bloquear
                                     </button>
                                 @endif
                             </div>
@@ -158,6 +174,10 @@
                     @elseif ($device->status->value === 'approved')
                         <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-700">
                             Aprovado
+                        </span>
+                    @elseif ($device->status->value === 'wiped_and_revoked')
+                        <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-200 text-danger-900">
+                            Bloqueado e limpo
                         </span>
                     @else
                         <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-700">
@@ -199,13 +219,23 @@
                         >
                             Bloquear
                         </button>
-                    @else
+                    @elseif ($device->status->value === 'revoked')
                         <button
                             wire:click="reativar('{{ $device->id }}')"
                             wire:loading.attr="disabled"
                             class="w-full min-h-[44px] bg-white border border-neutral-300 text-neutral-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
                         >
                             Reativar
+                        </button>
+                    @endif
+                    @if ($device->status->value !== 'wiped_and_revoked')
+                        <button
+                            wire:click="limparEBloquear('{{ $device->id }}')"
+                            wire:loading.attr="disabled"
+                            wire:confirm="Tem certeza que quer apagar todos os dados do Kalibrium do {{ $device->device_label ?? 'celular' }} do {{ $device->user?->name ?? 'técnico' }} e bloquear o acesso? Essa ação não pode ser desfeita."
+                            class="w-full min-h-[44px] bg-danger-700 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-danger-800 transition-colors disabled:opacity-50"
+                        >
+                            Limpar e bloquear
                         </button>
                     @endif
                 </div>

@@ -36,6 +36,9 @@ class MobileDeviceFactory extends Factory
             'approved_by_user_id' => null,
             'revoked_at' => null,
             'last_seen_at' => null,
+            'wiped_at' => null,
+            'wiped_by_user_id' => null,
+            'wipe_acknowledged_at' => null,
         ];
     }
 
@@ -57,6 +60,15 @@ class MobileDeviceFactory extends Factory
         return $this->state([
             'status' => MobileDeviceStatus::Revoked,
             'revoked_at' => now(),
+        ]);
+    }
+
+    public function wipedAndRevoked(): static
+    {
+        return $this->state([
+            'status' => MobileDeviceStatus::WipedAndRevoked,
+            'revoked_at' => now(),
+            'wiped_at' => now(),
         ]);
     }
 }

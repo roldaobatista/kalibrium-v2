@@ -1,0 +1,36 @@
+.kb-blocked-page {
+    --background: #fff1f2;
+}
+
+.kb-blocked-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+}
+
+.kb-blocked-icon {
+    font-size: 5rem;
+    color: #b91c1c;
+    margin-bottom: 1.5rem;
+    line-height: 1;
+}
+
+.kb-blocked-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 1rem;
+}
+
+.kb-blocked-message {
+    font-size: 1rem;
+    color: #4b4b4b;
+    max-width: 320px;
+    line-height: 1.6;
+    margin: 0;
+}

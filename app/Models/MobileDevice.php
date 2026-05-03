@@ -18,6 +18,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $approved_at
  * @property Carbon|null $revoked_at
  * @property Carbon|null $last_seen_at
+ * @property Carbon|null $wiped_at
+ * @property int|null $wiped_by_user_id
+ * @property Carbon|null $wipe_acknowledged_at
  */
 final class MobileDevice extends Model
 {
@@ -36,6 +39,9 @@ final class MobileDevice extends Model
         'approved_by_user_id',
         'revoked_at',
         'last_seen_at',
+        'wiped_at',
+        'wiped_by_user_id',
+        'wipe_acknowledged_at',
     ];
 
     #[\Override]
@@ -46,6 +52,8 @@ final class MobileDevice extends Model
             'approved_at' => 'datetime',
             'revoked_at' => 'datetime',
             'last_seen_at' => 'datetime',
+            'wiped_at' => 'datetime',
+            'wipe_acknowledged_at' => 'datetime',
         ];
     }
 
@@ -65,5 +73,11 @@ final class MobileDevice extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by_user_id');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function wiper(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'wiped_by_user_id');
     }
 }

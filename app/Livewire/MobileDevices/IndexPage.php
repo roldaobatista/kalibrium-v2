@@ -104,6 +104,24 @@ final class IndexPage extends Component
         $this->dispatch('toast-show', type: 'danger', message: 'Celular bloqueado.');
     }
 
+    public function limparEBloquear(string $deviceId): void
+    {
+        $this->authorize('mobile-devices.manage', $this->tenantUser());
+
+        $device = $this->findDeviceOrFail($deviceId);
+
+        $device->update([
+            'status' => MobileDeviceStatus::WipedAndRevoked,
+            'revoked_at' => now(),
+            'wiped_at' => now(),
+            'wiped_by_user_id' => auth()->id(),
+        ]);
+
+        $this->registrarAuditoria('mobile_device.wiped', $deviceId);
+
+        $this->dispatch('toast-show', type: 'danger', message: 'Celular marcado pra limpeza. Os dados serão apagados na próxima vez que o app se conectar.');
+    }
+
     public function reativar(string $deviceId): void
     {
         $this->authorize('mobile-devices.manage', $this->tenantUser());
@@ -169,6 +187,7 @@ final class IndexPage extends Component
                 MobileDeviceStatus::Pending->value => 'Aguardando',
                 MobileDeviceStatus::Approved->value => 'Aprovado',
                 MobileDeviceStatus::Revoked->value => 'Bloqueado',
+                MobileDeviceStatus::WipedAndRevoked->value => 'Bloqueado e limpo',
             ],
         ]);
     }
