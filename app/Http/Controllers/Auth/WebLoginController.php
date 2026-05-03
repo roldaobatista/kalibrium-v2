@@ -8,6 +8,8 @@ use App\Enums\TenantUserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\TenantUser;
 use App\Models\User;
+use App\Support\Auth\PostgresAuthContext;
+use App\Support\Tenancy\TenantScopeBypass;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +18,8 @@ use Illuminate\View\View;
 
 final class WebLoginController extends Controller
 {
+    public function __construct(private readonly PostgresAuthContext $postgresAuthContext) {}
+
     public function show(): View
     {
         return view('auth.login');
@@ -39,12 +43,19 @@ final class WebLoginController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        // Define contexto RLS para o usuário recém-autenticado antes de verificar
+        // o vínculo de tenant — necessário porque a tabela tenant_users usa RLS
+        // e sem contexto a query retorna zero linhas mesmo com registro ativo.
+        $this->postgresAuthContext->forUser($user->id);
+
         // Verifica se o usuário tem algum vínculo ativo com algum tenant.
         // Técnico inativo não tem TenantUser com status active.
-        $hasActiveBinding = TenantUser::withoutGlobalScopes()
-            ->where('user_id', $user->id)
-            ->where('status', TenantUserStatus::Active)
-            ->exists();
+        $hasActiveBinding = TenantScopeBypass::run(
+            fn () => TenantUser::withoutGlobalScopes()
+                ->where('user_id', $user->id)
+                ->where('status', TenantUserStatus::Active)
+                ->exists()
+        );
 
         if (! $hasActiveBinding) {
             Auth::logout();
