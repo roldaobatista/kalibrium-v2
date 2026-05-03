@@ -6,6 +6,8 @@ use App\Policies\ClientePolicy;
 use App\Policies\ContatoPolicy;
 use App\Policies\MobileDevicePolicy;
 use App\Policies\TenantSettingsPolicy;
+use App\Support\Auth\TenantAwarePasswordBrokerManager;
+use Illuminate\Auth\Passwords\PasswordBrokerManager;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -17,7 +19,11 @@ class AppServiceProvider extends ServiceProvider
     #[\Override]
     public function register(): void
     {
-        //
+        // Substitui o PasswordBrokerManager padrão pelo ciente de tenant,
+        // para que tokens de reset sejam particionados por tenant_id.
+        $this->app->extend(PasswordBrokerManager::class, function ($_, $app) {
+            return new TenantAwarePasswordBrokerManager($app);
+        });
     }
 
     /**

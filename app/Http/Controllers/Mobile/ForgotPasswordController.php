@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
+use App\Support\Tenancy\TenantContext;
 use App\Support\Tenancy\TenantScopeBypass;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -54,7 +55,14 @@ final class ForgotPasswordController extends Controller
         });
 
         if ($user instanceof User) {
-            $token = Password::broker('users')->createToken($user);
+            // Seta o TenantContext para que TenantAwarePasswordTokenRepository
+            // persista o token com o tenant_id correto (não o sentinel 0).
+            TenantContext::setTenantId($tenantId);
+            try {
+                $token = Password::broker('users')->createToken($user);
+            } finally {
+                TenantContext::reset();
+            }
             $user->notify(new ResetPasswordNotification($token, $tenantId));
         }
 

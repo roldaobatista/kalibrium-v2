@@ -120,7 +120,7 @@ test('setima tentativa de forgot retorna 429', function (): void {
     $tenant = pr_tenant();
     $user = pr_user();
     $email = mb_strtolower($user->email);
-    $key = 'forgot-password:127.0.0.1|'.$email;
+    $key = 'forgot-password:127.0.0.1|'.$tenant->id.'|'.$email;
 
     // Pré-popula com 6 tentativas (limite já atingido)
     RateLimiter::clear($key);
@@ -233,30 +233,81 @@ test('reset com senha fraca retorna 422', function (): void {
 // 9. Multi-tenant: reset do tenant A não afeta tenant B
 // ---------------------------------------------------------------------------
 
-test('reset multi-tenant nao vaza entre tenants', function (): void {
+test('reset multi-tenant nao vaza entre tenants com mesmo email', function (): void {
     Notification::fake();
 
     $tenantA = pr_tenant();
     $tenantB = pr_tenant();
 
-    // Mesmo email em dois tenants diferentes
-    $email = 'carlos@laboratorio.com.br';
-    $userA = pr_user($email);
-    $userB = pr_user($email.'x'); // email diferente — os dois existem no sistema
-    pr_associate($userA, $tenantA);
-    pr_associate($userB, $tenantB);
+    // Um único usuário (email único global) vinculado a DOIS tenants diferentes.
+    // Esse é o modelo real: users é global; TenantUser é o vínculo.
+    $email = fake()->unique()->safeEmail();
+    $user = pr_user($email);
+    pr_associate($user, $tenantA);
+    pr_associate($user, $tenantB);
 
-    // Pede reset para userA via tenantA
+    // Pede reset via tenantA
     $this->postJson(pr_url(), [
-        'email' => $userA->email,
+        'email' => $email,
         'tenant_id' => $tenantA->id,
     ])->assertStatus(200);
 
-    // Notificação só foi pro userA
-    Notification::assertSentTo($userA, ResetPasswordNotification::class);
-    Notification::assertNotSentTo($userB, ResetPasswordNotification::class);
+    // Notificação enviada ao usuário
+    Notification::assertSentTo($user, ResetPasswordNotification::class);
 
-    // Token criado apenas para o email do userA
-    $this->assertDatabaseHas('password_reset_tokens', ['email' => $userA->email]);
-    $this->assertDatabaseMissing('password_reset_tokens', ['email' => $userB->email]);
+    // Somente 1 token criado — escopo de tenantA
+    $this->assertDatabaseCount('password_reset_tokens', 1);
+    $this->assertDatabaseHas('password_reset_tokens', [
+        'email' => $email,
+        'tenant_id' => $tenantA->id,
+    ]);
+    $this->assertDatabaseMissing('password_reset_tokens', [
+        'email' => $email,
+        'tenant_id' => $tenantB->id,
+    ]);
+});
+
+// ---------------------------------------------------------------------------
+// 10. tenant_id válido mas usuário pertence a outro tenant → 200 genérico, nenhum token
+// ---------------------------------------------------------------------------
+
+test('forgot com tenant_id valido mas usuario de outro tenant retorna 200 sem token', function (): void {
+    Notification::fake();
+
+    $tenantA = pr_tenant();
+    $tenantB = pr_tenant();
+
+    $user = pr_user();
+    pr_associate($user, $tenantA); // usuário está no tenantA
+
+    // Chama com tenantB — usuário não pertence a ele
+    $response = $this->postJson(pr_url(), [
+        'email' => $user->email,
+        'tenant_id' => $tenantB->id,
+    ]);
+
+    $response->assertStatus(200); // não vaza informação
+    Notification::assertNothingSent();
+    $this->assertDatabaseMissing('password_reset_tokens', ['email' => $user->email]);
+});
+
+// ---------------------------------------------------------------------------
+// 11. tenant_id inválido (zero/negativo/string) → 422 de validação
+// ---------------------------------------------------------------------------
+
+// O endpoint /api/mobile/password/forgot retorna 200 genérico mesmo com
+// tenant_id inválido — por design, para não vazar informação (proteção contra
+// enumeração). O controlador captura a ValidationException internamente.
+test('forgot com tenant_id invalido retorna 200 generico sem criar token', function (): void {
+    foreach ([0, -1, 'abc'] as $invalidId) {
+        $response = $this->postJson(pr_url(), [
+            'email' => 'qualquer@exemplo.com',
+            'tenant_id' => $invalidId,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseMissing('password_reset_tokens', [
+            'email' => 'qualquer@exemplo.com',
+        ]);
+    }
 });

@@ -17,7 +17,8 @@ final readonly class MobileForgotPasswordRateLimit
     public function handle(Request $request, Closure $next): Response
     {
         $email = mb_strtolower((string) $request->input('email', 'guest'));
-        $key = 'forgot-password:'.$request->ip().'|'.$email;
+        $tenantId = (string) $request->input('tenant_id', '0');
+        $key = 'forgot-password:'.$request->ip().'|'.$tenantId.'|'.$email;
 
         if (RateLimiter::tooManyAttempts($key, 6)) {
             return response()->json([
