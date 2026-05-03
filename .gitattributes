@@ -11,6 +11,10 @@
 # regenerar o MANIFEST via relock-harness.sh.
 scripts/*.sh text eol=lf
 
+# Scripts do harness Claude Code (hooks + statusline) — bash exige LF.
+.claude/hooks/*.sh text eol=lf
+.claude/scripts/*.sh text eol=lf
+
 # Hooks selados: MANIFEST.sha256 guarda hash calculado com LF. Se o clone
 # do desenvolvedor tiver autocrlf=true, o checkout converte para CRLF e
 # `sha256sum -c` falha no hooks-lock. Força LF para todos os .sh e o manifest

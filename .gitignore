@@ -46,6 +46,9 @@ docs/audits/audit-*.md
 # ---------- Snapshots internos do guide-check ----------
 .claude/snapshots/
 
+# ---------- Configuração local do Claude Code (por-desenvolvedor) ----------
+.claude/settings.local.json
+
 # ---------- Laravel ----------
 /bootstrap/cache/
 /public/hot
