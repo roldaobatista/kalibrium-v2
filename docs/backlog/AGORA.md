@@ -4,7 +4,7 @@
 
 ## Em andamento
 
--   **Técnico entra no app do celular** — login no app mobile com aprovação do gerente, biometria, sessão 4 dias offline. Cobre REQ-SEC-001/004/005. Em fase: pré-requisito técnico (setup do projeto Ionic + Capacitor).
+_(vazio — nenhuma história ativa no momento)_
 
 ## Próxima da fila
 
