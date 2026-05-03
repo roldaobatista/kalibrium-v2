@@ -323,6 +323,26 @@ test('login com device novo dispara notificacao para gerentes do tenant', functi
     Notification::assertSentTo($gerenteUser, MobileDeviceRequested::class);
 });
 
+test('login no tenant A nao notifica gerente do tenant B', function (): void {
+    Notification::fake();
+
+    $tenantA = mobile_tenant();
+    $tenantB = mobile_tenant();
+    $user = mobile_user();
+
+    $gerenteB = User::factory()->create();
+    TenantUser::factory()->create([
+        'tenant_id' => $tenantB->id,
+        'user_id' => $gerenteB->id,
+        'role' => TenantRole::MANAGER,
+        'status' => 'active',
+    ]);
+
+    $this->postJson(mobile_url(), mobile_payload($user, $tenantA));
+
+    Notification::assertNotSentTo([$gerenteB], MobileDeviceRequested::class);
+});
+
 test('login com device ja pending nao dispara notificacao novamente', function (): void {
     Notification::fake();
 

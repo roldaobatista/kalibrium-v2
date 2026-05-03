@@ -197,3 +197,126 @@ test('reativar device revoked volta para pending', function (): void {
     expect($device->approved_at)->toBeNull();
     expect($device->revoked_at)->toBeNull();
 });
+
+// ---------------------------------------------------------------------------
+// Logs de auditoria — recusar, bloquear, reativar
+// ---------------------------------------------------------------------------
+
+test('recusar registra log de auditoria', function (): void {
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = manager_setup();
+
+    $device = MobileDevice::factory()->pending()->create(['tenant_id' => $tenant->id]);
+
+    set_tenant_context($tenant, $tu);
+
+    Livewire::actingAs($manager)
+        ->test(IndexPage::class)
+        ->call('recusar', $device->id);
+
+    $this->assertDatabaseHas('tenant_audit_logs', [
+        'user_id' => $manager->id,
+        'action' => 'mobile_device.refused',
+    ]);
+});
+
+test('bloquear registra log de auditoria', function (): void {
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = manager_setup();
+
+    $device = MobileDevice::factory()->approved()->create(['tenant_id' => $tenant->id]);
+
+    set_tenant_context($tenant, $tu);
+
+    Livewire::actingAs($manager)
+        ->test(IndexPage::class)
+        ->call('bloquear', $device->id);
+
+    $this->assertDatabaseHas('tenant_audit_logs', [
+        'user_id' => $manager->id,
+        'action' => 'mobile_device.blocked',
+    ]);
+});
+
+test('reativar registra log de auditoria', function (): void {
+    ['tenant' => $tenant, 'user' => $manager, 'tenantUser' => $tu] = manager_setup();
+
+    $device = MobileDevice::factory()->revoked()->create(['tenant_id' => $tenant->id]);
+
+    set_tenant_context($tenant, $tu);
+
+    Livewire::actingAs($manager)
+        ->test(IndexPage::class)
+        ->call('reativar', $device->id);
+
+    $this->assertDatabaseHas('tenant_audit_logs', [
+        'user_id' => $manager->id,
+        'action' => 'mobile_device.reactivated',
+    ]);
+});
+
+// ---------------------------------------------------------------------------
+// Isolamento cross-tenant nas actions
+// ---------------------------------------------------------------------------
+
+test('aprovar device de outro tenant lanca 404 e nao altera status', function (): void {
+    ['tenant' => $tenantA, 'user' => $managerA, 'tenantUser' => $tuA] = manager_setup();
+    ['tenant' => $tenantB] = manager_setup();
+
+    $deviceB = MobileDevice::factory()->pending()->create(['tenant_id' => $tenantB->id]);
+
+    set_tenant_context($tenantA, $tuA);
+
+    Livewire::actingAs($managerA)
+        ->test(IndexPage::class)
+        ->call('aprovar', $deviceB->id)
+        ->assertNotFound();
+
+    expect($deviceB->refresh()->status)->toBe(MobileDeviceStatus::Pending);
+});
+
+test('recusar device de outro tenant lanca 404 e nao altera status', function (): void {
+    ['tenant' => $tenantA, 'user' => $managerA, 'tenantUser' => $tuA] = manager_setup();
+    ['tenant' => $tenantB] = manager_setup();
+
+    $deviceB = MobileDevice::factory()->pending()->create(['tenant_id' => $tenantB->id]);
+
+    set_tenant_context($tenantA, $tuA);
+
+    Livewire::actingAs($managerA)
+        ->test(IndexPage::class)
+        ->call('recusar', $deviceB->id)
+        ->assertNotFound();
+
+    expect($deviceB->refresh()->status)->toBe(MobileDeviceStatus::Pending);
+});
+
+test('bloquear device de outro tenant lanca 404 e nao altera status', function (): void {
+    ['tenant' => $tenantA, 'user' => $managerA, 'tenantUser' => $tuA] = manager_setup();
+    ['tenant' => $tenantB] = manager_setup();
+
+    $deviceB = MobileDevice::factory()->approved()->create(['tenant_id' => $tenantB->id]);
+
+    set_tenant_context($tenantA, $tuA);
+
+    Livewire::actingAs($managerA)
+        ->test(IndexPage::class)
+        ->call('bloquear', $deviceB->id)
+        ->assertNotFound();
+
+    expect($deviceB->refresh()->status)->toBe(MobileDeviceStatus::Approved);
+});
+
+test('reativar device de outro tenant lanca 404 e nao altera status', function (): void {
+    ['tenant' => $tenantA, 'user' => $managerA, 'tenantUser' => $tuA] = manager_setup();
+    ['tenant' => $tenantB] = manager_setup();
+
+    $deviceB = MobileDevice::factory()->revoked()->create(['tenant_id' => $tenantB->id]);
+
+    set_tenant_context($tenantA, $tuA);
+
+    Livewire::actingAs($managerA)
+        ->test(IndexPage::class)
+        ->call('reativar', $deviceB->id)
+        ->assertNotFound();
+
+    expect($deviceB->refresh()->status)->toBe(MobileDeviceStatus::Revoked);
+});

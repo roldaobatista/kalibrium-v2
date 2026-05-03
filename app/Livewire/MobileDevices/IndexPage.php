@@ -11,11 +11,13 @@ use App\Models\TenantAuditLog;
 use App\Models\TenantUser;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class IndexPage extends Component
 {
@@ -55,7 +57,7 @@ final class IndexPage extends Component
     {
         $this->authorize('mobile-devices.manage', $this->tenantUser());
 
-        $device = MobileDevice::findOrFail($deviceId);
+        $device = $this->findDeviceOrFail($deviceId);
 
         $device->update([
             'status' => MobileDeviceStatus::Approved,
@@ -72,7 +74,7 @@ final class IndexPage extends Component
     {
         $this->authorize('mobile-devices.manage', $this->tenantUser());
 
-        $device = MobileDevice::findOrFail($deviceId);
+        $device = $this->findDeviceOrFail($deviceId);
 
         $device->update([
             'status' => MobileDeviceStatus::Revoked,
@@ -88,7 +90,7 @@ final class IndexPage extends Component
     {
         $this->authorize('mobile-devices.manage', $this->tenantUser());
 
-        $device = MobileDevice::findOrFail($deviceId);
+        $device = $this->findDeviceOrFail($deviceId);
 
         $device->update([
             'status' => MobileDeviceStatus::Revoked,
@@ -104,7 +106,7 @@ final class IndexPage extends Component
     {
         $this->authorize('mobile-devices.manage', $this->tenantUser());
 
-        $device = MobileDevice::findOrFail($deviceId);
+        $device = $this->findDeviceOrFail($deviceId);
 
         // Volta para pending para novo ciclo de aprovação consciente.
         // O gerente precisa reaprovar explicitamente — isso garante revisão intencional.
@@ -123,16 +125,30 @@ final class IndexPage extends Component
     /** @return LengthAwarePaginator<int, MobileDevice> */
     public function devices(): LengthAwarePaginator
     {
+        $validStatus = MobileDeviceStatus::tryFrom($this->statusFilter);
+
         return MobileDevice::query()
             ->with(['user', 'approver'])
             ->when($this->search !== '', function ($q): void {
                 $q->whereHas('user', fn ($u) => $u->where('name', 'like', '%'.$this->search.'%')
                     ->orWhere('email', 'like', '%'.$this->search.'%'));
             })
-            ->when($this->statusFilter !== '', fn ($q) => $q->where('status', $this->statusFilter))
+            ->when($validStatus !== null, fn ($q) => $q->where('status', $validStatus))
             ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
             ->orderByDesc('last_seen_at')
             ->paginate(25);
+    }
+
+    private function findDeviceOrFail(string $deviceId): MobileDevice
+    {
+        $tenantId = $this->currentTenantId();
+
+        try {
+            return MobileDevice::where('tenant_id', $tenantId)
+                ->findOrFail($deviceId);
+        } catch (ModelNotFoundException) {
+            throw new NotFoundHttpException;
+        }
     }
 
     public function render(): View
