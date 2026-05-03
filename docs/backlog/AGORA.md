@@ -4,7 +4,7 @@
 
 ## Em andamento
 
--   **Gerente tem uma tela inicial quando entra no painel** — dashboard com saudação, cards de pendências, atalhos rápidos. Após login cai em `/dashboard` em vez de `/mobile-devices`.
+-   **Gerente cadastra técnico no laboratório** — tela "Técnicos" na sidebar com lista, busca, filtro de status e formulário de cadastro/edição/desativação. Cobre dependência prática descoberta: hoje técnicos só existem se alguém criar direto no banco.
 
 ## Próxima da fila
 
