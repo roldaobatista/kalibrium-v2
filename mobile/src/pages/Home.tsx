@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import * as biometric from '../services/biometric';
 
 interface UserData {
     id: number;
@@ -29,7 +30,11 @@ const Home: React.FC = () => {
         }
     }, [history]);
 
-    const handleSair = () => {
+    const handleSair = async () => {
+        // Apaga credenciais biométricas antes de limpar o localStorage
+        // para que o próximo login exija senha novamente
+        await biometric.clear();
+
         localStorage.removeItem('kalibrium.token');
         localStorage.removeItem('kalibrium.user');
         history.replace('/login');
@@ -52,7 +57,7 @@ const Home: React.FC = () => {
                     expand="block"
                     color="medium"
                     style={{ marginTop: '2rem' }}
-                    onClick={handleSair}
+                    onClick={() => void handleSair()}
                 >
                     Sair
                 </IonButton>
