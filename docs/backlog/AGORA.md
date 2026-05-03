@@ -4,7 +4,7 @@
 
 ## Em andamento
 
-_(vazio — nenhuma história ativa no momento)_
+-   **Gerente limpa celular roubado ou perdido** — wipe remoto que apaga token + credenciais + cache do app na próxima vez que o celular se conectar. Cobre parte do REQ-SEC-002 (a parte de criptografia fica pra próxima história).
 
 ## Próxima da fila
 
