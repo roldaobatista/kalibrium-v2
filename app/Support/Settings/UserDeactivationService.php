@@ -35,7 +35,7 @@ final readonly class UserDeactivationService
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($fresh->role === 'gerente' && $fresh->status === 'active') {
+            if ($fresh->role === 'gerente' && $fresh->status->value === 'active') {
                 if ($activeManagers <= 1) {
                     throw new AuthorizationException('Mantenha ao menos um gerente ativo.');
                 }

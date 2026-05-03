@@ -38,6 +38,16 @@ function mobile_user(string $password = 'SenhaSegura123!'): User
     ]);
 }
 
+function mobile_bind(User $user, Tenant $tenant): TenantUser
+{
+    return TenantUser::factory()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'role' => TenantRole::TECHNICIAN,
+        'status' => 'active',
+    ]);
+}
+
 function mobile_payload(User $user, Tenant $tenant, array $overrides = []): array
 {
     return array_merge([
@@ -68,6 +78,7 @@ test('credenciais erradas retornam 401 com mensagem generica', function (): void
 test('credenciais corretas com device novo criam MobileDevice pending e retornam 202', function (): void {
     $tenant = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenant);
 
     $response = $this->postJson(mobile_url(), mobile_payload($user, $tenant));
 
@@ -85,6 +96,7 @@ test('credenciais corretas com device novo criam MobileDevice pending e retornam
 test('device ja pending retorna 202 e atualiza last_seen_at sem duplicar', function (): void {
     $tenant = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenant);
 
     $device = MobileDevice::factory()->pending()->create([
         'tenant_id' => $tenant->id,
@@ -115,6 +127,7 @@ test('device ja pending retorna 202 e atualiza last_seen_at sem duplicar', funct
 test('device approved retorna 200 com token Sanctum', function (): void {
     $tenant = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenant);
 
     MobileDevice::factory()->approved()->create([
         'tenant_id' => $tenant->id,
@@ -135,6 +148,7 @@ test('device approved retorna 200 com token Sanctum', function (): void {
 test('token Sanctum retornado tem expires_at por volta de 4 dias', function (): void {
     $tenant = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenant);
 
     MobileDevice::factory()->approved()->create([
         'tenant_id' => $tenant->id,
@@ -161,6 +175,7 @@ test('token Sanctum retornado tem expires_at por volta de 4 dias', function (): 
 test('device revoked retorna 403', function (): void {
     $tenant = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenant);
 
     MobileDevice::factory()->revoked()->create([
         'tenant_id' => $tenant->id,
@@ -213,6 +228,8 @@ test('isolamento cross-tenant: device do tenant A nao aparece no tenant B', func
     $tenantA = mobile_tenant();
     $tenantB = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenantA);
+    mobile_bind($user, $tenantB);
 
     // Cria device aprovado no tenant A
     MobileDevice::factory()->approved()->create([
@@ -273,6 +290,7 @@ test('tenant_id ausente retorna 422', function (): void {
 test('device aprovado retorna token ancorado ao tenant correto', function (): void {
     $tenant = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenant);
 
     MobileDevice::factory()->approved()->create([
         'tenant_id' => $tenant->id,
@@ -314,6 +332,7 @@ test('login com device novo dispara notificacao para gerentes do tenant', functi
 
     $tenant = mobile_tenant();
     $user = mobile_user();
+    mobile_bind($user, $tenant);
 
     // Cria um gerente ativo no tenant
     $gerenteUser = User::factory()->create();

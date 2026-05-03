@@ -30,7 +30,7 @@ final class TenantAccessResolver
     {
         $tenantUsers = $user->tenantUsers()->with('tenant')->get();
         $activeTenantUsers = $tenantUsers->filter(
-            static fn (TenantUser $tenantUser): bool => strtolower((string) $tenantUser->status) === 'active'
+            static fn (TenantUser $tenantUser): bool => $tenantUser->status->value === 'active'
                 && $tenantUser->tenant !== null
         )->values();
 
@@ -62,7 +62,7 @@ final class TenantAccessResolver
         /** @var Tenant $tenant */
         $tenant = $tenantUser->tenant;
         $tenantStatus = strtolower((string) $tenant->status);
-        $bindingStatus = strtolower((string) $tenantUser->status);
+        $bindingStatus = $tenantUser->status->value;
 
         if ($bindingStatus !== 'active') {
             return [

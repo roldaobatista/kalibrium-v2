@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TenantUserStatus;
 use App\Models\Concerns\ScopesToCurrentTenant;
 use Database\Factories\TenantUserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -9,6 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property TenantUserStatus $status
+ */
 #[Fillable([
     'tenant_id',
     'user_id',
@@ -33,6 +37,7 @@ class TenantUser extends Model
     protected function casts(): array
     {
         return [
+            'status' => TenantUserStatus::class,
             'requires_2fa' => 'boolean',
             'invited_at' => 'datetime',
             'accepted_at' => 'datetime',

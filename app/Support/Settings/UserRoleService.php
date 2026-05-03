@@ -43,7 +43,7 @@ final readonly class UserRoleService
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($fresh->status === 'active' && $fresh->role === 'gerente' && $newRole !== 'gerente') {
+            if ($fresh->status->value === 'active' && $fresh->role === 'gerente' && $newRole !== 'gerente') {
                 if ($activeManagers <= 1) {
                     throw new AuthorizationException('Mantenha ao menos um gerente ativo.');
                 }

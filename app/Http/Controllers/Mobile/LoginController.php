@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Mobile;
 
 use App\Enums\MobileDeviceStatus;
+use App\Enums\TenantUserStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mobile\LoginRequest;
 use App\Models\MobileDevice;
@@ -28,6 +29,18 @@ final class LoginController extends Controller
 
         if (! $user instanceof User || ! Hash::check($request->string('password')->toString(), $user->password)) {
             return response()->json(['erro' => 'Email ou senha incorretos'], 401);
+        }
+
+        // Verifica se o usuário tem vínculo ativo com este tenant (SEC-002).
+        $tenantUser = TenantUser::withoutGlobalScope('current_tenant')
+            ->where('tenant_id', $tenant->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($tenantUser === null || $tenantUser->status === TenantUserStatus::Inactive) {
+            return response()->json([
+                'erro' => 'Sua conta foi desativada. Procure o gerente.',
+            ], 403);
         }
 
         $deviceIdentifier = $request->string('device_identifier')->toString();

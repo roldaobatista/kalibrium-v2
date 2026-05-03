@@ -41,7 +41,7 @@ final class MobileDevicePolicy
     private function isActiveManager(User $user, TenantUser $tenantUser): bool
     {
         return (int) $tenantUser->user_id === (int) $user->id
-            && strtolower((string) $tenantUser->status) === 'active'
+            && $tenantUser->status->value === 'active'
             && strtolower((string) $tenantUser->role) === TenantRole::MANAGER;
     }
 }

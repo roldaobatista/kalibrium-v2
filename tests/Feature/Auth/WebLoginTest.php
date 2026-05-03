@@ -60,7 +60,9 @@ test('get login retorna 200 com texto Entrar e link esqueci minha senha', functi
 // ---------------------------------------------------------------------------
 
 test('post login com credenciais corretas redireciona para dashboard', function (): void {
+    $tenant = wl_tenant();
     $user = wl_user(password: 'SenhaSegura123!');
+    wl_associate($user, $tenant, 'active');
 
     $response = $this->post('/auth/login', [
         'email' => $user->email,

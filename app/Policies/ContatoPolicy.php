@@ -43,6 +43,6 @@ final class ContatoPolicy
     private function isActiveWithRole(User $user, TenantUser $tenantUser): bool
     {
         return (int) $tenantUser->user_id === (int) $user->id
-            && strtolower((string) $tenantUser->status) === 'active';
+            && $tenantUser->status->value === 'active';
     }
 }

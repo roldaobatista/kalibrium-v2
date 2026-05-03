@@ -226,6 +226,12 @@ test('chamada com token valido e device approved retorna 200', function (): void
 test('reinstalacao do app cria novo device pending sem bloquear', function (): void {
     $tenant = wipe_tenant();
     $user = User::factory()->create(['password' => Hash::make('SenhaSegura123!')]);
+    TenantUser::factory()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'role' => TenantRole::TECHNICIAN,
+        'status' => 'active',
+    ]);
 
     MobileDevice::factory()->wipedAndRevoked()->create([
         'tenant_id' => $tenant->id,
