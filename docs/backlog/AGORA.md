@@ -4,7 +4,7 @@
 
 ## Em andamento
 
--   **Técnico recupera senha esquecida** — fluxo "Esqueci minha senha" no app mobile e no painel web do gerente. E-mail com link válido por 1 hora.
+-   **Gerente tem uma tela inicial quando entra no painel** — dashboard com saudação, cards de pendências, atalhos rápidos. Após login cai em `/dashboard` em vez de `/mobile-devices`.
 
 ## Próxima da fila
 
