@@ -251,6 +251,86 @@ test('reinstalacao do app cria novo device pending sem bloquear', function (): v
     )->toBeTrue();
 });
 
+test('token com nome fora do padrao mobile:tenant:{id} retorna 401', function (): void {
+    $tenant = wipe_tenant();
+    $user = User::factory()->create();
+
+    MobileDevice::factory()->approved()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'device_identifier' => 'device-legacy-001',
+    ]);
+
+    // Cria token com nome qualquer — fora do padrão esperado.
+    $tokenResult = $user->createToken(
+        name: 'tokenLegacy',
+        abilities: ['mobile:full'],
+        expiresAt: now()->addDays(4),
+    );
+
+    $response = $this->withToken($tokenResult->plainTextToken)
+        ->getJson('/api/mobile/me', ['X-Device-Id' => 'device-legacy-001']);
+
+    $response->assertStatus(401);
+    $response->assertJsonMissing(['wipe' => true]);
+});
+
+test('token do tecnico A com device_id do tecnico B retorna 401', function (): void {
+    $tenant = wipe_tenant();
+    ['user' => $tecnicoA] = wipe_tecnico($tenant);
+    ['user' => $tecnicoB] = wipe_tecnico($tenant);
+
+    MobileDevice::factory()->approved()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $tecnicoA->id,
+        'device_identifier' => 'device-tecnico-a',
+    ]);
+
+    MobileDevice::factory()->approved()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $tecnicoB->id,
+        'device_identifier' => 'device-tecnico-b',
+    ]);
+
+    // Token do A, mas header aponta pro device do B — tentativa de hijack.
+    $plainToken = wipe_make_token($tecnicoA, (int) $tenant->id);
+
+    $response = $this->withToken($plainToken)
+        ->getJson('/api/mobile/me', ['X-Device-Id' => 'device-tecnico-b']);
+
+    $response->assertStatus(401);
+});
+
+test('device wiped com token expirado retorna 401 com wipe true antes do sanctum barrar', function (): void {
+    $tenant = wipe_tenant();
+    $user = User::factory()->create();
+
+    $device = MobileDevice::factory()->wipedAndRevoked()->create([
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'device_identifier' => 'device-wiped-expired',
+        'wipe_acknowledged_at' => null,
+    ]);
+
+    // Cria token que já expirou no passado.
+    $tokenResult = $user->createToken(
+        name: 'mobile:tenant:'.$tenant->id,
+        abilities: ['mobile:full'],
+        expiresAt: now()->subMinutes(10),
+    );
+
+    $response = $this->withToken($tokenResult->plainTextToken)
+        ->getJson('/api/mobile/me', ['X-Device-Id' => 'device-wiped-expired']);
+
+    // O middleware de device (que roda antes do Sanctum) deve retornar wipe:true.
+    // O app móvel precisa desse sinal mesmo com token expirado para limpar dados locais.
+    $response->assertStatus(401);
+    $response->assertJsonFragment(['wipe' => true]);
+
+    $device->refresh();
+    expect($device->wipe_acknowledged_at)->not->toBeNull();
+});
+
 test('wipe_acknowledged_at nao e sobrescrito na segunda chamada com device wiped', function (): void {
     $tenant = wipe_tenant();
     $user = User::factory()->create();

@@ -98,8 +98,14 @@ test('device ja pending retorna 202 e atualiza last_seen_at sem duplicar', funct
     $response->assertStatus(202);
     $response->assertJsonFragment(['status' => 'aguardando_aprovacao']);
 
-    // Vai direto ao banco — ignora global scope ScopesToCurrentTenant.
-    $this->assertDatabaseCount('mobile_devices', 1);
+    // Verifica que não duplicou no tenant — conta só registros deste tenant.
+    expect(
+        MobileDevice::withoutGlobalScope('current_tenant')
+            ->where('tenant_id', $tenant->id)
+            ->where('user_id', $user->id)
+            ->where('device_identifier', 'test-device-abc123')
+            ->count()
+    )->toBe(1);
 
     $device->refresh();
     expect($device->last_seen_at)->not->toBeNull();

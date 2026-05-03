@@ -7,6 +7,8 @@ use App\Http\Middleware\MobileLoginRateLimit;
 use App\Http\Middleware\ResolveMobileTenant;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetCurrentTenantContext;
+use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -29,6 +31,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.context' => SetCurrentTenantContext::class,
             'tenant.read-only' => EnsureReadOnlyTenantMode::class,
         ]);
+        // Garante que CheckMobileDeviceStatus rode ANTES do Authenticate (auth:sanctum),
+        // para que devices wiped retornem wipe:true mesmo com token expirado.
+        $middleware->prependToPriorityList(
+            before: AuthenticatesRequests::class,
+            prepend: CheckMobileDeviceStatus::class,
+        );
         $middleware->redirectGuestsTo('/auth/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

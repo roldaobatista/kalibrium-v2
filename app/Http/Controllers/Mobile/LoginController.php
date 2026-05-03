@@ -33,8 +33,11 @@ final class LoginController extends Controller
         $deviceIdentifier = $request->string('device_identifier')->toString();
         $deviceLabel = $request->string('device_label')->toString() ?: null;
 
-        // ScopesToCurrentTenant filtra pelo tenant ativo no request->attributes (SEC-001).
-        $device = MobileDevice::where('user_id', $user->id)
+        // Busca sem global scope — filtro explícito por tenant_id garante isolamento
+        // mesmo antes do SetCurrentTenantContext ter rodado (SEC-001).
+        $device = MobileDevice::withoutGlobalScope('current_tenant')
+            ->where('tenant_id', $tenant->id)
+            ->where('user_id', $user->id)
             ->where('device_identifier', $deviceIdentifier)
             ->first();
 

@@ -10,6 +10,6 @@ Route::post('/mobile/login', MobileLoginController::class)
     ->middleware(['mobile.tenant', 'mobile.login.throttle'])
     ->name('mobile.login');
 
-Route::middleware(['auth:sanctum', 'mobile.device.status'])->group(function (): void {
+Route::middleware(['mobile.device.status', 'auth:sanctum'])->group(function (): void {
     Route::get('/mobile/me', MobileMeController::class)->name('mobile.me');
 });

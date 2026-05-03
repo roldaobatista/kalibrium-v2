@@ -8,8 +8,24 @@ use App\Enums\MobileDeviceStatus;
 use App\Models\MobileDevice;
 use Closure;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware de status do device móvel.
+ *
+ * Deve rodar ANTES de auth:sanctum para garantir que devices wiped retornem
+ * 401 com wipe:true mesmo quando o token já expirou — assim o app móvel
+ * recebe o sinal de limpeza independente do estado do token.
+ *
+ * Fluxo:
+ *  1. Lê o bearer token do header manualmente (sem depender do Sanctum).
+ *  2. Resolve o tenant_id a partir do nome do token ('mobile:tenant:{id}').
+ *     Se o nome não bater com esse padrão, rejeita com 401 imediatamente.
+ *  3. Busca o device por user_id + device_identifier + tenant_id (obrigatório).
+ *  4. Se wiped, retorna 401 com wipe:true.
+ *  5. Se device ok, repassa para o próximo middleware (auth:sanctum validará o token).
+ */
 final class CheckMobileDeviceStatus
 {
     public function handle(Request $request, Closure $next): Response
@@ -20,20 +36,37 @@ final class CheckMobileDeviceStatus
             return response()->json(['erro' => 'Identificador do celular não informado.'], 400);
         }
 
-        $userId = $request->user()?->id;
+        // Lê o token diretamente do header — não depende do Sanctum ter rodado.
+        $bearerToken = $request->bearerToken();
 
-        if ($userId === null) {
-            return response()->json(['erro' => 'Não autenticado.'], 401);
+        if ($bearerToken === null || $bearerToken === '') {
+            return response()->json(['erro' => 'Sessão inválida. Entre de novo.'], 401);
         }
 
-        $tenantId = $this->resolveTenantId($request);
+        // Resolve o PersonalAccessToken pelo bearer — usa o método nativo do Sanctum
+        // que já faz o split e valida o hash. Não verifica expiração aqui
+        // intencionalmente: queremos retornar wipe:true mesmo com token expirado,
+        // para que o app móvel receba o sinal de limpeza.
+        $accessToken = PersonalAccessToken::findToken($bearerToken);
 
-        // Busca sem global scope de tenant — o middleware roda antes do SetCurrentTenantContext
-        // e o filtro explícito por tenant_id garante o isolamento.
+        if (! $accessToken instanceof PersonalAccessToken) {
+            return response()->json(['erro' => 'Sessão inválida. Entre de novo.'], 401);
+        }
+
+        // Valida o padrão do nome do token: 'mobile:tenant:{id}'.
+        $tenantId = $this->resolveTenantIdFromToken($accessToken);
+
+        if ($tenantId === null) {
+            return response()->json(['erro' => 'Sessão inválida. Entre de novo.'], 401);
+        }
+
+        $userId = $accessToken->tokenable_id;
+
+        // Filtro de tenant obrigatório — nunca executa query sem tenant_id.
         $device = MobileDevice::withoutGlobalScope('current_tenant')
             ->where('user_id', $userId)
             ->where('device_identifier', $deviceIdentifier)
-            ->when($tenantId !== null, fn ($q) => $q->where('tenant_id', $tenantId))
+            ->where('tenant_id', $tenantId)
             ->first();
 
         if ($device === null) {
@@ -58,14 +91,8 @@ final class CheckMobileDeviceStatus
         return $next($request);
     }
 
-    private function resolveTenantId(Request $request): ?int
+    private function resolveTenantIdFromToken(PersonalAccessToken $token): ?int
     {
-        // O token é nomeado 'mobile:tenant:{id}' — extrai o tenant_id do nome.
-        $token = $request->user()?->currentAccessToken();
-        if ($token === null) {
-            return null;
-        }
-
         $name = (string) $token->name;
 
         if (preg_match('/^mobile:tenant:(\d+)$/', $name, $matches)) {

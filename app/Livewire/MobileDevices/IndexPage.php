@@ -12,6 +12,7 @@ use App\Models\TenantUser;
 use App\Support\Auth\PostgresAuthContext;
 use App\Support\Tenancy\TenantContext;
 use App\Support\Tenancy\TenantScopeBypass;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -145,6 +146,10 @@ final class IndexPage extends Component
     /** @return LengthAwarePaginator<int, MobileDevice> */
     public function devices(): LengthAwarePaginator
     {
+        if ($this->currentTenantId() === null) {
+            throw new AuthorizationException('Sessão inválida. Entre de novo.');
+        }
+
         $validStatus = MobileDeviceStatus::tryFrom($this->statusFilter);
 
         return MobileDevice::query()
