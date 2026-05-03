@@ -134,3 +134,33 @@ test('usuario gerente com vinculo ativo de tenant acessa rota protegida normalme
 
     $response->assertStatus(200);
 });
+
+// ---------------------------------------------------------------------------
+// 7. Brute force: 6ª tentativa de login web retorna 429
+// ---------------------------------------------------------------------------
+
+test('sexta tentativa de login web retorna 429 por throttle', function (): void {
+    $user = wl_user(password: 'SenhaSegura123!');
+
+    // Limpa qualquer rate limit residual antes do teste
+    RateLimiter::clear('web|login|127.0.0.1');
+
+    // 5 tentativas com senha errada — dentro do limite (throttle:5,1)
+    for ($i = 0; $i < 5; $i++) {
+        $this->post('/auth/login', [
+            'email' => $user->email,
+            'password' => 'senha-errada',
+        ]);
+    }
+
+    // 6ª tentativa — deve ser bloqueada por throttle
+    $response = $this->post('/auth/login', [
+        'email' => $user->email,
+        'password' => 'senha-errada',
+    ]);
+
+    $response->assertStatus(429);
+
+    // Limpeza para não contaminar outros testes
+    RateLimiter::clear('web|login|127.0.0.1');
+});

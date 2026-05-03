@@ -167,11 +167,13 @@ test('reset com token valido atualiza a senha', function (): void {
 test('reset com token expirado retorna erro', function (): void {
     $user = pr_user();
 
-    // Insere token manualmente com created_at > 60 minutos no passado
+    // Insere token manualmente com created_at > 60 minutos no passado.
+    // tenant_id=0 é o sentinel para contexto web sem tenant ativo (Fortify/web reset).
     DB::table('password_reset_tokens')->insert([
         'email' => $user->email,
         'token' => Hash::make('token-expirado'),
         'created_at' => now()->subMinutes(61),
+        'tenant_id' => 0,
     ]);
 
     $response = $this->postJson('/auth/reset-password', [

@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Habilitar rota de auto-login para testes locais
+    |--------------------------------------------------------------------------
+    |
+    | Quando true (junto com APP_ENV=local), registra a rota /aceite-login/{userId}
+    | que permite login sem senha — usada pelo robô de aceite visual (Playwright).
+    |
+    | NUNCA definir como true em staging, homologação ou produção.
+    |
+    */
+    'enable_test_login' => env('APP_ENABLE_TEST_LOGIN', false),
+
 ];

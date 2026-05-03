@@ -25,6 +25,21 @@ class Tenant extends Model
     /** @use HasFactory<TenantFactory> */
     use HasFactory;
 
+    /**
+     * Guard: tenant_id=0 é valor sentinel reservado pelo sistema para contextos sem
+     * tenant ativo (ex: reset de senha via web). Tenants reais NUNCA devem ter id=0.
+     * O auto-increment do banco começa em 1, então isso só seria violado por inserção
+     * manual forçada — que este hook previne em runtime.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $tenant): void {
+            if ($tenant->id === 0) {
+                throw new \InvalidArgumentException('tenant_id=0 é reservado pelo sistema como sentinel. Tenants reais devem ter id >= 1.');
+            }
+        });
+    }
+
     #[\Override]
     protected function casts(): array
     {

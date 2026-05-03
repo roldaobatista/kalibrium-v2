@@ -22,12 +22,25 @@ use Illuminate\Contracts\Auth\CanResetPassword;
 final class TenantAwarePasswordTokenRepository extends DatabaseTokenRepository
 {
     /**
+     * Valor sentinel usado como tenant_id quando não há tenant ativo no contexto.
+     *
+     * Motivação: a PK composta (tenant_id, email) não aceita NULL (PostgreSQL).
+     * Usamos 0 como valor reservado que jamais será o ID de um tenant real —
+     * tenants são inseridos com auto-increment iniciando em 1.
+     *
+     * Contextos que geram tenant_id=0:
+     *   - Reset de senha via Fortify/web (rota /auth/reset-password)
+     *   - Qualquer chamada fora de um contexto de tenant ativo
+     */
+    private const int SENTINEL_TENANT_ID = 0;
+
+    /**
      * Retorna o tenant_id corrente do contexto estático.
-     * Retorna 0 (sentinel) quando chamado fora de contexto de tenant.
+     * Retorna SENTINEL_TENANT_ID (0) quando chamado fora de contexto de tenant.
      */
     private function currentTenantId(): int
     {
-        return TenantContext::getTenantId() ?? 0;
+        return TenantContext::getTenantId() ?? self::SENTINEL_TENANT_ID;
     }
 
     /**

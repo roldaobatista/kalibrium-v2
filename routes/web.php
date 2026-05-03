@@ -16,7 +16,6 @@ use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\HealthCheckRateLimit;
 use App\Livewire\MobileDevices\IndexPage as MobileDevicesIndexPage;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
@@ -34,7 +33,7 @@ Route::prefix('auth')->group(function (): void {
         ->name('login');
 
     Route::post('/login', [WebLoginController::class, 'store'])
-        ->middleware('guest');
+        ->middleware(['guest', 'throttle:5,1']);
 
     // Logout
     Route::post('/logout', function () {
@@ -60,16 +59,6 @@ Route::prefix('auth')->group(function (): void {
         return view('auth.reset-password', ['token' => $token, 'email' => request('email')]);
     })->middleware('guest')->name('password.reset');
 });
-
-// Rota temporária para aceite visual — REMOVER após os prints serem gerados
-if (app()->environment('local')) {
-    Route::get('/aceite-login/{userId}', function (int $userId) {
-        $user = User::findOrFail($userId);
-        auth()->login($user);
-
-        return redirect('/mobile-devices');
-    })->name('aceite.login');
-}
 
 Route::middleware(['auth', 'tenant.context'])->group(function (): void {
     Route::apiResource('clientes', ClienteController::class);
