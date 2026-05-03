@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Mobile\ForgotPasswordController as MobileForgotPasswordController;
 use App\Http\Controllers\Mobile\LoginController as MobileLoginController;
 use App\Http\Controllers\Mobile\MeController as MobileMeController;
+use App\Http\Controllers\Mobile\SyncPullController;
+use App\Http\Controllers\Mobile\SyncPushController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/mobile/login', MobileLoginController::class)
@@ -17,4 +19,9 @@ Route::post('/mobile/password/forgot', MobileForgotPasswordController::class)
 
 Route::middleware(['mobile.device.status', 'auth:sanctum'])->group(function (): void {
     Route::get('/mobile/me', MobileMeController::class)->name('mobile.me');
+});
+
+Route::middleware(['mobile.device.status', 'auth:sanctum', 'mobile.tenant.context'])->group(function (): void {
+    Route::post('/mobile/sync/push', SyncPushController::class)->name('mobile.sync.push');
+    Route::get('/mobile/sync/pull', SyncPullController::class)->name('mobile.sync.pull');
 });

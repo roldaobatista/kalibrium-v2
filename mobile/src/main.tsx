@@ -2,13 +2,21 @@ import './theme/kalibrium.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import { initSecureStorage } from './services/secureStorage';
+import { initSecureStorage, secureStorage } from './services/secureStorage';
 import { initDeviceIdentifier } from './services/device';
+import { syncEngine } from './services/syncEngine';
 
 const container = document.getElementById('root')!;
 
 initSecureStorage()
     .then(() => initDeviceIdentifier())
+    .then(async () => {
+        // Inicia sync apenas se houver token (usuário logado)
+        const token = await secureStorage.get('token');
+        if (token) {
+            syncEngine.start();
+        }
+    })
     .then(() => {
         const root = createRoot(container);
         root.render(

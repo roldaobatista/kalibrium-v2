@@ -8,6 +8,7 @@ use App\Http\Middleware\MobileLoginRateLimit;
 use App\Http\Middleware\ResolveMobileTenant;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetCurrentTenantContext;
+use App\Http\Middleware\SetMobileTenantContext;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'mobile.forgot.throttle' => MobileForgotPasswordRateLimit::class,
             'mobile.login.throttle' => MobileLoginRateLimit::class,
             'mobile.tenant' => ResolveMobileTenant::class,
+            'mobile.tenant.context' => SetMobileTenantContext::class,
             'tenant.context' => SetCurrentTenantContext::class,
             'tenant.read-only' => EnsureReadOnlyTenantMode::class,
         ]);

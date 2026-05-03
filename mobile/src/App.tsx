@@ -5,6 +5,7 @@ import Blocked from './pages/Blocked';
 import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Notes from './pages/Notes';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -50,6 +51,9 @@ const App: React.FC = () => (
                 </Route>
                 <Route exact path="/home">
                     <Home />
+                </Route>
+                <Route exact path="/notes">
+                    <Notes />
                 </Route>
                 <Route exact path="/blocked">
                     <Blocked />

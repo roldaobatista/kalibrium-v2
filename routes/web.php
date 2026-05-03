@@ -18,6 +18,7 @@ use App\Http\Middleware\HealthCheckRateLimit;
 use App\Livewire\Dashboard\IndexPage as DashboardIndexPage;
 use App\Livewire\MobileDevices\IndexPage as MobileDevicesIndexPage;
 use App\Livewire\Technicians\IndexPage as TechniciansIndexPage;
+use App\Livewire\Technicians\NotesPage as TechnicianNotesPage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
@@ -88,4 +89,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
 
     Route::get('/technicians', TechniciansIndexPage::class)
         ->name('technicians.index');
+
+    Route::get('/technicians/{technicianUserId}/notes', TechnicianNotesPage::class)
+        ->name('technicians.notes');
 });

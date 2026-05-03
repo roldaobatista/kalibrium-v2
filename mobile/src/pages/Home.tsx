@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonContent, IonPage } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
@@ -6,9 +6,11 @@ import {
     menuOutline,
     closeOutline,
     clipboardOutline,
+    createOutline,
     homeOutline,
     logOutOutline,
 } from 'ionicons/icons';
+import { syncEngine, type NoteRow } from '../services/syncEngine';
 import { apiFetch } from '../services/api';
 import * as biometric from '../services/biometric';
 import { secureStorage } from '../services/secureStorage';
@@ -30,6 +32,16 @@ const Home: React.FC = () => {
     const [user, setUser] = useState<UserData | null>(null);
     const [drawerAberto, setDrawerAberto] = useState(false);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [notas, setNotas] = useState<NoteRow[]>([]);
+
+    const carregarNotas = useCallback(async () => {
+        try {
+            const lista = await syncEngine.getNotes();
+            setNotas(lista);
+        } catch {
+            // Sem banco inicializado ainda — ignora silenciosamente
+        }
+    }, []);
 
     // Carrega user do storage e valida sessão em background
     useEffect(() => {
@@ -67,6 +79,10 @@ const Home: React.FC = () => {
 
         void init();
     }, [history]);
+
+    useEffect(() => {
+        void carregarNotas();
+    }, [carregarNotas]);
 
     // Indicador online/offline reativo
     useEffect(() => {
@@ -179,6 +195,32 @@ const Home: React.FC = () => {
                             </div>
                             <p className="kb-card-valor">0 ordens atribuídas pra hoje</p>
                             <p className="kb-card-desc">Em breve, suas tarefas aparecem aqui.</p>
+                        </div>
+
+                        {/* Card: Anotações */}
+                        <div
+                            className="kb-card kb-card--clicavel"
+                            onClick={() => history.push('/notes')}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') history.push('/notes');
+                            }}
+                            aria-label="Ver anotações"
+                        >
+                            <div className="kb-card-titulo">
+                                <IonIcon icon={createOutline} className="kb-card-icone" />
+                                Anotações
+                            </div>
+                            <p className="kb-card-valor">
+                                {notas.length} anotaç{notas.length === 1 ? 'ão' : 'ões'}
+                            </p>
+                            {notas.filter((n) => n.pending_sync === 1).length > 0 && (
+                                <p className="kb-card-desc kb-card-desc--alerta">
+                                    {notas.filter((n) => n.pending_sync === 1).length} aguardando
+                                    sincronizar
+                                </p>
+                            )}
                         </div>
 
                         {/* Card: Status de conexão */}
