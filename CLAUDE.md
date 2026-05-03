@@ -43,6 +43,8 @@ Roldão deu autonomia total. Não pergunto "posso?", "quer que eu faça?", "qual
 -   Trabalhar direto em `main`. Sem PR/branch nova/code review interno, salvo pedido explícito.
 -   Commits atômicos: um propósito por commit. Stage seletivo por arquivo — nunca `git add .` cego com outras frentes dirty.
 -   Commit é automático ao fim de cada frente coerente — não pergunto "posso salvar?".
+-   **Push pra `origin/main` também é automático** após cada commit. Push é considerado parte de "salvar o trabalho" — não é destrutivo nem afeta cliente.
+-   **Deploy (subir pro servidor que o cliente usa) NÃO é automático.** Só roda quando Roldão pedir explicitamente em pt-BR ("sobe pro servidor", "manda pra produção", "deploy"). Sem essa luz verde, eu não toco em scripts de deploy nem ambientes de produção.
 -   Pró-ativo: identificou bug/gap → resolve. Reportar "fiz X, resolvi Y, segui pro Z".
 
 ## Papéis — quem decide o quê
