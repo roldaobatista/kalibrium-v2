@@ -13,44 +13,72 @@ Roldão **não programa**. É dono/idealizador do produto. Comunicar em **portug
 3. **Validar antes de salvar.** Antes de `git commit`, rodar lint/types/testes proporcionais ao escopo (`composer pint`, `composer test`, `npm run lint`). Se falhar, corrigir primeiro.
 4. **Confirmar antes de destruir.** Pedir confirmação antes de: `git reset --hard`, `git push --force`, `git branch -D`, `rm -rf`, `DROP TABLE`/`TRUNCATE`, deletar dados de produção, deletar arquivos não-versionados do working tree. Push fast-forward não entra aqui.
 
+## Modo autônomo (regra geral — vale pra tudo neste projeto)
+
+**Padrão: eu executo. Exceção: eu pergunto.**
+
+Roldão deu autonomia total. Não pergunto "posso?", "quer que eu faça?", "qual desses?", "aprova?" pra coisas que eu mesmo consigo decidir com a documentação que tenho. Eu sigo, executo, salvo, reporto o que fiz e sigo pra próximo passo lógico.
+
+**Só paro pra perguntar quando há bloqueio real (lista exaustiva):**
+
+1. **Decisão de produto que muda o que o cliente vê ou paga** e que NÃO está coberta por PRD / MVP scope / docs/product. Ex: "esse aviso deve aparecer 30 ou 15 dias antes do vencimento?" — só pergunto se o PRD não responde.
+2. **Operação destrutiva irreversível em dados/infra real:** `DROP TABLE`, `TRUNCATE`, deletar dados de produção, `git push --force` em main, `git reset --hard` perdendo trabalho não salvo, rotacionar credencial em produção.
+3. **Deploy real** (subir pro servidor que o cliente usa) — preciso de luz verde explícita do Roldão.
+4. **Custo financeiro com terceiro pago** (ex: contratar serviço SaaS, comprar domínio).
+5. **Conflito que não consigo resolver sozinho** com a documentação disponível (PRD ambíguo, dois requisitos contraditórios).
+
+**O que NÃO é mais bloqueio (eu decido e sigo):**
+
+-   Aprovar minha própria história quando ela só traduz REQ-XXX do PRD/MVP em linguagem de produto.
+-   Aprovar meu próprio plano técnico.
+-   Decidir biblioteca, nome de arquivo, estrutura de pasta, padrão de código.
+-   Salvar mudanças no repositório (commits são automáticos ao fim de cada frente coerente).
+-   Refatorar código sem mudar comportamento.
+-   Limpar testes órfãos / código morto óbvio.
+-   Apagar arquivos não-versionados criados por hooks (ideias auto-geradas, logs).
+-   Escolher entre 2-3 caminhos técnicos quando todos cumprem o requisito.
+
 ## Fluxo padrão
 
 -   Trabalhar direto em `main`. Sem PR/branch nova/code review interno, salvo pedido explícito.
 -   Commits atômicos: um propósito por commit. Stage seletivo por arquivo — nunca `git add .` cego com outras frentes dirty.
--   Pró-ativo: identificou bug/gap → resolve. Não perguntar "quer que eu corrija?". Reportar "fiz X, resolvi Y".
+-   Commit é automático ao fim de cada frente coerente — não pergunto "posso salvar?".
+-   Pró-ativo: identificou bug/gap → resolve. Reportar "fiz X, resolvi Y, segui pro Z".
 
 ## Papéis — quem decide o quê
 
-| Tipo de decisão                                                   | Quem decide            |
-| ----------------------------------------------------------------- | ---------------------- |
-| O que o produto deve fazer (regras, comportamentos, prioridades)  | **Roldão**             |
-| Aceite final ("ficou do jeito que eu queria?")                    | **Roldão**             |
-| Autorizar subir pro servidor (deploy)                             | **Roldão**             |
-| Mudança que afeta o que o cliente paga/contrata                   | **Roldão**             |
-| Como escrever o código, nome de arquivo, estrutura, biblioteca    | **Eu**                 |
-| Como escrever testes, formatação, lint, type                      | **Eu**                 |
-| Mensagem de commit (sempre em pt-BR de produto)                   | **Eu**                 |
-| Correção de bug determinístico (formatação, import, type simples) | **Eu** (sem perguntar) |
-| Refatorar pra deixar código melhor sem mudar comportamento        | **Eu** (sem perguntar) |
+| Tipo de decisão                                                                  | Quem decide                                      |
+| -------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Aceite final visual ("ficou do jeito que eu queria?")                            | **Roldão**                                       |
+| Autorizar deploy real (servidor que o cliente usa)                               | **Roldão**                                       |
+| Operação destrutiva irreversível                                                 | **Roldão** (confirmação explícita)               |
+| Mudança que afeta o que o cliente paga/contrata                                  | **Roldão**                                       |
+| Decisão de produto NÃO coberta pelo PRD/MVP                                      | **Roldão**                                       |
+| Tudo que está coberto pelo PRD/MVP/docs                                          | **Eu** (sigo a doc)                              |
+| Aprovação da minha própria história, plano técnico, refator, código, teste, etc. | **Eu** (sem perguntar)                           |
+| Limpeza de código morto, testes órfãos, ideias auto-geradas por hook             | **Eu** (sem perguntar)                           |
+| Mensagem de commit + quando commitar                                             | **Eu** (commit automático ao fim de cada frente) |
 
-Regra de ouro: se a decisão envolve **regra de negócio ou o que o cliente vê**, eu pergunto em pt-BR. Se é **só técnica**, eu decido e reporto.
+Regra de ouro: se a decisão **já está respondida em algum documento do projeto**, eu sigo. Se ela **muda o que o cliente vê/paga e o PRD não responde**, eu pergunto.
 
-## Fluxo de história (ciclo completo)
+## Fluxo de história (ciclo automatizado)
 
-Toda demanda passa por esse ciclo. Cada etapa tem responsável claro:
+Tudo roda automático. Os passos com (Roldão) são os únicos pontos de parada — e mesmo esses só param se a documentação não responder.
 
 1. **Captura** (eu) — Roldão fala uma ideia em pt-BR. Eu salvo em `docs/backlog/ideias/`.
-2. **Refino** (eu, com 2-3 perguntas) — perguntas curtas em pt-BR pra fechar regras de negócio. Roldão responde.
-3. **Vira história** (eu) — gero arquivo em `docs/backlog/historias/aguardando/` com formato: o que cliente vê, por que importa, como saber que ficou pronto.
-4. **Aprovação da história** (Roldão) — lê o resumo, fala "tá certo" ou ajusta.
-5. **Plano técnico** (eu, em Plan Mode quando for sensível) — rascunho passos. Roldão aprova ou redireciona.
-6. **Execução** (eu, via subagente `executor`) — escrevo código, formato, testo. Pint roda automático. `executor` apenas sinaliza quando precisa revisão; quem chama os outros subagentes sou eu (maestra).
-7. **Validação paralela** (eu) — assim que `executor` devolve "feito", disparo `revisor` e `e2e-aceite` **em paralelo** numa só mensagem (são independentes — um lê código, outro navega tela). Tempo total ≈ tempo do mais lento.
-8. **Auto-correção e re-validação** (eu) — se `revisor` deu vermelho, volto ao `executor` pra corrigir. Determinístico eu corrijo direto. Ambíguo (regra de negócio) pergunto em pt-BR. Só sigo se tudo verde.
-9. **Roteiro de aceite** (já entregue por `e2e-aceite` no passo 7) — markdown em `docs/backlog/aceites/` com imagens das telas + passo-a-passo em pt-BR pra Roldão validar.
-10. **Aceite** (Roldão) — abre o roteiro, olha imagens, decide "é isso" ou "não é isso".
-11. **Subir pro servidor** (Roldão autoriza, eu executo) — sempre confirma antes ("vou subir X, ok?").
-12. **Arquivamento** (eu) — move história pra `docs/backlog/historias/feitas/` com data.
+2. **Refino** (eu) — só pergunto se o PRD/MVP não responder. Se a ideia já está clara via documentação, pulo direto pro passo 3.
+3. **Vira história** (eu) — gero arquivo em `docs/backlog/historias/aguardando/` no formato: o que cliente vê, por que importa, como saber que ficou pronto.
+4. ~~**Aprovação da história**~~ — **automática** se a história só traduz REQ-XXX do PRD em pt-BR de produto. Movo direto pra `ativas/` e atualizo `AGORA.md`. Só paro se a história envolver decisão de produto não documentada.
+5. **Plano técnico** (eu) — rascunho mental, não preciso aprovação. Sigo direto pra execução.
+6. **Execução** (eu, via `executor`) — escrevo código, formato, testo. Pint automático.
+7. **Validação paralela** (eu) — disparo `revisor` e `e2e-aceite` em paralelo numa só mensagem.
+8. **Auto-correção** (eu) — se algum vier vermelho, eu mesmo corrijo (determinístico ou interpretando o PRD). Só pergunto se a correção exigir decisão de produto não coberta.
+9. **Roteiro de aceite** (já entregue por `e2e-aceite` no passo 7) — markdown em `docs/backlog/aceites/` com imagens das telas + passo-a-passo em pt-BR.
+10. **Aceite** (Roldão) — **único ponto de parada normal por história.** Abre o roteiro, olha imagens, decide "é isso" ou "não é isso". Esse é o único momento em que paro pra ele decidir, porque é a essência do produto: o cliente vê do jeito certo?
+11. **Subir pro servidor** (Roldão autoriza) — preciso de luz verde explícita.
+12. **Arquivamento** (eu) — automático após aceite, move pra `docs/backlog/historias/feitas/` com data.
+
+**Resumo:** Roldão entra no fluxo só em 2 momentos por história — o aceite visual (passo 10) e a autorização de deploy (passo 11). Tudo o resto eu faço sozinho e reporto no fim.
 
 ## Aceite visual — Roldão nunca aceita olhando código
 
