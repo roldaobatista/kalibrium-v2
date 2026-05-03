@@ -5,15 +5,29 @@
 >
 > **Estado atual da suíte (snapshot 2026-05-03):**
 >
-> -   197 testes verdes (cobrem o que existe e funciona hoje)
-> -   47 testes vermelhos (categorizados abaixo)
+> **Snapshot inicial (antes da limpeza):** 197 verdes, 47 vermelhos, 2 pulados.
+>
+> **Snapshot atual (após a passada de limpeza de 2026-05-03):**
+>
+> -   204 testes verdes
+> -   18 testes vermelhos — **todos da categoria 1** (rotas removidas)
 > -   2 testes pulados
 
 ---
 
 ## Resumo (pra Roldão)
 
-Tem 47 testes vermelhos. Nenhum deles é bug. São testes que:
+**Estado de partida:** 47 testes vermelhos, 6 categorias.
+
+**Estado atual:** 18 testes vermelhos, 1 única categoria — todos esperando endereços (rotas) que vão ser criados quando a história "técnico entra no app do celular" for executada.
+
+**O que foi feito na passada de limpeza:**
+
+-   Apagado: ExampleTest (dummy do Laravel), pasta `slice-006` inteira (testes Livewire), `TestScopeCommandTest`, `CiSbomTest`, `CiTriggerTest` (testavam configurações do harness antigo que mudaram de propósito).
+-   Consertado: 10 testes de admin do tenant (helper agora configura o contexto do laboratório antes de rodar comandos administrativos).
+-   Consertado: dados iniciais de cliente (seeder) agora podem rodar mais de uma vez sem dar erro de "já existe".
+
+**Os 47 vermelhos originais eram:**
 
 1. Esperam endereços (rotas) que foram removidos quando a tela velha foi descartada — vão voltar a verde quando a história "técnico entra no app do celular" for feita (porque ela cria os endereços novos).
 2. Testam que telas antigas (Livewire) funcionam — essas telas foram descartadas de propósito, então os testes precisam ser apagados.

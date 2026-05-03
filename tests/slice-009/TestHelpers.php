@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -80,6 +81,8 @@ function slice009_user_with_tenant_context(array $overrides = []): array
         'company_id' => $company->id,
         'branch_id' => $branch->id,
     ], ['company_id', 'branch_id']);
+
+    TenantContext::setTenantId((int) $tenant->id);
 
     return [
         'user' => $user,

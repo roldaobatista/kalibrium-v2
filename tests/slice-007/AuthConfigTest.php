@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+
+uses(DatabaseTransactions::class);
 
 test('AC-021: config padrao do Sanctum separa explicitamente os dominios stateful', function (): void {
     expect(config('sanctum.stateful'))
