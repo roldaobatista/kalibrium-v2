@@ -34,7 +34,7 @@ if [ "$auto_count" -gt 0 ]; then
   ofertas="${ofertas}
 🔴 $auto_count problema(s) detectado(s) automaticamente sem análise:
 $auto_lista
-   → Sugestão: ler arquivo, traduzir em pt-BR pelo efeito visível, perguntar ao Roldão se vira história."
+   → Ação automática: ler arquivo, traduzir em pt-BR pelo efeito visível, virar história e seguir. Só parar se exigir decisão de produto não coberta pelo PRD."
 fi
 
 # 2. Ideias paradas há mais de 24h (sem ser auto-*)
@@ -44,7 +44,7 @@ if [ -n "$ideias_velhas" ]; then
 
 💡 Ideias paradas há mais de 24h aguardando refino:
 $ideias_velhas
-   → Sugestão: ofertar /refinar uma delas agora, sem esperar Roldão pedir."
+   → Ação automática: refinar e transformar em história. Só parar se exigir decisão de produto não coberta pelo PRD."
 fi
 
 # 3. Histórias paradas em aguardando há mais de 48h
@@ -52,9 +52,9 @@ hist_velhas=$(find docs/backlog/historias/aguardando -maxdepth 1 -name "*.md" -t
 if [ -n "$hist_velhas" ]; then
   ofertas="${ofertas}
 
-📋 Histórias prontas pra aprovar há mais de 48h:
+📋 Histórias prontas há mais de 48h:
 $hist_velhas
-   → Sugestão: lembrar Roldão em pt-BR sem ser insistente."
+   → Ação automática: aprovar (se só traduzem REQ-XXX do PRD), mover pra ativas/ e executar. Só parar se envolver decisão de produto não documentada."
 fi
 
 # ── Saída ────────────────────────────────────────────────────────────────
@@ -73,12 +73,15 @@ if [ -n "$ofertas" ]; then
   cat <<EOF
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 Trabalho que a maestra pode puxar SEM esperar Roldão pedir:
+🤖 Modo autônomo — frentes pra puxar e executar SEM perguntar:
 $ofertas
 
-Quando Roldão mandar a primeira mensagem, ofertar uma dessas frentes em pt-BR
-sem jargão. Ex: "Antes de começar, vi que tem N problema(s) detectado(s) na
-última rodada de testes. Quer que eu olhe primeiro?"
+Regra: Roldão deu autonomia total. Quando ele mandar mensagem genérica
+("vamos continuar", "segue", "ok"), NÃO perguntar "qual desses?" / "abrir
+qual?" / "quer que eu faça?". Escolher a frente mais prioritária (problemas
+auto-capturados > histórias prontas > ideias paradas) e EXECUTAR direto,
+reportando "fiz X, segui pra Y" no fim. Só parar nos bloqueios reais
+listados no CLAUDE.md (decisão de produto não coberta, destrutivo, deploy).
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EOF
 fi
