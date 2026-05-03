@@ -87,15 +87,28 @@ Tudo roda automático. Os passos com (Roldão) são os únicos pontos de parada 
 -   Roteiro de aceite mora em `docs/backlog/aceites/<historia>.md` e contém: caminhos de uso numerados, imagens das telas em cada passo, lista do que o robô já testou sozinho, checkbox final ("é isso" / "não é isso").
 -   Se Roldão quiser ver com os próprios olhos antes do aceite formal, eu subo o servidor local e indico onde clicar.
 
-## Subagentes disponíveis (quando uso cada um)
+## Subagentes — divisão de trabalho obrigatória
 
-| Subagente    | Quando eu chamo                                                                                                                                 |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `executor`   | Toda história aprovada. Faz código + testes + formatação. Sinaliza à maestra quando precisa revisão (não chama subagente — não tem ferramenta). |
-| `revisor`    | Disparado pela maestra **em paralelo com `e2e-aceite`** quando `executor` termina. Audita 4 lentes: multi-tenant, migration, Livewire, testes.  |
-| `e2e-aceite` | Disparado pela maestra **em paralelo com `revisor`**. Roda robôs simuladores (Playwright), gera roteiro com imagens em pt-BR.                   |
+A maestra (conversa principal) **NÃO escreve código de produção**. Delega para subagentes especializados que rodam em contexto isolado.
 
-Conversa principal (eu, com Roldão) é só **maestra** — escuto, decido quem chamar, recebo resumo, reporto em pt-BR.
+| Quem         | O que faz                                                                                                                                      |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Maestra**  | Conversa com Roldão, lê documentação, decide escopo, decide quem chamar, recebe resumo, reporta em pt-BR. Edita só docs/, CLAUDE.md, .claude/. |
+| `executor`   | Escreve código em app/, database/, routes/, tests/. Roda pint, phpstan, composer test. Faz o commit ao terminar a frente.                      |
+| `revisor`    | Audita código sob 4 lentes: multi-tenant, migration, Livewire, testes. Não escreve.                                                            |
+| `e2e-aceite` | Roda robôs simuladores (Playwright), tira prints, gera roteiro com imagens em pt-BR.                                                           |
+| `Explore`    | Busca pesada em código (read-only). Maestra usa quando precisa varrer pasta inteira sem empilhar contexto no chat principal.                   |
+
+**Padrão obrigatório:**
+
+1. Maestra recebe pedido / decide próximo passo.
+2. Maestra chama `executor` com prompt claro (escopo + critério de aceite + onde validar).
+3. `executor` termina, commita e devolve resumo.
+4. Maestra dispara `revisor` + `e2e-aceite` **em paralelo numa só mensagem** (são independentes).
+5. Maestra recebe os 2 resumos. Se vermelho, volta ao passo 2.
+6. Verde → reporta pro Roldão e segue.
+
+**Maestra fazendo `Edit`/`Write` em código de produção, ou rodando `composer test`/`pint` direto, é violação do desenho do harness** — empilha contexto, não aproveita paralelismo, quebra isolamento. Regras desse tipo só ficam no chat principal por engano e devem ser corrigidas imediatamente delegando ao subagente certo.
 
 ## Tradução obrigatória — nunca jargão cru
 
