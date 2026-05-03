@@ -4,7 +4,7 @@
 
 ## Em andamento
 
-_(vazio — nenhuma história ativa no momento)_
+-   **Dados que o técnico salva no celular ficam protegidos** — SQLite local criptografado (SQLCipher) substitui localStorage pra token e dados sensíveis. Cobre REQ-SEC-002. Sem mudança visual pro técnico.
 
 ## Próxima da fila
 
