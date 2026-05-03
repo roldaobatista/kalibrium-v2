@@ -59,7 +59,7 @@ test('get login retorna 200 com texto Entrar e link esqueci minha senha', functi
 // 2. POST /auth/login com credenciais corretas redireciona para /mobile-devices
 // ---------------------------------------------------------------------------
 
-test('post login com credenciais corretas redireciona para mobile-devices', function (): void {
+test('post login com credenciais corretas redireciona para dashboard', function (): void {
     $user = wl_user(password: 'SenhaSegura123!');
 
     $response = $this->post('/auth/login', [
@@ -67,7 +67,7 @@ test('post login com credenciais corretas redireciona para mobile-devices', func
         'password' => 'SenhaSegura123!',
     ]);
 
-    $response->assertRedirect('/mobile-devices');
+    $response->assertRedirect('/dashboard');
     $this->assertAuthenticatedAs($user);
 });
 

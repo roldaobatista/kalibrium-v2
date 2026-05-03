@@ -15,6 +15,7 @@ use App\Http\Controllers\Privacy\ConsentSubjectStoreController;
 use App\Http\Controllers\Privacy\LgpdCategoryStoreController;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\HealthCheckRateLimit;
+use App\Livewire\Dashboard\IndexPage as DashboardIndexPage;
 use App\Livewire\MobileDevices\IndexPage as MobileDevicesIndexPage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -24,7 +25,7 @@ use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 Route::get('/health', HealthCheckController::class)
     ->middleware(HealthCheckRateLimit::class);
 
-Route::redirect('/', '/health', 302);
+Route::get('/', fn () => redirect()->route('dashboard'))->name('home');
 
 // Rotas de autenticação web (login, logout, recuperação de senha)
 Route::prefix('auth')->group(function (): void {
@@ -67,6 +68,8 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::middleware(['auth', 'tenant.context'])->group(function (): void {
+    Route::get('/dashboard', DashboardIndexPage::class)->name('dashboard');
+
     Route::apiResource('clientes', ClienteController::class);
     Route::apiResource('clientes.contatos', ContatoController::class);
 

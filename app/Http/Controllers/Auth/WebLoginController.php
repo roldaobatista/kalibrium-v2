@@ -35,6 +35,6 @@ final class WebLoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended('/mobile-devices');
+        return redirect()->intended(route('dashboard'));
     }
 }
