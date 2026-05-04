@@ -4,11 +4,11 @@
 
 ## Em andamento
 
-_(vazio — épico E15 completo + E16 aberto com primeiro sync funcional. Próximas fatias do E16 dependem de decisão de prioridade do Roldão: sync de fotos/anexos, sync de OS de verdade, ou outro caminho.)_
+-   **Sync de fotos anexadas à OS** — terceira e última fatia do épico E16. Técnico tira foto na OS no celular, sobe assíncrono pelo sync, gerente vê grade no painel. Fecha o épico.
 
 ## Próxima da fila
 
-_(vazio — nenhuma história aprovada esperando na fila)_
+_(vazio — após esta história, E16 está completo. Próximas frentes dependem de decisão do Roldão.)_
 
 ---
 
