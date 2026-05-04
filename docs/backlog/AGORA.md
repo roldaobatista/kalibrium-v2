@@ -4,7 +4,7 @@
 
 ## Em andamento
 
--   **Primeiro sync entre app e servidor** — abre o épico E16. Implementa custom REST sync (decisão registrada em ADR-0017) usando "anotação livre" como entidade-piloto. Destrava todas as próximas histórias de OS/foto/despesa.
+_(vazio — épico E15 completo + E16 aberto com primeiro sync funcional. Próximas fatias do E16 dependem de decisão de prioridade do Roldão: sync de fotos/anexos, sync de OS de verdade, ou outro caminho.)_
 
 ## Próxima da fila
 
