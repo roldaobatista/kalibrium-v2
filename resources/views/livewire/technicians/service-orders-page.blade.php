@@ -1,4 +1,7 @@
-<div>
+<div
+    x-data="{ photoModal: null }"
+    @keydown.escape.window="photoModal = null"
+>
     {{-- Breadcrumb --}}
     <nav class="text-sm text-neutral-500 mb-4 font-medium" aria-label="Caminho de navegação">
         <a href="/" class="hover:text-primary-600 transition-colors">Início</a>
@@ -33,51 +36,68 @@
             <p class="text-neutral-500 font-medium">Este técnico ainda não registrou ordens de serviço.</p>
         </div>
     @else
-        <div class="bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-sm">
-            <table class="min-w-full divide-y divide-neutral-200">
-                <thead class="bg-neutral-50">
-                    <tr>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Cliente</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Instrumento</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Status</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Última atualização</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-neutral-100">
-                    @foreach ($serviceOrders as $order)
-                        <tr class="hover:bg-neutral-50 transition-colors">
-                            <td class="px-4 py-3 text-sm text-neutral-900">{{ $order->client_name }}</td>
-                            <td class="px-4 py-3 text-sm text-neutral-600">{{ $order->instrument_description }}</td>
-                            <td class="px-4 py-3">
-                                @php
-                                    $badgeClass = match($order->status) {
-                                        'received'           => 'bg-blue-100 text-blue-800',
-                                        'in_calibration'     => 'bg-yellow-100 text-yellow-800',
-                                        'awaiting_approval'  => 'bg-orange-100 text-orange-800',
-                                        'completed'          => 'bg-green-100 text-green-800',
-                                        'cancelled'          => 'bg-neutral-100 text-neutral-500',
-                                        default              => 'bg-neutral-100 text-neutral-600',
-                                    };
-                                    $statusLabel = match($order->status) {
-                                        'received'           => 'Recebido',
-                                        'in_calibration'     => 'Em calibração',
-                                        'awaiting_approval'  => 'Aguardando aprovação',
-                                        'completed'          => 'Concluído',
-                                        'cancelled'          => 'Cancelado',
-                                        default              => $order->status,
-                                    };
-                                @endphp
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $badgeClass }}">
-                                    {{ $statusLabel }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-xs text-neutral-400 whitespace-nowrap">
-                                {{ $order->updated_at->diffForHumans() }}
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="space-y-6">
+            @foreach ($serviceOrders as $order)
+                @php
+                    $badgeClass = match($order->status) {
+                        'received'           => 'bg-blue-100 text-blue-800',
+                        'in_calibration'     => 'bg-yellow-100 text-yellow-800',
+                        'awaiting_approval'  => 'bg-orange-100 text-orange-800',
+                        'completed'          => 'bg-green-100 text-green-800',
+                        'cancelled'          => 'bg-neutral-100 text-neutral-500',
+                        default              => 'bg-neutral-100 text-neutral-600',
+                    };
+                    $statusLabel = match($order->status) {
+                        'received'           => 'Recebido',
+                        'in_calibration'     => 'Em calibração',
+                        'awaiting_approval'  => 'Aguardando aprovação',
+                        'completed'          => 'Concluído',
+                        'cancelled'          => 'Cancelado',
+                        default              => $order->status,
+                    };
+                    $orderPhotos = $photosByOrder->get((string) $order->id, collect());
+                @endphp
+
+                <div class="bg-white border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
+                    {{-- Cabeçalho da OS --}}
+                    <div class="px-4 py-3 flex items-start justify-between gap-4 border-b border-neutral-100">
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-neutral-900 truncate">{{ $order->client_name }}</p>
+                            <p class="text-xs text-neutral-500 mt-0.5">{{ $order->instrument_description }}</p>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $badgeClass }}">
+                                {{ $statusLabel }}
+                            </span>
+                            <span class="text-xs text-neutral-400 whitespace-nowrap">{{ $order->updated_at->diffForHumans() }}</span>
+                        </div>
+                    </div>
+
+                    {{-- Fotos da OS --}}
+                    @if ($orderPhotos->isNotEmpty())
+                        <div class="px-4 py-3">
+                            <p class="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-2">Fotos do serviço</p>
+                            <div class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+                                @foreach ($orderPhotos as $photo)
+                                    <button
+                                        type="button"
+                                        class="relative aspect-square rounded-md overflow-hidden bg-neutral-100 border border-neutral-200 hover:ring-2 hover:ring-primary-500 transition focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        @click="photoModal = {{ json_encode(['url' => $photo['signed_url'], 'filename' => $photo['original_filename']]) }}"
+                                        aria-label="Ampliar foto {{ $photo['original_filename'] }}"
+                                    >
+                                        <img
+                                            src="{{ $photo['signed_url'] }}"
+                                            alt="{{ $photo['original_filename'] }}"
+                                            class="w-full h-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
         </div>
 
         {{-- Paginação --}}
@@ -85,4 +105,39 @@
             {{ $serviceOrders->links() }}
         </div>
     @endif
+
+    {{-- Modal de foto ampliada --}}
+    <div
+        x-show="photoModal !== null"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+        style="display: none"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="photoModal ? 'Foto: ' + photoModal.filename : 'Foto'"
+        @click.self="photoModal = null"
+    >
+        <div class="relative max-w-4xl max-h-full w-full">
+            <button
+                type="button"
+                class="absolute -top-10 right-0 text-white/80 hover:text-white text-sm font-medium"
+                @click="photoModal = null"
+                aria-label="Fechar"
+            >
+                ✕ Fechar
+            </button>
+            <template x-if="photoModal">
+                <img
+                    :src="photoModal.url"
+                    :alt="photoModal.filename"
+                    class="w-full h-auto max-h-[85vh] object-contain rounded-lg"
+                />
+            </template>
+        </div>
+    </div>
 </div>

@@ -1,9 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonContent, IonPage } from '@ionic/react';
 import { IonIcon } from '@ionic/react';
 import { addOutline, arrowBackOutline, createOutline, clipboardOutline } from 'ionicons/icons';
-import { syncEngine, type ServiceOrderRow, type ServiceOrderStatus } from '../services/syncEngine';
+import {
+    syncEngine,
+    type ServiceOrderPhotoRow,
+    type ServiceOrderRow,
+    type ServiceOrderStatus,
+} from '../services/syncEngine';
+import { openIdb } from '../services/db';
 import { secureStorage } from '../services/secureStorage';
 import './ServiceOrders.css';
 
@@ -31,6 +37,23 @@ const STATUS_LABEL: Record<ServiceOrderStatus, string> = {
     cancelled: 'Cancelado',
 };
 
+async function getPhotosForOrder(serviceOrderServerId: string): Promise<ServiceOrderPhotoRow[]> {
+    const db = await openIdb();
+    return new Promise((resolve, reject) => {
+        const req = db
+            .transaction('service_order_photos', 'readonly')
+            .objectStore('service_order_photos')
+            .getAll();
+        req.onsuccess = () => {
+            const all = (req.result as ServiceOrderPhotoRow[]).filter(
+                (p) => p.service_order_server_id === serviceOrderServerId,
+            );
+            resolve(all);
+        };
+        req.onerror = () => reject(req.error);
+    });
+}
+
 const ServiceOrders: React.FC = () => {
     const history = useHistory();
     const [orders, setOrders] = useState<ServiceOrderRow[]>([]);
@@ -42,6 +65,9 @@ const ServiceOrders: React.FC = () => {
     const [notes, setNotes] = useState('');
     const [salvando, setSalvando] = useState(false);
     const [erro, setErro] = useState('');
+    const [fotos, setFotos] = useState<ServiceOrderPhotoRow[]>([]);
+    const [fotoAmpliada, setFotoAmpliada] = useState<ServiceOrderPhotoRow | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const carregarOS = useCallback(async () => {
         const token = await secureStorage.get('token');
@@ -74,6 +100,10 @@ const ServiceOrders: React.FC = () => {
         setStatus(ordem.status);
         setNotes(ordem.notes ?? '');
         setErro('');
+        setFotos([]);
+        if (ordem.server_id) {
+            void getPhotosForOrder(ordem.server_id).then(setFotos);
+        }
         setModalAberto(true);
     };
 
@@ -81,6 +111,51 @@ const ServiceOrders: React.FC = () => {
         setModalAberto(false);
         setEditando(null);
         setErro('');
+        setFotos([]);
+        setFotoAmpliada(null);
+    };
+
+    const adicionarFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !editando?.server_id) return;
+
+        // Limpa o input para permitir selecionar o mesmo arquivo novamente
+        if (fileInputRef.current) fileInputRef.current.value = '';
+
+        const clientUuid = crypto.randomUUID();
+        const localUrl = URL.createObjectURL(file);
+
+        await syncEngine.queuePhotoUpload({
+            local_id: clientUuid,
+            service_order_server_id: editando.server_id,
+            local_path: localUrl,
+            mime_type: file.type,
+            size_bytes: file.size,
+            client_uuid: clientUuid,
+        });
+
+        // Atualiza lista local
+        const updated = await getPhotosForOrder(editando.server_id);
+        setFotos(updated);
+    };
+
+    const removerFoto = async (foto: ServiceOrderPhotoRow) => {
+        if (!confirm('Remover esta foto?')) return;
+
+        // Remove do IndexedDB localmente (soft-remove: apenas apaga da lista local por ora)
+        const db = await openIdb();
+        await new Promise<void>((resolve, reject) => {
+            const tx = db.transaction(['service_order_photos', 'upload_outbox'], 'readwrite');
+            tx.objectStore('service_order_photos').delete(foto.local_id);
+            tx.objectStore('upload_outbox').delete(foto.local_id);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+
+        if (editando?.server_id) {
+            const updated = await getPhotosForOrder(editando.server_id);
+            setFotos(updated);
+        }
     };
 
     const salvar = async () => {
@@ -262,6 +337,59 @@ const ServiceOrders: React.FC = () => {
                             onChange={(e) => setNotes(e.target.value)}
                             rows={4}
                         />
+
+                        {/* Seção de fotos — só aparece ao editar OS já sincronizada */}
+                        {editando?.server_id && (
+                            <div className="kb-os-fotos">
+                                <p className="kb-os-fotos-titulo">Fotos do serviço</p>
+                                <div className="kb-os-fotos-grade">
+                                    {fotos.map((foto) => (
+                                        <div key={foto.local_id} className="kb-os-foto-item">
+                                            {foto.local_path ? (
+                                                <img
+                                                    src={foto.local_path}
+                                                    alt="Foto do serviço"
+                                                    className="kb-os-foto-thumb"
+                                                    onClick={() => setFotoAmpliada(foto)}
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="kb-os-foto-thumb kb-os-foto-sem-preview"
+                                                    onClick={() => setFotoAmpliada(foto)}
+                                                >
+                                                    📷
+                                                </div>
+                                            )}
+                                            {foto.pending_upload === 1 && (
+                                                <span className="kb-os-foto-pendente">
+                                                    ⏳ Enviando
+                                                </span>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="kb-os-foto-remover"
+                                                onClick={() => void removerFoto(foto)}
+                                                aria-label="Remover foto"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <label className="kb-os-foto-adicionar">
+                                    + Adicionar foto
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        capture="environment"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => void adicionarFoto(e)}
+                                    />
+                                </label>
+                            </div>
+                        )}
+
                         <div className="kb-modal-acoes">
                             <button
                                 type="button"
@@ -283,6 +411,27 @@ const ServiceOrders: React.FC = () => {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Overlay de foto ampliada */}
+            {fotoAmpliada && (
+                <div
+                    className="kb-os-foto-overlay"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Foto ampliada"
+                    onClick={() => setFotoAmpliada(null)}
+                >
+                    {fotoAmpliada.local_path ? (
+                        <img
+                            src={fotoAmpliada.local_path}
+                            alt="Foto ampliada"
+                            className="kb-os-foto-overlay-img"
+                        />
+                    ) : (
+                        <div className="kb-os-foto-overlay-vazio">Prévia não disponível</div>
+                    )}
                 </div>
             )}
         </IonPage>

@@ -72,6 +72,29 @@ export type ServiceOrderStatus =
     | 'completed'
     | 'cancelled';
 
+export interface ServiceOrderPhotoRow {
+    local_id: string;
+    server_id: string | null;
+    service_order_local_id: string | null;
+    service_order_server_id: string | null;
+    local_path: string | null;
+    pending_upload: number; // 0 or 1
+    mime_type: string;
+    size_bytes: number;
+    created_at: string; // ISO string
+}
+
+export interface UploadOutboxEntry {
+    local_id: string;
+    service_order_server_id: string;
+    local_path: string;
+    mime_type: string;
+    size_bytes: number;
+    client_uuid: string;
+    created_at: number; // ms timestamp
+    attempts: number;
+}
+
 export interface ServiceOrderRow {
     id: string;
     server_id: string | null;
@@ -232,7 +255,7 @@ class SyncEngineImpl {
                     server_id: null,
                     client_name: String(payload['client_name'] ?? ''),
                     instrument_description: String(payload['instrument_description'] ?? ''),
-                    status: String(payload['status'] ?? 'received'),
+                    status: (payload['status'] as ServiceOrderStatus | undefined) ?? 'received',
                     notes: payload['notes'] != null ? String(payload['notes']) : null,
                     updated_at: String(payload['updated_at'] ?? new Date().toISOString()),
                     pending_sync: 1,
@@ -522,6 +545,12 @@ class SyncEngineImpl {
                 await this.applyNoteChange(change.entity_id, change.action, change.payload);
             } else if (change.entity_type === 'service_order') {
                 await this.applyServiceOrderChange(change.entity_id, change.action, change.payload);
+            } else if (change.entity_type === 'service_order_photo') {
+                await this.applyServiceOrderPhotoChange(
+                    change.entity_id,
+                    change.action,
+                    change.payload,
+                );
             }
         }
 
@@ -532,6 +561,53 @@ class SyncEngineImpl {
         // Se tem mais, continua paginando
         if (data.has_more) {
             await this.pull();
+        }
+    }
+
+    private async applyServiceOrderPhotoChange(
+        serverId: string,
+        action: string,
+        payload: Record<string, unknown> | null,
+    ): Promise<void> {
+        // Pull entrega apenas metadados (sem binário). Binário é baixado sob demanda via signed URL.
+        if (action !== 'create') return; // fotos só chegam via create no pull MVP
+
+        const photoRow: ServiceOrderPhotoRow = {
+            local_id: serverId,
+            server_id: serverId,
+            service_order_local_id: null,
+            service_order_server_id: String(payload?.['service_order_id'] ?? ''),
+            local_path: null,
+            pending_upload: 0,
+            mime_type: String(payload?.['mime_type'] ?? 'image/jpeg'),
+            size_bytes: Number(payload?.['size_bytes'] ?? 0),
+            created_at: String(payload?.['uploaded_at'] ?? new Date().toISOString()),
+        };
+
+        if (Capacitor.isNativePlatform()) {
+            const db = getSqliteDb();
+            await db.run(
+                `INSERT OR IGNORE INTO service_order_photos
+                     (local_id, server_id, service_order_local_id, service_order_server_id,
+                      local_path, pending_upload, mime_type, size_bytes, created_at)
+                 VALUES (?, ?, NULL, ?, NULL, 0, ?, ?, ?);`,
+                [
+                    photoRow.local_id,
+                    photoRow.server_id,
+                    photoRow.service_order_server_id,
+                    photoRow.mime_type,
+                    photoRow.size_bytes,
+                    photoRow.created_at,
+                ],
+            );
+        } else {
+            const db = await openIdb();
+            await new Promise<void>((resolve, reject) => {
+                const tx = db.transaction('service_order_photos', 'readwrite');
+                tx.objectStore('service_order_photos').put(photoRow);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
         }
     }
 
@@ -766,6 +842,199 @@ class SyncEngineImpl {
     }
 
     // ----------------------------------------------------------------
+    // queuePhotoUpload — salva foto na fila local de upload
+    // ----------------------------------------------------------------
+
+    async queuePhotoUpload(
+        entry: Omit<UploadOutboxEntry, 'attempts' | 'created_at'>,
+    ): Promise<void> {
+        const full: UploadOutboxEntry = { ...entry, created_at: Date.now(), attempts: 0 };
+
+        const photoRow: ServiceOrderPhotoRow = {
+            local_id: entry.client_uuid,
+            server_id: null,
+            service_order_local_id: null,
+            service_order_server_id: entry.service_order_server_id,
+            local_path: entry.local_path,
+            pending_upload: 1,
+            mime_type: entry.mime_type,
+            size_bytes: entry.size_bytes,
+            created_at: new Date().toISOString(),
+        };
+
+        if (Capacitor.isNativePlatform()) {
+            const db = getSqliteDb();
+            await db.run(
+                `INSERT OR IGNORE INTO upload_outbox
+                     (local_id, service_order_server_id, local_path, mime_type, size_bytes, client_uuid, created_at, attempts)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 0);`,
+                [
+                    full.local_id,
+                    full.service_order_server_id,
+                    full.local_path,
+                    full.mime_type,
+                    full.size_bytes,
+                    full.client_uuid,
+                    full.created_at,
+                ],
+            );
+            await db.run(
+                `INSERT OR IGNORE INTO service_order_photos
+                     (local_id, server_id, service_order_local_id, service_order_server_id, local_path, pending_upload, mime_type, size_bytes, created_at)
+                 VALUES (?, NULL, NULL, ?, ?, 1, ?, ?, ?);`,
+                [
+                    photoRow.local_id,
+                    photoRow.service_order_server_id,
+                    photoRow.local_path,
+                    photoRow.mime_type,
+                    photoRow.size_bytes,
+                    photoRow.created_at,
+                ],
+            );
+        } else {
+            const db = await openIdb();
+            const tx = db.transaction(['upload_outbox', 'service_order_photos'], 'readwrite');
+            tx.objectStore('upload_outbox').put(full);
+            tx.objectStore('service_order_photos').put(photoRow);
+            await new Promise<void>((resolve, reject) => {
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // flushUploadOutbox — envia fotos pendentes ao servidor uma a uma
+    // ----------------------------------------------------------------
+
+    async flushUploadOutbox(): Promise<void> {
+        const entries = await this.getUploadOutboxEntries();
+        if (entries.length === 0) return;
+
+        for (const entry of entries) {
+            let success = false;
+            try {
+                const formData = new FormData();
+                formData.append('service_order_id', entry.service_order_server_id);
+                formData.append('client_uuid', entry.client_uuid);
+
+                // No ambiente nativo, local_path aponta para arquivo real no device
+                // Em testes/desktop, não há arquivo real — apenas registra metadado
+                if (Capacitor.isNativePlatform()) {
+                    const response = await fetch(entry.local_path);
+                    const blob = await response.blob();
+                    formData.append(
+                        'photo',
+                        blob,
+                        entry.client_uuid + '.' + entry.mime_type.split('/')[1],
+                    );
+                }
+
+                const resp = await apiFetch('/api/mobile/sync/upload-photo', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (resp.ok) {
+                    interface UploadResponse {
+                        server_id: string;
+                    }
+                    const data = (await resp.json()) as UploadResponse;
+                    await this.markPhotoUploaded(entry.client_uuid, data.server_id);
+                    success = true;
+                }
+            } catch {
+                // Falha de rede — mantém na fila para retry
+            }
+
+            if (!success) {
+                await this.incrementUploadAttempts(entry.local_id);
+            }
+        }
+    }
+
+    private async getUploadOutboxEntries(): Promise<UploadOutboxEntry[]> {
+        if (Capacitor.isNativePlatform()) {
+            const result = await getSqliteDb().query(
+                `SELECT * FROM upload_outbox WHERE attempts < 5 ORDER BY created_at ASC LIMIT 10;`,
+            );
+            return (result.values ?? []) as UploadOutboxEntry[];
+        }
+
+        const db = await openIdb();
+        return new Promise((resolve, reject) => {
+            const req = db
+                .transaction('upload_outbox', 'readonly')
+                .objectStore('upload_outbox')
+                .getAll();
+            req.onsuccess = () => {
+                const all = (req.result as UploadOutboxEntry[])
+                    .filter((e) => e.attempts < 5)
+                    .sort((a, b) => a.created_at - b.created_at)
+                    .slice(0, 10);
+                resolve(all);
+            };
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    private async markPhotoUploaded(clientUuid: string, serverId: string): Promise<void> {
+        if (Capacitor.isNativePlatform()) {
+            const db = getSqliteDb();
+            await db.run(`DELETE FROM upload_outbox WHERE local_id=? OR client_uuid=?;`, [
+                clientUuid,
+                clientUuid,
+            ]);
+            await db.run(
+                `UPDATE service_order_photos SET server_id=?, pending_upload=0 WHERE local_id=?;`,
+                [serverId, clientUuid],
+            );
+        } else {
+            const db = await openIdb();
+            const tx = db.transaction(['upload_outbox', 'service_order_photos'], 'readwrite');
+            tx.objectStore('upload_outbox').delete(clientUuid);
+            const req = tx.objectStore('service_order_photos').get(clientUuid);
+            req.onsuccess = () => {
+                const row = req.result as ServiceOrderPhotoRow | undefined;
+                if (row) {
+                    tx.objectStore('service_order_photos').put({
+                        ...row,
+                        server_id: serverId,
+                        pending_upload: 0,
+                    });
+                }
+            };
+            await new Promise<void>((resolve, reject) => {
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+    }
+
+    private async incrementUploadAttempts(localId: string): Promise<void> {
+        if (Capacitor.isNativePlatform()) {
+            await getSqliteDb().run(
+                `UPDATE upload_outbox SET attempts = attempts + 1 WHERE local_id=?;`,
+                [localId],
+            );
+        } else {
+            const db = await openIdb();
+            const tx = db.transaction('upload_outbox', 'readwrite');
+            const req = tx.objectStore('upload_outbox').get(localId);
+            req.onsuccess = () => {
+                const entry = req.result as UploadOutboxEntry | undefined;
+                if (entry) {
+                    tx.objectStore('upload_outbox').put({ ...entry, attempts: entry.attempts + 1 });
+                }
+            };
+            await new Promise<void>((resolve, reject) => {
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+    }
+
+    // ----------------------------------------------------------------
     // start / stop
     // ----------------------------------------------------------------
 
@@ -773,7 +1042,9 @@ class SyncEngineImpl {
         if (this.intervalId !== null) return; // já iniciado
 
         const sync = () => {
-            void this.pull().then(() => this.flushOutbox());
+            void this.pull()
+                .then(() => this.flushOutbox())
+                .then(() => this.flushUploadOutbox());
         };
 
         // Sincroniza imediatamente ao iniciar

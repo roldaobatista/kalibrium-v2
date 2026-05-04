@@ -5,28 +5,30 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\ScopesToCurrentTenant;
-use Database\Factories\ServiceOrderFactory;
+use Database\Factories\ServiceOrderPhotoFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-final class ServiceOrder extends Model
+final class ServiceOrderPhoto extends Model
 {
-    /** @use HasFactory<ServiceOrderFactory> */
+    /** @use HasFactory<ServiceOrderPhotoFactory> */
     use HasFactory, HasUuids, ScopesToCurrentTenant, SoftDeletes;
 
     /** @var list<string> */
     protected $fillable = [
         'id',
         'tenant_id',
+        'service_order_id',
         'user_id',
-        'client_name',
-        'instrument_description',
-        'status',
-        'notes',
+        'disk',
+        'path',
+        'original_filename',
+        'mime_type',
+        'size_bytes',
+        'uploaded_at',
         'version',
         'last_modified_by_device',
     ];
@@ -35,14 +37,16 @@ final class ServiceOrder extends Model
     protected function casts(): array
     {
         return [
+            'size_bytes' => 'integer',
             'version' => 'integer',
+            'uploaded_at' => 'datetime',
         ];
     }
 
-    /** @return HasMany<ServiceOrderPhoto, $this> */
-    public function photos(): HasMany
+    /** @return BelongsTo<ServiceOrder, $this> */
+    public function serviceOrder(): BelongsTo
     {
-        return $this->hasMany(ServiceOrderPhoto::class);
+        return $this->belongsTo(ServiceOrder::class);
     }
 
     /** @return BelongsTo<User, $this> */

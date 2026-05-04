@@ -22,7 +22,7 @@ final class SyncPushRequest extends FormRequest
             'device_id' => ['required', 'string', 'max:255'],
             'changes' => ['required', 'array', 'max:100'],
             'changes.*.local_id' => ['required', 'string', 'max:26'],
-            'changes.*.entity_type' => ['required', 'string', 'in:note,service_order'],
+            'changes.*.entity_type' => ['required', 'string', 'in:note,service_order,service_order_photo'],
             'changes.*.entity_id' => ['required', 'string', 'max:36'],
             'changes.*.action' => ['required', 'string', 'in:create,update,delete'],
             'changes.*.payload' => ['required', 'array'],

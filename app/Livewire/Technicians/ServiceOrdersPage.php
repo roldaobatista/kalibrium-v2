@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Technicians;
 
 use App\Models\ServiceOrder;
+use App\Models\ServiceOrderPhoto;
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Support\Auth\PostgresAuthContext;
@@ -13,6 +14,7 @@ use App\Support\Tenancy\TenantScopeBypass;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -48,9 +50,43 @@ final class ServiceOrdersPage extends Component
             ->orderBy('updated_at', 'desc')
             ->paginate(20);
 
+        // Carrega fotos de todas as OS da página atual (multi-tenant explícito)
+        $orderIds = $serviceOrders->pluck('id')->all();
+
+        /** @var Collection<string, Collection<int, array{id: string, signed_url: string, original_filename: string, mime_type: string}>> $photosByOrder */
+        $photosByOrder = Collection::make();
+
+        if ($tenantId !== null && count($orderIds) > 0) {
+            $photos = ServiceOrderPhoto::withoutGlobalScopes()
+                ->where('tenant_id', $tenantId)
+                ->whereIn('service_order_id', $orderIds)
+                ->whereNull('deleted_at')
+                ->orderBy('uploaded_at')
+                ->get();
+
+            foreach ($photos as $photo) {
+                $signedUrl = url()->temporarySignedRoute(
+                    'mobile.sync.photo.download',
+                    now()->addMinutes(30),
+                    ['id' => $photo->id],
+                );
+
+                $photosByOrder->put(
+                    (string) $photo->service_order_id,
+                    $photosByOrder->get((string) $photo->service_order_id, collect())->push([
+                        'id' => $photo->id,
+                        'signed_url' => $signedUrl,
+                        'original_filename' => $photo->original_filename,
+                        'mime_type' => $photo->mime_type,
+                    ]),
+                );
+            }
+        }
+
         return view('livewire.technicians.service-orders-page', [
             'technician' => $technician,
             'serviceOrders' => $serviceOrders,
+            'photosByOrder' => $photosByOrder,
         ])->layout('components.layouts.app');
     }
 

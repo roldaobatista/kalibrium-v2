@@ -23,7 +23,7 @@ import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacito
 const DB_NAME = 'kalibrium.db';
 const PREF_KEY = 'kalibrium.db.key';
 const IDB_DB_NAME = 'kalibrium';
-const IDB_VERSION = 3;
+const IDB_VERSION = 4;
 
 // ---------------------------------------------------------------------------
 // SQLite — conexão única
@@ -112,6 +112,31 @@ export async function initDb(): Promise<void> {
             deleted                INTEGER NOT NULL DEFAULT 0
         );
     `);
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS service_order_photos (
+            local_id                  TEXT PRIMARY KEY,
+            server_id                 TEXT,
+            service_order_local_id    TEXT,
+            service_order_server_id   TEXT,
+            local_path                TEXT,
+            pending_upload            INTEGER NOT NULL DEFAULT 1,
+            mime_type                 TEXT NOT NULL DEFAULT 'image/jpeg',
+            size_bytes                INTEGER NOT NULL DEFAULT 0,
+            created_at                TEXT NOT NULL
+        );
+    `);
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS upload_outbox (
+            local_id               TEXT PRIMARY KEY,
+            service_order_server_id TEXT NOT NULL,
+            local_path             TEXT NOT NULL,
+            mime_type              TEXT NOT NULL,
+            size_bytes             INTEGER NOT NULL,
+            client_uuid            TEXT NOT NULL,
+            created_at             INTEGER NOT NULL,
+            attempts               INTEGER NOT NULL DEFAULT 0
+        );
+    `);
 
     _sqliteConn = db;
 }
@@ -170,6 +195,10 @@ export function openIdb(): Promise<IDBDatabase> {
                 const soStore = db.createObjectStore('service_orders', { keyPath: 'id' });
                 soStore.createIndex('updated_at', 'updated_at');
                 soStore.createIndex('status', 'status');
+            }
+            if (oldVer < 4) {
+                db.createObjectStore('service_order_photos', { keyPath: 'local_id' });
+                db.createObjectStore('upload_outbox', { keyPath: 'local_id' });
             }
         };
 
