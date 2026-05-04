@@ -8,13 +8,12 @@
  *  4. start() inicia loop de 30s + listeners online/offline.
  *  5. stop() limpa interval e listeners.
  *
- * Usa o mesmo banco SQLite criptografado que secureStorage, estendendo-o com
- * as tabelas notes, sync_outbox e sync_state via executeSql().
+ * IMPORTANTE: não abre conexão SQLite própria — usa o módulo db.ts central.
+ * Todas as tabelas (notes, sync_outbox, sync_state) são criadas pelo initDb().
  */
 
 import { Capacitor } from '@capacitor/core';
-import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
-import { Preferences } from '@capacitor/preferences';
+import { getSqliteDb, openIdb } from './db';
 import { apiFetch } from './api';
 
 // ---------------------------------------------------------------------------
@@ -67,65 +66,6 @@ export interface NoteRow {
 }
 
 // ---------------------------------------------------------------------------
-// Banco de dados SQLite — wrapper
-// ---------------------------------------------------------------------------
-
-const DB_NAME = 'kalibrium.db';
-const PREF_KEY = 'kalibrium.db.key';
-
-async function openDb(): Promise<SQLiteDBConnection> {
-    const sqlite = new SQLiteConnection(CapacitorSQLite);
-
-    let { value: key } = await Preferences.get({ key: PREF_KEY });
-    if (!key) {
-        const bytes = new Uint8Array(32);
-        crypto.getRandomValues(bytes);
-        key = btoa(String.fromCharCode(...bytes));
-        await Preferences.set({ key: PREF_KEY, value: key });
-    }
-
-    await sqlite.setEncryptionSecret(key);
-
-    const isConsistent = (await sqlite.isDatabase(DB_NAME)).result;
-    if (isConsistent) {
-        const conn = await sqlite.retrieveConnection(DB_NAME, false);
-        await conn.open();
-        return conn;
-    }
-
-    const db = await sqlite.createConnection(DB_NAME, true, 'secret', 1, false);
-    await db.open();
-    return db;
-}
-
-// ---------------------------------------------------------------------------
-// IDB fallback (desktop sem Capacitor)
-// ---------------------------------------------------------------------------
-
-const IDB_DB_NAME = 'kalibrium';
-
-function openIdb(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-        const req = indexedDB.open(IDB_DB_NAME, 2);
-        req.onupgradeneeded = (evt) => {
-            const db = req.result;
-            const oldVer = evt.oldVersion;
-            if (oldVer < 1) {
-                db.createObjectStore('kv_store');
-            }
-            if (oldVer < 2) {
-                const noteStore = db.createObjectStore('notes', { keyPath: 'id' });
-                noteStore.createIndex('updated_at', 'updated_at');
-                db.createObjectStore('sync_outbox', { keyPath: 'local_id' });
-                db.createObjectStore('sync_state', { keyPath: 'key' });
-            }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-    });
-}
-
-// ---------------------------------------------------------------------------
 // SyncEngine
 // ---------------------------------------------------------------------------
 
@@ -169,38 +109,7 @@ class SyncEngineImpl {
         entry: OutboxEntry,
         payload: Record<string, unknown>,
     ): Promise<void> {
-        const db = await openDb();
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS sync_outbox (
-                local_id TEXT PRIMARY KEY,
-                entity_type TEXT NOT NULL,
-                entity_id TEXT NOT NULL,
-                action TEXT NOT NULL,
-                payload TEXT NOT NULL,
-                created_at INTEGER NOT NULL,
-                attempts INTEGER NOT NULL DEFAULT 0
-            );
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS notes (
-                id TEXT PRIMARY KEY,
-                server_id TEXT,
-                title TEXT NOT NULL,
-                body TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
-                pending_sync INTEGER NOT NULL DEFAULT 1,
-                deleted INTEGER NOT NULL DEFAULT 0
-            );
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS sync_state (
-                key TEXT PRIMARY KEY,
-                value TEXT NOT NULL
-            );
-        `);
+        const db = getSqliteDb();
 
         await db.run(
             `INSERT INTO sync_outbox (local_id, entity_type, entity_id, action, payload, created_at, attempts)
@@ -362,8 +271,7 @@ class SyncEngineImpl {
 
     private async getOutboxEntries(limit: number): Promise<OutboxEntry[]> {
         if (Capacitor.isNativePlatform()) {
-            const db = await openDb();
-            const result = await db.query(
+            const result = await getSqliteDb().query(
                 `SELECT * FROM sync_outbox ORDER BY created_at ASC LIMIT ?;`,
                 [limit],
             );
@@ -397,7 +305,7 @@ class SyncEngineImpl {
         if (localIds.length === 0) return;
 
         if (Capacitor.isNativePlatform()) {
-            const db = await openDb();
+            const db = getSqliteDb();
             for (const localId of localIds) {
                 await db.run(`DELETE FROM sync_outbox WHERE local_id=?;`, [localId]);
                 const serverId = serverIdMap.get(localId);
@@ -437,7 +345,7 @@ class SyncEngineImpl {
 
     private async removeFromOutbox(localIds: string[]): Promise<void> {
         if (Capacitor.isNativePlatform()) {
-            const db = await openDb();
+            const db = getSqliteDb();
             for (const id of localIds) {
                 await db.run(`DELETE FROM sync_outbox WHERE local_id=?;`, [id]);
             }
@@ -509,7 +417,7 @@ class SyncEngineImpl {
         payload: Record<string, unknown> | null,
     ): Promise<void> {
         if (Capacitor.isNativePlatform()) {
-            const db = await openDb();
+            const db = getSqliteDb();
             if (action === 'delete') {
                 await db.run(`UPDATE notes SET deleted=1, pending_sync=0 WHERE server_id=?;`, [
                     serverId,
@@ -569,8 +477,9 @@ class SyncEngineImpl {
 
     private async getSyncCursor(): Promise<string | null> {
         if (Capacitor.isNativePlatform()) {
-            const db = await openDb();
-            const result = await db.query(`SELECT value FROM sync_state WHERE key='pull_cursor';`);
+            const result = await getSqliteDb().query(
+                `SELECT value FROM sync_state WHERE key='pull_cursor';`,
+            );
             const row = result.values?.[0] as { value: string } | undefined;
             return row?.value ?? null;
         }
@@ -591,8 +500,7 @@ class SyncEngineImpl {
 
     private async setSyncCursor(cursor: string): Promise<void> {
         if (Capacitor.isNativePlatform()) {
-            const db = await openDb();
-            await db.run(
+            await getSqliteDb().run(
                 `INSERT INTO sync_state (key, value) VALUES ('pull_cursor', ?)
                  ON CONFLICT(key) DO UPDATE SET value=excluded.value;`,
                 [cursor],
@@ -614,8 +522,7 @@ class SyncEngineImpl {
 
     async getNotes(): Promise<NoteRow[]> {
         if (Capacitor.isNativePlatform()) {
-            const db = await openDb();
-            const result = await db.query(
+            const result = await getSqliteDb().query(
                 `SELECT * FROM notes WHERE deleted=0 ORDER BY updated_at DESC;`,
             );
             return (result.values ?? []) as NoteRow[];
