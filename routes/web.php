@@ -19,6 +19,7 @@ use App\Livewire\Dashboard\IndexPage as DashboardIndexPage;
 use App\Livewire\MobileDevices\IndexPage as MobileDevicesIndexPage;
 use App\Livewire\Technicians\IndexPage as TechniciansIndexPage;
 use App\Livewire\Technicians\NotesPage as TechnicianNotesPage;
+use App\Livewire\Technicians\ServiceOrdersPage as TechnicianServiceOrdersPage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
@@ -92,4 +93,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
 
     Route::get('/technicians/{technicianUserId}/notes', TechnicianNotesPage::class)
         ->name('technicians.notes');
+
+    Route::get('/technicians/{technicianUserId}/service-orders', TechnicianServiceOrdersPage::class)
+        ->name('technicians.service-orders');
 });

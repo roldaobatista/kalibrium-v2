@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Policies\ClientePolicy;
 use App\Policies\ContatoPolicy;
 use App\Policies\MobileDevicePolicy;
+use App\Policies\ServiceOrderPolicy;
 use App\Policies\TechnicianPolicy;
 use App\Policies\TenantSettingsPolicy;
 use App\Support\Auth\TenantAwarePasswordBrokerManager;
@@ -50,6 +51,9 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('mobile-devices.viewAny', [MobileDevicePolicy::class, 'viewAny']);
         Gate::define('mobile-devices.manage', [MobileDevicePolicy::class, 'manage']);
+
+        Gate::define('service-orders.view', [ServiceOrderPolicy::class, 'view']);
+        Gate::define('service-orders.update', [ServiceOrderPolicy::class, 'update']);
 
         Gate::define('technicians.viewAny', [TechnicianPolicy::class, 'viewAny']);
         Gate::define('technicians.create', [TechnicianPolicy::class, 'create']);

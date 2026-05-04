@@ -1,0 +1,207 @@
+/* ServiceOrders page — espelha Notes.css com variações de OS */
+
+.kb-os-page {
+    --background: var(--kb-bg, #f5f5f7);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.kb-os-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 16px 12px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.kb-os-voltar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+}
+
+.kb-os-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+    flex: 1;
+}
+
+.kb-os-pendentes-badge {
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.kb-os-content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.kb-os-content {
+    padding: 16px;
+    padding-bottom: 96px;
+}
+
+.kb-os-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.kb-os-item {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.kb-os-item-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.kb-os-item-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.kb-os-item-cliente {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kb-os-item-instrumento {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.kb-os-item-pendente {
+    font-size: 11px;
+    color: #b45309;
+    margin-top: 2px;
+}
+
+.kb-os-btn-editar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    border-left: 1px solid #f3f4f6;
+}
+
+/* Badges de status */
+.kb-os-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.kb-os-badge--recebido {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.kb-os-badge--calibrando {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.kb-os-badge--aguardando {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+.kb-os-badge--concluido {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.kb-os-badge--cancelado {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* FAB */
+.kb-os-fab {
+    position: fixed;
+    bottom: 28px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    z-index: 20;
+    transition: transform 0.15s;
+}
+
+.kb-os-fab:active {
+    transform: scale(0.94);
+}
+
+/* Modal — reutiliza classes globais kb-modal-* definidas no Notes.css */
+.kb-modal-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #111827;
+    background: #fff;
+    margin-bottom: 10px;
+}
+
+.kb-modal-erro {
+    font-size: 13px;
+    color: #dc2626;
+    margin-bottom: 8px;
+}

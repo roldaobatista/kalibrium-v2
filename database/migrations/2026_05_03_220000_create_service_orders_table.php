@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('service_orders', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('client_name', 255);
+            $table->string('instrument_description', 255);
+            $table->string('status', 30)->default('received');
+            $table->text('notes')->nullable();
+            $table->unsignedInteger('version')->default(1);
+            $table->string('last_modified_by_device')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['tenant_id', 'user_id']);
+            $table->index(['tenant_id', 'status']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('service_orders');
+    }
+};

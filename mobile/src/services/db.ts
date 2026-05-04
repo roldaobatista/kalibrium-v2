@@ -23,7 +23,7 @@ import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacito
 const DB_NAME = 'kalibrium.db';
 const PREF_KEY = 'kalibrium.db.key';
 const IDB_DB_NAME = 'kalibrium';
-const IDB_VERSION = 2;
+const IDB_VERSION = 3;
 
 // ---------------------------------------------------------------------------
 // SQLite — conexão única
@@ -99,6 +99,19 @@ export async function initDb(): Promise<void> {
             value TEXT NOT NULL
         );
     `);
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS service_orders (
+            id                     TEXT PRIMARY KEY,
+            server_id              TEXT,
+            client_name            TEXT NOT NULL,
+            instrument_description TEXT NOT NULL,
+            status                 TEXT NOT NULL DEFAULT 'received',
+            notes                  TEXT,
+            updated_at             TEXT NOT NULL,
+            pending_sync           INTEGER NOT NULL DEFAULT 1,
+            deleted                INTEGER NOT NULL DEFAULT 0
+        );
+    `);
 
     _sqliteConn = db;
 }
@@ -152,6 +165,11 @@ export function openIdb(): Promise<IDBDatabase> {
                 noteStore.createIndex('updated_at', 'updated_at');
                 db.createObjectStore('sync_outbox', { keyPath: 'local_id' });
                 db.createObjectStore('sync_state', { keyPath: 'key' });
+            }
+            if (oldVer < 3) {
+                const soStore = db.createObjectStore('service_orders', { keyPath: 'id' });
+                soStore.createIndex('updated_at', 'updated_at');
+                soStore.createIndex('status', 'status');
             }
         };
 

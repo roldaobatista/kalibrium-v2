@@ -10,7 +10,7 @@ import {
     homeOutline,
     logOutOutline,
 } from 'ionicons/icons';
-import { syncEngine, type NoteRow } from '../services/syncEngine';
+import { syncEngine, type NoteRow, type ServiceOrderRow } from '../services/syncEngine';
 import { apiFetch } from '../services/api';
 import * as biometric from '../services/biometric';
 import { secureStorage } from '../services/secureStorage';
@@ -33,11 +33,21 @@ const Home: React.FC = () => {
     const [drawerAberto, setDrawerAberto] = useState(false);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const [notas, setNotas] = useState<NoteRow[]>([]);
+    const [ordens, setOrdens] = useState<ServiceOrderRow[]>([]);
 
     const carregarNotas = useCallback(async () => {
         try {
             const lista = await syncEngine.getNotes();
             setNotas(lista);
+        } catch {
+            // Sem banco inicializado ainda — ignora silenciosamente
+        }
+    }, []);
+
+    const carregarOrdens = useCallback(async () => {
+        try {
+            const lista = await syncEngine.getServiceOrders();
+            setOrdens(lista);
         } catch {
             // Sem banco inicializado ainda — ignora silenciosamente
         }
@@ -82,7 +92,8 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         void carregarNotas();
-    }, [carregarNotas]);
+        void carregarOrdens();
+    }, [carregarNotas, carregarOrdens]);
 
     // Indicador online/offline reativo
     useEffect(() => {
@@ -223,6 +234,33 @@ const Home: React.FC = () => {
                             )}
                         </div>
 
+                        {/* Card: Ordens de Serviço */}
+                        <div
+                            className="kb-card kb-card--clicavel"
+                            onClick={() => history.push('/service-orders')}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ')
+                                    history.push('/service-orders');
+                            }}
+                            aria-label="Ver ordens de serviço"
+                        >
+                            <div className="kb-card-titulo">
+                                <IonIcon icon={clipboardOutline} className="kb-card-icone" />
+                                Ordens de Serviço
+                            </div>
+                            <p className="kb-card-valor">
+                                {ordens.length} ordem{ordens.length === 1 ? '' : 's'}
+                            </p>
+                            {ordens.filter((o) => o.pending_sync === 1).length > 0 && (
+                                <p className="kb-card-desc kb-card-desc--alerta">
+                                    {ordens.filter((o) => o.pending_sync === 1).length} aguardando
+                                    sincronizar
+                                </p>
+                            )}
+                        </div>
+
                         {/* Card: Status de conexão */}
                         <div className="kb-card">
                             <div className="kb-card-titulo">
@@ -238,19 +276,6 @@ const Home: React.FC = () => {
                                     : 'Trabalhando offline. As mudanças vão sincronizar quando voltar a conexão.'}
                             </p>
                         </div>
-                    </div>
-
-                    {/* Lista vazia */}
-                    <div className="kb-lista-vazia">
-                        <IonIcon
-                            icon={clipboardOutline}
-                            className="kb-lista-vazia-icone"
-                            aria-hidden="true"
-                        />
-                        <p className="kb-lista-vazia-titulo">Sem ordens de serviço por enquanto</p>
-                        <p className="kb-lista-vazia-desc">
-                            Quando o gerente atribuir, aparecem aqui.
-                        </p>
                     </div>
                 </div>
             </IonContent>

@@ -65,6 +65,25 @@ export interface NoteRow {
     deleted: number; // 0 or 1
 }
 
+export type ServiceOrderStatus =
+    | 'received'
+    | 'in_calibration'
+    | 'awaiting_approval'
+    | 'completed'
+    | 'cancelled';
+
+export interface ServiceOrderRow {
+    id: string;
+    server_id: string | null;
+    client_name: string;
+    instrument_description: string;
+    status: ServiceOrderStatus;
+    notes: string | null;
+    updated_at: string; // ISO string
+    pending_sync: number; // 0 or 1
+    deleted: number; // 0 or 1
+}
+
 // ---------------------------------------------------------------------------
 // SyncEngine
 // ---------------------------------------------------------------------------
@@ -155,6 +174,44 @@ class SyncEngineImpl {
                 );
             }
         }
+
+        if (entry.entity_type === 'service_order') {
+            if (entry.action === 'create') {
+                await db.run(
+                    `INSERT OR REPLACE INTO service_orders
+                         (id, server_id, client_name, instrument_description, status, notes, updated_at, pending_sync, deleted)
+                     VALUES (?, NULL, ?, ?, ?, ?, ?, 1, 0);`,
+                    [
+                        entry.local_id,
+                        String(payload['client_name'] ?? ''),
+                        String(payload['instrument_description'] ?? ''),
+                        String(payload['status'] ?? 'received'),
+                        payload['notes'] != null ? String(payload['notes']) : null,
+                        String(payload['updated_at'] ?? new Date().toISOString()),
+                    ],
+                );
+            } else if (entry.action === 'update') {
+                await db.run(
+                    `UPDATE service_orders
+                     SET client_name=?, instrument_description=?, status=?, notes=?, updated_at=?, pending_sync=1
+                     WHERE id=? OR server_id=?;`,
+                    [
+                        String(payload['client_name'] ?? ''),
+                        String(payload['instrument_description'] ?? ''),
+                        String(payload['status'] ?? 'received'),
+                        payload['notes'] != null ? String(payload['notes']) : null,
+                        String(payload['updated_at'] ?? new Date().toISOString()),
+                        entry.entity_id,
+                        entry.entity_id,
+                    ],
+                );
+            } else if (entry.action === 'delete') {
+                await db.run(
+                    `UPDATE service_orders SET deleted=1, pending_sync=1 WHERE id=? OR server_id=?;`,
+                    [entry.entity_id, entry.entity_id],
+                );
+            }
+        }
     }
 
     private async recordChangeIdb(
@@ -162,9 +219,59 @@ class SyncEngineImpl {
         payload: Record<string, unknown>,
     ): Promise<void> {
         const db = await openIdb();
-        const tx = db.transaction(['sync_outbox', 'notes'], 'readwrite');
+        const stores: string[] = ['sync_outbox', 'notes', 'service_orders'];
+        const tx = db.transaction(stores, 'readwrite');
 
         tx.objectStore('sync_outbox').put(entry);
+
+        if (entry.entity_type === 'service_order') {
+            const soStore = tx.objectStore('service_orders');
+            if (entry.action === 'create') {
+                soStore.put({
+                    id: entry.local_id,
+                    server_id: null,
+                    client_name: String(payload['client_name'] ?? ''),
+                    instrument_description: String(payload['instrument_description'] ?? ''),
+                    status: String(payload['status'] ?? 'received'),
+                    notes: payload['notes'] != null ? String(payload['notes']) : null,
+                    updated_at: String(payload['updated_at'] ?? new Date().toISOString()),
+                    pending_sync: 1,
+                    deleted: 0,
+                } satisfies ServiceOrderRow);
+            } else if (entry.action === 'update') {
+                const req = soStore.get(entry.entity_id);
+                req.onsuccess = () => {
+                    const existing = req.result as ServiceOrderRow | undefined;
+                    if (existing) {
+                        soStore.put({
+                            ...existing,
+                            client_name: String(payload['client_name'] ?? existing.client_name),
+                            instrument_description: String(
+                                payload['instrument_description'] ??
+                                    existing.instrument_description,
+                            ),
+                            status:
+                                (payload['status'] as ServiceOrderStatus | undefined) ??
+                                existing.status,
+                            notes:
+                                payload['notes'] != null
+                                    ? String(payload['notes'])
+                                    : existing.notes,
+                            updated_at: String(payload['updated_at'] ?? existing.updated_at),
+                            pending_sync: 1,
+                        });
+                    }
+                };
+            } else if (entry.action === 'delete') {
+                const req = soStore.get(entry.entity_id);
+                req.onsuccess = () => {
+                    const existing = req.result as ServiceOrderRow | undefined;
+                    if (existing) {
+                        soStore.put({ ...existing, deleted: 1, pending_sync: 1 });
+                    }
+                };
+            }
+        }
 
         if (entry.entity_type === 'note') {
             const noteStore = tx.objectStore('notes');
@@ -314,11 +421,15 @@ class SyncEngineImpl {
                         serverId,
                         localId,
                     ]);
+                    await db.run(
+                        `UPDATE service_orders SET server_id=?, pending_sync=0 WHERE id=?;`,
+                        [serverId, localId],
+                    );
                 }
             }
         } else {
             const db = await openIdb();
-            const tx = db.transaction(['sync_outbox', 'notes'], 'readwrite');
+            const tx = db.transaction(['sync_outbox', 'notes', 'service_orders'], 'readwrite');
             for (const localId of localIds) {
                 tx.objectStore('sync_outbox').delete(localId);
                 const serverId = serverIdMap.get(localId);
@@ -329,6 +440,17 @@ class SyncEngineImpl {
                         if (note) {
                             tx.objectStore('notes').put({
                                 ...note,
+                                server_id: serverId,
+                                pending_sync: 0,
+                            });
+                        }
+                    };
+                    const soReq = tx.objectStore('service_orders').get(localId);
+                    soReq.onsuccess = () => {
+                        const order = soReq.result as ServiceOrderRow | undefined;
+                        if (order) {
+                            tx.objectStore('service_orders').put({
+                                ...order,
                                 server_id: serverId,
                                 pending_sync: 0,
                             });
@@ -398,6 +520,8 @@ class SyncEngineImpl {
         for (const change of data.changes) {
             if (change.entity_type === 'note') {
                 await this.applyNoteChange(change.entity_id, change.action, change.payload);
+            } else if (change.entity_type === 'service_order') {
+                await this.applyServiceOrderChange(change.entity_id, change.action, change.payload);
             }
         }
 
@@ -473,6 +597,106 @@ class SyncEngineImpl {
                 tx.onerror = () => reject(tx.error);
             });
         }
+    }
+
+    private async applyServiceOrderChange(
+        serverId: string,
+        action: string,
+        payload: Record<string, unknown> | null,
+    ): Promise<void> {
+        if (Capacitor.isNativePlatform()) {
+            const db = getSqliteDb();
+            if (action === 'delete') {
+                await db.run(
+                    `UPDATE service_orders SET deleted=1, pending_sync=0 WHERE server_id=?;`,
+                    [serverId],
+                );
+            } else if (action === 'create' || action === 'update') {
+                await db.run(
+                    `INSERT INTO service_orders
+                         (id, server_id, client_name, instrument_description, status, notes, updated_at, pending_sync, deleted)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)
+                     ON CONFLICT(id) DO UPDATE SET
+                         server_id=excluded.server_id,
+                         client_name=excluded.client_name,
+                         instrument_description=excluded.instrument_description,
+                         status=excluded.status,
+                         notes=excluded.notes,
+                         updated_at=excluded.updated_at,
+                         pending_sync=0,
+                         deleted=0;`,
+                    [
+                        serverId,
+                        serverId,
+                        String(payload?.['client_name'] ?? ''),
+                        String(payload?.['instrument_description'] ?? ''),
+                        String(payload?.['status'] ?? 'received'),
+                        payload?.['notes'] != null ? String(payload['notes']) : null,
+                        String(payload?.['updated_at'] ?? new Date().toISOString()),
+                    ],
+                );
+            }
+        } else {
+            const db = await openIdb();
+            const tx = db.transaction('service_orders', 'readwrite');
+            const store = tx.objectStore('service_orders');
+
+            if (action === 'delete') {
+                const req = store.index('updated_at').getAll();
+                req.onsuccess = () => {
+                    const orders = req.result as ServiceOrderRow[];
+                    const order = orders.find((o) => o.server_id === serverId);
+                    if (order) {
+                        store.put({ ...order, deleted: 1, pending_sync: 0 });
+                    }
+                };
+            } else {
+                store.put({
+                    id: serverId,
+                    server_id: serverId,
+                    client_name: String(payload?.['client_name'] ?? ''),
+                    instrument_description: String(payload?.['instrument_description'] ?? ''),
+                    status: (payload?.['status'] as ServiceOrderStatus | undefined) ?? 'received',
+                    notes: payload?.['notes'] != null ? String(payload['notes']) : null,
+                    updated_at: String(payload?.['updated_at'] ?? new Date().toISOString()),
+                    pending_sync: 0,
+                    deleted: 0,
+                } satisfies ServiceOrderRow);
+            }
+
+            await new Promise<void>((resolve, reject) => {
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // getServiceOrders — lista OS do banco local
+    // ----------------------------------------------------------------
+
+    async getServiceOrders(): Promise<ServiceOrderRow[]> {
+        if (Capacitor.isNativePlatform()) {
+            const result = await getSqliteDb().query(
+                `SELECT * FROM service_orders WHERE deleted=0 ORDER BY updated_at DESC;`,
+            );
+            return (result.values ?? []) as ServiceOrderRow[];
+        }
+
+        const db = await openIdb();
+        return new Promise((resolve, reject) => {
+            const req = db
+                .transaction('service_orders', 'readonly')
+                .objectStore('service_orders')
+                .getAll();
+            req.onsuccess = () => {
+                const all = (req.result as ServiceOrderRow[])
+                    .filter((o) => !o.deleted)
+                    .sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+                resolve(all);
+            };
+            req.onerror = () => reject(req.error);
+        });
     }
 
     private async getSyncCursor(): Promise<string | null> {
