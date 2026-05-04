@@ -379,7 +379,60 @@ test('OS do tenant A nao aparece em pull do tenant B', function (): void {
 });
 
 // ---------------------------------------------------------------------------
-// 8. Hijack: técnico B não consegue atualizar OS do técnico A
+// 8. Action desconhecida (delete) → rejected: unknown_action, registro intacto
+// ---------------------------------------------------------------------------
+
+test('push com action delete e rejeitado como unknown_action e nao apaga o registro', function (): void {
+    $tenant = so_tenant();
+    $user = so_technician($tenant);
+    $token = so_token($user, $tenant, 'device-delete-test');
+
+    so_set_context($tenant);
+
+    $order = ServiceOrder::withoutGlobalScope('current_tenant')->create([
+        'id' => (string) Str::uuid(),
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'client_name' => 'Cliente Persistente',
+        'instrument_description' => 'Instrumento Persistente',
+        'status' => 'received',
+        'version' => 1,
+        'updated_at' => now()->subMinutes(5),
+        'created_at' => now()->subMinutes(5),
+    ]);
+
+    $change = so_create_payload([
+        'action' => 'delete',
+        'entity_id' => $order->id,
+        'payload' => [
+            'client_name' => 'Cliente Persistente',
+            'instrument_description' => 'Instrumento Persistente',
+            'status' => 'received',
+            'updated_at' => now()->toIso8601String(),
+        ],
+    ]);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-delete-test')
+        ->postJson('/api/mobile/sync/push', [
+            'device_id' => 'device-delete-test',
+            'changes' => [$change],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonCount(0, 'applied');
+    $response->assertJsonCount(1, 'rejected');
+    $response->assertJsonPath('rejected.0.reason', 'unknown_action');
+
+    expect(
+        ServiceOrder::withoutGlobalScope('current_tenant')
+            ->where('id', $order->id)
+            ->exists()
+    )->toBeTrue();
+});
+
+// ---------------------------------------------------------------------------
+// 9. Hijack: técnico B não consegue atualizar OS do técnico A
 // ---------------------------------------------------------------------------
 
 test('tecnico B nao consegue atualizar OS do tecnico A usando payload hijack', function (): void {

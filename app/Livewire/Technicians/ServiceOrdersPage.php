@@ -42,7 +42,9 @@ final class ServiceOrdersPage extends Component
         }
 
         /** @var LengthAwarePaginator<int, ServiceOrder> $serviceOrders */
-        $serviceOrders = ServiceOrder::where('user_id', $this->technicianUserId)
+        $serviceOrders = ServiceOrder::query()
+            ->where('tenant_id', $tenantId ?? -1)
+            ->where('user_id', $this->technicianUserId)
             ->orderBy('updated_at', 'desc')
             ->paginate(20);
 
