@@ -79,7 +79,9 @@ Marcelo (gerente), na tela de OS no painel web, vê a mesma grade de fotos. Pode
 ## Status
 
 -   [x] planejada
--   [ ] em andamento
--   [ ] revisada
--   [ ] pronta
--   [ ] aceita
+-   [x] em andamento
+-   [x] revisada
+-   [x] pronta
+-   [x] aceita
+
+**Aceita em:** 2026-05-07

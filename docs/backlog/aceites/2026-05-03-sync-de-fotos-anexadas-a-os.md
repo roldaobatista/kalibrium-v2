@@ -140,5 +140,5 @@ Os testes automáticos a seguir foram executados e todos passaram com sucesso (1
 
 ## Sua decisão
 
--   [ ] Tá do jeito que eu queria — pode seguir pro servidor
+-   [x] Tá do jeito que eu queria — pode seguir pro servidor
 -   [ ] Tá errado: ******************************\_\_\_\_******************************
