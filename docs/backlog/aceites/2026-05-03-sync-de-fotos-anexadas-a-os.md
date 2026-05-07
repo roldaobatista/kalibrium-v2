@@ -1,8 +1,6 @@
 # Aceite: Foto anexada à Ordem de Serviço sobe pelo sync
 
-> Como usar este arquivo: leia cada caminho de uso, siga os passos descritos no seu navegador ou celular, e confira se está do jeito que você queria. No final, marque "é isso" ou descreva o que está errado.
->
-> **Nota sobre imagens:** o robô simulador de navegador (Playwright) não estava disponível nesta sessão — por isso este roteiro está em formato texto detalhado, sem capturas de tela automáticas. Para ver as telas ao vivo, siga os passos abaixo com o servidor local no ar (`http://localhost:5173` para o app do técnico, `http://localhost:8000` para o painel do gerente).
+> Como usar este arquivo: confira cada caminho de uso abaixo. Se estiver do jeito que você queria, marque a caixa no final.
 >
 > **Credenciais de teste:**
 >
@@ -19,8 +17,10 @@
     - E-mail: `tecnico@teste.local`
     - Senha: `password`
 4. Toque em **"Entrar"**.
-5. **O que deve aparecer:** se for o primeiro login desse dispositivo, aparece aviso "Aguardando aprovação". Nesse caso, abra outro aba e acesse `http://localhost:8000/mobile-devices` como gerente para aprovar o dispositivo — ou use o passo de aprovação via sistema.
+5. **O que deve aparecer:** se for o primeiro login desse dispositivo, aparece aviso "Aguardando aprovação". Nesse caso, o gerente precisa aprovar o dispositivo no painel web.
     - Se já tiver dispositivo aprovado: vai direto para a tela inicial do app.
+
+![01-tela-login](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/01-tela-login.png)
 
 > O que conferir: o campo de e-mail aceita o e-mail corretamente, a senha é ocultada por padrão, e ao entrar aparece o carregando ("Entrando...") enquanto o servidor processa.
 
@@ -33,6 +33,10 @@
 3. Toque nessa OS para abrir o formulário de edição.
 4. Role a tela para baixo até o final do formulário.
 5. **O que deve aparecer:** uma seção chamada **"Fotos do serviço"** com uma grade vazia (sem fotos ainda) e um botão **"+ Adicionar foto"** abaixo da grade.
+
+![03-tela-inicial](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/03-tela-inicial.png)
+![04-lista-os](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/04-lista-os.png)
+![05-os-fotos-vazia](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/05-os-fotos-vazia.png)
 
 > O que conferir: a seção "Fotos do serviço" existe e está visível no final do formulário da OS. O botão "+ Adicionar foto" está presente.
 
@@ -47,6 +51,9 @@
     - No canto da miniatura, aparece o indicador **"⏳ Enviando"** enquanto o arquivo está sendo enviado ao servidor.
 4. Aguarde alguns segundos. Quando o envio terminar, o indicador **"⏳ Enviando"** some da miniatura — a foto está salva no servidor.
 
+![06-foto-enviando](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/06-foto-enviando.png)
+![07-foto-salva](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/07-foto-salva.png)
+
 > O que conferir: (a) miniatura aparece imediatamente; (b) indicador "⏳ Enviando" aparece no canto; (c) após o envio, o indicador some e a foto permanece na grade.
 
 ---
@@ -57,16 +64,20 @@
 2. **O que deve aparecer:** a foto abre em tela cheia (viewer fullscreen) ocupando toda a tela do celular.
 3. Toque em qualquer lugar ou no botão de fechar para voltar à grade.
 
+![08-foto-ampliada-app](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/08-foto-ampliada-app.png)
+
 > O que conferir: a foto abre grande, sem distorção, e é possível fechar e voltar para a lista de fotos.
 
 ---
 
 ## Caminho 5 — Técnico remove uma foto
 
-1. Com pelo menos uma foto na grade, localize o botão de lixeira (ícone de remover) sobre a miniatura — ou mantenha pressionado (long-press) na miniatura.
+1. Com pelo menos uma foto na grade, localize o botão de lixeira (ícone ✕) sobre a miniatura.
 2. **O que deve aparecer:** um pop-up de confirmação com a mensagem **"Remover esta foto?"** e opções de cancelar ou confirmar.
 3. Toque em **Confirmar** (ou "OK").
 4. **O que deve aparecer:** a foto desaparece da grade. A grade fica vazia (ou com as fotos restantes se havia mais de uma).
+
+![11-foto-removida](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/11-foto-removida.png)
 
 > O que conferir: o sistema pede confirmação antes de remover — nunca remove sem perguntar. Após confirmar, a foto sai da grade imediatamente.
 
@@ -81,6 +92,8 @@
 5. Localize a OS **"Paquímetro digital Mitutoyo 200mm"** e clique para abrir os detalhes.
 6. **O que deve aparecer:** uma grade de miniaturas das fotos enviadas pelo técnico (somente leitura).
 
+![09-painel-os-com-fotos](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/09-painel-os-com-fotos.png)
+
 > O que conferir: as fotos enviadas pelo técnico aparecem aqui. **Não deve haver** botão "+ Adicionar foto" nem botão de remover — o gerente só visualiza.
 
 ---
@@ -91,13 +104,15 @@
 2. **O que deve aparecer:** a foto abre ampliada em um modal/lightbox sobre a tela — com a foto em tamanho maior.
 3. Clique fora do modal ou no botão X para fechar.
 
+![10-painel-foto-ampliada](imagens/2026-05-03-sync-de-fotos-anexadas-a-os/10-painel-foto-ampliada.png)
+
 > O que conferir: a foto abre ampliada, carregada corretamente. Ao fechar o modal, volta para a tela da OS sem recarregar a página inteira.
 
 ---
 
 ## O que o robô já conferiu sozinho
 
-Os testes automáticos a seguir foram executados e todos passaram com sucesso (8 de 8):
+Os testes automáticos a seguir foram executados e todos passaram com sucesso (10 de 10):
 
 -   Envio de foto funciona: registro criado no banco, arquivo salvo, URL assinada retornada. (✓ verificado)
 -   Foto acima de 8 MB é bloqueada pelo servidor. (✓ verificado)
@@ -110,6 +125,8 @@ Os testes automáticos a seguir foram executados e todos passaram com sucesso (8
 -   Acesso direto à pasta de arquivos no servidor sem autenticação: bloqueado com **403 Proibido**. (✓ verificado ao vivo)
 -   Upload sem autenticação: bloqueado. (✓ verificado ao vivo)
 -   URL assinada com token inválido: bloqueada. (✓ verificado ao vivo)
+-   Download de foto soft-deletada retorna 404. (✓ verificado)
+-   Download com signed URL adulterada retorna 403. (✓ verificado)
 
 **Sobre validade da URL assinada (30 minutos):** o teste automático que simula a passagem de 30 minutos e verifica a expiração está previsto no escopo da história e coberto pelos testes Pest (mockando o relógio). O teste passou com sucesso — URLs expiradas são rejeitadas.
 
@@ -117,8 +134,6 @@ Os testes automáticos a seguir foram executados e todos passaram com sucesso (8
 
 ## Caminhos que o robô não conseguiu testar visualmente
 
--   **Prints automáticos das telas:** o robô simulador de navegador (Playwright MCP) não estava carregado nesta sessão. Os caminhos de uso 1 a 7 foram descritos em texto detalhado com base no código implementado — mas não há capturas de tela automáticas.
--   **Indicador "⏳ Enviando" em ambiente local:** em ambiente local com conexão rápida, o indicador pode aparecer por menos de 1 segundo antes de desaparecer. Se quiser ver, pode testar com uma foto maior (até 8 MB) em rede lenta.
 -   **Comportamento offline (foto fica na fila):** simular desconexão real no Playwright não foi feito nesta sessão. O código de fila offline (`uploadOutbox`) está implementado e testado unitariamente, mas o teste visual de "foto fica com ⏳ Enviando offline e sobe quando volta a rede" requer confirmação manual ou re-execução com MCP disponível.
 
 ---
