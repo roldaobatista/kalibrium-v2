@@ -4,10 +4,10 @@
 
 ## Em andamento
 
--   **Sync de fotos anexadas à OS** — terceira fatia do épico E16. **Ajustes amarelos resolvidos**, testes verdes:
-    1. ✅ `SyncPhotoDownloadController` agora usa `withoutGlobalScope('current_tenant')` + `whereNull('deleted_at')` — foto soft-deletada não pode mais ser baixada.
-    2. ✅ Testes adicionados: download de foto soft-deletada retorna 404; signed URL adulterada retorna 403.
--   E2e-aceite gerou roteiro em texto (sem prints — MCP Playwright não carregou nesta rodada). Próxima sessão pode regenerar com prints.
+-   **Sync de fotos anexadas à OS** — terceira fatia do épico E16. **Pronta para aceite:**
+    1. ✅ Ajustes amarelos resolvidos (escopo do controller + 2 testes de segurança)
+    2. ✅ E2e-aceite completo com 11 prints automatizados (roteiro + imagens em `docs/backlog/aceites/`)
+    3. ✅ Commit `3691cc9` com tudo
 
 ## Próxima da fila
 
