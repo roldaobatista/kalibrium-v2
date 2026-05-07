@@ -383,3 +383,103 @@ test('user do tenant B nao consegue obter signed url de foto do tenant A', funct
 
     $response->assertStatus(404);
 });
+
+// ---------------------------------------------------------------------------
+// 9. Download: foto soft-deletada retorna 404 na rota de download
+// ---------------------------------------------------------------------------
+
+test('download de foto soft-deleted retorna 404', function (): void {
+    Storage::fake('local');
+
+    $tenant = photo_tenant();
+    $user = photo_technician($tenant);
+    $token = photo_token($user, $tenant);
+
+    $order = photo_service_order($tenant, $user);
+
+    $photo = ServiceOrderPhoto::withoutGlobalScope('current_tenant')->create([
+        'id' => (string) Str::uuid(),
+        'tenant_id' => $tenant->id,
+        'service_order_id' => $order->id,
+        'user_id' => $user->id,
+        'disk' => 'local',
+        'path' => 'tenants/1/photo.jpg',
+        'original_filename' => 'photo.jpg',
+        'mime_type' => 'image/jpeg',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+        'version' => 1,
+    ]);
+
+    $photo->delete(); // soft-delete
+
+    photo_set_context($tenant);
+
+    $signedUrl = URL::temporarySignedRoute(
+        'mobile.sync.photo.download',
+        now()->addMinutes(30),
+        ['id' => $photo->id],
+    );
+
+    $parsed = parse_url($signedUrl);
+    $relativeUrl = ($parsed['path'] ?? '').'?'.($parsed['query'] ?? '');
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-photo-test')
+        ->get($relativeUrl);
+
+    $response->assertStatus(404);
+});
+
+// ---------------------------------------------------------------------------
+// 10. Download: signed URL adulterada retorna 403
+// ---------------------------------------------------------------------------
+
+test('download com signed url adulterada retorna 403', function (): void {
+    Storage::fake('local');
+
+    $tenant = photo_tenant();
+    $user = photo_technician($tenant);
+    $token = photo_token($user, $tenant);
+
+    $order = photo_service_order($tenant, $user);
+
+    $photo = ServiceOrderPhoto::withoutGlobalScope('current_tenant')->create([
+        'id' => (string) Str::uuid(),
+        'tenant_id' => $tenant->id,
+        'service_order_id' => $order->id,
+        'user_id' => $user->id,
+        'disk' => 'local',
+        'path' => 'tenants/1/photo.jpg',
+        'original_filename' => 'photo.jpg',
+        'mime_type' => 'image/jpeg',
+        'size_bytes' => 1024,
+        'uploaded_at' => now(),
+        'version' => 1,
+    ]);
+
+    photo_set_context($tenant);
+
+    $signedUrl = URL::temporarySignedRoute(
+        'mobile.sync.photo.download',
+        now()->addMinutes(30),
+        ['id' => $photo->id],
+    );
+
+    $parsed = parse_url($signedUrl);
+    $query = $parsed['query'] ?? '';
+    $relativeUrl = ($parsed['path'] ?? '').'?'.$query;
+
+    // Adultera a URL trocando o timestamp de expiração
+    $tamperedUrl = str_replace(
+        $query,
+        $query.'&expires='.(now()->addYear()->timestamp),
+        $relativeUrl
+    );
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-photo-test')
+        ->get($tamperedUrl);
+
+    $response->assertStatus(403);
+});

@@ -31,9 +31,10 @@ final class SyncPhotoDownloadController extends Controller
 
         $tenantId = $this->resolveTenantId($request);
 
-        $photo = ServiceOrderPhoto::withoutGlobalScopes()
+        $photo = ServiceOrderPhoto::withoutGlobalScope('current_tenant')
             ->where('id', $id)
             ->where('tenant_id', $tenantId)
+            ->whereNull('deleted_at')
             ->first();
 
         if (! $photo instanceof ServiceOrderPhoto) {
