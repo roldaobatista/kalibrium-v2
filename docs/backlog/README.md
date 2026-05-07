@@ -1,6 +1,8 @@
 # Backlog do Kalibrium V2
 
 > Pasta onde mora **tudo** que o Roldão pediu, está sendo feito, ou já foi feito. Em pt-BR puro, sem jargão técnico.
+>
+> 📌 **Agente:** para mapa completo do projeto (stack, estrutura de código, testes, ambiente), veja [`docs/INDEX.md`](../INDEX.md).
 
 ## Estrutura
 

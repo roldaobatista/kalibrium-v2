@@ -1,5 +1,7 @@
 # API Contracts — Convenções
 
+> 📌 Para mapa geral do projeto, veja [`docs/INDEX.md`](../../INDEX.md).
+>
 > **Status:** ativo
 > **Versao:** 1.0.1
 > **Data:** 2026-04-12

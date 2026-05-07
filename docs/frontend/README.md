@@ -1,5 +1,7 @@
 # Kalibrium Frontend — Guia rápido
 
+> 📌 Para mapa geral do projeto (stack, código, testes, ambiente), veja [`docs/INDEX.md`](../INDEX.md).
+
 Cliente mobile-first React 18 + TypeScript 5 + Ionic 8 + Capacitor 6 + Vite 5 (slice-016).
 
 ## Pré-requisitos
