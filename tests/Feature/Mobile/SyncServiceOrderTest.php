@@ -481,3 +481,179 @@ test('tecnico B nao consegue atualizar OS do tecnico A usando payload hijack', f
     $order->refresh();
     expect($order->client_name)->not->toBe('Invadido');
 });
+
+// ---------------------------------------------------------------------------
+// 10. Push create com mode e equipe → applied, membros salvos
+// ---------------------------------------------------------------------------
+
+test('push create de OS com modo campo-veiculo e equipe de 3 tecnicos', function (): void {
+    $tenant = so_tenant();
+    $user = so_technician($tenant);
+    $tec2 = so_technician($tenant);
+    $tec3 = so_technician($tenant);
+    $token = so_token($user, $tenant);
+
+    so_set_context($tenant);
+
+    $change = so_create_payload([
+        'payload' => [
+            'client_name' => 'Cliente Campo',
+            'instrument_description' => 'Trena Laser',
+            'status' => 'received',
+            'mode' => 'field_vehicle',
+            'team_members' => [
+                ['user_id' => $user->id, 'role' => 'leader'],
+                ['user_id' => $tec2->id, 'role' => 'technician'],
+                ['user_id' => $tec3->id, 'role' => 'technician'],
+            ],
+            'notes' => null,
+            'updated_at' => now()->toIso8601String(),
+        ],
+    ]);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-so-test')
+        ->postJson('/api/mobile/sync/push', [
+            'device_id' => 'device-so-test',
+            'changes' => [$change],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'applied');
+    $response->assertJsonCount(0, 'rejected');
+
+    $serverId = $response->json('applied.0.server_id');
+
+    $order = ServiceOrder::withoutGlobalScope('current_tenant')->find($serverId);
+    expect($order)->not->toBeNull();
+    expect($order->mode)->toBe('field_vehicle');
+    expect($order->members)->toHaveCount(3);
+    expect($order->members->pluck('user_id')->toArray())
+        ->toContain($user->id, $tec2->id, $tec3->id);
+});
+
+// ---------------------------------------------------------------------------
+// 11. Push create com equipe de 6 → rejected: validation_error
+// ---------------------------------------------------------------------------
+
+test('push create de OS com equipe de 6 pessoas e rejeitado', function (): void {
+    $tenant = so_tenant();
+    $user = so_technician($tenant);
+    $token = so_token($user, $tenant);
+
+    so_set_context($tenant);
+
+    $members = [];
+    for ($i = 0; $i < 6; $i++) {
+        $u = so_technician($tenant);
+        $members[] = ['user_id' => $u->id, 'role' => 'technician'];
+    }
+
+    $change = so_create_payload([
+        'payload' => [
+            'client_name' => 'Cliente Excesso',
+            'instrument_description' => 'Multímetro',
+            'status' => 'received',
+            'team_members' => $members,
+            'updated_at' => now()->toIso8601String(),
+        ],
+    ]);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-so-test')
+        ->postJson('/api/mobile/sync/push', [
+            'device_id' => 'device-so-test',
+            'changes' => [$change],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonCount(0, 'applied');
+    $response->assertJsonCount(1, 'rejected');
+    $response->assertJsonPath('rejected.0.reason', 'validation_error');
+});
+
+// ---------------------------------------------------------------------------
+// 12. Push update substitui equipe existente
+// ---------------------------------------------------------------------------
+
+test('push update substitui equipe da OS', function (): void {
+    $tenant = so_tenant();
+    $user = so_technician($tenant);
+    $tecA = so_technician($tenant);
+    $tecB = so_technician($tenant);
+    $token = so_token($user, $tenant);
+
+    so_set_context($tenant);
+
+    $order = ServiceOrder::withoutGlobalScope('current_tenant')->create([
+        'id' => (string) Str::uuid(),
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'client_name' => 'Cliente Original',
+        'instrument_description' => 'Instrumento Original',
+        'status' => 'received',
+        'mode' => 'bench',
+        'version' => 1,
+        'updated_at' => now()->subMinutes(10),
+        'created_at' => now()->subMinutes(10),
+    ]);
+
+    $order->members()->create(['user_id' => $tecA->id, 'role' => 'technician']);
+
+    $change = so_create_payload([
+        'action' => 'update',
+        'entity_id' => $order->id,
+        'payload' => [
+            'client_name' => 'Cliente Original',
+            'instrument_description' => 'Instrumento Original',
+            'status' => 'received',
+            'mode' => 'field_umc',
+            'team_members' => [
+                ['user_id' => $user->id, 'role' => 'leader'],
+                ['user_id' => $tecB->id, 'role' => 'technician'],
+            ],
+            'updated_at' => now()->toIso8601String(),
+        ],
+    ]);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-so-test')
+        ->postJson('/api/mobile/sync/push', [
+            'device_id' => 'device-so-test',
+            'changes' => [$change],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'applied');
+
+    $order->refresh();
+    expect($order->mode)->toBe('field_umc');
+    expect($order->members)->toHaveCount(2);
+    expect($order->members->pluck('user_id')->toArray())
+        ->toContain($user->id, $tecB->id);
+    expect($order->members->pluck('user_id')->toArray())
+        ->not->toContain($tecA->id);
+});
+
+// ---------------------------------------------------------------------------
+// 13. API /api/mobile/team retorna técnicos do tenant
+// ---------------------------------------------------------------------------
+
+test('api mobile team retorna membros ativos do tenant', function (): void {
+    $tenant = so_tenant();
+    $user = so_technician($tenant);
+    $manager = so_manager($tenant);
+    $token = so_token($user, $tenant);
+
+    so_set_context($tenant);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-so-test')
+        ->getJson('/api/mobile/team');
+
+    $response->assertOk();
+    $response->assertJsonStructure(['members' => [['id', 'name', 'email', 'role']]]);
+
+    $ids = array_column($response->json('members'), 'id');
+    expect($ids)->toContain($user->id, $manager->id);
+});

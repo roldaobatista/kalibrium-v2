@@ -68,3 +68,19 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
 
     return response;
 }
+
+export interface ApiTeamMember {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+}
+
+export async function fetchTeamMembers(): Promise<ApiTeamMember[]> {
+    const response = await apiFetch('/api/mobile/team');
+    if (!response.ok) {
+        throw new Error('failed_to_fetch_team');
+    }
+    const data = (await response.json()) as { members: ApiTeamMember[] };
+    return data.members;
+}

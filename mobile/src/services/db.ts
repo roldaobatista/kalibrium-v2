@@ -23,7 +23,7 @@ import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacito
 const DB_NAME = 'kalibrium.db';
 const PREF_KEY = 'kalibrium.db.key';
 const IDB_DB_NAME = 'kalibrium';
-const IDB_VERSION = 4;
+const IDB_VERSION = 5;
 
 // ---------------------------------------------------------------------------
 // SQLite — conexão única
@@ -106,6 +106,8 @@ export async function initDb(): Promise<void> {
             client_name            TEXT NOT NULL,
             instrument_description TEXT NOT NULL,
             status                 TEXT NOT NULL DEFAULT 'received',
+            mode                   TEXT NOT NULL DEFAULT 'bench',
+            team_members           TEXT,
             notes                  TEXT,
             updated_at             TEXT NOT NULL,
             pending_sync           INTEGER NOT NULL DEFAULT 1,
@@ -199,6 +201,11 @@ export function openIdb(): Promise<IDBDatabase> {
             if (oldVer < 4) {
                 db.createObjectStore('service_order_photos', { keyPath: 'local_id' });
                 db.createObjectStore('upload_outbox', { keyPath: 'local_id' });
+            }
+            if (oldVer < 5) {
+                // Schema v5: service_orders ganha mode + team_members
+                // IDB não permite alterar object store existente; dados antigos continuam funcionando
+                // (mode default 'bench', team_members undefined → tratado como vazio)
             }
         };
 

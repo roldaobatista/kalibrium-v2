@@ -9,6 +9,7 @@ use App\Http\Controllers\Mobile\SyncPhotoDownloadController;
 use App\Http\Controllers\Mobile\SyncPhotoUploadController;
 use App\Http\Controllers\Mobile\SyncPullController;
 use App\Http\Controllers\Mobile\SyncPushController;
+use App\Http\Controllers\Mobile\TeamController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/mobile/login', MobileLoginController::class)
@@ -29,4 +30,5 @@ Route::middleware(['mobile.device.status', 'auth:sanctum', 'mobile.tenant.contex
     Route::post('/mobile/sync/upload-photo', [SyncPhotoUploadController::class, 'upload'])->name('mobile.sync.photo.upload');
     Route::get('/mobile/sync/photo/{id}/signed-url', [SyncPhotoUploadController::class, 'signedUrl'])->name('mobile.sync.photo.signed-url');
     Route::get('/mobile/sync/photo/{id}/download', SyncPhotoDownloadController::class)->name('mobile.sync.photo.download');
+    Route::get('/mobile/team', TeamController::class)->name('mobile.team');
 });

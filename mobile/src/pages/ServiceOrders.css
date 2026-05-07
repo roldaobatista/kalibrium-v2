@@ -104,6 +104,16 @@
     text-overflow: ellipsis;
 }
 
+.kb-os-item-modo {
+    font-size: 11px;
+    color: #2563eb;
+    font-weight: 500;
+    background: #eff6ff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    align-self: flex-start;
+}
+
 .kb-os-item-instrumento {
     font-size: 13px;
     color: #6b7280;
@@ -204,6 +214,68 @@
     font-size: 13px;
     color: #dc2626;
     margin-bottom: 8px;
+}
+
+/* Equipe */
+.kb-os-equipe {
+    margin-bottom: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: #fafafa;
+}
+
+.kb-os-equipe-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 8px;
+}
+
+.kb-os-equipe-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.kb-os-equipe-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.1s;
+}
+
+.kb-os-equipe-item:hover {
+    background: #f3f4f6;
+}
+
+.kb-os-equipe-item--selected {
+    background: #eff6ff;
+}
+
+.kb-os-equipe-item input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb;
+    flex-shrink: 0;
+}
+
+.kb-os-equipe-nome {
+    color: #111827;
+    font-weight: 500;
+    flex: 1;
+}
+
+.kb-os-equipe-papel {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: lowercase;
 }
 
 /* Fotos do serviço */

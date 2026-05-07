@@ -25,6 +25,7 @@ final class ServiceOrderFactory extends Factory
             'client_name' => $this->faker->company(),
             'instrument_description' => $this->faker->words(3, true),
             'status' => 'received',
+            'mode' => 'bench',
             'notes' => null,
             'version' => 1,
             'last_modified_by_device' => null,

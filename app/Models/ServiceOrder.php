@@ -26,6 +26,7 @@ final class ServiceOrder extends Model
         'client_name',
         'instrument_description',
         'status',
+        'mode',
         'notes',
         'version',
         'last_modified_by_device',
@@ -43,6 +44,12 @@ final class ServiceOrder extends Model
     public function photos(): HasMany
     {
         return $this->hasMany(ServiceOrderPhoto::class);
+    }
+
+    /** @return HasMany<ServiceOrderMember, $this> */
+    public function members(): HasMany
+    {
+        return $this->hasMany(ServiceOrderMember::class);
     }
 
     /** @return BelongsTo<User, $this> */

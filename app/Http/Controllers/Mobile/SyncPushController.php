@@ -216,6 +216,7 @@ final class SyncPushController extends Controller
         Carbon $incomingUpdatedAt,
     ): array {
         $validStatuses = ['received', 'in_calibration', 'awaiting_approval', 'completed', 'cancelled'];
+        $validModes = ['bench', 'field_vehicle', 'field_umc'];
 
         if ($action === 'create') {
             $clientName = trim((string) ($payload['client_name'] ?? ''));
@@ -230,21 +231,41 @@ final class SyncPushController extends Controller
                 $status = 'received';
             }
 
+            $mode = (string) ($payload['mode'] ?? 'bench');
+            if (! in_array($mode, $validModes, true)) {
+                $mode = 'bench';
+            }
+
+            /** @var list<array{user_id:int|string,role?:string}> $teamMembers */
+            $teamMembers = (array) ($payload['team_members'] ?? []);
+            if (count($teamMembers) > 5) {
+                return ['rejected' => ['local_id' => $localId, 'reason' => 'validation_error']];
+            }
+
             $newId = Str::uuid()->toString();
+            $tenantId = $this->resolveTenantId();
 
             $order = ServiceOrder::create([
                 'id' => $newId,
-                'tenant_id' => $this->resolveTenantId(),
+                'tenant_id' => $tenantId,
                 'user_id' => $user->id,
                 'client_name' => $clientName,
                 'instrument_description' => $instrumentDescription,
                 'status' => $status,
+                'mode' => $mode,
                 'notes' => ($payload['notes'] ?? null) !== null ? (string) $payload['notes'] : null,
                 'version' => 1,
                 'last_modified_by_device' => $deviceId,
                 'created_at' => $incomingUpdatedAt,
                 'updated_at' => $incomingUpdatedAt,
             ]);
+
+            foreach ($teamMembers as $member) {
+                $order->members()->create([
+                    'user_id' => (int) $member['user_id'],
+                    'role' => (string) ($member['role'] ?? 'technician'),
+                ]);
+            }
 
             $syncChange = $this->syncEngine->recordChange(
                 entityType: 'service_order',
@@ -298,14 +319,36 @@ final class SyncPushController extends Controller
                 $status = $order->status;
             }
 
+            $mode = (string) ($payload['mode'] ?? $order->mode);
+            if (! in_array($mode, $validModes, true)) {
+                $mode = $order->mode;
+            }
+
+            /** @var list<array{user_id:int|string,role?:string}>|null $teamMembers */
+            $teamMembers = $payload['team_members'] ?? null;
+            if ($teamMembers !== null && count($teamMembers) > 5) {
+                return ['rejected' => ['local_id' => $localId, 'reason' => 'validation_error']];
+            }
+
             $order->client_name = $clientName;
             $order->instrument_description = $instrumentDescription;
             $order->status = $status;
+            $order->mode = $mode;
             $order->notes = ($payload['notes'] ?? null) !== null ? (string) $payload['notes'] : $order->notes;
             $order->version += 1;
             $order->last_modified_by_device = $deviceId;
             $order->updated_at = $incomingUpdatedAt;
             $order->saveQuietly();
+
+            if ($teamMembers !== null) {
+                $order->members()->delete();
+                foreach ($teamMembers as $member) {
+                    $order->members()->create([
+                        'user_id' => (int) $member['user_id'],
+                        'role' => (string) ($member['role'] ?? 'technician'),
+                    ]);
+                }
+            }
 
             $syncChange = $this->syncEngine->recordChange(
                 entityType: 'service_order',

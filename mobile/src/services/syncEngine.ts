@@ -72,6 +72,14 @@ export type ServiceOrderStatus =
     | 'completed'
     | 'cancelled';
 
+export type ServiceOrderMode = 'bench' | 'field_vehicle' | 'field_umc';
+
+export interface TeamMember {
+    user_id: number;
+    name: string;
+    role: string;
+}
+
 export interface ServiceOrderPhotoRow {
     local_id: string;
     server_id: string | null;
@@ -101,6 +109,8 @@ export interface ServiceOrderRow {
     client_name: string;
     instrument_description: string;
     status: ServiceOrderStatus;
+    mode: ServiceOrderMode;
+    team_members: TeamMember[] | null;
     notes: string | null;
     updated_at: string; // ISO string
     pending_sync: number; // 0 or 1
@@ -256,6 +266,8 @@ class SyncEngineImpl {
                     client_name: String(payload['client_name'] ?? ''),
                     instrument_description: String(payload['instrument_description'] ?? ''),
                     status: (payload['status'] as ServiceOrderStatus | undefined) ?? 'received',
+                    mode: (payload['mode'] as ServiceOrderMode | undefined) ?? 'bench',
+                    team_members: (payload['team_members'] as TeamMember[] | undefined) ?? null,
                     notes: payload['notes'] != null ? String(payload['notes']) : null,
                     updated_at: String(payload['updated_at'] ?? new Date().toISOString()),
                     pending_sync: 1,
@@ -276,6 +288,12 @@ class SyncEngineImpl {
                             status:
                                 (payload['status'] as ServiceOrderStatus | undefined) ??
                                 existing.status,
+                            mode:
+                                (payload['mode'] as ServiceOrderMode | undefined) ??
+                                existing.mode,
+                            team_members:
+                                (payload['team_members'] as TeamMember[] | undefined) ??
+                                existing.team_members,
                             notes:
                                 payload['notes'] != null
                                     ? String(payload['notes'])
@@ -690,13 +708,15 @@ class SyncEngineImpl {
             } else if (action === 'create' || action === 'update') {
                 await db.run(
                     `INSERT INTO service_orders
-                         (id, server_id, client_name, instrument_description, status, notes, updated_at, pending_sync, deleted)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)
+                         (id, server_id, client_name, instrument_description, status, mode, team_members, notes, updated_at, pending_sync, deleted)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
                      ON CONFLICT(id) DO UPDATE SET
                          server_id=excluded.server_id,
                          client_name=excluded.client_name,
                          instrument_description=excluded.instrument_description,
                          status=excluded.status,
+                         mode=excluded.mode,
+                         team_members=excluded.team_members,
                          notes=excluded.notes,
                          updated_at=excluded.updated_at,
                          pending_sync=0,
@@ -707,6 +727,8 @@ class SyncEngineImpl {
                         String(payload?.['client_name'] ?? ''),
                         String(payload?.['instrument_description'] ?? ''),
                         String(payload?.['status'] ?? 'received'),
+                        String(payload?.['mode'] ?? 'bench'),
+                        payload?.['team_members'] != null ? JSON.stringify(payload['team_members']) : null,
                         payload?.['notes'] != null ? String(payload['notes']) : null,
                         String(payload?.['updated_at'] ?? new Date().toISOString()),
                     ],
@@ -733,6 +755,8 @@ class SyncEngineImpl {
                     client_name: String(payload?.['client_name'] ?? ''),
                     instrument_description: String(payload?.['instrument_description'] ?? ''),
                     status: (payload?.['status'] as ServiceOrderStatus | undefined) ?? 'received',
+                    mode: (payload?.['mode'] as ServiceOrderMode | undefined) ?? 'bench',
+                    team_members: (payload?.['team_members'] as TeamMember[] | undefined) ?? null,
                     notes: payload?.['notes'] != null ? String(payload['notes']) : null,
                     updated_at: String(payload?.['updated_at'] ?? new Date().toISOString()),
                     pending_sync: 0,
@@ -756,7 +780,14 @@ class SyncEngineImpl {
             const result = await getSqliteDb().query(
                 `SELECT * FROM service_orders WHERE deleted=0 ORDER BY updated_at DESC;`,
             );
-            return (result.values ?? []) as ServiceOrderRow[];
+            const rows = (result.values ?? []) as ServiceOrderRow[];
+            return rows.map((row) => ({
+                ...row,
+                team_members:
+                    row.team_members != null
+                        ? (JSON.parse(row.team_members as unknown as string) as TeamMember[])
+                        : null,
+            }));
         }
 
         const db = await openIdb();

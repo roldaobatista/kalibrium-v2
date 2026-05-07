@@ -8,9 +8,12 @@ import {
     type ServiceOrderPhotoRow,
     type ServiceOrderRow,
     type ServiceOrderStatus,
+    type ServiceOrderMode,
+    type TeamMember,
 } from '../services/syncEngine';
 import { openIdb } from '../services/db';
 import { secureStorage } from '../services/secureStorage';
+import { fetchTeamMembers, type ApiTeamMember } from '../services/api';
 import './ServiceOrders.css';
 
 const STATUS_OPTIONS: { value: ServiceOrderStatus; label: string }[] = [
@@ -35,6 +38,18 @@ const STATUS_LABEL: Record<ServiceOrderStatus, string> = {
     awaiting_approval: 'Aguardando aprovação',
     completed: 'Concluído',
     cancelled: 'Cancelado',
+};
+
+const MODE_OPTIONS: { value: ServiceOrderMode; label: string }[] = [
+    { value: 'bench', label: 'Bancada' },
+    { value: 'field_vehicle', label: 'Campo — veículo' },
+    { value: 'field_umc', label: 'Campo — UMC' },
+];
+
+const MODE_LABEL: Record<ServiceOrderMode, string> = {
+    bench: 'Bancada',
+    field_vehicle: 'Campo — veículo',
+    field_umc: 'Campo — UMC',
 };
 
 async function getPhotosForOrder(serviceOrderServerId: string): Promise<ServiceOrderPhotoRow[]> {
@@ -62,6 +77,9 @@ const ServiceOrders: React.FC = () => {
     const [clientName, setClientName] = useState('');
     const [instrumentDescription, setInstrumentDescription] = useState('');
     const [status, setStatus] = useState<ServiceOrderStatus>('received');
+    const [mode, setMode] = useState<ServiceOrderMode>('bench');
+    const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+    const [availableTeam, setAvailableTeam] = useState<ApiTeamMember[]>([]);
     const [notes, setNotes] = useState('');
     const [salvando, setSalvando] = useState(false);
     const [erro, setErro] = useState('');
@@ -88,9 +106,21 @@ const ServiceOrders: React.FC = () => {
         setClientName('');
         setInstrumentDescription('');
         setStatus('received');
+        setMode('bench');
+        setTeamMembers([]);
         setNotes('');
         setErro('');
         setModalAberto(true);
+        void loadAvailableTeam();
+    };
+
+    const loadAvailableTeam = async () => {
+        try {
+            const members = await fetchTeamMembers();
+            setAvailableTeam(members);
+        } catch {
+            setAvailableTeam([]);
+        }
     };
 
     const abrirModalEditar = (ordem: ServiceOrderRow) => {
@@ -98,6 +128,8 @@ const ServiceOrders: React.FC = () => {
         setClientName(ordem.client_name);
         setInstrumentDescription(ordem.instrument_description);
         setStatus(ordem.status);
+        setMode(ordem.mode ?? 'bench');
+        setTeamMembers(ordem.team_members ?? []);
         setNotes(ordem.notes ?? '');
         setErro('');
         setFotos([]);
@@ -105,6 +137,7 @@ const ServiceOrders: React.FC = () => {
             void getPhotosForOrder(ordem.server_id).then(setFotos);
         }
         setModalAberto(true);
+        void loadAvailableTeam();
     };
 
     const fecharModal = () => {
@@ -158,6 +191,23 @@ const ServiceOrders: React.FC = () => {
         }
     };
 
+    const toggleTeamMember = (member: ApiTeamMember) => {
+        setTeamMembers((prev) => {
+            const exists = prev.find((m) => m.user_id === member.id);
+            if (exists) {
+                return prev.filter((m) => m.user_id !== member.id);
+            }
+            if (prev.length >= 5) {
+                setErro('Equipe limitada a 5 pessoas.');
+                return prev;
+            }
+            return [
+                ...prev,
+                { user_id: member.id, name: member.name, role: member.role },
+            ];
+        });
+    };
+
     const salvar = async () => {
         if (!clientName.trim()) {
             setErro('O nome do cliente é obrigatório.');
@@ -171,23 +221,20 @@ const ServiceOrders: React.FC = () => {
         setErro('');
         try {
             const agora = new Date().toISOString();
+            const payload: Record<string, unknown> = {
+                client_name: clientName.trim(),
+                instrument_description: instrumentDescription.trim(),
+                status,
+                mode,
+                team_members: teamMembers,
+                notes: notes.trim() || null,
+                updated_at: agora,
+            };
             if (editando) {
-                await syncEngine.recordChange('service_order', 'update', {
-                    id: editando.server_id ?? editando.id,
-                    client_name: clientName.trim(),
-                    instrument_description: instrumentDescription.trim(),
-                    status,
-                    notes: notes.trim() || null,
-                    updated_at: agora,
-                });
+                payload.id = editando.server_id ?? editando.id;
+                await syncEngine.recordChange('service_order', 'update', payload);
             } else {
-                await syncEngine.recordChange('service_order', 'create', {
-                    client_name: clientName.trim(),
-                    instrument_description: instrumentDescription.trim(),
-                    status,
-                    notes: notes.trim() || null,
-                    updated_at: agora,
-                });
+                await syncEngine.recordChange('service_order', 'create', payload);
             }
             fecharModal();
             await carregarOS();
@@ -251,6 +298,9 @@ const ServiceOrders: React.FC = () => {
                                                 {STATUS_LABEL[ordem.status]}
                                             </span>
                                         </div>
+                                        <span className="kb-os-item-modo">
+                                            {MODE_LABEL[ordem.mode ?? 'bench']}
+                                        </span>
                                         <span className="kb-os-item-instrumento">
                                             {ordem.instrument_description}
                                         </span>
@@ -330,6 +380,43 @@ const ServiceOrders: React.FC = () => {
                                 </option>
                             ))}
                         </select>
+                        <select
+                            className="kb-modal-select"
+                            value={mode}
+                            onChange={(e) => setMode(e.target.value as ServiceOrderMode)}
+                            aria-label="Modo de execução"
+                        >
+                            {MODE_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+
+                        <div className="kb-os-equipe">
+                            <p className="kb-os-equipe-titulo">Equipe ({teamMembers.length}/5)</p>
+                            <div className="kb-os-equipe-lista">
+                                {availableTeam.map((member) => {
+                                    const selected = teamMembers.some((m) => m.user_id === member.id);
+                                    return (
+                                        <label
+                                            key={member.id}
+                                            className={`kb-os-equipe-item ${selected ? 'kb-os-equipe-item--selected' : ''}`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selected}
+                                                onChange={() => toggleTeamMember(member)}
+                                                aria-label={`Selecionar ${member.name}`}
+                                            />
+                                            <span className="kb-os-equipe-nome">{member.name}</span>
+                                            <span className="kb-os-equipe-papel">{member.role}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         <textarea
                             className="kb-modal-textarea"
                             placeholder="Observações (opcional)"
