@@ -4,14 +4,11 @@
 
 ## Em andamento
 
--   **Sync de fotos anexadas à OS** — terceira fatia do épico E16. **Pronta para aceite:**
-    1. ✅ Ajustes amarelos resolvidos (escopo do controller + 2 testes de segurança)
-    2. ✅ E2e-aceite completo com 11 prints automatizados (roteiro + imagens em `docs/backlog/aceites/`)
-    3. ✅ Commit `3691cc9` com tudo
+_(vazio — nenhuma história ativa no momento. Próximas frentes dependem de decisão do Roldão.)_
 
 ## Próxima da fila
 
-_(vazio — após fechar os amarelos da história acima e Roldão aceitar, E16 está completo. Próximas frentes dependem de decisão dele.)_
+_(vazio — nenhuma história aguardando aprovação.)_
 
 ---
 
