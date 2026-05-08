@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Mobile\SyncPushRequest;
 use App\Models\Note;
 use App\Models\ServiceOrder;
+use App\Models\ServiceOrderEvent;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\SyncEngine;
@@ -215,7 +216,7 @@ final class SyncPushController extends Controller
         array $payload,
         Carbon $incomingUpdatedAt,
     ): array {
-        $validStatuses = ['received', 'in_calibration', 'awaiting_approval', 'completed', 'cancelled'];
+        $validStatuses = ['received', 'assigned', 'in_progress', 'paused', 'in_calibration', 'awaiting_approval', 'completed', 'cancelled', 'dispatch_started', 'arrived_client', 'left_client'];
         $validModes = ['bench', 'field_vehicle', 'field_umc'];
 
         if ($action === 'create') {
@@ -285,10 +286,13 @@ final class SyncPushController extends Controller
             ]];
         }
 
-        // update — triple barrier: tenant + user + id
+        // update — triple barrier: tenant + ownership/membership + id
         $order = ServiceOrder::where('id', $entityId)
             ->where('tenant_id', $this->resolveTenantId())
-            ->where('user_id', $user->id)
+            ->where(function ($query) use ($user): void {
+                $query->where('user_id', $user->id)
+                    ->orWhereHas('members', fn ($q) => $q->where('user_id', $user->id));
+            })
             ->first();
 
         if (! $order instanceof ServiceOrder) {
@@ -330,6 +334,8 @@ final class SyncPushController extends Controller
                 return ['rejected' => ['local_id' => $localId, 'reason' => 'validation_error']];
             }
 
+            $oldStatus = $order->status;
+
             $order->client_name = $clientName;
             $order->instrument_description = $instrumentDescription;
             $order->status = $status;
@@ -339,6 +345,18 @@ final class SyncPushController extends Controller
             $order->last_modified_by_device = $deviceId;
             $order->updated_at = $incomingUpdatedAt;
             $order->saveQuietly();
+
+            if ($oldStatus !== $status) {
+                ServiceOrderEvent::create([
+                    'id' => (string) Str::uuid(),
+                    'service_order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'event_type' => 'status_change',
+                    'old_value' => $oldStatus,
+                    'new_value' => $status,
+                    'created_at' => $incomingUpdatedAt,
+                ]);
+            }
 
             if ($teamMembers !== null) {
                 $order->members()->delete();

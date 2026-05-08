@@ -52,6 +52,12 @@ final class ServiceOrder extends Model
         return $this->hasMany(ServiceOrderMember::class);
     }
 
+    /** @return HasMany<ServiceOrderEvent, $this> */
+    public function events(): HasMany
+    {
+        return $this->hasMany(ServiceOrderEvent::class)->orderBy('created_at', 'desc');
+    }
+
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {

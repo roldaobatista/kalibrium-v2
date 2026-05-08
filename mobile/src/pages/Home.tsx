@@ -208,6 +208,27 @@ const Home: React.FC = () => {
                             <p className="kb-card-desc">Em breve, suas tarefas aparecem aqui.</p>
                         </div>
 
+                        {/* Card: Minha fila */}
+                        <div
+                            className="kb-card kb-card--clicavel"
+                            onClick={() => history.push('/queue')}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') history.push('/queue');
+                            }}
+                            aria-label="Ver minha fila"
+                        >
+                            <div className="kb-card-titulo">
+                                <IonIcon icon={clipboardOutline} className="kb-card-icone" />
+                                Minha fila
+                            </div>
+                            <p className="kb-card-valor">
+                                {ordens.filter((o) => o.status !== 'completed' && o.status !== 'cancelled').length} ordens ativas
+                            </p>
+                            <p className="kb-card-desc">Toque para ver suas ordens e atualizar status.</p>
+                        </div>
+
                         {/* Card: Anotações */}
                         <div
                             className="kb-card kb-card--clicavel"

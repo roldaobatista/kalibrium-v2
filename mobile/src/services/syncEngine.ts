@@ -67,10 +67,16 @@ export interface NoteRow {
 
 export type ServiceOrderStatus =
     | 'received'
+    | 'assigned'
+    | 'in_progress'
+    | 'paused'
     | 'in_calibration'
     | 'awaiting_approval'
     | 'completed'
-    | 'cancelled';
+    | 'cancelled'
+    | 'dispatch_started'
+    | 'arrived_client'
+    | 'left_client';
 
 export type ServiceOrderMode = 'bench' | 'field_vehicle' | 'field_umc';
 
@@ -103,9 +109,21 @@ export interface UploadOutboxEntry {
     attempts: number;
 }
 
+export interface ServiceOrderEventRow {
+    id: string;
+    service_order_id: string;
+    user_id: string | null;
+    event_type: 'status_change' | 'note_added' | 'photo_added' | 'team_changed';
+    old_value: string | null;
+    new_value: string | null;
+    metadata: Record<string, unknown> | null;
+    created_at: string;
+}
+
 export interface ServiceOrderRow {
     id: string;
     server_id: string | null;
+    user_id: number | null;
     client_name: string;
     instrument_description: string;
     status: ServiceOrderStatus;
@@ -212,13 +230,16 @@ class SyncEngineImpl {
             if (entry.action === 'create') {
                 await db.run(
                     `INSERT OR REPLACE INTO service_orders
-                         (id, server_id, client_name, instrument_description, status, notes, updated_at, pending_sync, deleted)
-                     VALUES (?, NULL, ?, ?, ?, ?, ?, 1, 0);`,
+                         (id, server_id, user_id, client_name, instrument_description, status, mode, team_members, notes, updated_at, pending_sync, deleted)
+                     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0);`,
                     [
                         entry.local_id,
+                        payload['user_id'] != null ? Number(payload['user_id']) : null,
                         String(payload['client_name'] ?? ''),
                         String(payload['instrument_description'] ?? ''),
                         String(payload['status'] ?? 'received'),
+                        String(payload['mode'] ?? 'bench'),
+                        payload['team_members'] != null ? JSON.stringify(payload['team_members']) : null,
                         payload['notes'] != null ? String(payload['notes']) : null,
                         String(payload['updated_at'] ?? new Date().toISOString()),
                     ],
@@ -226,12 +247,14 @@ class SyncEngineImpl {
             } else if (entry.action === 'update') {
                 await db.run(
                     `UPDATE service_orders
-                     SET client_name=?, instrument_description=?, status=?, notes=?, updated_at=?, pending_sync=1
+                     SET client_name=?, instrument_description=?, status=?, mode=?, team_members=?, notes=?, updated_at=?, pending_sync=1
                      WHERE id=? OR server_id=?;`,
                     [
                         String(payload['client_name'] ?? ''),
                         String(payload['instrument_description'] ?? ''),
                         String(payload['status'] ?? 'received'),
+                        String(payload['mode'] ?? 'bench'),
+                        payload['team_members'] != null ? JSON.stringify(payload['team_members']) : null,
                         payload['notes'] != null ? String(payload['notes']) : null,
                         String(payload['updated_at'] ?? new Date().toISOString()),
                         entry.entity_id,
@@ -263,6 +286,7 @@ class SyncEngineImpl {
                 soStore.put({
                     id: entry.local_id,
                     server_id: null,
+                    user_id: payload['user_id'] != null ? Number(payload['user_id']) : null,
                     client_name: String(payload['client_name'] ?? ''),
                     instrument_description: String(payload['instrument_description'] ?? ''),
                     status: (payload['status'] as ServiceOrderStatus | undefined) ?? 'received',
@@ -569,6 +593,12 @@ class SyncEngineImpl {
                     change.action,
                     change.payload,
                 );
+            } else if (change.entity_type === 'service_order_event') {
+                await this.applyServiceOrderEventChange(
+                    change.entity_id,
+                    change.action,
+                    change.payload,
+                );
             }
         }
 
@@ -579,6 +609,59 @@ class SyncEngineImpl {
         // Se tem mais, continua paginando
         if (data.has_more) {
             await this.pull();
+        }
+    }
+
+    private async applyServiceOrderEventChange(
+        serverId: string,
+        action: string,
+        payload: Record<string, unknown> | null,
+    ): Promise<void> {
+        if (action !== 'create' && action !== 'update') return;
+
+        const eventRow: ServiceOrderEventRow = {
+            id: serverId,
+            service_order_id: String(payload?.['service_order_id'] ?? ''),
+            user_id: payload?.['user_id'] != null ? String(payload['user_id']) : null,
+            event_type: (payload?.['event_type'] as ServiceOrderEventRow['event_type'] | undefined) ?? 'status_change',
+            old_value: payload?.['old_value'] != null ? String(payload['old_value']) : null,
+            new_value: payload?.['new_value'] != null ? String(payload['new_value']) : null,
+            metadata: payload?.['metadata'] != null ? (payload['metadata'] as Record<string, unknown>) : null,
+            created_at: String(payload?.['created_at'] ?? new Date().toISOString()),
+        };
+
+        if (Capacitor.isNativePlatform()) {
+            const db = getSqliteDb();
+            await db.run(
+                `INSERT INTO service_order_events (id, service_order_id, user_id, event_type, old_value, new_value, metadata, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                 ON CONFLICT(id) DO UPDATE SET
+                     service_order_id=excluded.service_order_id,
+                     user_id=excluded.user_id,
+                     event_type=excluded.event_type,
+                     old_value=excluded.old_value,
+                     new_value=excluded.new_value,
+                     metadata=excluded.metadata,
+                     created_at=excluded.created_at;`,
+                [
+                    eventRow.id,
+                    eventRow.service_order_id,
+                    eventRow.user_id,
+                    eventRow.event_type,
+                    eventRow.old_value,
+                    eventRow.new_value,
+                    eventRow.metadata != null ? JSON.stringify(eventRow.metadata) : null,
+                    eventRow.created_at,
+                ],
+            );
+        } else {
+            const db = await openIdb();
+            await new Promise<void>((resolve, reject) => {
+                const tx = db.transaction('service_order_events', 'readwrite');
+                tx.objectStore('service_order_events').put(eventRow);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
         }
     }
 
@@ -698,6 +781,8 @@ class SyncEngineImpl {
         action: string,
         payload: Record<string, unknown> | null,
     ): Promise<void> {
+        const incomingStatus = (payload?.['status'] as ServiceOrderStatus | undefined) ?? 'received';
+
         if (Capacitor.isNativePlatform()) {
             const db = getSqliteDb();
             if (action === 'delete') {
@@ -706,12 +791,19 @@ class SyncEngineImpl {
                     [serverId],
                 );
             } else if (action === 'create' || action === 'update') {
+                const existingResult = await db.query(
+                    `SELECT status FROM service_orders WHERE id=? OR server_id=?;`,
+                    [serverId, serverId],
+                );
+                const oldStatus = (existingResult.values?.[0] as { status: string } | undefined)?.status ?? null;
+
                 await db.run(
                     `INSERT INTO service_orders
-                         (id, server_id, client_name, instrument_description, status, mode, team_members, notes, updated_at, pending_sync, deleted)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
+                         (id, server_id, user_id, client_name, instrument_description, status, mode, team_members, notes, updated_at, pending_sync, deleted)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
                      ON CONFLICT(id) DO UPDATE SET
                          server_id=excluded.server_id,
+                         user_id=excluded.user_id,
                          client_name=excluded.client_name,
                          instrument_description=excluded.instrument_description,
                          status=excluded.status,
@@ -724,19 +816,34 @@ class SyncEngineImpl {
                     [
                         serverId,
                         serverId,
+                        payload?.['user_id'] != null ? Number(payload['user_id']) : null,
                         String(payload?.['client_name'] ?? ''),
                         String(payload?.['instrument_description'] ?? ''),
-                        String(payload?.['status'] ?? 'received'),
+                        String(incomingStatus),
                         String(payload?.['mode'] ?? 'bench'),
                         payload?.['team_members'] != null ? JSON.stringify(payload['team_members']) : null,
                         payload?.['notes'] != null ? String(payload['notes']) : null,
                         String(payload?.['updated_at'] ?? new Date().toISOString()),
                     ],
                 );
+
+                if (oldStatus !== null && oldStatus !== incomingStatus) {
+                    await db.run(
+                        `INSERT INTO service_order_events (id, service_order_id, user_id, event_type, old_value, new_value, metadata, created_at)
+                         VALUES (?, ?, NULL, 'status_change', ?, ?, NULL, ?);`,
+                        [
+                            generateUlid(),
+                            serverId,
+                            oldStatus,
+                            incomingStatus,
+                            String(payload?.['updated_at'] ?? new Date().toISOString()),
+                        ],
+                    );
+                }
             }
         } else {
             const db = await openIdb();
-            const tx = db.transaction('service_orders', 'readwrite');
+            const tx = db.transaction(['service_orders', 'service_order_events'], 'readwrite');
             const store = tx.objectStore('service_orders');
 
             if (action === 'delete') {
@@ -749,19 +856,39 @@ class SyncEngineImpl {
                     }
                 };
             } else {
-                store.put({
-                    id: serverId,
-                    server_id: serverId,
-                    client_name: String(payload?.['client_name'] ?? ''),
-                    instrument_description: String(payload?.['instrument_description'] ?? ''),
-                    status: (payload?.['status'] as ServiceOrderStatus | undefined) ?? 'received',
-                    mode: (payload?.['mode'] as ServiceOrderMode | undefined) ?? 'bench',
-                    team_members: (payload?.['team_members'] as TeamMember[] | undefined) ?? null,
-                    notes: payload?.['notes'] != null ? String(payload['notes']) : null,
-                    updated_at: String(payload?.['updated_at'] ?? new Date().toISOString()),
-                    pending_sync: 0,
-                    deleted: 0,
-                } satisfies ServiceOrderRow);
+                const existingReq = store.get(serverId);
+                existingReq.onsuccess = () => {
+                    const existing = existingReq.result as ServiceOrderRow | undefined;
+                    const oldStatus = existing?.status ?? null;
+
+                    store.put({
+                        id: serverId,
+                        server_id: serverId,
+                        user_id: payload?.['user_id'] != null ? Number(payload['user_id']) : null,
+                        client_name: String(payload?.['client_name'] ?? ''),
+                        instrument_description: String(payload?.['instrument_description'] ?? ''),
+                        status: incomingStatus,
+                        mode: (payload?.['mode'] as ServiceOrderMode | undefined) ?? 'bench',
+                        team_members: (payload?.['team_members'] as TeamMember[] | undefined) ?? null,
+                        notes: payload?.['notes'] != null ? String(payload['notes']) : null,
+                        updated_at: String(payload?.['updated_at'] ?? new Date().toISOString()),
+                        pending_sync: 0,
+                        deleted: 0,
+                    } satisfies ServiceOrderRow);
+
+                    if (oldStatus !== null && oldStatus !== incomingStatus) {
+                        tx.objectStore('service_order_events').put({
+                            id: generateUlid(),
+                            service_order_id: serverId,
+                            user_id: null,
+                            event_type: 'status_change',
+                            old_value: oldStatus,
+                            new_value: incomingStatus,
+                            metadata: null,
+                            created_at: String(payload?.['updated_at'] ?? new Date().toISOString()),
+                        } satisfies ServiceOrderEventRow);
+                    }
+                };
             }
 
             await new Promise<void>((resolve, reject) => {
@@ -804,6 +931,91 @@ class SyncEngineImpl {
             };
             req.onerror = () => reject(req.error);
         });
+    }
+
+    async getServiceOrderById(id: string): Promise<ServiceOrderRow | null> {
+        if (Capacitor.isNativePlatform()) {
+            const result = await getSqliteDb().query(
+                `SELECT * FROM service_orders WHERE (id=? OR server_id=?) AND deleted=0;`,
+                [id, id],
+            );
+            const row = (result.values?.[0] as ServiceOrderRow | undefined) ?? null;
+            if (row && row.team_members != null) {
+                return {
+                    ...row,
+                    team_members: JSON.parse(row.team_members as unknown as string) as TeamMember[],
+                };
+            }
+            return row;
+        }
+
+        const db = await openIdb();
+        return new Promise((resolve, reject) => {
+            const req = db.transaction('service_orders', 'readonly').objectStore('service_orders').get(id);
+            req.onsuccess = () => {
+                const row = req.result as ServiceOrderRow | undefined;
+                resolve(row && !row.deleted ? row : null);
+            };
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async getServiceOrderEvents(serviceOrderId: string): Promise<ServiceOrderEventRow[]> {
+        if (Capacitor.isNativePlatform()) {
+            const result = await getSqliteDb().query(
+                `SELECT * FROM service_order_events WHERE service_order_id=? ORDER BY created_at DESC;`,
+                [serviceOrderId],
+            );
+            return (result.values ?? []) as ServiceOrderEventRow[];
+        }
+
+        const db = await openIdb();
+        return new Promise((resolve, reject) => {
+            const req = db
+                .transaction('service_order_events', 'readonly')
+                .objectStore('service_order_events')
+                .getAll();
+            req.onsuccess = () => {
+                const all = (req.result as ServiceOrderEventRow[])
+                    .filter((e) => e.service_order_id === serviceOrderId)
+                    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+                resolve(all);
+            };
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async recordServiceOrderEvent(event: Omit<ServiceOrderEventRow, 'id'>): Promise<string> {
+        const id = generateUlid();
+        const row: ServiceOrderEventRow = { ...event, id };
+
+        if (Capacitor.isNativePlatform()) {
+            const db = getSqliteDb();
+            await db.run(
+                `INSERT INTO service_order_events (id, service_order_id, user_id, event_type, old_value, new_value, metadata, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+                [
+                    row.id,
+                    row.service_order_id,
+                    row.user_id,
+                    row.event_type,
+                    row.old_value,
+                    row.new_value,
+                    row.metadata != null ? JSON.stringify(row.metadata) : null,
+                    row.created_at,
+                ],
+            );
+        } else {
+            const db = await openIdb();
+            await new Promise<void>((resolve, reject) => {
+                const tx = db.transaction('service_order_events', 'readwrite');
+                tx.objectStore('service_order_events').put(row);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        return id;
     }
 
     private async getSyncCursor(): Promise<string | null> {

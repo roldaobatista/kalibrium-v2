@@ -23,7 +23,7 @@ import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacito
 const DB_NAME = 'kalibrium.db';
 const PREF_KEY = 'kalibrium.db.key';
 const IDB_DB_NAME = 'kalibrium';
-const IDB_VERSION = 5;
+const IDB_VERSION = 6;
 
 // ---------------------------------------------------------------------------
 // SQLite — conexão única
@@ -103,6 +103,7 @@ export async function initDb(): Promise<void> {
         CREATE TABLE IF NOT EXISTS service_orders (
             id                     TEXT PRIMARY KEY,
             server_id              TEXT,
+            user_id                INTEGER,
             client_name            TEXT NOT NULL,
             instrument_description TEXT NOT NULL,
             status                 TEXT NOT NULL DEFAULT 'received',
@@ -114,6 +115,12 @@ export async function initDb(): Promise<void> {
             deleted                INTEGER NOT NULL DEFAULT 0
         );
     `);
+    // Migração leve: adiciona user_id se a tabela já existia sem a coluna
+    try {
+        await db.execute(`ALTER TABLE service_orders ADD COLUMN user_id INTEGER;`);
+    } catch {
+        // ignora se coluna já existe
+    }
     await db.execute(`
         CREATE TABLE IF NOT EXISTS service_order_photos (
             local_id                  TEXT PRIMARY KEY,
@@ -138,6 +145,21 @@ export async function initDb(): Promise<void> {
             created_at             INTEGER NOT NULL,
             attempts               INTEGER NOT NULL DEFAULT 0
         );
+    `);
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS service_order_events (
+            id                 TEXT PRIMARY KEY,
+            service_order_id   TEXT NOT NULL,
+            user_id            TEXT,
+            event_type         TEXT NOT NULL,
+            old_value          TEXT,
+            new_value          TEXT,
+            metadata           TEXT,
+            created_at         TEXT NOT NULL
+        );
+    `);
+    await db.execute(`
+        CREATE INDEX IF NOT EXISTS idx_events_so ON service_order_events(service_order_id);
     `);
 
     _sqliteConn = db;
@@ -206,6 +228,10 @@ export function openIdb(): Promise<IDBDatabase> {
                 // Schema v5: service_orders ganha mode + team_members
                 // IDB não permite alterar object store existente; dados antigos continuam funcionando
                 // (mode default 'bench', team_members undefined → tratado como vazio)
+            }
+            if (oldVer < 6) {
+                db.createObjectStore('service_order_events', { keyPath: 'id' });
+                // service_orders já existe; user_id será adicionado implicitamente aos objetos
             }
         };
 

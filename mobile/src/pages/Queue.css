@@ -1,0 +1,207 @@
+/* Queue page — Minha fila de ordens de serviço */
+
+.kb-queue-page {
+    --background: var(--kb-neutral-50);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.kb-queue-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 16px 12px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.kb-queue-voltar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+}
+
+.kb-queue-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+    flex: 1;
+}
+
+.kb-queue-contagem {
+    background: #eff6ff;
+    color: #1e40af;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.kb-queue-filtros {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+.kb-queue-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.kb-queue-filtro--ativo {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+.kb-queue-content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.kb-queue-content {
+    padding: 16px;
+    padding-bottom: 96px;
+}
+
+.kb-queue-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.kb-queue-card {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.kb-queue-card-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.kb-queue-card-cliente {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kb-queue-card-modo {
+    font-size: 11px;
+    color: #2563eb;
+    font-weight: 500;
+    background: #eff6ff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    align-self: flex-start;
+}
+
+.kb-queue-card-instrumento {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.kb-queue-card-data {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.kb-queue-card-pendente {
+    font-size: 11px;
+    color: #b45309;
+    margin-top: 2px;
+}
+
+/* Badges de status */
+.kb-queue-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.kb-queue-badge--recebido {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.kb-queue-badge--andamento {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.kb-queue-badge--pausado {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.kb-queue-badge--calibrando {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.kb-queue-badge--aguardando {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+.kb-queue-badge--concluido {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.kb-queue-badge--cancelado {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.kb-queue-badge--despachado {
+    background: #e0e7ff;
+    color: #3730a3;
+}

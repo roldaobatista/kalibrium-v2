@@ -1,0 +1,303 @@
+/* ServiceOrderDetail page — Detalhes da OS e timeline */
+
+.kb-detail-page {
+    --background: var(--kb-neutral-50);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.kb-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 16px 12px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.kb-detail-voltar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+}
+
+.kb-detail-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+    flex: 1;
+}
+
+.kb-detail-content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.kb-detail-content {
+    padding: 16px;
+    padding-bottom: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Card principal */
+.kb-detail-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.kb-detail-card-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.kb-detail-card-cliente {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kb-detail-card-modo {
+    font-size: 11px;
+    color: #2563eb;
+    font-weight: 500;
+    background: #eff6ff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    align-self: flex-start;
+}
+
+.kb-detail-card-instrumento {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.kb-detail-card-notas {
+    font-size: 13px;
+    color: #374151;
+    margin: 4px 0 0;
+    padding: 8px;
+    background: #f9fafb;
+    border-radius: 6px;
+    line-height: 1.4;
+}
+
+.kb-detail-card-pendente {
+    font-size: 11px;
+    color: #b45309;
+    margin-top: 4px;
+}
+
+/* Badges */
+.kb-detail-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.kb-detail-badge--recebido {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.kb-detail-badge--andamento {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.kb-detail-badge--pausado {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.kb-detail-badge--calibrando {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.kb-detail-badge--aguardando {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+.kb-detail-badge--concluido {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.kb-detail-badge--cancelado {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.kb-detail-badge--despachado {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+/* Equipe */
+.kb-detail-equipe {
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.kb-detail-equipe-titulo {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.kb-detail-equipe-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.kb-detail-equipe-item {
+    font-size: 12px;
+    color: #374151;
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Ações */
+.kb-detail-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.kb-detail-acao {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s;
+}
+
+.kb-detail-acao:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.kb-detail-acao--primaria {
+    background: #2563eb;
+    color: #fff;
+}
+
+.kb-detail-acao--secundaria {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Timeline */
+.kb-detail-timeline {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.kb-detail-timeline-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 12px;
+}
+
+.kb-detail-timeline-vazio {
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+    padding: 16px 0;
+}
+
+.kb-detail-timeline-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.kb-detail-timeline-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    position: relative;
+}
+
+.kb-detail-timeline-item:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.kb-detail-timeline-ponto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2563eb;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.kb-detail-timeline-conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.kb-detail-timeline-tipo {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.kb-detail-timeline-valores {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.kb-detail-timeline-data {
+    font-size: 11px;
+    color: #9ca3af;
+}

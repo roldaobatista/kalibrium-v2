@@ -18,26 +18,44 @@ import './ServiceOrders.css';
 
 const STATUS_OPTIONS: { value: ServiceOrderStatus; label: string }[] = [
     { value: 'received', label: 'Recebido' },
+    { value: 'assigned', label: 'Atribuído' },
+    { value: 'in_progress', label: 'Em andamento' },
+    { value: 'paused', label: 'Pausado' },
     { value: 'in_calibration', label: 'Em calibração' },
     { value: 'awaiting_approval', label: 'Aguardando aprovação' },
     { value: 'completed', label: 'Concluído' },
     { value: 'cancelled', label: 'Cancelado' },
+    { value: 'dispatch_started', label: 'Despachado' },
+    { value: 'arrived_client', label: 'No cliente' },
+    { value: 'left_client', label: 'Saindo do cliente' },
 ];
 
 const STATUS_CLASS: Record<ServiceOrderStatus, string> = {
     received: 'kb-os-badge--recebido',
+    assigned: 'kb-os-badge--recebido',
+    in_progress: 'kb-os-badge--andamento',
+    paused: 'kb-os-badge--pausado',
     in_calibration: 'kb-os-badge--calibrando',
     awaiting_approval: 'kb-os-badge--aguardando',
     completed: 'kb-os-badge--concluido',
     cancelled: 'kb-os-badge--cancelado',
+    dispatch_started: 'kb-os-badge--despachado',
+    arrived_client: 'kb-os-badge--andamento',
+    left_client: 'kb-os-badge--andamento',
 };
 
 const STATUS_LABEL: Record<ServiceOrderStatus, string> = {
     received: 'Recebido',
+    assigned: 'Atribuído',
+    in_progress: 'Em andamento',
+    paused: 'Pausado',
     in_calibration: 'Em calibração',
     awaiting_approval: 'Aguardando aprovação',
     completed: 'Concluído',
     cancelled: 'Cancelado',
+    dispatch_started: 'Despachado',
+    arrived_client: 'No cliente',
+    left_client: 'Saindo do cliente',
 };
 
 const MODE_OPTIONS: { value: ServiceOrderMode; label: string }[] = [

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\MobileDeviceStatus;
 use App\Models\MobileDevice;
 use App\Models\ServiceOrder;
+use App\Models\ServiceOrderEvent;
 use App\Models\SyncChange;
 use App\Models\Tenant;
 use App\Models\TenantUser;
@@ -656,4 +657,54 @@ test('api mobile team retorna membros ativos do tenant', function (): void {
 
     $ids = array_column($response->json('members'), 'id');
     expect($ids)->toContain($user->id, $manager->id);
+});
+test('push update de OS com mudanca de status cria ServiceOrderEvent', function (): void {
+    $tenant = so_tenant();
+    $user = so_technician($tenant);
+    $token = so_token($user, $tenant);
+
+    so_set_context($tenant);
+
+    $order = ServiceOrder::withoutGlobalScope('current_tenant')->create([
+        'id' => (string) Str::uuid(),
+        'tenant_id' => $tenant->id,
+        'user_id' => $user->id,
+        'client_name' => 'Cliente Evento',
+        'instrument_description' => 'Instrumento Evento',
+        'status' => 'received',
+        'version' => 1,
+        'updated_at' => now()->subMinutes(10),
+        'created_at' => now()->subMinutes(10),
+    ]);
+
+    $change = so_create_payload([
+        'action' => 'update',
+        'entity_id' => $order->id,
+        'payload' => [
+            'client_name' => 'Cliente Evento',
+            'instrument_description' => 'Instrumento Evento',
+            'status' => 'in_progress',
+            'updated_at' => now()->toIso8601String(),
+        ],
+    ]);
+
+    $response = $this->withToken($token)
+        ->withHeader('X-Device-Id', 'device-so-test')
+        ->postJson('/api/mobile/sync/push', [
+            'device_id' => 'device-so-test',
+            'changes' => [$change],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'applied');
+
+    $order->refresh();
+    expect($order->status)->toBe('in_progress');
+
+    $event = ServiceOrderEvent::where('service_order_id', $order->id)->first();
+    expect($event)->not->toBeNull();
+    expect($event->event_type)->toBe('status_change');
+    expect($event->old_value)->toBe('received');
+    expect($event->new_value)->toBe('in_progress');
+    expect($event->user_id)->toBe($user->id);
 });

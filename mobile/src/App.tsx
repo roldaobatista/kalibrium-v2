@@ -6,6 +6,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Notes from './pages/Notes';
+import Queue from './pages/Queue';
+import ServiceOrderDetail from './pages/ServiceOrderDetail';
 import ServiceOrders from './pages/ServiceOrders';
 
 /* Core CSS required for Ionic components to work properly */
@@ -58,6 +60,12 @@ const App: React.FC = () => (
                 </Route>
                 <Route exact path="/service-orders">
                     <ServiceOrders />
+                </Route>
+                <Route exact path="/queue">
+                    <Queue />
+                </Route>
+                <Route exact path="/service-order/:id">
+                    <ServiceOrderDetail />
                 </Route>
                 <Route exact path="/blocked">
                     <Blocked />
